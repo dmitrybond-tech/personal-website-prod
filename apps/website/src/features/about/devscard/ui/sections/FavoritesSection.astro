@@ -1,0 +1,14 @@
+---
+import type { FavoritesSection } from '../../types/sections/favorites-section.types';
+import SectionCard from '../SectionCard.astro';
+
+export interface Props extends FavoritesSection {}
+
+const { config } = Astro.props;
+---
+
+<SectionCard {...config}>
+  <div class="text-gray-500 dark:text-gray-400">
+    Favorites section content will be implemented here
+  </div>
+</SectionCard>

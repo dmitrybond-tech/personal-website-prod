@@ -1,0 +1,24 @@
+---
+import type { SectionConfig } from '../types/shared';
+import Typography from './Typography.astro';
+
+export interface Props extends SectionConfig {
+  className?: string;
+  hideTitle?: boolean;
+}
+
+const { title, slug, hideTitle, className, visible } = Astro.props;
+---
+
+{
+  visible && (
+    <div
+      id={slug}
+      data-type="section"
+      class:list={['flex flex-col gap-6 rounded-2xl bg-white p-8 shadow-md dark:bg-gray-800', className]}
+    >
+      {!hideTitle && <Typography variant="section-title">{title}</Typography>}
+      <slot />
+    </div>
+  )
+}

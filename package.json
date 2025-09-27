@@ -1,0 +1,35 @@
+{
+  "name": "personal-website-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "cv:build": "cd apps/CV/devscard && npm ci && npm run build",
+    "cv:sync": "node scripts/sync-cv-to-website.cjs",
+    "cv:publish": "cross-env CV_BASE=/cv/ npm run cv:build && npm run cv:sync",
+    "cv:vanilla:build": "cd apps/CV/devscard_vanilla && npm ci && npm run build",
+    "cv:vanilla:sync": "node scripts/sync-cv-vanilla.cjs",
+    "cv:vanilla:publish": "cross-env CV_BASE=/cv_vanilla/ npm run cv:vanilla:build && npm run cv:vanilla:sync",
+    "cv:en:build": "cd apps/CV/devscard_en && npm ci && npm run build",
+    "cv:ru:build": "cd apps/CV/devscard_ru && npm ci && npm run build",
+    "cv:en:sync": "node scripts/sync-cv.cjs en",
+    "cv:ru:sync": "node scripts/sync-cv.cjs ru",
+    "cv:en:publish": "cross-env CV_BASE=/cv_en/ npm run cv:en:build && npm run cv:en:sync",
+    "cv:ru:publish": "cross-env CV_BASE=/cv_ru/ npm run cv:ru:build && npm run cv:ru:sync",
+    "cv:publish:all": "npm run cv:en:publish && npm run cv:ru:publish",
+    "website:install": "cd apps/website && npm install",
+    "website:dev": "cd apps/website && npm run dev",
+    "website:build": "cd apps/website && npm run build",
+    "dev:all": "concurrently \"npm run cv:en:dev\" \"npm run cv:ru:dev\" \"npm run website:dev\"",
+    "cv:en:dev": "cd apps/CV/devscard_en && npm run dev",
+    "cv:ru:dev": "cd apps/CV/devscard_ru && npm run dev"
+  },
+  "engines": {
+    "node": ">=18",
+    "npm": ">=9"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "concurrently": "^8.2.2"
+  }
+}
+

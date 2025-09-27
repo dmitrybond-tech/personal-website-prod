@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '@widgets/navbar/ui/Navbar.astro';
+import ThemeToggle from '@features/theme-toggle/ui/ThemeToggle.astro';
+import AboutShell from '../../features/about/devscard/ui/AboutShell.astro';
+import { getDevscardData } from '../../features/about/devscard/lib/getDevscardData';
+
+const locale = 'en';
+const devscardData = getDevscardData(locale);
+---
+
+<BaseLayout>
+  <Navbar locale={locale} />
+  <AboutShell locale={locale} data={devscardData} />
+  <ThemeToggle />
+</BaseLayout>
+
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Ensure proper spacing for sticky navbar */
+  body {
+    margin: 0;
+    padding: 0;
+  }
+</style>
+
+<script>
+  // Redirect from #bookme to /bookme page
+  if (typeof window !== 'undefined' && location.hash === '#bookme') {
+    location.replace('/en/bookme');
+  }
+</script>

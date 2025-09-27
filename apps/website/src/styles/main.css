@@ -1,0 +1,55 @@
+/* DevsCard styles */
+@import './devscard.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Базовые стили из devscard */
+@font-face {
+  font-family: 'Inter var';
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/Inter-roman.var.woff2') format('woff2');
+}
+
+/* Кастомные CSS-переменные для цветовой схемы */
+:root {
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+  --color-primary-950: #1e1b4b;
+  
+  /* DevsCard background color */
+  --site-bg: #F8F8F8;
+}
+
+/* Базовые стили для body */
+html, body {
+  background: var(--site-bg);
+}
+
+body {
+  font-family: 'Inter var', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-variation-settings: normal;
+}
+
+/* Утилиты для анимаций */
+.animate-show {
+  animation: show 225ms ease-in-out;
+}
+
+@keyframes show {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+

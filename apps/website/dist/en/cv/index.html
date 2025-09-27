@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CV</title><meta name="description" content="Resume"><meta name="theme-color" content="#ffffff"><!-- Canonical and alternate links --><link rel="canonical" href="https://example.com/en/cv/"><link rel="alternate" hrefLang="en" href="https://example.com/en/cv/"><link rel="alternate" hrefLang="ru" href="https://example.com/ru/cv/"><link rel="alternate" hrefLang="x-default" href="https://example.com/en/cv/"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://example.com/en/cv/"><meta property="og:title" content="CV"><meta property="og:description" content="Resume"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://example.com/en/cv/"><meta property="twitter:title" content="CV"><meta property="twitter:description" content="Resume"><!-- Custom meta tags --><!-- Font Awesome for icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" href="/_astro/about.i5xtpZS5.css">
+<link rel="stylesheet" href="/_astro/about.nZX2XIjc.css">
+<style>.cv-frame[data-astro-cid-x5eudxzy]{block-size:auto}
+</style><script type="module" src="/_astro/hoisted.CiCB0BFi.js"></script></head> <body class="min-h-screen bg-white text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">  <iframe id="cv-3h0wngmv1ha" src="/cv_ru/index.html" style="display:block;width:100%;min-height:600px;border:0;overflow:hidden;" class="cv-frame" data-astro-cid-x5eudxzy></iframe>    <!-- Initialize theme --> <script>
+      (() => {
+        const getInitialTheme = () => {
+          if (typeof localStorage !== 'undefined') {
+            const stored = localStorage.getItem('theme');
+            if (stored === 'light' || stored === 'dark') {
+              return stored;
+            }
+            
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              return 'dark';
+            }
+          }
+          return 'light';
+        };
+
+        const applyTheme = (theme) => {
+          if (typeof document === 'undefined') return;
+          
+          const html = document.documentElement;
+          html.setAttribute('data-theme', theme);
+          
+          if (theme === 'dark') {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+          
+          const themeMeta = document.querySelector('meta[name="theme-color"]');
+          if (themeMeta) {
+            themeMeta.content = theme === 'dark' ? '#1a202c' : '#ffffff';
+          }
+        };
+
+        const theme = getInitialTheme();
+        applyTheme(theme);
+      })();
+    </script> <!-- Script for locale switching -->  </body> </html>

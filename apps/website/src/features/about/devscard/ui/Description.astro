@@ -1,0 +1,11 @@
+---
+export interface Props {
+  content: string;
+}
+
+const { content } = Astro.props;
+---
+
+<div class="prose prose-sm max-w-none dark:prose-invert">
+  <div set:html={content} />
+</div>

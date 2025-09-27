@@ -1,0 +1,14 @@
+---
+import type { ExperienceSection } from '../../types/sections/experience-section.types';
+import SectionCard from '../SectionCard.astro';
+
+export interface Props extends ExperienceSection {}
+
+const { config } = Astro.props;
+---
+
+<SectionCard {...config}>
+  <div class="text-gray-500 dark:text-gray-400">
+    Experience section content will be implemented here
+  </div>
+</SectionCard>

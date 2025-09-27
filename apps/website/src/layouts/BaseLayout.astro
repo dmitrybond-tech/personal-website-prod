@@ -1,0 +1,120 @@
+---
+import "../styles/main.css";
+import { getLocaleFromPath, switchLocale } from '../app/shared/lib/locale';
+import { getInitialTheme, applyTheme } from '../app/shared/lib/theme';
+
+interface Props {
+  title?: string;
+  description?: string;
+  lang?: 'en' | 'ru';
+  meta?: Record<string, string>;
+}
+
+const { 
+  lang = 'en', 
+  title = '', 
+  description = '', 
+  meta = {}
+} = Astro.props as Props;
+
+const url = Astro.url;
+const locale = getLocaleFromPath(url.pathname);
+const site = 'https://example.com'; // TODO: заменить на реальный домен
+const altEn = switchLocale(url, 'en');
+const altRu = switchLocale(url, 'ru');
+const canonical = locale === 'en' ? `${site}${altEn}` : `${site}${altRu}`;
+---
+
+<!DOCTYPE html>
+<html lang={Astro.url.pathname.startsWith('/ru') ? 'ru' : 'en'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- Canonical and alternate links -->
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hrefLang="en" href={`${site}${altEn}`} />
+    <link rel="alternate" hrefLang="ru" href={`${site}${altRu}`} />
+    <link rel="alternate" hrefLang="x-default" href={`${site}${altEn}`} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonical} />
+    <meta property="twitter:title" content={title} />
+    {description && <meta property="twitter:description" content={description} />}
+
+    <!-- Custom meta tags -->
+    {Object.entries(meta).map(([key, value]) => (
+      <meta name={key} content={value} />
+    ))}
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </head>
+  <body class="min-h-screen bg-white text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">
+    <slot />
+    
+    <!-- Initialize theme -->
+    <script is:inline>
+      (() => {
+        const getInitialTheme = () => {
+          if (typeof localStorage !== 'undefined') {
+            const stored = localStorage.getItem('theme');
+            if (stored === 'light' || stored === 'dark') {
+              return stored;
+            }
+            
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              return 'dark';
+            }
+          }
+          return 'light';
+        };
+
+        const applyTheme = (theme) => {
+          if (typeof document === 'undefined') return;
+          
+          const html = document.documentElement;
+          html.setAttribute('data-theme', theme);
+          
+          if (theme === 'dark') {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+          
+          const themeMeta = document.querySelector('meta[name="theme-color"]');
+          if (themeMeta) {
+            themeMeta.content = theme === 'dark' ? '#1a202c' : '#ffffff';
+          }
+        };
+
+        const theme = getInitialTheme();
+        applyTheme(theme);
+      })();
+    </script>
+    
+    <!-- Script for locale switching -->
+    <script>
+      document.addEventListener('click', (e) => {
+        const a = (e.target as HTMLElement)?.closest?.('a[data-locale]');
+        if (a) {
+          const loc = (a as HTMLAnchorElement).getAttribute('data-locale');
+          if (loc === 'en' || loc === 'ru') {
+            document.cookie = `locale=${loc}; Max-Age=31536000; Path=/; SameSite=Lax`;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,67 @@
+---
+import type { Data } from '../types/data';
+import SideNav from './SideNav.astro';
+import MainSection from './sections/MainSection.astro';
+import SkillsSection from './sections/SkillsSection.astro';
+import ExperienceSection from './sections/ExperienceSection.astro';
+import PortfolioSection from './sections/PortfolioSection.astro';
+import EducationSection from './sections/EducationSection.astro';
+import TestimonialsSection from './sections/TestimonialsSection.astro';
+import FavoritesSection from './sections/FavoritesSection.astro';
+
+export interface Props {
+  locale: 'en' | 'ru';
+  data: Data;
+}
+
+const { locale, data } = Astro.props;
+const { config, sections } = data;
+---
+
+<div class="cv-root">
+  <div class="cv-container">
+    <main class="cv-main">
+      <MainSection {...sections.main} />
+      <SkillsSection {...sections.skills} />
+      <ExperienceSection {...sections.experience} />
+      <PortfolioSection {...sections.portfolio} />
+      <EducationSection {...sections.education} />
+      <TestimonialsSection {...sections.testimonials} />
+      <FavoritesSection {...sections.favorites} />
+    </main>
+    <SideNav sections={sections} className="cv-sidebar" />
+  </div>
+</div>
+
+<script>
+  // Скрипт для активной секции (скопирован из DevsCard)
+  import hashState from '../utils/hash-state.js';
+  import throttle from '../utils/throttle.js';
+
+  const sections = [...document.querySelectorAll('[data-type="section"]')];
+  const sidebarItems = [...document.getElementById('sidebar')?.children || []] as HTMLAnchorElement[];
+
+  const isInUpperView = (section: Element) => section.getBoundingClientRect().bottom >= window.innerHeight / 3;
+
+  const setActiveItem = (hash: string) => {
+    sidebarItems.forEach((item) => {
+      if (item.href.endsWith(hash)) {
+        item.setAttribute('aria-current', 'page');
+      } else {
+        item.removeAttribute('aria-current');
+      }
+    });
+  };
+
+  const updateHash = () => {
+    const currentSection = sections.find(isInUpperView);
+    if (currentSection) {
+      hashState.updateHash(currentSection.id);
+    }
+  };
+
+  // Инициализация
+  setActiveItem(hashState.getHash());
+  hashState.subscribe(setActiveItem);
+  document.addEventListener('scroll', throttle(updateHash, 200));
+</script>

@@ -1,0 +1,94 @@
+---
+import type { Config, Sections } from '@/types/data';
+import Head from '@/web/head/head.astro';
+
+export interface Props extends Config {
+  sections: Sections;
+}
+
+const { meta, i18n, sections } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang={i18n.locale.code} class="scroll-smooth">
+  <Head meta={meta} sections={sections} />
+  <body class="flex justify-center overflow-x-hidden bg-gray-50 dark:bg-gray-900 xl:relative xl:left-7">
+    <slot />
+    <script>
+      // Auto-resize script for iframe embedding
+      const sendHeight = () => {
+        const height = document.documentElement.scrollHeight;
+        const iframeId = window.location.hash?.slice(1) || 'default';
+        parent.postMessage({ 
+          type: 'cv-embed-height', 
+          height: height,
+          id: iframeId
+        }, '*');
+      };
+      
+      // Send height on various events
+      new ResizeObserver(sendHeight).observe(document.documentElement);
+      window.addEventListener('load', sendHeight);
+      window.addEventListener('hashchange', sendHeight);
+      
+      // Send initial height after a short delay
+      setTimeout(sendHeight, 100);
+
+      // НОВОЕ: прыжки по секциям по сообщению с сайта
+      const idFor = (anchor) => {
+        // карта якорей → id секций из DevsCard
+        const map = {
+          profile: 'profile',
+          skills: 'skills',
+          experience: 'experience',
+          education: 'education',
+          portfolio: 'portfolio',
+          contact: 'contact'
+        };
+        return map[anchor] || 'profile';
+      };
+
+      window.addEventListener('message', (e) => {
+        const data = e?.data || {};
+        if (data.type === 'cv-goto') {
+          const anchor = idFor(String(data.anchor || ''));
+          // меняем hash (даёт историю и тултипы), а затем скроллим
+          if (location.hash !== '#' + anchor) location.hash = anchor;
+          const el = document.getElementById(anchor);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          // после скролла обновим высоту
+          setTimeout(sendHeight, 50);
+          setTimeout(sendHeight, 300);
+        }
+      }, false);
+
+      // helper: определяем текущую секцию на основе IntersectionObserver
+      const anchors = ['profile','skills','experience','education','portfolio','contact'];
+      const sections = anchors.map(id => document.getElementById(id)).filter(Boolean);
+
+      let current = 'profile';
+      const notify = (name) => {
+        if (current === name) return;
+        current = name;
+        parent.postMessage({ type: 'cv-section', anchor: current }, '*');
+      };
+
+      const io = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a,b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]?.target?.id) notify(visible[0].target.id);
+      }, { rootMargin: '-30% 0px -60% 0px', threshold: [0, .2, .6] });
+
+      sections.forEach(s => s && io.observe(s));
+
+      // ещё репортим при hashchange
+      window.addEventListener('hashchange', () => {
+        const id = location.hash.replace('#','');
+        if (anchors.includes(id)) notify(id);
+      });
+    </script>
+  </body>
+</html>

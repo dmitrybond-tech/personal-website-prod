@@ -1,0 +1,16 @@
+---
+import type { Action } from '../types/shared';
+import Typography from './Typography.astro';
+
+export interface Props extends Action {}
+
+const { label, url, downloadedFileName } = Astro.props;
+---
+
+<a
+  href={url}
+  download={downloadedFileName}
+  class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-white transition hover:bg-primary-700"
+>
+  <Typography variant="button">{label}</Typography>
+</a>
