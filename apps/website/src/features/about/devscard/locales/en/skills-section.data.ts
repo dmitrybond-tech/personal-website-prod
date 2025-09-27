@@ -17,7 +17,7 @@ import {
   supabase,
   tailwindCss,
   typescript,
-} from '../../utils/skills';
+} from '../../helpers/skills';
 
 const skillsSectionData = {
   config: {

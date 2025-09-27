@@ -1,10 +1,11 @@
 import { format } from 'date-fns';
-import type { DateRange } from '@/types/shared';
-import config from '@/data/config';
+import type { DateRange } from '../../types/shared';
 
-const { locale, dateFormat, translations } = config.i18n;
-
-const formatDateRange = ([from, to]: DateRange): string =>
-  format(from, dateFormat, { locale }).concat(' - ', to ? format(to, dateFormat, { locale }) : translations.now);
+// Простая реализация без зависимости от config
+const formatDateRange = ([from, to]: DateRange): string => {
+  const fromStr = format(from, 'MMM yyyy');
+  const toStr = to ? format(to, 'MMM yyyy') : 'Present';
+  return `${fromStr} - ${toStr}`;
+};
 
 export default formatDateRange;

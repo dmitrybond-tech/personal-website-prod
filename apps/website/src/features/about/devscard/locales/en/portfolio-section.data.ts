@@ -1,6 +1,6 @@
 import type { PortfolioSection } from '../../types/sections/portfolio-section.types';
 import type { ReadonlyDeep } from 'type-fest';
-import { demo, github, mockups, website } from '../../utils/links';
+import { demo, github, mockups, website } from '../../helpers/links';
 import {
   chakraUi,
   eslint,
@@ -16,7 +16,7 @@ import {
   sass,
   tailwindCss,
   typescript,
-} from '../../utils/skills';
+} from '../../helpers/skills';
 
 const portfolioSectionData = {
   config: {
@@ -32,7 +32,7 @@ const portfolioSectionData = {
   projects: [
     {
       name: 'Golden Bulls',
-      image: '',
+      image: '/devscard/portfolio/project-1.jpeg',
       dates: [new Date('2020-03'), null],
       details: [
         { label: 'Team size', value: '1 person' },
@@ -45,9 +45,9 @@ const portfolioSectionData = {
         { label: 'Repository', value: 'https://github.com/mark-freeman/golden-bulls', url: '#' },
       ],
       screenshots: [
-        { src: '', alt: 'First screenshot' },
-        { src: '', alt: 'Second screenshot' },
-        { src: '', alt: 'Third screenshot' },
+        { src: '/devscard/portfolio/project-1-screenshot-1.jpg', alt: 'First screenshot' },
+        { src: '/devscard/portfolio/project-1-screenshot-2.jpg', alt: 'Second screenshot' },
+        { src: '/devscard/portfolio/project-1-screenshot-3.jpg', alt: 'Third screenshot' },
       ],
       description:
         'In tristique vulputate augue vel egestas. Quisque ac imperdiet tortor, at lacinia ex. Duis vel ex hendrerit, commodo odio sed, aliquam enim. Ut arcu nulla, tincidunt eget arcu eget, molestie vulputate nisi. Nunc malesuada leo et est iaculis facilisis.',
@@ -59,7 +59,7 @@ const portfolioSectionData = {
     },
     {
       name: 'TruQuest',
-      image: '',
+      image: '/devscard/portfolio/project-2.jpeg',
       dates: [new Date('2019-06'), new Date('2020-02')],
       details: [
         { label: 'Team size', value: '7 people' },
@@ -81,7 +81,7 @@ const portfolioSectionData = {
     },
     {
       name: 'Software Chasers',
-      image: '',
+      image: '/devscard/portfolio/project-3.jpeg',
       dates: [new Date('2018-01'), new Date('2020-12')],
       details: [
         { label: 'Team size', value: '3 people' },
@@ -103,7 +103,7 @@ const portfolioSectionData = {
     },
     {
       name: 'Disco Ninjas',
-      image: '',
+      image: '/devscard/portfolio/project-4.jpeg',
       dates: [new Date('2016-05'), new Date('2018-07')],
       details: [
         { label: 'Team size', value: '11 people' },

@@ -1,6 +1,6 @@
 import type { MainSection } from '../../types/sections/main-section.types';
 import type { ReadonlyDeep } from 'type-fest';
-import { facebook, github, linkedin, twitter } from '../../utils/links';
+import { facebook, github, linkedin, twitter } from '../../helpers/links';
 
 const mainSectionData = {
   config: {
@@ -9,7 +9,7 @@ const mainSectionData = {
     slug: 'profile',
     visible: true,
   },
-  image: '/my-image.jpeg',
+  image: '/devscard/my-image.jpeg',
   fullName: 'Mark Freeman',
   role: 'Senior React Developer',
   details: [
@@ -30,7 +30,7 @@ const mainSectionData = {
   tags: [{ name: 'Open for freelance' }, { name: 'Available for mentoring' }, { name: 'Working on side project' }],
   action: {
     label: 'Download CV',
-    url: '/cv.pdf',
+    url: '/devscard/cv.pdf',
     downloadedFileName: 'CV-Mark_Freeman.pdf',
   },
   links: [facebook({ url: '#' }), github({ url: '#' }), linkedin({ url: '#' }), twitter({ url: '#' })],

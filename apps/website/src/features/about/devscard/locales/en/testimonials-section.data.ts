@@ -1,6 +1,6 @@
 import type { TestimonialsSection } from '../../types/sections/testimonials-section.types';
 import type { ReadonlyDeep } from 'type-fest';
-import { github, linkedin, website } from '../../utils/links';
+import { github, linkedin, website } from '../../helpers/links';
 
 const testimonialsSectionData = {
   config: {
@@ -11,7 +11,7 @@ const testimonialsSectionData = {
   },
   testimonials: [
     {
-      image: '',
+      image: '/devscard/testimonials/testimonial-1.jpeg',
       author: 'Howard Stewart',
       relation: 'We work together as front-end developers at Google',
       content:
@@ -19,7 +19,7 @@ const testimonialsSectionData = {
       links: [github({ url: '#' }), linkedin({ url: '#' })],
     },
     {
-      image: '',
+      image: '/devscard/testimonials/testimonial-2.jpeg',
       author: 'Jean Richards',
       relation: 'My project manager at GitLab',
       content:
@@ -27,7 +27,7 @@ const testimonialsSectionData = {
       links: [linkedin({ url: '#' })],
     },
     {
-      image: '',
+      image: '/devscard/testimonials/testimonial-3.jpeg',
       author: 'Jason Fisher',
       relation: 'My customer for sidewing.com website',
       content:

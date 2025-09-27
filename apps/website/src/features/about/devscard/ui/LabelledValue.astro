@@ -1,21 +1,26 @@
 ---
-import type { LabelledValue as LabelledValueType } from '../types/shared';
+import type { LabelledValue } from '../../types/shared';
+import Typography from './Typography.astro';
 
-export interface Props extends LabelledValueType {}
+export interface Props extends LabelledValue {}
 
-const { label, value, url, fullRow } = Astro.props;
+const { label, value, url } = Astro.props;
+
+const parsedValue = Array.isArray(value) ? value.join(', ') : value;
+
+const isHttpLink = url?.startsWith('http');
+const target = isHttpLink ? '_blank' : '_self';
 ---
 
-<div class:list={['flex flex-col gap-1', fullRow && 'col-span-2']}>
-  <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</span>
-  {url ? (
-    <a
-      href={url}
-      class="text-sm text-gray-900 transition hover:text-primary-600 dark:text-gray-100 dark:hover:text-primary-400"
-    >
-      {value}
-    </a>
-  ) : (
-    <span class="text-sm text-gray-900 dark:text-gray-100">{value}</span>
-  )}
+<div>
+  <Typography variant="label">{label}:</Typography>
+  {
+    url ? (
+      <Typography as="a" href={url} target={target} class="underline">
+        {parsedValue}
+      </Typography>
+    ) : (
+      <Typography variant="value">{parsedValue}</Typography>
+    )
+  }
 </div>

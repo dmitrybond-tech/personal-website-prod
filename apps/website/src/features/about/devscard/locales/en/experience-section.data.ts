@@ -1,6 +1,6 @@
 import type { ExperienceSection } from '../../types/sections/experience-section.types';
 import type { ReadonlyDeep } from 'type-fest';
-import { facebook, github, instagram, linkedin, twitter, website } from '../../utils/links';
+import { facebook, github, instagram, linkedin, twitter, website } from '../../helpers/links';
 import {
   chakraUi,
   eslint,
@@ -13,7 +13,7 @@ import {
   tailwindCss,
   typescript,
   vue,
-} from '../../utils/skills';
+} from '../../helpers/skills';
 
 const experienceSectionData = {
   config: {
@@ -26,7 +26,7 @@ const experienceSectionData = {
     {
       role: 'Senior front-end developer',
       company: 'Google',
-      image: '',
+      image: '/devscard/logos/google-logo.jpg',
       dates: [new Date('2020-02'), null],
       description: `
         - In tristique vulputate augue vel egestas.
@@ -45,7 +45,7 @@ const experienceSectionData = {
     {
       role: 'React.js developer',
       company: 'Facebook',
-      image: '',
+      image: '/devscard/logos/facebook-logo.png',
       dates: [new Date('2019-04'), new Date('2020-02')],
       description: `
         - Aenean eget ultricies felis. Pellentesque dictum massa ut tellus eleifend, sed posuere massa mattis.
@@ -62,7 +62,7 @@ const experienceSectionData = {
     {
       role: 'Junior front-end developer',
       company: 'GitLab',
-      image: '',
+      image: '/devscard/logos/gitlab-logo.png',
       dates: [new Date('2016-09'), new Date('2019-04')],
       description: `
         Nulla volutpat justo ante, rhoncus posuere massa egestas in:

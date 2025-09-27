@@ -1,5 +1,5 @@
 ---
-import type { Photo } from '../types/shared';
+import type { Photo } from '../../types/shared';
 
 export interface Props {
   src: Photo;
@@ -12,13 +12,12 @@ export interface Props {
 const { src, ...props } = Astro.props;
 
 const isRemoteImage = typeof src === 'string';
-const loading = 'lazy';
 ---
 
 {
   isRemoteImage ? (
     <img src={src} {...props} />
   ) : (
-    <img src={src.src} loading={loading} {...props} />
+    <img src={src} {...props} />
   )
 }
