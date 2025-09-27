@@ -30,6 +30,9 @@
   
   /* DevsCard background color */
   --site-bg: #F8F8F8;
+  
+  /* Brand color for Cal.com integration */
+  --brand-color: #0ea5e9;
 }
 
 /* Базовые стили для body */

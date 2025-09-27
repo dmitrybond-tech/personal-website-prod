@@ -1,12 +1,14 @@
 ---
 import { bookmeData } from '@content/en/bookme.ts';
 import { bookmeData as ruBookmeData } from '@content/ru/bookme.ts';
+import { BookingTiles } from '@features/bookme';
 
 interface Props {
   locale: 'en' | 'ru';
+  showServices?: boolean; // по умолчанию false для BookMe
 }
 
-const { locale } = Astro.props;
+const { locale, showServices = false } = Astro.props as Props;
 const data = locale === 'ru' ? ruBookmeData : bookmeData;
 ---
 
@@ -19,17 +21,21 @@ const data = locale === 'ru' ? ruBookmeData : bookmeData;
     </div>
 
     <div class="bookme-content">
-      <div class="features-grid">
-        {data.features.map((feature) => (
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class={`fa ${feature.icon}`}></i>
+      {showServices && (
+        <div class="features-grid">
+          {data.features.map((feature) => (
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class={`fa ${feature.icon}`}></i>
+              </div>
+              <h3 class="feature-title">{feature.title}</h3>
+              <p class="feature-description">{feature.description}</p>
             </div>
-            <h3 class="feature-title">{feature.title}</h3>
-            <p class="feature-description">{feature.description}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
+
+      <BookingTiles locale={locale} />
 
       <div class="calendar-section">
         <div class="calendar-header">

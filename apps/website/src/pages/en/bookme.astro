@@ -27,3 +27,9 @@ const locale = 'en';
     padding: 0;
   }
 </style>
+
+<script type="module" is:inline>
+  import { initCalEmbed } from '@shared/lib/cal/embed';
+  // Lazy-монтирование включено конфигом; по дефолту тип — interview (30м)
+  initCalEmbed('en', 'interview');
+</script>

@@ -1,0 +1,177 @@
+---
+// apps/website/src/app/features/bookme/ui/BookingTiles.astro
+interface Props { locale: 'en' | 'ru'; }
+const { locale } = Astro.props as Props;
+
+const labels = {
+  en: {
+    desc: 'Pick a meeting type to tailor duration and availability.',
+    tech: 'Technical Consultation · 90 min',
+    interview: 'Interview · 30 min',
+    mentoring: 'Mentoring · 60 min',
+    sub: {
+      tech: 'Architecture, DevOps',
+      interview: 'Screening / quick call',
+      mentoring: 'Career & tech tracks',
+    }
+  },
+  ru: {
+    desc: 'Выберите тип встречи: длительность и доступность подстроятся.',
+    tech: 'Техническая консультация · 1,5 часа',
+    interview: 'Интервью · 30 мин',
+    mentoring: 'Менторинг · 1 час',
+    sub: {
+      tech: 'Архитектура, DevOps',
+      interview: 'Screening / быстрый созвон',
+      mentoring: 'Карьерные и тех. треки',
+    }
+  }
+}[locale];
+---
+
+<section class="booking-tiles-section">
+  <p class="booking-tiles-description">{labels.desc}</p>
+  
+  <div class="booking-tiles-grid">
+    <button class="booking-tile tile tile-1-техконсультация">
+      <div class="tile-title">{labels.tech}</div>
+      <div class="tile-subtitle">{labels.sub.tech}</div>
+    </button>
+
+    <button class="booking-tile tile tile-2-интервью active">
+      <div class="tile-title">{labels.interview}</div>
+      <div class="tile-subtitle">{labels.sub.interview}</div>
+    </button>
+
+    <button class="booking-tile tile tile-3-менторинг">
+      <div class="tile-title">{labels.mentoring}</div>
+      <div class="tile-subtitle">{labels.sub.mentoring}</div>
+    </button>
+  </div>
+</section>
+
+<style>
+  .booking-tiles-section {
+    margin-bottom: 40px;
+  }
+
+  .booking-tiles-description {
+    font-size: 1rem;
+    color: #666;
+    margin: 0 0 24px 0;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .booking-tiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .booking-tile {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+  }
+
+  .booking-tile:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  .tile.active {
+    outline: 2px solid var(--brand-color, #0ea5e9);
+    outline-offset: -2px;
+    background: rgba(14, 165, 233, 0.05);
+    border-color: var(--brand-color, #0ea5e9);
+  }
+
+  .tile-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: #1a1a1a;
+  }
+
+  .tile-subtitle {
+    color: #666;
+    line-height: 1.5;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  /* Dark theme */
+  :global(.dark) .booking-tiles-description {
+    color: #ccc;
+  }
+
+  :global(.dark) .booking-tile {
+    background: rgba(40, 40, 40, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(.dark) .booking-tile:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  :global(.dark) .tile-title {
+    color: #ffffff;
+  }
+
+  :global(.dark) .tile-subtitle {
+    color: #ccc;
+  }
+
+  :global(.dark) .tile.active {
+    background: rgba(14, 165, 233, 0.1);
+    border-color: var(--brand-color, #0ea5e9);
+  }
+
+  @media (max-width: 768px) {
+    .booking-tiles-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .booking-tile {
+      padding: 20px;
+    }
+  }
+</style>
+
+<script type="module" is:inline>
+  import { setCalType } from '@shared/lib/cal/embed';
+
+  const map = new Map([
+    ['.tile-2-интервью', 'interview'],
+    ['.tile-1-техконсультация', 'tech'],
+    ['.tile-3-менторинг', 'mentoring'],
+  ]);
+
+  const tiles = Array.from(document.querySelectorAll('.tile'));
+
+  function setActive(el) {
+    tiles.forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  for (const [selector, type] of map.entries()) {
+    const el = document.querySelector(selector);
+    if (!el) continue;
+    el.addEventListener('click', async () => {
+      setActive(el);
+      await setCalType(type);
+    });
+  }
+
+  // Активируем по умолчанию «Интервью»
+  const def = document.querySelector('.tile-2-интервью');
+  def && def.classList.add('active');
+</script>
