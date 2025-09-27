@@ -18,28 +18,39 @@ const { locale, data } = Astro.props;
 const { config, sections } = data;
 ---
 
-<div class="cv-root">
-  <div class="cv-container">
-    <main class="cv-main">
-      <MainSection {...sections.main} />
-      <SkillsSection {...sections.skills} />
-      <ExperienceSection {...sections.experience} />
-      <PortfolioSection {...sections.portfolio} />
-      <EducationSection {...sections.education} />
-      <TestimonialsSection {...sections.testimonials} />
-      <FavoritesSection {...sections.favorites} />
+<section class="cv-root">
+  <div class="cv-layout mx-auto max-w-[var(--cv-max-w)] px-[var(--cv-gap)]
+              grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-8
+              overflow-visible">
+    <main class="min-w-0 isolate">
+      <div class="cv-sections flex flex-col gap-8 xl:gap-10 pt-1">
+        <MainSection {...sections.main} />
+        <SkillsSection {...sections.skills} />
+        <ExperienceSection {...sections.experience} />
+        <PortfolioSection {...sections.portfolio} />
+        <EducationSection {...sections.education} />
+        <TestimonialsSection {...sections.testimonials} />
+        <FavoritesSection {...sections.favorites} />
+      </div>
     </main>
-    <SideNav sections={sections} className="sticky top-8 mt-20" />
+    <aside class="hidden xl:block overflow-visible">
+      <div id="sidebar"
+           class="sticky top-[calc(var(--navbar-h)+16px)] self-start h-min w-[64px]">
+        <SideNav sections={sections} />
+      </div>
+    </aside>
   </div>
-</div>
+</section>
 
 <style>
   .cv-root {
-    @apply flex justify-center overflow-x-hidden bg-gray-50 dark:bg-gray-900 xl:relative xl:left-7;
+    @apply flex justify-center xl:relative xl:left-7;
+    background: var(--cv-page-bg);
+    overflow: visible !important;
   }
   
-  .cv-container {
-    @apply flex w-full max-w-7xl gap-8;
+  .cv-layout {
+    overflow: visible !important;
   }
   
   .cv-main {
@@ -48,7 +59,7 @@ const { config, sections } = data;
   
   /* Ensure proper spacing for sticky navbar */
   .cv-main > * {
-    scroll-margin-top: 72px;
+    scroll-margin-top: var(--navbar-h);
   }
 </style>
 
@@ -83,4 +94,15 @@ const { config, sections } = data;
   setActiveItem(hashState.getHash());
   hashState.subscribe(setActiveItem);
   document.addEventListener('scroll', throttle(updateHash, 200));
+</script>
+
+<script>
+  // Синхронизация высоты Navbar для sticky сайдбара
+  const el = document.querySelector('header[data-app-navbar]');
+  const set = () => {
+    const h = (el && el.offsetHeight) || 72;
+    document.documentElement.style.setProperty('--navbar-h', h + 'px');
+  };
+  set();
+  new ResizeObserver(set).observe(el);
 </script>

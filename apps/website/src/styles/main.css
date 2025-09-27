@@ -34,7 +34,7 @@
 
 /* Базовые стили для body */
 html, body {
-  background: var(--site-bg);
+  background: var(--cv-page-bg, var(--site-bg));
 }
 
 body {

@@ -1,5 +1,23 @@
 /* DevsCard стили - скопированы из эталона и адаптированы под .cv-root */
 
+:root {
+  --cv-max-w: 80rem;        /* ширина карточек DevsCard — как в эталоне */
+  --cv-gap: 1.5rem;         /* внутренние горизонтальные отступы */
+  --navbar-h: 72px;         /* дефолтная высота, далее обновим скриптом */
+  --cv-page-bg: #f6f7fb;  /* фон страницы */
+  --cv-section-gap: 2rem;      /* базовый вертикальный шаг (≈ 32px) */
+}
+
+.dark {
+  --cv-page-bg: #111827;  /* фон страницы в темной теме */
+}
+
+@media (min-width: 1280px) {
+  :root { 
+    --cv-section-gap: 2.5rem; /* XL шаг как в эталоне */
+  }
+}
+
 .cv-root {
   /* Основные переменные из DevsCard */
   --cv-bg: #F8F8F8;
@@ -42,20 +60,20 @@
 
 /* Основной контейнер DevsCard */
 .cv-root .cv-container {
-  max-width: 80rem; /* 1280px - как в DevsCard */
+  max-width: var(--cv-max-w);
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 var(--cv-gap);
 }
 
 @media (min-width: 640px) {
   .cv-root .cv-container {
-    padding: 0 2rem;
+    padding: 0 var(--cv-gap);
   }
 }
 
 @media (min-width: 1024px) {
   .cv-root .cv-container {
-    padding: 0 3rem;
+    padding: 0 var(--cv-gap);
   }
 }
 
@@ -143,7 +161,7 @@
 /* Основной контент */
 .cv-root .cv-main {
   width: 100%;
-  max-width: 80rem;
+  max-width: var(--cv-max-w);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -171,12 +189,42 @@
 
 /* Отступы для якорей с учетом фиксированного Navbar */
 .cv-root [id] {
-  scroll-margin-top: 5rem; /* Высота Navbar + отступ */
+  scroll-margin-top: var(--navbar-h); /* Высота Navbar + отступ */
 }
 
 /* Анимации */
 .cv-root .animate-show {
   animation: cv-show 225ms ease-in-out;
+}
+
+/* Запретить условия, ломающие sticky у правой колонки */
+.cv-root,
+.cv-layout,
+.cv-root *:where(#sidebar) {
+  overflow: visible !important;
+}
+
+#sidebar {
+  position: sticky;             /* гарантия поверх utility-классов */
+  top: calc(var(--navbar-h) + 16px);
+  align-self: start;
+  height: min-content;
+  z-index: 10;                  /* под хедером, но над карточками */
+}
+
+@media (min-width: 1280px) {
+  /* Ширина узкой колонки под сайдбар (дублируем для Tailwind grid-cols) */
+  .cv-layout {
+    grid-template-columns: 1fr auto;
+    column-gap: 2rem; /* либо соответствие var(--cv-gap) */
+  }
+}
+
+/* если где-то в секциях остались локальные margin — обнуляем их на корне секций */
+.cv-sections > * {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  display: flow-root; /* локальный formatting context — доп. защита от схлопывания */
 }
 
 @keyframes cv-show {
