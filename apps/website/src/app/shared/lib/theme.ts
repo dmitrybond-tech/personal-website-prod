@@ -66,3 +66,4 @@ export function onThemeChange(callback: (theme: Theme) => void): void {
   // Возвращаем функцию для отписки
   return () => mediaQuery.removeEventListener('change', handleChange);
 }
+

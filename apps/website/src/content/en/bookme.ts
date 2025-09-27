@@ -30,3 +30,4 @@ export const bookmeData = {
     days: 'Monday - Friday'
   }
 };
+
