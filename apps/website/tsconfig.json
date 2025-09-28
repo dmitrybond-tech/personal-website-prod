@@ -2,13 +2,14 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["astro/client"],
+    "types": ["astro/client", "node"],
     "paths": {
+      "@/*": ["src/*"],
       "@app/*": ["src/app/*"],
       "@shared/*": ["src/app/shared/*"],
       "@entities/*": ["src/app/entities/*"],
       "@features/*": ["src/app/features/*"],
-      "@widgets/*": ["src/app/widgets/*"],
+      "@widgets/*": ["src/widgets/*"],
       "@pages/*": ["src/pages/*"],
       "@providers/*": ["src/providers/*"],
       "@components/*": ["src/components/*"],

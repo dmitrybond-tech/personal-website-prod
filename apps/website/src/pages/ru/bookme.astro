@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Navbar from '@widgets/navbar/ui/Navbar.astro';
-import BookMeSection from '@entities/sections/ui/BookMeSection.astro';
+import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
+import CalBooking from '@widgets/cal/CalBooking.astro';
 import ThemeToggle from '@features/theme-toggle/ui/ThemeToggle.astro';
 
 const locale = 'ru';
@@ -10,7 +10,7 @@ const locale = 'ru';
 <BaseLayout title="Записаться — Дмитрий Б." description="Записаться на встречу с Дмитрием Б." lang="ru">
   <Navbar locale={locale} />
   <main class="bookme-page">
-    <BookMeSection locale={locale} />
+    <CalBooking locale={locale} />
   </main>
   <ThemeToggle />
 </BaseLayout>
@@ -27,8 +27,3 @@ const locale = 'ru';
     padding: 0;
   }
 </style>
-
-<script type="module" is:inline>
-  import { initCalEmbed } from '@shared/lib/cal/embed';
-  initCalEmbed('ru', 'interview');
-</script>

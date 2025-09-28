@@ -1,128 +1,79 @@
 // apps/website/src/pages/api/cal/webhook.ts
 export const prerender = false;
 
-import { verifyCalSignature } from '@/server/cal/verify';
-import { appendEventLog, type CalWebhookEvent } from '@/server/cal/store';
-import type { BookingType } from '@/app/shared/config/cal/config';
+import type { APIContext } from 'astro';
+import { CAL_SIGNATURE_HEADER, getCalWebhookSecret, readRawBody, verifyCalSignature, isDev } from '@/shared/cal/auth';
 
-// Маппинг slug'ов Cal.com на наши типы встреч
-// TODO: Замените на реальные slug'и из вашего Cal.com
-const slugToType = new Map<string, BookingType>([
-  // Примеры - замените на ваши реальные slug'и:
-  ['interview-30m', 'interview'],
-  ['interview-30min', 'interview'],
-  ['tech-90m', 'tech'],
-  ['tech-90min', 'tech'],
-  ['mentoring-60m', 'mentoring'],
-  ['mentoring-60min', 'mentoring'],
-  // Добавьте другие варианты slug'ов если нужно
-]);
-
-/**
- * Обработчик вебхука Cal.com
- * Валидирует подпись, нормализует события и логирует их
- */
-export async function POST({ request }: { request: Request }) {
-  try {
-    // Читаем сырое тело запроса (важно для проверки подписи)
-    const raw = await request.text();
-    const headers = request.headers;
-    
-    // Получаем настройки из переменных окружения
-    const devSkip = process.env.CAL_WEBHOOK_DEV_SKIP_VERIFY === '1';
-    const secret = process.env.CAL_WEBHOOK_SECRET || '';
-    const signature = headers.get('x-cal-signature-256');
-
-    // Проверяем подпись (если не в dev режиме)
-    const isValidSignature = devSkip || verifyCalSignature(raw, signature, secret);
-    
-    if (!isValidSignature) {
-      console.error('[Cal Webhook] Invalid signature');
-      return new Response('Invalid signature', { status: 401 });
-    }
-
-    // Парсим JSON событие
-    let event: CalWebhookEvent;
-    try {
-      event = JSON.parse(raw);
-    } catch (error) {
-      console.error('[Cal Webhook] Invalid JSON:', error);
-      return new Response('Invalid JSON', { status: 400 });
-    }
-
-    const trigger = event?.triggerEvent;
-    const payload = event?.payload || {};
-
-    // Нормализация к нашим типам встреч
-    // Cal.com присылает slug типа встречи в payload.type
-    const slug: string | undefined = payload?.type;
-    const bookingType = slug ? slugToType.get(slug) : undefined;
-
-    // Подготавливаем данные для логирования
-    const logData = {
-      timestamp: new Date().toISOString(),
-      trigger,
-      slug,
-      bookingType,
-      payload: {
-        type: payload.type,
-        title: payload.title,
-        startTime: payload.startTime,
-        endTime: payload.endTime,
-        attendee: payload.attendee,
-        organizer: payload.organizer,
-      },
-      // Сохраняем полное событие для отладки
-      fullEvent: event,
+interface CalWebhookEvent {
+  triggerEvent?: string;
+  type?: string;
+  payload?: {
+    type?: string;
+    title?: string;
+    startTime?: string;
+    endTime?: string;
+    attendee?: any;
+    organizer?: any;
+    uid?: string;
+    id?: number;
+    booking?: {
+      id?: number;
     };
+  };
+}
 
-    // Логируем событие
-    const logPath = await appendEventLog(logData);
-    console.log(`[Cal Webhook] Event logged: ${logPath}`);
+export async function POST({ request }: APIContext) {
+  try {
+    const raw = await readRawBody(request);
+    const sig = request.headers.get(CAL_SIGNATURE_HEADER);
+    const secret = getCalWebhookSecret();
 
-    // TODO: Здесь можно добавить интеграции:
-    // - Отправка уведомлений в Telegram
-    // - Создание записей в Notion
-    // - Сохранение в базу данных
-    // - Отправка follow-up писем
-    // - Аналитика и метрики
-
-    // Пример обработки разных типов событий
-    switch (trigger) {
-      case 'BOOKING_CREATED':
-        console.log(`[Cal Webhook] New booking created: ${bookingType} at ${payload.startTime}`);
-        // Здесь можно добавить специфичную логику для новых бронирований
-        break;
-      case 'BOOKING_RESCHEDULED':
-        console.log(`[Cal Webhook] Booking rescheduled: ${bookingType}`);
-        // Логика для переносов
-        break;
-      case 'BOOKING_CANCELLED':
-        console.log(`[Cal Webhook] Booking cancelled: ${bookingType}`);
-        // Логика для отмен
-        break;
-      default:
-        console.log(`[Cal Webhook] Unknown trigger: ${trigger}`);
+    const vr = verifyCalSignature(raw, sig, secret);
+    if (!vr.ok) {
+      return new Response(JSON.stringify({ ok: false, reason: vr.reason }), {
+        status: vr.status,
+        headers: { 'content-type': 'application/json' },
+      });
     }
 
-    // Возвращаем успешный ответ
-    return new Response(
-      JSON.stringify({ 
-        status: 'ok', 
-        trigger, 
-        bookingType,
-        slug,
-        log: logPath,
-        timestamp: new Date().toISOString()
-      }), 
-      {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      }
-    );
-
-  } catch (error) {
-    console.error('[Cal Webhook] Unexpected error:', error);
-    return new Response('Internal server error', { status: 500 });
+    const evt = JSON.parse(raw);
+    // TODO: идемпотентность (triggerEvent/uid/createdAt), очередь/обработка
+    return new Response(JSON.stringify({ ok: true, mode: vr.mode }), {
+      status: 202,
+      headers: { 'content-type': 'application/json' },
+    });
+  } catch (err: any) {
+    console.error('[cal-webhook] handler-error', { msg: String(err?.message ?? err) });
+    return new Response(JSON.stringify({ ok: false, error: 'internal-error' }), {
+      status: 500,
+      headers: { 'content-type': 'application/json' },
+    });
   }
 }
+
+
+export async function GET({ request }: APIContext) {
+  // Health-check только в DEV
+  if (!isDev()) return new Response(null, { status: 404 });
+  const hasSecret = Boolean(getCalWebhookSecret());
+  return new Response(
+    JSON.stringify({ ok: true, env: isDev() ? 'dev' : 'prod', hasSecret, signatureHeader: CAL_SIGNATURE_HEADER }),
+    { status: 200, headers: { 'content-type': 'application/json' } }
+  );
+}
+
+export async function HEAD() {
+  return new Response(null, { status: 200 });
+}
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'access-control-allow-origin': '*',
+      'access-control-allow-methods': 'POST, GET, HEAD, OPTIONS',
+      'access-control-allow-headers': 'content-type, x-cal-signature-256'
+    }
+  });
+}
+

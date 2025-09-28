@@ -1,1 +1,0 @@
-document.addEventListener("click",a=>{const t=a.target?.closest?.("a[data-locale]");if(t){const e=t.getAttribute("data-locale");(e==="en"||e==="ru")&&(document.cookie=`locale=${e}; Max-Age=31536000; Path=/; SameSite=Lax`)}});

@@ -33,9 +33,9 @@ export const calEmbedConfig: CalEmbedConfig = {
   },
   linksByType: {
     // TODO: замените плейсхолдеры на реальные calLink'и (username/event-type)
-    interview: { en: 'YOUR_EN_30M_LINK', ru: 'YOUR_RU_30M_LINK' },
-    tech:      { en: 'YOUR_EN_90M_LINK', ru: 'YOUR_RU_90M_LINK' },
-    mentoring: { en: 'YOUR_EN_60M_LINK', ru: 'YOUR_RU_60M_LINK' },
+    interview: { en: 'dmitrybond/interview-30m',  ru: 'dmitrybond/interview-30m' },
+    tech:      { en: 'dmitrybond/tech-90m',       ru: 'dmitrybond/tech-90m' },
+    mentoring: { en: 'dmitrybond/mentoring-60m',  ru: 'dmitrybond/mentoring-60m' },
   },
   ui: {
     layout: 'month_view',

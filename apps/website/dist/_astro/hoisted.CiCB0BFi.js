@@ -1,1 +1,0 @@
-import"./hoisted.SuxgyO_R.js";const t=document.getElementById({id:JSON.stringify(id)}),i=e=>t.style.height=Math.max(600,Number(e)||0)+"px";window.addEventListener("message",e=>{e?.data?.type==="cv-embed-height"&&i(e.data.height)});
