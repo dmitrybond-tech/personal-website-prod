@@ -1,29 +1,90 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
-import CalBooking from '@widgets/cal/CalBooking.astro';
-import ThemeToggle from '@features/theme-toggle/ui/ThemeToggle.astro';
+import BookingTiles from '@app/components/bookme/BookingTiles.astro';
+import { CAL_EVENT_TYPES } from '@app/data/cal/event-types';
 
 const locale = 'ru';
+const pageTitle = 'Записаться на встречу';
+const DEFAULT_CAL_LINK = CAL_EVENT_TYPES[0]?.calLink || 'dmitrybond/intro-30m';
 ---
 
-<BaseLayout title="Записаться — Дмитрий Б." description="Записаться на встречу с Дмитрием Б." lang="ru">
+<BaseLayout title={pageTitle}>
   <Navbar locale={locale} />
-  <main class="bookme-page">
-    <CalBooking locale={locale} />
-  </main>
-  <ThemeToggle />
+  
+  <section class="mx-auto max-w-5xl px-4 py-8">
+    <h1 class="mb-4 text-2xl font-bold">{pageTitle}</h1>
+    <BookingTiles locale={locale} events={CAL_EVENT_TYPES} />
+  </section>
+
+  <section id="cal-section" class="mx-auto max-w-5xl px-4 py-6">
+    <div class="cal-embed" data-cal-link={DEFAULT_CAL_LINK} style="min-height:600px"></div>
+  </section>
+
+  <!-- 1) Официальный Cal bootstrap (НЕ менять порядок) -->
+  <script is:inline>
+    (function (C, A, L) {
+      let p = function (a, ar) { a.q.push(ar); };
+      let d = C.document;
+      C.Cal = C.Cal || function () {
+        let cal = C.Cal, ar = arguments;
+        if (!cal.loaded) {
+          cal.ns = {}; cal.q = cal.q || [];
+          d.head.appendChild(d.createElement("script")).src = A;
+          cal.loaded = true;
+        }
+        if (ar[0] === L) {
+          const api = function () { p(api, arguments); };
+          const ns = ar[1]; api.q = api.q || [];
+          typeof ns === "string" ? (cal.ns[ns] = api) && p(api, ar) : p(cal, ar);
+          return;
+        }
+        p(cal, ar);
+      };
+    })(window, "https://app.cal.com/embed/embed.js", "init");
+  </script>
+
+  <!-- 2) Глобальная конфигурация -->
+  <script is:inline>
+    Cal.config = Cal.config || {};
+    Cal.config.forwardQueryParams = true;
+  </script>
+
+  <!-- 3) Инициализация + интерактивный выбор ивента -->
+  <script is:inline>
+    (function () {
+      const EL = '.cal-embed';
+      const WRAP = document.querySelector(EL);
+      if (!WRAP) return;
+
+      function mount(calLink) {
+        if (!calLink) return;
+        // Перемонтируем безопасно
+        WRAP.innerHTML = '';
+        WRAP.setAttribute('data-cal-link', calLink);
+        // Инструкция уйдёт в очередь и выполнится после загрузки embed.js
+        Cal('inline', { elementOrSelector: EL, calLink, config: { layout: 'month_view' } });
+      }
+
+      // Первичная инициализация: из query ?cal=... или data-атрибута
+      const url = new URL(location.href);
+      const calFromQuery = url.searchParams.get('cal');
+      mount(calFromQuery || WRAP.getAttribute('data-cal-link'));
+
+      // Делегирование кликов по тайлам
+      document.addEventListener('click', (e) => {
+        const btn = (e.target instanceof Element) ? e.target.closest('[data-cal-link]') : null;
+        if (!btn) return;
+        const link = btn.getAttribute('data-cal-link');
+        if (!link) return;
+        e.preventDefault();
+        mount(link);
+        // мягкий скролл к виджету
+        const sec = document.getElementById('cal-section');
+        sec && sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Обновим адресную строку (без перезагрузки)
+        history.replaceState(null, '', `${location.pathname}?cal=${encodeURIComponent(link)}`);
+      }, { passive: true });
+    })();
+  </script>
 </BaseLayout>
-
-<style>
-  .bookme-page {
-    min-height: 100vh;
-    padding-top: 20px;
-  }
-
-  /* Ensure proper spacing for sticky navbar */
-  body {
-    margin: 0;
-    padding: 0;
-  }
-</style>

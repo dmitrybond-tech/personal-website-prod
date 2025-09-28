@@ -1,0 +1,22 @@
+---
+import type { CalEventType } from '@app/data/cal/event-types';
+const { locale, events } = Astro.props as { locale: 'en'|'ru'; events: CalEventType[] };
+---
+
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  {events.map(ev => (
+    <button
+      type="button"
+      class="group rounded-2xl border p-4 text-left hover:shadow focus:outline-none focus:ring"
+      data-cal-link={ev.calLink}
+      aria-label={(ev.i18n[locale]?.title) + ' — ' + (ev.i18n[locale]?.subtitle || '')}
+    >
+      <div class="text-lg font-semibold">{ev.i18n[locale].title}</div>
+      {ev.i18n[locale].subtitle && <div class="text-sm opacity-70">{ev.i18n[locale].subtitle}</div>}
+      <div class="mt-4 inline-flex items-center gap-2 text-sm opacity-90">
+        <span>{ev.i18n[locale].cta || (locale === 'ru' ? 'Записаться' : 'Book')}</span>
+        <span aria-hidden="true">→</span>
+      </div>
+    </button>
+  ))}
+</div>
