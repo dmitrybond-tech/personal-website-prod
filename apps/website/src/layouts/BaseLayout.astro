@@ -1,20 +1,23 @@
 ---
 import "../styles/main.css";
 import { getLocaleFromPath, switchLocale } from '../app/shared/lib/locale';
-import { getInitialTheme, applyTheme } from '../app/shared/lib/theme';
+import { getInitialTheme, applyTheme } from '@shared/lib/theme';
+import ThemeToggle from '@app/features/theme-toggle/ui/ThemeToggle.astro';
 
 interface Props {
   title?: string;
   description?: string;
   lang?: 'en' | 'ru';
   meta?: Record<string, string>;
+  variant?: 'default' | 'bookme';
 }
 
 const { 
   lang = 'en', 
   title = '', 
   description = '', 
-  meta = {}
+  meta = {},
+  variant = 'default'
 } = Astro.props as Props;
 
 const url = Astro.url;
@@ -23,6 +26,9 @@ const site = 'https://example.com'; // TODO: заменить на реальн�
 const altEn = switchLocale(url, 'en');
 const altRu = switchLocale(url, 'ru');
 const canonical = locale === 'en' ? `${site}${altEn}` : `${site}${altRu}`;
+
+// Авто-детект bookme по пути
+const isBookme = variant === 'bookme' || url.pathname.includes('/bookme');
 ---
 
 <!DOCTYPE html>
@@ -33,6 +39,20 @@ const canonical = locale === 'en' ? `${site}${altEn}` : `${site}${altRu}`;
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     <meta name="theme-color" content="#ffffff" />
+    
+    <!-- No-FOUC theme initialization -->
+    <script is:inline>
+      (function () {
+        try {
+          var ls = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = (ls === 'light' || ls === 'dark') ? ls : (prefersDark ? 'dark' : 'light');
+          var root = document.documentElement;
+          if (theme === 'dark') root.classList.add('dark');
+          root.setAttribute('data-theme', theme);
+        } catch {}
+      })();
+    </script>
 
     <!-- Canonical and alternate links -->
     <link rel="canonical" href={canonical} />
@@ -60,57 +80,19 @@ const canonical = locale === 'en' ? `${site}${altEn}` : `${site}${altRu}`;
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   </head>
-  <body class="min-h-screen bg-white text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">
+  <body class={`min-h-screen bg-white text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100 ${isBookme ? 'page-bookme' : ''}`}>
     <slot />
     
-    <!-- Initialize theme -->
-    <script is:inline>
-      (() => {
-        const getInitialTheme = () => {
-          if (typeof localStorage !== 'undefined') {
-            const stored = localStorage.getItem('theme');
-            if (stored === 'light' || stored === 'dark') {
-              return stored;
-            }
-            
-            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              return 'dark';
-            }
-          }
-          return 'light';
-        };
-
-        const applyTheme = (theme) => {
-          if (typeof document === 'undefined') return;
-          
-          const html = document.documentElement;
-          html.setAttribute('data-theme', theme);
-          
-          if (theme === 'dark') {
-            html.classList.add('dark');
-          } else {
-            html.classList.remove('dark');
-          }
-          
-          const themeMeta = document.querySelector('meta[name="theme-color"]');
-          if (themeMeta) {
-            themeMeta.content = theme === 'dark' ? '#1a202c' : '#ffffff';
-          }
-        };
-
-        const theme = getInitialTheme();
-        applyTheme(theme);
-      })();
-    </script>
+    <ThemeToggle client:load />
     
     <!-- Script for locale switching -->
-    <script>
-      document.addEventListener('click', (e) => {
-        const a = (e.target as HTMLElement)?.closest?.('a[data-locale]');
+    <script is:inline>
+      document.addEventListener('click', function(e) {
+        var a = e.target && e.target.closest ? e.target.closest('a[data-locale]') : null;
         if (a) {
-          const loc = (a as HTMLAnchorElement).getAttribute('data-locale');
+          var loc = a.getAttribute('data-locale');
           if (loc === 'en' || loc === 'ru') {
-            document.cookie = `locale=${loc}; Max-Age=31536000; Path=/; SameSite=Lax`;
+            document.cookie = 'locale=' + loc + '; Max-Age=31536000; Path=/; SameSite=Lax';
           }
         }
       });

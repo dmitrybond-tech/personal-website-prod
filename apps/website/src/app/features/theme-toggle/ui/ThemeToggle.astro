@@ -1,10 +1,12 @@
 ---
-// Theme toggle component
+import themeClientUrl from '@app/features/theme-toggle/ui/theme-client.ts?url';
+/* Глобальная плавающая кнопка темы */
 ---
 
 <button
   id="theme-toggle"
   aria-label="Theme toggle"
+  data-role="global-theme-toggle"
   class="fixed bottom-3 left-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-400 shadow-xl transition focus:ring-primary-500 dark:bg-gray-600 dark:text-gray-200"
 >
   <svg class="block dark:hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -15,19 +17,5 @@
   </svg>
 </button>
 
-<script>
-  import { getInitialTheme, applyTheme, toggleTheme } from '@shared/lib/theme';
-
-  // Инициализация темы при загрузке
-  const initialTheme = getInitialTheme();
-  applyTheme(initialTheme);
-
-  // Обработчик переключения темы
-  const themeToggle = document.getElementById('theme-toggle');
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      toggleTheme();
-    });
-  }
-</script>
+<script type="module" src={themeClientUrl}></script>
 

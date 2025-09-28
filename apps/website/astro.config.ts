@@ -28,13 +28,8 @@ export default defineConfig({
     }],
     resolve: {
       alias: {
+        '@shared': path.resolve('./src/shared'),
         '@app': path.resolve('./src/app'),
-        '@shared': path.resolve('./src/app/shared'),
-        '@entities': path.resolve('./src/app/entities'),
-        '@features': path.resolve('./src/app/features'),
-        '@widgets': path.resolve('./src/app/widgets'),
-        '@pages': path.resolve('./src/pages'),
-        '@providers': path.resolve('./src/providers'),
       },
     },
   },

@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
-import ThemeToggle from '@features/theme-toggle/ui/ThemeToggle.astro';
 import AboutShell from '../../features/about/devscard/ui/AboutShell.astro';
 import { getDevscardData } from '../../features/about/devscard/lib/getDevscardData';
 
@@ -12,7 +11,6 @@ const devscardData = getDevscardData(locale);
 <BaseLayout>
   <Navbar locale={locale} />
   <AboutShell locale={locale} data={devscardData} />
-  <ThemeToggle />
 </BaseLayout>
 
 <style>

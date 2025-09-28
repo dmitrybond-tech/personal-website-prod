@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
 import BookingTiles from '@app/components/bookme/BookingTiles.astro';
 import { CAL_EVENT_TYPES } from '@app/data/cal/event-types';
+import bookmeClientUrl from '@shared/cal/page-bookme.ts?url';
 
 const locale = 'en';
 const pageTitle = 'Book a meeting';
@@ -12,13 +13,13 @@ const DEFAULT_CAL_LINK = CAL_EVENT_TYPES[0]?.calLink || 'dmitrybond/intro-30m';
 <BaseLayout title={pageTitle}>
   <Navbar locale={locale} />
   
-  <section class="mx-auto w-full max-w-[992px] px-4 py-8">
+  <section class="mx-auto max-w-[var(--cv-max-w)] px-[var(--cv-gap)] py-8">
     <h1 class="mb-4 text-2xl font-bold">{pageTitle}</h1>
     <BookingTiles locale={locale} events={CAL_EVENT_TYPES} />
   </section>
 
-  <section id="cal-section" class="mx-auto max-w-5xl px-4 py-6">
-    <div class="cal-embed" data-cal-link={DEFAULT_CAL_LINK} style="min-height:600px"></div>
+  <section id="cal-section" class="mx-auto max-w-[var(--cv-max-w)] px-[var(--cv-gap)] py-6 relative isolate">
+    <div id="cal-inline" class="cal-inline-wrapper min-h-[640px]"></div>
   </section>
 
   <!-- 1) Официальный Cal bootstrap (НЕ менять порядок) -->
@@ -50,41 +51,6 @@ const DEFAULT_CAL_LINK = CAL_EVENT_TYPES[0]?.calLink || 'dmitrybond/intro-30m';
     Cal.config.forwardQueryParams = true;
   </script>
 
-  <!-- 3) Инициализация + интерактивный выбор ивента -->
-  <script is:inline>
-    (function () {
-      const EL = '.cal-embed';
-      const WRAP = document.querySelector(EL);
-      if (!WRAP) return;
-
-      function mount(calLink) {
-        if (!calLink) return;
-        // Перемонтируем безопасно
-        WRAP.innerHTML = '';
-        WRAP.setAttribute('data-cal-link', calLink);
-        // Инструкция уйдёт в очередь и выполнится после загрузки embed.js
-        Cal('inline', { elementOrSelector: EL, calLink, config: { layout: 'month_view' } });
-      }
-
-      // Первичная инициализация: из query ?cal=... или data-атрибута
-      const url = new URL(location.href);
-      const calFromQuery = url.searchParams.get('cal');
-      mount(calFromQuery || WRAP.getAttribute('data-cal-link'));
-
-      // Делегирование кликов по тайлам
-      document.addEventListener('click', (e) => {
-        const btn = (e.target instanceof Element) ? e.target.closest('[data-cal-link]') : null;
-        if (!btn) return;
-        const link = btn.getAttribute('data-cal-link');
-        if (!link) return;
-        e.preventDefault();
-        mount(link);
-        // мягкий скролл к виджету
-        const sec = document.getElementById('cal-section');
-        sec && sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Обновим адресную строку (без перезагрузки)
-        history.replaceState(null, '', `${location.pathname}?cal=${encodeURIComponent(link)}`);
-      }, { passive: true });
-    })();
-  </script>
+  <!-- 3) Инициализация с синхронизацией темы -->
+  <script type="module" src={bookmeClientUrl}></script>
 </BaseLayout>

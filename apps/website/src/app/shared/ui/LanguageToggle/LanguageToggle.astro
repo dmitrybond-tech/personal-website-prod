@@ -16,18 +16,18 @@ const label = locale.toUpperCase(); // показываем текущую ло�
   .lang-switch {
     display: inline-flex; 
     align-items: center;
-    border: 1px solid rgba(0,0,0,.08);
-    background: rgba(255,255,255,.6);
+    border: 1px solid var(--nav-panel-border);
+    background: var(--nav-chip-bg);
     backdrop-filter: blur(6px);
     border-radius: 999px; 
     padding: 6px 14px;
     font-size: .9rem; 
-    color: #001111; 
+    color: var(--nav-fg); 
     text-decoration: none;
     transition: background .2s ease, transform .05s ease;
   }
   .lang-switch:hover { 
-    background: rgba(0,0,0,.04); 
+    background: var(--nav-chip-active-bg); 
   }
   .lang-switch:active { 
     transform: translateY(1px); 

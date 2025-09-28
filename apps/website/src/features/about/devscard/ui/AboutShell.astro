@@ -63,37 +63,29 @@ const { config, sections } = data;
   }
 </style>
 
-<script>
-  // Скрипт для активной секции (скопирован из DevsCard)
-  import hashState from '../utils/hash-state.js';
-  import throttle from '../utils/throttle.js';
+<script is:inline>
+  function setActiveItem() {
+    try {
+      var path = (window && window.location && window.location.pathname) || '';
+      var hash = (window && window.location && window.location.hash) || '';
+      var links = document.querySelectorAll('[data-sidenav-link]');
+      links.forEach(function (a) {
+        var href = a && a.getAttribute ? (a.getAttribute('href') || '') : '';
+        if (!href) {
+          a && a.setAttribute && a.setAttribute('aria-current', 'false');
+          return;
+        }
+        var active =
+          (path && href && path.endsWith(href)) ||
+          (hash && href && hash === href);
+        a.classList.toggle('active', !!active);
+        a.setAttribute('aria-current', active ? 'page' : 'false');
+      });
+    } catch (e) { /* no-op */ }
+  }
 
-  const sections = [...document.querySelectorAll('[data-type="section"]')];
-  const sidebarItems = [...document.getElementById('sidebar')?.children || []] as HTMLAnchorElement[];
-
-  const isInUpperView = (section: Element) => section.getBoundingClientRect().bottom >= window.innerHeight / 3;
-
-  const setActiveItem = (hash: string) => {
-    sidebarItems.forEach((item) => {
-      if (item.href.endsWith(hash)) {
-        item.setAttribute('aria-current', 'page');
-      } else {
-        item.removeAttribute('aria-current');
-      }
-    });
-  };
-
-  const updateHash = () => {
-    const currentSection = sections.find(isInUpperView);
-    if (currentSection) {
-      hashState.updateHash(currentSection.id);
-    }
-  };
-
-  // Инициализация
-  setActiveItem(hashState.getHash());
-  hashState.subscribe(setActiveItem);
-  document.addEventListener('scroll', throttle(updateHash, 200));
+  document.addEventListener('DOMContentLoaded', setActiveItem);
+  window.addEventListener('hashchange', setActiveItem);
 </script>
 
 <script>

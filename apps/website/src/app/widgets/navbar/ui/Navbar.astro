@@ -19,34 +19,54 @@ const L = {
 ---
 
 <style>
-  .nav-wrap {
-    position: sticky; top: 0; z-index: 50;
-    background: var(--cv-page-bg);
-    padding: 12px 0;
-  }
-  
   .nav-island {
-    margin: 0 auto;
-    max-width: var(--cv-max-w);
-    padding: 0 var(--cv-gap);
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 8px;
+    min-height: 60px; /* Стабильная высота для предотвращения прыжков */
 
-    background: rgba(255,255,255,.85);
+    background: var(--nav-bg);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(0,0,0,.06);
+    border: 1px solid var(--nav-border);
     border-radius: 16px;         /* скругление */
     box-shadow: 0 6px 20px rgba(0,0,0,.06); /* лёгкая тень */
     padding: 10px 14px;
+  }
+
+  /* Адаптивность для узких экранов */
+  @media (max-width: 640px) {
+    .nav-island {
+      grid-template-columns: auto 1fr auto;
+      gap: 4px;
+      padding: 8px 12px;
+    }
+    
+    .center-nav {
+      justify-self: center;
+      gap: 4px;
+      padding: 2px;
+    }
+    
+    .nav-btn {
+      padding: 4px 8px;
+      font-size: 0.875rem;
+    }
+    
+    .right {
+      justify-self: end;
+    }
+    
+    .right .flex {
+      gap: 4px;
+    }
   }
   .brand { 
     justify-self: start; 
     font-weight: 600; 
     opacity:.85; 
     text-decoration: none;
-    color: #001111;
+    color: var(--nav-fg, #001111);
     transition: opacity .2s ease;
   }
   .brand:hover {
@@ -55,19 +75,20 @@ const L = {
   .center-nav {
     justify-self: center;
     display: inline-flex; gap: 8px;
-    border: 1px solid rgba(0,0,0,.08);
-    background: rgba(255,255,255,.7);
+    border: 1px solid var(--nav-panel-border);
+    background: var(--nav-panel-bg);
     border-radius: 999px; padding: 4px;
   }
   .nav-btn { 
     padding: 6px 14px; 
     border-radius: 999px; 
     text-decoration:none; 
-    color:#001111; 
+    color: var(--nav-fg); 
+    background: var(--nav-chip-bg);
     transition: background .2s ease;
   }
   .nav-btn:hover { 
-    background: rgba(0,0,0,.04); 
+    background: var(--nav-chip-active-bg); 
   }
   .right { 
     justify-self: end; 
@@ -78,14 +99,14 @@ const L = {
   }
 </style>
 
-<header class="nav-wrap" data-app-navbar>
-  <div class="nav-island">
-    <div class="brand">
+<header class="nav-surface" data-app-navbar>
+  <div class="nav-island mx-auto w-full max-w-[var(--cv-max-w)] px-[var(--cv-gap)]">
+    <div class="brand nav-item">
       <a href={`/${locale}/about`}>{L.brand}</a>
     </div>
     <nav class="center-nav">
-      <a class="nav-btn" href={`/${locale}/about`}>{L.about}</a>
-      <a class="nav-btn" href={`/${locale}/bookme`}>{L.book}</a>
+      <a class="nav-btn nav-item nav-chip" href={`/${locale}/about`} aria-current={Astro.url.pathname.includes('/about') ? 'page' : 'false'}>{L.about}</a>
+      <a class="nav-btn nav-item nav-chip" href={`/${locale}/bookme`} aria-current={Astro.url.pathname.includes('/bookme') ? 'page' : 'false'}>{L.book}</a>
     </nav>
     <div class="right">
       <LanguageToggle locale={locale} />

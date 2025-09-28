@@ -21,22 +21,27 @@ const sectionConfigs = Object.values(sections).map((section) => section.config);
   {sectionConfigs.filter((config) => config.visible).map((config) => <SidebarItem {...config} />)}
 </nav>
 
-<script>
-  import hashState from '../utils/hash-state.js';
+<script is:inline>
+  function setActiveItem() {
+    try {
+      var path = (window && window.location && window.location.pathname) || '';
+      var hash = (window && window.location && window.location.hash) || '';
+      var links = document.querySelectorAll('[data-sidenav-link]');
+      links.forEach(function (a) {
+        var href = a && a.getAttribute ? (a.getAttribute('href') || '') : '';
+        if (!href) {
+          a && a.setAttribute && a.setAttribute('aria-current', 'false');
+          return;
+        }
+        var active =
+          (path && href && path.endsWith(href)) ||
+          (hash && href && hash === href);
+        a.classList.toggle('active', !!active);
+        a.setAttribute('aria-current', active ? 'page' : 'false');
+      });
+    } catch (e) { /* no-op */ }
+  }
 
-  const sidebarItems = [...document.getElementById('sidebar')?.children || []] as HTMLAnchorElement[];
-
-  const setActiveItem = (hash: string) => {
-    sidebarItems.forEach((item) => {
-      if (item.href.endsWith(hash)) {
-        item.setAttribute('aria-current', 'page');
-      } else {
-        item.removeAttribute('aria-current');
-      }
-    });
-  };
-
-  setActiveItem(hashState.getHash());
-
-  hashState.subscribe(setActiveItem);
+  document.addEventListener('DOMContentLoaded', setActiveItem);
+  window.addEventListener('hashchange', setActiveItem);
 </script>

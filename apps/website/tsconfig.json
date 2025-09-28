@@ -4,16 +4,8 @@
     "baseUrl": ".",
     "types": ["astro/client", "node"],
     "paths": {
-      "@/*": ["src/*"],
-      "@app/*": ["src/app/*"],
-      "@shared/*": ["src/app/shared/*"],
-      "@entities/*": ["src/app/entities/*"],
-      "@features/*": ["src/app/features/*"],
-      "@widgets/*": ["src/widgets/*"],
-      "@pages/*": ["src/pages/*"],
-      "@providers/*": ["src/providers/*"],
-      "@components/*": ["src/components/*"],
-      "@content/*": ["src/content/*"]
+      "@shared/*": ["src/shared/*"],
+      "@app/*": ["src/app/*"]
     }
   },
   "include": ["src", "astro.config.*", "env.d.ts"]

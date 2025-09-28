@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
-import path from 'path';
+import { fileURLToPath } from 'node:url';
 
 // Читаем TUNNEL_HOSTS из env для поддержки туннелей
 const tunnelHosts = process.env.TUNNEL_HOSTS?.split(',').map(host => host.trim()) || [];
@@ -18,14 +18,8 @@ export default defineConfig({
     plugins: [],
     resolve: {
       alias: {
-        '@app': path.resolve('./src/app'),
-        '@shared': path.resolve('./src/app/shared'),
-        '@entities': path.resolve('./src/app/entities'),
-        '@features': path.resolve('./src/app/features'),
-        '@widgets': path.resolve('./src/widgets'),
-        '@pages': path.resolve('./src/pages'),
-        '@providers': path.resolve('./src/providers'),
-        '@components': path.resolve('./src/components'),
+        '@shared': fileURLToPath(new URL('./src/shared', import.meta.url)),
+        '@app': fileURLToPath(new URL('./src/app', import.meta.url)),
       },
     },
     server: {
