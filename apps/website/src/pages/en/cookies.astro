@@ -1,0 +1,28 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+const today = new Date().toISOString().slice(0,10);
+---
+<BaseLayout title="Cookie Policy">
+  <main class="cv-root prose prose-zinc dark:prose-invert mx-auto max-w-3xl px-4 py-10">
+    <h1>Cookie Policy</h1>
+    <p>We use cookies and similar technologies to ensure the site works properly, to measure performance, and (where applicable) for marketing.</p>
+
+    <h2>1. Types of cookies</h2>
+    <ul>
+      <li><strong>Essential</strong>: required for core functionality (security, session, booking flow).</li>
+      <li><strong>Analytics</strong>: help us understand usage to improve the site (aggregated stats).</li>
+      <li><strong>Marketing</strong>: used to deliver or measure advertising (only if enabled).</li>
+    </ul>
+
+    <h2>2. Managing preferences</h2>
+    <p>You can accept or reject non-essential cookies via a future cookie banner or revisit preferences at any time (footer link "Manage cookies", if enabled).</p>
+
+    <h2>3. Browser controls</h2>
+    <p>You can control cookies via your browser settings (block, delete, or limit third-party cookies).</p>
+
+    <h2>4. Changes</h2>
+    <p>We may update this policy from time to time. Updates become effective upon publication.</p>
+
+    <p class="text-sm opacity-70 mt-8">Last updated: {today}.</p>
+  </main>
+</BaseLayout>
