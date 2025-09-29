@@ -25,12 +25,7 @@ const L = {
     align-items: center;
     gap: 8px;
     min-height: 60px; /* Стабильная высота для предотвращения прыжков */
-
-    background: var(--nav-bg);
     backdrop-filter: blur(8px);
-    border: 1px solid var(--nav-border);
-    border-radius: 16px;         /* скругление */
-    box-shadow: 0 6px 20px rgba(0,0,0,.06); /* лёгкая тень */
     padding: 10px 14px;
   }
 
@@ -61,38 +56,35 @@ const L = {
       gap: 4px;
     }
   }
+  
   .brand { 
     justify-self: start; 
     font-weight: 600; 
-    opacity:.85; 
+    opacity: 0.85; 
     text-decoration: none;
-    color: var(--nav-fg, #001111);
     transition: opacity .2s ease;
   }
   .brand:hover {
     opacity: 1;
   }
+  
   .center-nav {
     justify-self: center;
-    display: inline-flex; gap: 8px;
-    border: 1px solid var(--nav-panel-border);
-    background: var(--nav-panel-bg);
-    border-radius: 999px; padding: 4px;
+    display: inline-flex; 
+    gap: 8px;
+    padding: 4px;
   }
+  
   .nav-btn { 
     padding: 6px 14px; 
-    border-radius: 999px; 
-    text-decoration:none; 
-    color: var(--nav-fg); 
-    background: var(--nav-chip-bg);
+    text-decoration: none; 
     transition: background .2s ease;
   }
-  .nav-btn:hover { 
-    background: var(--nav-chip-active-bg); 
-  }
+  
   .right { 
     justify-self: end; 
   }
+  
   .nav-island a { 
     text-decoration: none; 
     color: inherit; 
@@ -100,11 +92,11 @@ const L = {
 </style>
 
 <header class="nav-surface" data-app-navbar>
-  <div class="nav-island mx-auto w-full max-w-[var(--cv-max-w)] px-[var(--cv-gap)]">
+  <div class="nav-island navisland-bg nav-offset nav-sticky-floating island-shadow cv-container">
     <div class="brand nav-item">
       <a href={`/${locale}/about`}>{L.brand}</a>
     </div>
-    <nav class="center-nav">
+    <nav class="center-nav nav-panel navpanel-bg ui-outline ui-outline-brandlight">
       <a class="nav-btn nav-item nav-chip" href={`/${locale}/about`} aria-current={Astro.url.pathname.includes('/about') ? 'page' : 'false'}>{L.about}</a>
       <a class="nav-btn nav-item nav-chip" href={`/${locale}/bookme`} aria-current={Astro.url.pathname.includes('/bookme') ? 'page' : 'false'}>{L.book}</a>
     </nav>

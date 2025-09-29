@@ -14,97 +14,110 @@
   src: url('/fonts/Inter-roman.var.woff2') format('woff2');
 }
 
-/* Кастомные CSS-переменные для цветовой схемы */
+/* Unified theme tokens - DevsCard as single source of truth */
 :root {
-  --color-primary-50: #eef2ff;
-  --color-primary-100: #e0e7ff;
-  --color-primary-200: #c7d2fe;
-  --color-primary-300: #a5b4fc;
-  --color-primary-400: #818cf8;
-  --color-primary-500: #6366f1;
-  --color-primary-600: #4f46e5;
-  --color-primary-700: #4338ca;
-  --color-primary-800: #3730a3;
-  --color-primary-900: #312e81;
-  --color-primary-950: #1e1b4b;
+  /* Base surface + text, reused by cv-root and nav */
+  --cv-surface: var(--cv-page-bg, #f6f7fb);
+  --cv-surface-elevated: #ffffff;
+  --cv-surface-elevated-2: #ffffff;
+  --cv-text: #001111;
+  --cv-muted: #6b7280;
+  --cv-on-primary: #ffffff;
+
+  /* Container/gutter variables */
+  --cv-container-max: var(--cv-max-w, 80rem);
+  --cv-gutter-x: var(--cv-gap, 1.5rem);
   
-  /* DevsCard background color */
-  --site-bg: #F8F8F8;
-  --site-fg: #001111;
-  --site-border: rgba(0,0,0,.06);
-  
-  /* NavBar variables - inherit from site theme */
-  --nav-bg: var(--site-bg);
-  --nav-fg: var(--site-fg);
-  --nav-border: var(--site-border);
-  
-  /* new for inner panel + chips/toggles */
-  --nav-panel-bg: var(--site-bg);
-  --nav-panel-border: var(--site-border);
-  --nav-chip-bg: rgba(0,0,0,0.04);
-  --nav-chip-fg: var(--nav-fg);
-  --nav-chip-active-bg: #ffffff;
-  --nav-chip-active-fg: var(--nav-fg);
-  
+  /* Bookme pages width constraint */
+  --bookme-max-w: 960px;
+
+  /* Hairline border (derive from text) */
+  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/12%, transparent);
+
+  /* Nav offset for subtle positioning */
+  --cv-nav-offset-y: var(--cv-gap-y-sm, 6px);
+
+  /* Primary colors from DevsCard */
+  --cv-primary-50: #eef2ff;
+  --cv-primary-100: #e0e7ff;
+  --cv-primary-200: #c7d2fe;
+  --cv-primary-300: #a5b4fc;
+  --cv-primary-400: #818cf8;
+  --cv-primary-500: #6366f1;
+  --cv-primary-600: #4f46e5;
+  --cv-primary-700: #4338ca;
+  --cv-primary-800: #3730a3;
+  --cv-primary-900: #312e81;
+  --cv-primary-950: #1e1b4b;
+
+  /* Nav aliases that point to the same base (DRY) */
+  --cv-nav-surface: var(--cv-surface);
+  --cv-nav-bar: var(--cv-surface-elevated);
+  --cv-nav-island: var(--cv-surface-elevated-2);
+  --cv-nav-border: var(--cv-border-hairline);
+  --cv-nav-text: var(--cv-text);
+  --cv-nav-muted: var(--cv-muted);
+  --cv-nav-accent: var(--cv-primary-600);
+  --cv-nav-accent-text: var(--cv-on-primary);
+
   /* Brand color for Cal.com integration */
   --brand-color: #0ea5e9;
+
+  /* Light-only brand outline color */
+  --cv-brand-light: #5b49ee;
+
+  /* Dark-only inner backgrounds for nav */
+  --cv-navisland-bg-dark: #1f2937; /* gray-800 */
+  --cv-navpanel-bg-dark: #374151; /* gray-700 */
 }
 
 .dark {
-  --site-bg: #111827;
-  --site-fg: #f9fafb;
-  --site-border: rgba(255,255,255,.1);
+  /* Dark theme overrides for unified tokens */
+  --cv-surface: var(--cv-page-bg, #111827);
+  --cv-surface-elevated: #1f2937;
+  --cv-surface-elevated-2: #374151;
+  --cv-text: #f9fafb;
+  --cv-muted: #9ca3af;
+  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/16%, transparent);
   
-  /* NavBar variables - inherit from site theme */
-  --nav-bg: var(--site-bg);
-  --nav-fg: var(--site-fg);
-  --nav-border: var(--site-border);
-  
-  /* dark counterparts – map to existing About/Base tokens if present */
-  --nav-panel-bg: var(--site-bg);
-  --nav-panel-border: var(--site-border);
-  --nav-chip-bg: rgba(255,255,255,0.06);
-  --nav-chip-fg: var(--nav-fg);
-  --nav-chip-active-bg: rgba(255,255,255,0.12);
-  --nav-chip-active-fg: var(--nav-fg);
+  /* Dark nav accent */
+  --cv-nav-accent: var(--cv-primary-400);
 }
 
 /* Дублирующий селектор для data-theme (если где-то завязано на data-theme) */
 html[data-theme="dark"] {
-  --site-bg: #111827;
-  --site-fg: #f9fafb;
-  --site-border: rgba(255,255,255,.1);
+  /* Dark theme overrides for unified tokens */
+  --cv-surface: var(--cv-page-bg, #111827);
+  --cv-surface-elevated: #1f2937;
+  --cv-surface-elevated-2: #374151;
+  --cv-text: #f9fafb;
+  --cv-muted: #9ca3af;
+  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/16%, transparent);
   
-  /* NavBar variables - inherit from site theme */
-  --nav-bg: var(--site-bg);
-  --nav-fg: var(--site-fg);
-  --nav-border: var(--site-border);
-  
-  /* dark counterparts – map to existing About/Base tokens if present */
-  --nav-panel-bg: var(--site-bg);
-  --nav-panel-border: var(--site-border);
-  --nav-chip-bg: rgba(255,255,255,0.06);
-  --nav-chip-fg: var(--nav-fg);
-  --nav-chip-active-bg: rgba(255,255,255,0.12);
-  --nav-chip-active-fg: var(--nav-fg);
+  /* Dark nav accent */
+  --cv-nav-accent: var(--cv-primary-400);
 }
 
 /* Базовые стили для body */
 html, body {
-  background: var(--cv-page-bg, var(--site-bg));
+  background: var(--cv-surface);
+  color: var(--cv-text);
 }
 
-/* Стили для страниц Bookme - используем те же токены, что и на About */
-body.page-bookme {
-  background: var(--cv-page-bg, var(--site-bg));
+/* About pages: body-level background using cv-root tokens */
+body.page-about {
+  background: var(--cv-surface);
+  color: var(--cv-text);
 }
 
-.dark body.page-bookme {
-  background: var(--cv-page-bg, #111827);
+.dark body.page-about {
+  background: var(--cv-surface);
+  color: var(--cv-text);
 }
 
-html[data-theme="dark"] body.page-bookme {
-  background: var(--cv-page-bg, #111827);
+html[data-theme="dark"] body.page-about {
+  background: var(--cv-surface);
+  color: var(--cv-text);
 }
 
 body {
@@ -123,30 +136,129 @@ body {
   to { opacity: 1; }
 }
 
-/* NavBar component classes */
+/* Lightweight utilities that mirror cv-root */
+@layer utilities {
+  .bg-surface       { background: var(--cv-surface); }
+  .bg-elev-1        { background: var(--cv-surface-elevated); }
+  .bg-elev-2        { background: var(--cv-surface-elevated-2); }
+  .text-body        { color: var(--cv-text); }
+  .text-muted       { color: var(--cv-muted); }
+  .border-hairline  { border-color: var(--cv-border-hairline); }
+  .cv-container     { max-width: var(--cv-container-max); padding-left: var(--cv-gutter-x); padding-right: var(--cv-gutter-x); margin-inline: auto; }
+
+  /* Nav offset utility */
+  .nav-offset { margin-top: var(--cv-nav-offset-y); }
+
+  /* Subtle, token-driven outline that respects border radius */
+  .ui-outline {
+    box-shadow: inset 0 0 0 1px var(--cv-border-hairline);
+    border-radius: inherit;
+  }
+  .ui-outline:hover,
+  .ui-outline:focus-visible {
+    /* Slightly stronger on hover/focus, still token-based */
+    box-shadow: inset 0 0 0 1.5px color-mix(in oklab, var(--cv-text) 20%, transparent);
+    outline: none;
+  }
+
+  /* Light-only brand outline (1px, no width change on hover/focus) */
+  .ui-outline-brandlight {
+    box-shadow: inset 0 0 0 1px var(--cv-brand-light);
+    border-radius: inherit;
+  }
+  .ui-outline-brandlight:hover,
+  .ui-outline-brandlight:focus-visible {
+    /* Keep 1px width, just slightly stronger color */
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--cv-brand-light) 80%, transparent);
+    outline: none;
+  }
+
+  /* Sticky floating island behavior */
+  .nav-sticky-floating {
+    position: sticky;
+    top: var(--cv-nav-offset-y);
+    z-index: 50;
+  }
+
+  /* Island shadow for floating effect */
+  .island-shadow {
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+  }
+
+  /* Bookme pages unified layout utilities */
+  .booker-container {
+    max-width: var(--bookme-max-w);
+    width: 100%;
+    margin-inline: auto;
+    padding-left: var(--cv-gap);
+    padding-right: var(--cv-gap);
+    padding-top: 2rem;
+    padding-bottom: 1rem;
+  }
+
+  .booker-calendar {
+    max-width: var(--bookme-max-w);
+    width: 100%;
+    margin-inline: auto;
+    padding-left: var(--cv-gap);
+    padding-right: var(--cv-gap);
+    padding-top: 1rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .booker-row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--cv-gap-x-sm, 0.5rem);
+    align-items: stretch;
+  }
+
+  /* Semantic BG for navisland inner container:
+     Light -> reuse elevated surface from DevsCard;
+     Dark  -> force exact hex via centralized token. */
+  .navisland-bg { background: var(--cv-surface-elevated-2); }
+  html.dark .navisland-bg { background-color: var(--cv-navisland-bg-dark); }
+
+  /* Semantic BG for center-nav nav-panel:
+     Light -> reuse elevated surface;
+     Dark  -> exact hex from centralized token. */
+  .navpanel-bg { background: var(--cv-surface-elevated-2); }
+  html.dark .navpanel-bg { background-color: var(--cv-navpanel-bg-dark); }
+}
+
+/* NavBar component classes - now using DRY utilities/vars */
 @layer components {
   .nav-surface {
     @apply sticky top-0 z-50 w-full;
-    /* базовые цвета от глобальных токенов сайта, как на About */
-    background-color: var(--nav-bg, var(--site-bg));
-    color: var(--nav-fg, var(--site-fg));
-    border-bottom: 1px solid var(--nav-border, var(--site-border));
+    /* Using unified cv-root tokens */
+    background-color: var(--cv-nav-surface);
+    color: var(--cv-nav-text);
+    border-bottom: 1px solid var(--cv-nav-border);
     /* высота и стабильность */
     min-height: var(--navbar-h, 60px);
   }
 
-  /* NEW: inner panel that holds tabs (About/Book Me) */
+  /* Nav island using elevated surface */
+  .nav-island {
+    background-color: var(--cv-nav-island);
+    color: var(--cv-nav-text);
+    border: 1px solid var(--cv-nav-border);
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+  }
+
+  /* Inner panel that holds tabs */
   .nav-panel {
-    background-color: var(--nav-panel-bg);
-    border: 1px solid var(--nav-panel-border);
+    background-color: var(--cv-nav-bar);
+    border: 1px solid var(--cv-nav-border);
     border-radius: 9999px;
     padding: 0.25rem;
   }
 
-  /* NEW: chips/tabs/buttons inside navbar (including Language toggle) */
+  /* Chips/tabs/buttons inside navbar */
   .nav-chip {
-    background-color: var(--nav-chip-bg);
-    color: var(--nav-chip-fg);
+    background-color: var(--cv-nav-bar);
+    color: var(--cv-nav-text);
     border-radius: 9999px;
     padding: 0.5rem 1rem;
     line-height: 1;
@@ -161,17 +273,17 @@ body {
   }
   .nav-chip[aria-current="page"],
   .nav-chip.is-active {
-    background-color: var(--nav-chip-active-bg);
-    color: var(--nav-chip-active-fg);
+    background-color: var(--cv-nav-accent);
+    color: var(--cv-nav-accent-text);
   }
 
-  /* Language toggle inherits nav-item color; keep it simple */
+  /* Language toggle inherits nav-item color */
   .nav-lang {
-    color: var(--nav-fg);
+    color: var(--cv-nav-text);
   }
 
   .nav-item {
-    color: var(--nav-fg, var(--site-fg));
+    color: var(--cv-nav-text);
     opacity: 0.92;
   }
   .nav-item:hover,

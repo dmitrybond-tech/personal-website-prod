@@ -9,7 +9,8 @@ interface Props {
   description?: string;
   lang?: 'en' | 'ru';
   meta?: Record<string, string>;
-  variant?: 'default' | 'bookme';
+  variant?: 'default' | 'bookme' | 'about';
+  pageClass?: string;
 }
 
 const { 
@@ -17,7 +18,8 @@ const {
   title = '', 
   description = '', 
   meta = {},
-  variant = 'default'
+  variant = 'default',
+  pageClass = ''
 } = Astro.props as Props;
 
 const url = Astro.url;
@@ -27,8 +29,17 @@ const altEn = switchLocale(url, 'en');
 const altRu = switchLocale(url, 'ru');
 const canonical = locale === 'en' ? `${site}${altEn}` : `${site}${altRu}`;
 
-// Авто-детект bookme по пути
+// Авто-детект page type по пути
 const isBookme = variant === 'bookme' || url.pathname.includes('/bookme');
+const isAbout = variant === 'about' || url.pathname.includes('/about');
+
+// Build body classes
+const bodyClasses = [
+  'min-h-screen antialiased',
+  isBookme ? 'page-bookme' : '',
+  isAbout ? 'page-about' : '',
+  pageClass
+].filter(Boolean).join(' ');
 ---
 
 <!DOCTYPE html>
@@ -80,7 +91,7 @@ const isBookme = variant === 'bookme' || url.pathname.includes('/bookme');
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   </head>
-  <body class={`min-h-screen bg-white text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100 ${isBookme ? 'page-bookme' : ''}`}>
+  <body class={bodyClasses}>
     <slot />
     
     <ThemeToggle client:load />
