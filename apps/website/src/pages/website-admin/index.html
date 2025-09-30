@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CMS Admin</title>
+    <!-- Loader: dev uses YAML; prod uses manual init with dynamic base_url -->
+    <script>
+      (function () {
+        const forceProd = /[?&](mode|env)=prod\b/i.test(location.search);
+        const isLocal = (/localhost|127\.0\.0\.1/.test(location.hostname)) && !forceProd;
+        if (isLocal) {
+          const l = document.createElement("link");
+          l.setAttribute("rel", "cms-config-url");
+          l.setAttribute("type", "text/yaml");
+          l.setAttribute("href", "/website-admin/config.dev.yml");
+          document.head.appendChild(l);
+        } else {
+          // IMPORTANT: set BEFORE decap-cms.js loads
+          window.CMS_MANUAL_INIT = true;
+        }
+        window.__CMS_IS_LOCAL__ = isLocal;
+      })();
+    </script>
+
+    <!-- Decap CMS -->
+    <script src="https://unpkg.com/decap-cms@3.8.3/dist/decap-cms.js"></script>
+
+    <!-- Prod OAuth dynamic init (runs only when not local OR ?mode=prod) -->
+    <script>
+      (function () {
+        function initProd() {
+          if (window.__CMS_IS_LOCAL__) return;
+          if (!window.CMS || !window.CMS.init) {
+            // Try again on next tick
+            return setTimeout(initProd, 50);
+          }
+          // Mirror the prod YAML but override base_url dynamically.
+          window.CMS.init({
+            config: {
+              backend: {
+                name: "github",
+                repo: "dmitrybond-tech/personal-website-dev",
+                branch: "main",
+              },
+              base_url: location.origin,
+              auth_endpoint: "oauth",
+              media_folder: "public/uploads",
+              public_folder: "/uploads",
+              collections: [
+                {
+                  name: "pages",
+                  label: "Pages",
+                  folder: "apps/website/src/content/pages",
+                  create: true,
+                  format: "frontmatter",
+                  extension: "md",
+                  fields: [
+                    { label: "Title", name: "title", widget: "string" },
+                    { label: "Language", name: "lang", widget: "select", options: ["en","ru"] },
+                    { label: "Route", name: "route", widget: "string", hint: "/en/about or /ru/about" },
+                    {
+                      label: "Blocks",
+                      name: "blocks",
+                      widget: "list",
+                      summary: "{{fields.type}}",
+                      fields: [
+                        { label: "Type", name: "type", widget: "select", options: ["hero","experience","tech","cta"] },
+                        {
+                          label: "Props",
+                          name: "props",
+                          widget: "object",
+                          fields: [
+                            { label: "Heading", name: "heading", widget: "string", required: false },
+                            { label: "Text", name: "text", widget: "text", required: false },
+                            {
+                              label: "Items",
+                              name: "items",
+                              widget: "list",
+                              required: false,
+                              fields: [
+                                { label: "Label", name: "label", widget: "string" },
+                                { label: "Value", name: "value", widget: "string" }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  name: "blog",
+                  label: "Blog",
+                  folder: "apps/website/src/content/blog",
+                  create: true,
+                  format: "frontmatter",
+                  extension: "md",
+                  fields: [
+                    { label: "Title", name: "title", widget: "string" },
+                    { label: "Language", name: "lang", widget: "select", options: ["en","ru"] },
+                    { label: "Published At", name: "publishedAt", widget: "datetime" },
+                    { label: "Tags", name: "tags", widget: "list", required: false },
+                    { label: "Summary", name: "summary", widget: "text", required: false },
+                    { label: "Body", name: "body", widget: "markdown" }
+                  ]
+                },
+                {
+                  name: "legal",
+                  label: "Legal",
+                  folder: "apps/website/src/content/legal",
+                  create: true,
+                  format: "frontmatter",
+                  extension: "md",
+                  fields: [
+                    { label: "Title", name: "title", widget: "string" },
+                    { label: "Language", name: "lang", widget: "select", options: ["en","ru"] },
+                    { label: "Updated At", name: "updatedAt", widget: "datetime" },
+                    { label: "Summary", name: "summary", widget: "text", required: false },
+                    { label: "Body", name: "body", widget: "markdown" }
+                  ]
+                },
+                {
+                  name: "data",
+                  label: "Site Data",
+                  files: [
+                    {
+                      label: "Navigation (EN)",
+                      name: "nav_en",
+                      file: "apps/website/src/content/data/nav.en.yml",
+                      fields: [
+                        {
+                          label: "Items",
+                          name: "items",
+                          widget: "list",
+                          fields: [
+                            { label: "Title", name: "title", widget: "string" },
+                            { label: "Href", name: "href", widget: "string" }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      label: "Navigation (RU)",
+                      name: "nav_ru",
+                      file: "apps/website/src/content/data/nav.ru.yml",
+                      fields: [
+                        {
+                          label: "Items",
+                          name: "items",
+                          widget: "list",
+                          fields: [
+                            { label: "Title", name: "title", widget: "string" },
+                            { label: "Href", name: "href", widget: "string" }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          });
+        }
+        initProd();
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="admin"></div>
+    <noscript>Enable JavaScript to use the CMS.</noscript>
+  </body>
+</html>

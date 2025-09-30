@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
+import { getBlogBySlug, listBlog } from '@app/content/lib/content';
+
+export async function getStaticPaths() {
+  const posts = await listBlog('ru');
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const locale = 'ru';
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<BaseLayout title={post.data.title}>
+  <Navbar locale={locale} />
+  
+  <main class="cv-container">
+    <article class="cv-root">
+      <header class="mb-8">
+        <h1 class="text-3xl font-bold mb-4">{post.data.title}</h1>
+        <div class="flex items-center text-sm text-gray-500 mb-4">
+          <time datetime={post.data.publishedAt.toISOString()}>
+            {post.data.publishedAt.toLocaleDateString('ru-RU', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </time>
+          {post.data.tags && post.data.tags.length > 0 && (
+            <span class="ml-4">
+              {post.data.tags.map(tag => (
+                <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs mr-1">
+                  {tag}
+                </span>
+              ))}
+            </span>
+          )}
+        </div>
+        {post.data.summary && (
+          <p class="text-lg text-gray-600">{post.data.summary}</p>
+        )}
+      </header>
+      
+      <div class="prose max-w-none">
+        <Content />
+      </div>
+    </article>
+    
+    <nav class="mt-8">
+      <a href="/ru/blog" class="text-blue-600 hover:text-blue-800">← Назад к блогу</a>
+    </nav>
+  </main>
+</BaseLayout>

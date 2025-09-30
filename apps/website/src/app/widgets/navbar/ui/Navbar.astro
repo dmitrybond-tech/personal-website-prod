@@ -13,8 +13,8 @@ const { locale } = Astro.props;
 
 // Локализованные лейблы (явно заданы для UTF-8)
 const L = {
-  en: { about: 'About', book: 'Book Me', brand: 'Dmitry B.' },
-  ru: { about: 'Обо мне', book: 'Записаться', brand: 'Дмитрий Б.' },
+  en: { about: 'About', book: 'Book Me', blog: 'Blog', brand: 'Dmitry B.' },
+  ru: { about: 'Обо мне', book: 'Записаться', blog: 'Блог', brand: 'Дмитрий Б.' },
 }[locale];
 ---
 
@@ -99,6 +99,7 @@ const L = {
     <nav class="center-nav nav-panel navpanel-bg ui-outline ui-outline-brandlight">
       <a class="nav-btn nav-item nav-chip" href={`/${locale}/about`} aria-current={Astro.url.pathname.includes('/about') ? 'page' : 'false'}>{L.about}</a>
       <a class="nav-btn nav-item nav-chip" href={`/${locale}/bookme`} aria-current={Astro.url.pathname.includes('/bookme') ? 'page' : 'false'}>{L.book}</a>
+      <a class="nav-btn nav-item nav-chip" href={`/${locale}/blog`} aria-current={Astro.url.pathname.includes('/blog') ? 'page' : 'false'}>{L.blog}</a>
     </nav>
     <div class="right">
       <LanguageToggle locale={locale} />

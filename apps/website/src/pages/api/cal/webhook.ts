@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import type { APIContext } from 'astro';
-import { CAL_SIGNATURE_HEADER, getCalWebhookSecret, readRawBody, verifyCalSignature, isDev } from '@/shared/cal/auth';
+import { CAL_SIGNATURE_HEADER, getCalWebhookSecret, readRawBody, verifyCalSignature, isDev } from '@shared/cal/auth';
 
 interface CalWebhookEvent {
   triggerEvent?: string;

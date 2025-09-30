@@ -140,7 +140,76 @@ declare module 'astro:content' {
 	>;
 
 	type ContentEntryMap = {
-		
+		"blog": {
+"hello-world.en.md": {
+	id: "hello-world.en.md";
+  slug: "hello-worlden";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"welcome-to-my-blog.en.md": {
+	id: "welcome-to-my-blog.en.md";
+  slug: "welcome-to-my-blogen";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"welcome-to-my-blog.ru.md": {
+	id: "welcome-to-my-blog.ru.md";
+  slug: "welcome-to-my-blogru";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+};
+"legal": {
+"privacy.en.md": {
+	id: "privacy.en.md";
+  slug: "privacyen";
+  body: string;
+  collection: "legal";
+  data: InferEntrySchema<"legal">
+} & { render(): Render[".md"] };
+"privacy.ru.md": {
+	id: "privacy.ru.md";
+  slug: "privacyru";
+  body: string;
+  collection: "legal";
+  data: InferEntrySchema<"legal">
+} & { render(): Render[".md"] };
+"terms-of-service.en.md": {
+	id: "terms-of-service.en.md";
+  slug: "terms-of-serviceen";
+  body: string;
+  collection: "legal";
+  data: InferEntrySchema<"legal">
+} & { render(): Render[".md"] };
+"terms-of-service.ru.md": {
+	id: "terms-of-service.ru.md";
+  slug: "terms-of-serviceru";
+  body: string;
+  collection: "legal";
+  data: InferEntrySchema<"legal">
+} & { render(): Render[".md"] };
+};
+"pages": {
+"about.en.md": {
+	id: "about.en.md";
+  slug: "abouten";
+  body: string;
+  collection: "pages";
+  data: InferEntrySchema<"pages">
+} & { render(): Render[".md"] };
+"about.ru.md": {
+	id: "about.ru.md";
+  slug: "aboutru";
+  body: string;
+  collection: "pages";
+  data: InferEntrySchema<"pages">
+} & { render(): Render[".md"] };
+};
+
 	};
 
 	type DataEntryMap = {
@@ -159,5 +228,5 @@ declare module 'astro:content' {
 
 	type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
-	export type ContentConfig = never;
+	export type ContentConfig = typeof import("./../../src/content/config.js");
 }

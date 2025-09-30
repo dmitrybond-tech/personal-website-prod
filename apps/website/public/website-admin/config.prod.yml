@@ -1,0 +1,92 @@
+backend:
+  name: github
+  repo: dmitrybond-tech/personal-website-dev
+  branch: main
+  base_url: "https://<YOUR_BASE_URL>"     # e.g. https://dmitrybond.tech
+  auth_endpoint: "oauth"                   # matches plugin routes
+# Optional editorial workflow via PRs:
+# publish_mode: editorial_workflow
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: pages
+    label: Pages
+    folder: "apps/website/src/content/pages"
+    create: true
+    format: frontmatter
+    extension: md
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Language, name: lang, widget: select, options: ["en","ru"] }
+      - { label: Route, name: route, widget: string, hint: "/en/about or /ru/about" }
+      - label: Blocks
+        name: blocks
+        widget: list
+        summary: "{{fields.type}}"
+        fields:
+          - { label: Type, name: type, widget: select, options: ["hero","experience","tech","cta"] }
+          - label: Props
+            name: props
+            widget: object
+            fields:
+              - { label: Heading, name: heading, widget: string, required: false }
+              - { label: Text, name: text, widget: text, required: false }
+              - label: Items
+                name: items
+                widget: list
+                required: false
+                fields:
+                  - { label: Label, name: label, widget: string }
+                  - { label: Value, name: value, widget: string }
+
+  - name: blog
+    label: Blog
+    folder: "apps/website/src/content/blog"
+    create: true
+    format: frontmatter
+    extension: md
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Language, name: lang, widget: select, options: ["en","ru"] }
+      - { label: Published At, name: publishedAt, widget: datetime }
+      - { label: Tags, name: tags, widget: list, required: false }
+      - { label: Summary, name: summary, widget: text, required: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: legal
+    label: Legal
+    folder: "apps/website/src/content/legal"
+    create: true
+    format: frontmatter
+    extension: md
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Language, name: lang, widget: select, options: ["en","ru"] }
+      - { label: Updated At, name: updatedAt, widget: datetime }
+      - { label: Summary, name: summary, widget: text, required: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: data
+    label: Site Data
+    files:
+      - label: Navigation (EN)
+        name: nav_en
+        file: "apps/website/src/content/data/nav.en.yml"
+        fields:
+          - label: Items
+            name: items
+            widget: list
+            fields:
+              - {label: Title, name: title, widget: string}
+              - {label: Href, name: href, widget: string}
+      - label: Navigation (RU)
+        name: nav_ru
+        file: "apps/website/src/content/data/nav.ru.yml"
+        fields:
+          - label: Items
+            name: items
+            widget: list
+            fields:
+              - {label: Title, name: title, widget: string}
+              - {label: Href, name: href, widget: string}

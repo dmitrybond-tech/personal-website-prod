@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
+import { getLegalBySlug, listLegal } from '@app/content/lib/content';
+
+export async function getStaticPaths() {
+  const docs = await listLegal('ru');
+  return docs.map((doc) => ({
+    params: { slug: doc.slug },
+    props: { doc },
+  }));
+}
+
+const locale = 'ru';
+const { doc } = Astro.props;
+const { Content } = await doc.render();
+---
+
+<BaseLayout title={doc.data.title}>
+  <Navbar locale={locale} />
+  
+  <main class="cv-container">
+    <article class="cv-root">
+      <header class="mb-8">
+        <h1 class="text-3xl font-bold mb-4">{doc.data.title}</h1>
+        <div class="flex items-center text-sm text-gray-500 mb-4">
+          <time datetime={doc.data.updatedAt.toISOString()}>
+            Последнее обновление: {doc.data.updatedAt.toLocaleDateString('ru-RU', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </time>
+        </div>
+        {doc.data.summary && (
+          <p class="text-lg text-gray-600">{doc.data.summary}</p>
+        )}
+      </header>
+      
+      <div class="prose max-w-none">
+        <Content />
+      </div>
+    </article>
+    
+    <nav class="mt-8">
+      <a href="/ru/legal" class="text-blue-600 hover:text-blue-800">← Назад к правовой информации</a>
+    </nav>
+  </main>
+</BaseLayout>

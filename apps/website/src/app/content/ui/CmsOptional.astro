@@ -1,0 +1,21 @@
+---
+import { getCollection } from "astro:content";
+
+const { lang, route, class: klass = "" } = Astro.props as {
+  lang: "en" | "ru";
+  route: string;
+  class?: string;
+};
+
+const [entry] = await getCollection("pages", (e) => e.data.lang === lang && e.data.route === route);
+let Content: any = null;
+if (entry) ({ Content } = await entry.render());
+---
+
+{Content ? (
+  <section class={`cv-root ${klass}`}>
+    <Content />
+  </section>
+) : (
+  <slot />
+)}

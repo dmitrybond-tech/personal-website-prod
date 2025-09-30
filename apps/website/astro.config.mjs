@@ -6,8 +6,6 @@ import { fileURLToPath } from 'node:url';
 const tunnelHosts = process.env.TUNNEL_HOSTS?.split(',').map(host => host.trim()) || [];
 
 export default defineConfig({
-  output: 'hybrid', // нужен on-demand рендер для POST
-  // adapter: node({ mode: 'standalone' }), // только для production build
   site: 'http://localhost:4321',
   server: {
     port: 4321,

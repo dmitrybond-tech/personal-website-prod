@@ -1,9 +1,11 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import CmsOptional from '@app/content/ui/CmsOptional.astro';
 const today = new Date().toISOString().slice(0,10);
 ---
 <BaseLayout title="Политика конфиденциальности">
-  <main class="cv-root prose prose-zinc dark:prose-invert mx-auto max-w-3xl px-4 py-10">
+  <CmsOptional lang="ru" route="/ru/privacy">
+    <main class="cv-root prose prose-zinc dark:prose-invert mx-auto max-w-3xl px-4 py-10">
     <h1>Политика конфиденциальности</h1>
     <p>Настоящая Политика обработки персональных данных составлена в соответствии с Федеральным законом РФ № 152-ФЗ «О персональных данных».</p>
 
@@ -42,5 +44,6 @@ const today = new Date().toISOString().slice(0,10);
     <p>Мы можем обновлять настоящую Политику. Новая редакция вступает в силу с момента публикации на сайте.</p>
 
     <p class="text-sm opacity-70 mt-8">Последнее обновление: {today}. Документ носит информационный характер и не является юридической консультацией.</p>
-  </main>
+    </main>
+  </CmsOptional>
 </BaseLayout>

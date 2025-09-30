@@ -2,7 +2,7 @@
 import "../styles/main.css";
 import { getLocaleFromPath, switchLocale } from '../app/shared/lib/locale';
 import { getInitialTheme, applyTheme } from '@shared/lib/theme';
-import ThemeToggle from '@app/features/theme-toggle/ui/ThemeToggle.astro';
+// import ThemeToggle from '@app/features/theme-toggle/ui/ThemeToggle.astro';
 import FooterLegal from '../app/widgets/footer/FooterLegal.astro';
 
 interface Props {
@@ -95,7 +95,7 @@ const bodyClasses = [
   <body class={bodyClasses}>
     <slot />
     
-    <ThemeToggle client:load />
+    <!-- <ThemeToggle client:load /> -->
     <FooterLegal />
     
     <!-- Script for locale switching -->

@@ -1,0 +1,53 @@
+# Minimal, robust config for local dev + GitHub repo
+local_backend: true    # works with: npx decap-server
+
+backend:
+  name: github
+  repo: dima-bond-git/personal-website
+  branch: main
+
+media_folder: "apps/website/public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: pages
+    label: Pages
+    label_singular: Page
+    folder: "apps/website/src/content/pages"
+    create: true
+    format: "frontmatter"
+    extension: "md"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Language, name: lang, widget: select, options: ["en","ru"] }
+      - { label: Route, name: route, widget: string, hint: "/en/about or /ru/about" }
+      - { label: Updated At, name: updatedAt, widget: datetime, required: false }
+      - { label: Summary, name: summary, widget: text, required: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: blog
+    label: Blog
+    folder: "apps/website/src/content/blog"
+    create: true
+    format: "frontmatter"
+    extension: "md"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Language, name: lang, widget: select, options: ["en","ru"] }
+      - { label: Published At, name: publishedAt, widget: datetime }
+      - { label: Tags, name: tags, widget: list, required: false }
+      - { label: Summary, name: summary, widget: text, required: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: legal
+    label: Legal
+    folder: "apps/website/src/content/legal"
+    create: true
+    format: "frontmatter"
+    extension: "md"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Language, name: lang, widget: select, options: ["en","ru"] }
+      - { label: Updated At, name: updatedAt, widget: datetime }
+      - { label: Summary, name: summary, widget: text, required: false }
+      - { label: Body, name: body, widget: markdown }

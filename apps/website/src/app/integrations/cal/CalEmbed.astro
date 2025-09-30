@@ -1,0 +1,19 @@
+---
+const { link } = Astro.props as { link: string }; // e.g. "your-user/intro"
+---
+
+<div class="cal-inline" data-cal-link={link}></div>
+
+<script is:inline>
+  (function(){
+    if (!document.querySelector('script[src*="app.cal.com/embed/embed.js"]')) {
+      const s = document.createElement('script');
+      s.src = "https://app.cal.com/embed/embed.js";
+      s.async = true;
+      s.onload = () => { try { window.Cal && window.Cal("init"); } catch(e) {} };
+      document.head.appendChild(s);
+    } else {
+      try { window.Cal && window.Cal("init"); } catch(e) {}
+    }
+  })();
+</script>
