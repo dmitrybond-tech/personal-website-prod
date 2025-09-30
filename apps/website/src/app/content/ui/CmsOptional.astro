@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import { renderBlocks } from "@/app/content/renderBlocks";
 
 const { lang, route, class: klass = "" } = Astro.props as {
   lang: "en" | "ru";
@@ -8,13 +9,26 @@ const { lang, route, class: klass = "" } = Astro.props as {
 };
 
 const [entry] = await getCollection("pages", (e) => e.data.lang === lang && e.data.route === route);
+
 let Content: any = null;
 if (entry) ({ Content } = await entry.render());
+
+// resolve dynamic blocks without variable-path imports
+const mapped: Array<[any, Record<string, any>]> = await (async () => {
+  try {
+    const blocks = entry?.data?.blocks || [];
+    return await renderBlocks(blocks);
+  } catch (e) {
+    console.warn("[CmsOptional] blocks disabled:", e);
+    return [];
+  }
+})();
 ---
 
 {Content ? (
   <section class={`cv-root ${klass}`}>
     <Content />
+    {mapped?.map(([Comp, props]) => <Comp {...props} />)}
   </section>
 ) : (
   <slot />

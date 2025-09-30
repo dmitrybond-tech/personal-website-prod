@@ -34,6 +34,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "astro": "^4",
+    "astro-decap-cms-oauth": "^0.5.1",
     "decap-cms": "3.8.3",
     "typescript": "^5"
   }

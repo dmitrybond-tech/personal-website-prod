@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import { fileURLToPath } from 'node:url';
+import decapCmsOauth from "astro-decap-cms-oauth";
 
 // Читаем TUNNEL_HOSTS из env для поддержки туннелей
 const tunnelHosts = process.env.TUNNEL_HOSTS?.split(',').map(host => host.trim()) || [];
@@ -11,11 +12,20 @@ export default defineConfig({
     port: 4321,
     host: true, // слушать извне
   },
-  integrations: [tailwind()],
+  integrations: [
+    tailwind(),
+    decapCmsOauth({
+      adminDisabled: true,         // we keep our own /website-admin
+      oauthDisabled: false,        // enable OAuth routes
+      oauthLoginRoute: "/oauth",
+      oauthCallbackRoute: "/oauth/callback",
+    }),
+  ],
   vite: {
     plugins: [],
     resolve: {
       alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
         '@shared': fileURLToPath(new URL('./src/shared', import.meta.url)),
         '@app': fileURLToPath(new URL('./src/app', import.meta.url)),
       },

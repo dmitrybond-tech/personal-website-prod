@@ -143,3 +143,36 @@ npx decap-server
 http://localhost:4321/_admin-public-health.txt      # should say: public: OK
 http://localhost:4321/website-admin/_health.txt     # should say: website-admin: OK
 http://localhost:4321/website-admin/                # Decap UI
+
+### CMS dev
+
+# Start Astro from the correct app root
+cd apps/website
+npm run dev            # DO NOT pass --host 4321. If you want port: npm run dev -- --port 4321
+
+# Start local backend (new terminal)
+cd apps/website
+npx decap-server
+
+# Open the EXACT printed port from Astro:
+http://localhost:<port>/_admin-public-health.txt         → public: OK
+http://localhost:<port>/website-admin/_health.txt        → website-admin: OK
+http://localhost:<port>/website-admin/                   → Decap UI
+
+## Admin Route Verification
+
+After starting the dev server, verify these exact URLs work:
+
+1. `http://localhost:<printed-port>/_admin-public-health.txt` → should display: `public: OK`
+2. `http://localhost:<printed-port>/website-admin/_health.txt` → should display: `website-admin: OK`  
+3. `http://localhost:<printed-port>/website-admin/` → should show: `/website-admin route OK — booting Decap…` then load Decap CMS UI
+
+The static HTML page at `src/pages/website-admin/index.html` bypasses Astro SSR and serves directly at `/website-admin/` route.
+
+## CMS dev (no login)
+cd apps/website
+npm run dev
+# new terminal
+cd apps/website
+npx decap-server
+# open http://localhost:<port>/website-admin/ (uses config.dev.yml)
