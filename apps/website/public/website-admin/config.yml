@@ -4,6 +4,7 @@ backend:
   branch: main
   base_url: "http://localhost:4321"
   auth_endpoint: "oauth"
+  use_graphql: true         # ← включаем стабильный листинг с GitHub
 
 media_folder: "apps/website/public/uploads"
 public_folder: "/uploads"
@@ -49,7 +50,13 @@ collections:
     fields:
       - { label: "Title", name: "title", widget: "string", i18n: true }
       - { label: "Description", name: "description", widget: "string", required: false, i18n: true }
-      - { label: "Date", name: "date", widget: "datetime", i18n: false, date_format: "YYYY-MM-DD", time_format: false }
+      - label: "Date"
+        name: "date"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        time_format: false
+        picker_utc: true
+        i18n: false
       - { label: "Body", name: "body", widget: "markdown", i18n: true }
       - { label: "Draft", name: "draft", widget: "boolean", required: false, i18n: false, default: false }
       - { label: "Tags", name: "tags", widget: "list", required: false, i18n: false, default: [] }

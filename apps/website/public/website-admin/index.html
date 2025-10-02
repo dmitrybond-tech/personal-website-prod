@@ -11,6 +11,21 @@
   <script>
     (function boot(){ if(!window.CMS){ return setTimeout(boot, 50); } CMS.init(); })();
   </script>
+  <script>
+    (function () {
+      const T = setInterval(() => {
+        if (!window.CMS) return;
+        try {
+          const state = window.CMS.store.getState();
+          const i18n = state?.i18n;
+          const collections = state?.collections?.collections || {};
+          const posts = collections['posts']?.pages?.length || 0;
+          console.info('[DECAP DEBUG] locale=', i18n?.locale, ' posts(listed)=', posts);
+          clearInterval(T);
+        } catch (e) {}
+      }, 500);
+    })();
+  </script>
   <noscript>Enable JavaScript to use the CMS.</noscript>
 </head>
 <body></body>

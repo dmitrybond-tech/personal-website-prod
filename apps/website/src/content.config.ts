@@ -1,12 +1,31 @@
 import { defineCollection, z } from "astro:content";
 
+function normalizeDate(input: unknown): unknown {
+  if (typeof input !== 'string') return input;
+
+  // Трим + замена типографских тире на обычные
+  let s = input.trim().replace(/\u2012|\u2013|\u2014|\u2212/g, '-');
+
+  // Уже ISO?
+  if (/^\d{4}-\d{2}-\d{2}(T.*)?$/.test(s)) return s;
+
+  // DD.MM.YYYY | DD/MM/YYYY | DD-MM-YYYY
+  const m = s.match(/^(\d{2})[./-](\d{2})[./-](\d{4})$/);
+  if (m) {
+    const [_, dd, mm, yyyy] = m;
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  return s; // пусть попробует z.coerce.date()
+}
+
 const blog = defineCollection({
   type: "content",
   schema: ({ image }) =>
     z.object({
       title: z.string(),
       lang: z.enum(["en", "ru"]),
-      publishedAt: z.coerce.date(),
+      publishedAt: z.preprocess(normalizeDate, z.coerce.date()),
       description: z.string().optional(),
       tags: z.array(z.string()).default([]),
       cover: image().optional(),
@@ -37,7 +56,7 @@ const posts = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
-    date: z.coerce.date(),
+    date: z.preprocess(normalizeDate, z.coerce.date()),
     draft: z.boolean().optional().default(false),
     // опционально для дизайна:
     tags: z.array(z.string()).optional().default([]),

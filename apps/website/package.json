@@ -16,7 +16,9 @@
     "cal:webhook:list": "node ../../scripts/cal-webhook.mjs list",
     "cms:proxy": "decap-server",
     "cms:dev": "concurrently -k -n astro,proxy \"npm run dev -- --host --port 4321\" \"npm run cms:proxy\"",
-    "cms:seed:footer": "tsx scripts/cms/seed-footer.ts"
+    "cms:seed:footer": "tsx scripts/cms/seed-footer.ts",
+    "fix:dates": "node ./scripts/normalize-post-dates.mjs",
+    "content:pull": "node ./scripts/content-pull.mjs"
   },
   "keywords": [],
   "author": "",
