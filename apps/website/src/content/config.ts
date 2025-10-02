@@ -32,8 +32,57 @@ const legal = defineCollection({
   }),
 });
 
+const aboutPage = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    lead: z.string().optional(),
+    sections: z.array(z.object({
+      icon: z.string().optional(),
+      heading: z.string().optional(),
+      body: z.string().optional(),
+      image: z.string().optional(),
+    })).optional(),
+    links: z.array(z.object({
+      label: z.string(),
+      url: z.string(),
+      icon: z.string().optional(),
+    })).optional(),
+    cv_pdf: z.string().optional(),
+    gallery: z.array(z.string()).optional(),
+  }),
+});
+
+const bookmeConfig = defineCollection({
+  type: 'data',
+  schema: z.object({
+    page_title: z.string().optional(),
+    page_subtitle: z.string().optional(),
+    cal: z.object({
+      handle: z.string(),
+      eventType: z.string().optional(),
+      attrs: z.record(z.string()).optional(),
+    }),
+    tiles: z.array(z.object({
+      id: z.string(),
+      title: z.string(),
+      description: z.string().optional(),
+      image: z.string().optional(),
+      cta_text: z.string(),
+      cta_kind: z.enum(['cal', 'link', 'mailto', 'download']),
+      cal_preset: z.string().optional(),
+      href: z.string().optional(),
+      visible: z.boolean(),
+      icon: z.string().optional(),
+    })),
+    footer_note: z.string().optional(),
+  }),
+});
+
 export const collections = {
   pages,
   blog,
   legal,
+  aboutPage,
+  bookmeConfig,
 };

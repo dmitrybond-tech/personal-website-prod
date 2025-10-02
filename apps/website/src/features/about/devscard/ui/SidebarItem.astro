@@ -25,6 +25,14 @@ const { icon, slug, title } = Astro.props;
   }
 
   :not([aria-current='page']) {
-    @apply text-gray-400 hover:bg-primary-600 hover:text-white dark:text-gray-200;
+    @apply text-gray-400;
+  }
+  
+  :not([aria-current='page']):hover {
+    @apply bg-primary-600 text-white;
+  }
+  
+  .dark :not([aria-current='page']) {
+    @apply text-gray-200;
   }
 </style>

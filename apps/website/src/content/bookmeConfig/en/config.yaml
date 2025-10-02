@@ -1,0 +1,35 @@
+page_title: "Book a Meeting"
+page_subtitle: "Schedule a call to discuss your project"
+cal:
+  handle: "dima-bond-git"
+  eventType: "intro"
+  attrs:
+    hideEventTypeDetails: "true"
+    hideGdprBanner: "true"
+    theme: "light"
+tiles:
+  - id: "intro-30"
+    title: "Intro call"
+    description: "30 min"
+    cta_text: "Book"
+    cta_kind: "cal"
+    cal_preset: "dima-bond-git/intro-30m"
+    visible: true
+    icon: "calendar"
+  - id: "tech-consultation"
+    title: "Technical Consultation"
+    description: "90 min"
+    cta_text: "Book"
+    cta_kind: "cal"
+    cal_preset: "dima-bond-git/tech-90m"
+    visible: true
+    icon: "code"
+  - id: "mentoring"
+    title: "Mentoring"
+    description: "60 min"
+    cta_text: "Book"
+    cta_kind: "cal"
+    cal_preset: "dima-bond-git/mentoring-60m"
+    visible: true
+    icon: "graduation-cap"
+footer_note: "I'm available for consultation, mentoring, and project discussions."

@@ -24,11 +24,15 @@
   --cv-on-primary: #ffffff;
 
   /* Container/gutter variables */
-  --cv-container-max: var(--cv-max-w, 80rem);
+  --cv-content-max-w: 1040px;  /* Content max width */
+  --cv-nav-extra-w: 48px;  /* "slightly wider" than content */
+  --cv-nav-max-w: calc(var(--cv-content-max-w) + var(--cv-nav-extra-w));  /* NavBar max width */
+  --cv-content-pad-x: clamp(16px, 3.5vw, 24px);  /* Responsive horizontal padding */
+  --cv-container-max: var(--cv-content-max-w);  /* Use unified content width */
   --cv-gutter-x: var(--cv-gap, 1.5rem);
   
-  /* Bookme pages width constraint */
-  --bookme-max-w: 960px;
+  /* Bookme pages width constraint - now unified with content width */
+  --bookme-max-w: var(--cv-content-max-w);
 
   /* Hairline border (derive from text) */
   --cv-border-hairline: color-mix(in oklab, var(--cv-text)/12%, transparent);
@@ -138,7 +142,7 @@ body {
   .text-body        { color: var(--cv-text); }
   .text-muted       { color: var(--cv-muted); }
   .border-hairline  { border-color: var(--cv-border-hairline); }
-  .cv-container     { max-width: var(--cv-container-max); padding-left: var(--cv-gutter-x); padding-right: var(--cv-gutter-x); margin-inline: auto; }
+  .cv-container     { max-width: var(--cv-container-max); padding-left: var(--cv-content-pad-x); padding-right: var(--cv-content-pad-x); margin-inline: auto; }
 
   /* Nav offset utility */
   .nav-offset { margin-top: var(--cv-nav-offset-y); }
@@ -184,8 +188,8 @@ body {
     max-width: var(--bookme-max-w);
     width: 100%;
     margin-inline: auto;
-    padding-left: var(--cv-gap);
-    padding-right: var(--cv-gap);
+    padding-left: var(--cv-content-pad-x);
+    padding-right: var(--cv-content-pad-x);
     padding-top: 2rem;
     padding-bottom: 1rem;
   }
@@ -194,8 +198,8 @@ body {
     max-width: var(--bookme-max-w);
     width: 100%;
     margin-inline: auto;
-    padding-left: var(--cv-gap);
-    padding-right: var(--cv-gap);
+    padding-left: var(--cv-content-pad-x);
+    padding-right: var(--cv-content-pad-x);
     padding-top: 1rem;
     padding-bottom: 1.5rem;
   }

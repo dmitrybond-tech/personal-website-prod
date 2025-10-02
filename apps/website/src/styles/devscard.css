@@ -1,7 +1,7 @@
 /* DevsCard стили - скопированы из эталона и адаптированы под .cv-root */
 
 :root {
-  --cv-max-w: 80rem;        /* ширина карточек DevsCard — как в эталоне */
+  --cv-max-w: var(--cv-content-max-w, 1040px);  /* Use unified content width */
   --cv-gap: 1.5rem;         /* внутренние горизонтальные отступы */
   --navbar-h: 72px;         /* дефолтная высота, далее обновим скриптом */
   --cv-page-bg: #f6f7fb;  /* фон страницы */

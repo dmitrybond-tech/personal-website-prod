@@ -7,8 +7,8 @@ backend:
 
 publish_mode: simple
 
-media_folder: "apps/website/public/uploads"
-public_folder: "/uploads"
+media_folder: "apps/website/src/content/en/assets"
+public_folder: "/media/en"
 
 i18n:
   structure: multiple_folders
@@ -31,3 +31,143 @@ collections:
       - { label: "Draft", name: "draft", widget: "boolean", default: false, i18n: false }
       - { label: "Description", name: "description", widget: "text", required: false, i18n: "translate" }
       - { label: "Body", name: "body", widget: "markdown", i18n: "translate" }
+
+  - name: "en_about"
+    label: "About Page (EN)"
+    folder: "apps/website/src/content/aboutPage/en"
+    create: false
+    format: "frontmatter"
+    extension: "mdx"
+    slug: "about"
+    media_folder: "apps/website/src/content/en/assets"
+    public_folder: "/media/en"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Lead", name: "lead", widget: "text", required: false }
+      - label: "Sections"
+        name: "sections"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Icon", name: "icon", widget: "string", required: false }
+          - { label: "Heading", name: "heading", widget: "string", required: false }
+          - { label: "Body", name: "body", widget: "markdown", required: false }
+          - { label: "Image", name: "image", widget: "image", required: false }
+      - label: "Links"
+        name: "links"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Label", name: "label", widget: "string" }
+          - { label: "URL", name: "url", widget: "string" }
+          - { label: "Icon", name: "icon", widget: "string", required: false }
+      - { label: "CV PDF", name: "cv_pdf", widget: "string", required: false }
+      - { label: "Gallery", name: "gallery", widget: "list", required: false, field: { label: "Image", name: "image", widget: "image" } }
+
+  - name: "ru_about"
+    label: "About Page (RU)"
+    folder: "apps/website/src/content/aboutPage/ru"
+    create: false
+    format: "frontmatter"
+    extension: "mdx"
+    slug: "about"
+    media_folder: "apps/website/src/content/ru/assets"
+    public_folder: "/media/ru"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Lead", name: "lead", widget: "text", required: false }
+      - label: "Sections"
+        name: "sections"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Icon", name: "icon", widget: "string", required: false }
+          - { label: "Heading", name: "heading", widget: "string", required: false }
+          - { label: "Body", name: "body", widget: "markdown", required: false }
+          - { label: "Image", name: "image", widget: "image", required: false }
+      - label: "Links"
+        name: "links"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Label", name: "label", widget: "string" }
+          - { label: "URL", name: "url", widget: "string" }
+          - { label: "Icon", name: "icon", widget: "string", required: false }
+      - { label: "CV PDF", name: "cv_pdf", widget: "string", required: false }
+      - { label: "Gallery", name: "gallery", widget: "list", required: false, field: { label: "Image", name: "image", widget: "image" } }
+
+  - name: "en_bookme"
+    label: "Book.me Config (EN)"
+    folder: "apps/website/src/content/bookmeConfig/en"
+    create: false
+    format: "yaml"
+    extension: "yaml"
+    slug: "config"
+    fields:
+      - { label: "Page Title", name: "page_title", widget: "string", required: false }
+      - { label: "Page Subtitle", name: "page_subtitle", widget: "text", required: false }
+      - label: "Cal.com Configuration"
+        name: "cal"
+        widget: "object"
+        fields:
+          - { label: "Handle", name: "handle", widget: "string" }
+          - { label: "Event Type", name: "eventType", widget: "string", required: false }
+          - label: "Attributes"
+            name: "attrs"
+            widget: "object"
+            required: false
+            fields:
+              - { label: "Hide Event Type Details", name: "hideEventTypeDetails", widget: "string", required: false }
+      - label: "Booking Tiles"
+        name: "tiles"
+        widget: "list"
+        fields:
+          - { label: "ID", name: "id", widget: "string" }
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Description", name: "description", widget: "text", required: false }
+          - { label: "Image", name: "image", widget: "string", required: false }
+          - { label: "CTA Text", name: "cta_text", widget: "string" }
+          - { label: "CTA Kind", name: "cta_kind", widget: "select", options: ["cal", "link", "mailto", "download"] }
+          - { label: "Cal Preset", name: "cal_preset", widget: "string", required: false }
+          - { label: "Href", name: "href", widget: "string", required: false }
+          - { label: "Visible", name: "visible", widget: "boolean" }
+          - { label: "Icon", name: "icon", widget: "string", required: false }
+      - { label: "Footer Note", name: "footer_note", widget: "text", required: false }
+
+  - name: "ru_bookme"
+    label: "Book.me Config (RU)"
+    folder: "apps/website/src/content/bookmeConfig/ru"
+    create: false
+    format: "yaml"
+    extension: "yaml"
+    slug: "config"
+    fields:
+      - { label: "Page Title", name: "page_title", widget: "string", required: false }
+      - { label: "Page Subtitle", name: "page_subtitle", widget: "text", required: false }
+      - label: "Cal.com Configuration"
+        name: "cal"
+        widget: "object"
+        fields:
+          - { label: "Handle", name: "handle", widget: "string" }
+          - { label: "Event Type", name: "eventType", widget: "string", required: false }
+          - label: "Attributes"
+            name: "attrs"
+            widget: "object"
+            required: false
+            fields:
+              - { label: "Hide Event Type Details", name: "hideEventTypeDetails", widget: "string", required: false }
+      - label: "Booking Tiles"
+        name: "tiles"
+        widget: "list"
+        fields:
+          - { label: "ID", name: "id", widget: "string" }
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Description", name: "description", widget: "text", required: false }
+          - { label: "Image", name: "image", widget: "string", required: false }
+          - { label: "CTA Text", name: "cta_text", widget: "string" }
+          - { label: "CTA Kind", name: "cta_kind", widget: "select", options: ["cal", "link", "mailto", "download"] }
+          - { label: "Cal Preset", name: "cal_preset", widget: "string", required: false }
+          - { label: "Href", name: "href", widget: "string", required: false }
+          - { label: "Visible", name: "visible", widget: "boolean" }
+          - { label: "Icon", name: "icon", widget: "string", required: false }
+      - { label: "Footer Note", name: "footer_note", widget: "text", required: false }

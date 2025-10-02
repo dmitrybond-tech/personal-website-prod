@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "astro dev --host --port 4321",
     "dev:local": "astro dev --host --port 4321 --strictPort",
     "dev:cms": "cross-env NODE_OPTIONS=--trace-warnings DECAP_LOCAL_BACKEND=true concurrently -k -s first -n astro,proxy \"astro dev --host --port 4321 --strictPort\" \"decap-server --port 8081\"",
     "dev:git": "cross-env NODE_OPTIONS=--trace-warnings concurrently -k -s first -n astro \"astro dev --host --port 4321 --strictPort\"",
@@ -18,13 +17,19 @@
     "cal:webhook:update": "node ../../scripts/cal-webhook.mjs update",
     "cal:webhook:list": "node ../../scripts/cal-webhook.mjs list",
     "cms:proxy": "decap-server --port 8081",
-    "cms:dev": "concurrently -k -n astro,proxy \"npm run dev -- --host --port 4321\" \"npm run cms:proxy\"",
     "cms:seed:footer": "tsx scripts/cms/seed-footer.ts",
     "fix:dates": "node ./scripts/normalize-post-dates.mjs",
     "fix:content": "node ./scripts/normalize-post-fields.mjs",
     "content:pull": "node ./scripts/content-pull.mjs",
     "content:migrate": "node ./scripts/migrate-posts.mjs",
-    "content:normalize-media": "node ./scripts/normalize-media-paths.mjs"
+    "content:normalize-media": "node ./scripts/normalize-media-paths.mjs",
+    "content:seed:about": "tsx ./scripts/content-seed-about.ts",
+    "content:seed:bookme": "tsx ./scripts/content-seed-bookme.ts",
+    "dev:cms:about": "concurrently -k -n astro,proxy \"npm run dev -- --host --port 4321\" \"npm run cms:proxy\"",
+    "dev": "astro dev --host --port 4321",
+    "cms:dev": "decap-server --port 4322",
+    "dev:all": "pwsh -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\dev-tools.ps1",
+    "kill-ports": "pwsh -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\dev-tools.ps1 -NoCms"
   },
   "keywords": [],
   "author": "",
@@ -60,6 +65,7 @@
     "postcss": "8.4.47",
     "tailwindcss": "4.1.13",
     "tsx": "4.20.6",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "yaml": "2.4.5"
   }
 }

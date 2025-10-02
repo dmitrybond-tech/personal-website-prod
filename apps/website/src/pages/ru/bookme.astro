@@ -1,23 +1,35 @@
 ---
 import AppShell from '../../app/layouts/AppShell.astro';
-import BookingTiles from '@app/components/bookme/BookingTiles.astro';
+import BookingTiles from '../../features/bookme/ui/BookingTiles.astro';
 import CalEmbed from '@app/integrations/cal/CalEmbed.astro';
 import { CAL_EVENT_TYPES } from '@app/data/cal/event-types';
+import { getBookme } from '../../shared/content/bookme';
 import CmsOptional from '@app/content/ui/CmsOptional.astro';
 import Footer from '../../app/widgets/footer/ui/Footer.astro';
 
 const locale = 'ru';
-const pageTitle = 'Записаться на встречу';
+const bookmeData = await getBookme(locale);
+const pageTitle = bookmeData.page_title || 'Записаться на встречу';
+const pageSubtitle = bookmeData.page_subtitle;
 ---
 
 <AppShell title={pageTitle} variant="bookme">
   <CmsOptional lang={locale} route="/ru/bookme">
     <section class="booker-container">
       <h1 class="mb-4 text-2xl font-bold">{pageTitle}</h1>
-      <BookingTiles locale={locale} events={CAL_EVENT_TYPES} />
+      {pageSubtitle && (
+        <p class="mb-6 text-gray-600 dark:text-gray-400">{pageSubtitle}</p>
+      )}
+      <BookingTiles locale={locale} events={CAL_EVENT_TYPES} bookmeData={bookmeData} />
     </section>
 
-    <CalEmbed link="dima-bond-git/intro" />
+    <CalEmbed link={bookmeData.cal.handle + "/" + (bookmeData.cal.eventType || "intro")} />
+    
+    {bookmeData.footer_note && (
+      <div class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+        <p>{bookmeData.footer_note}</p>
+      </div>
+    )}
   </CmsOptional>
 </AppShell>
 

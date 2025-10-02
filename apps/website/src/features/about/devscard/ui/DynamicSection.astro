@@ -1,0 +1,162 @@
+---
+import type { ComponentProps } from 'astro/types';
+
+export interface Props {
+  component: any;
+  props: Record<string, any>;
+  clientLoad?: 'load' | 'idle' | 'visible' | 'media' | 'only';
+  clientMedia?: string;
+  fallback?: string;
+  minHeight?: string;
+}
+
+const { 
+  component: Component, 
+  props, 
+  clientLoad = 'visible',
+  clientMedia,
+  fallback = 'Loading...',
+  minHeight = '200px'
+} = Astro.props;
+---
+
+<div 
+  class="dynamic-section-container"
+  style={`min-height: ${minHeight};`}
+  data-client-load={clientLoad}
+  data-client-media={clientMedia}
+>
+  <!-- Skeleton placeholder -->
+  <div class="dynamic-section-skeleton" data-skeleton>
+    <div class="skeleton-content">
+      <div class="skeleton-header">
+        <div class="skeleton-icon"></div>
+        <div class="skeleton-title"></div>
+      </div>
+      <div class="skeleton-body">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actual content (will be hydrated) -->
+  <div class="dynamic-section-content" data-content style="display: none;">
+    <Component {...props} client:load={clientLoad} client:media={clientMedia} />
+  </div>
+</div>
+
+<style>
+  .dynamic-section-container {
+    @apply relative;
+  }
+
+  .dynamic-section-skeleton {
+    @apply animate-pulse;
+  }
+
+  .skeleton-content {
+    @apply bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700;
+  }
+
+  .skeleton-header {
+    @apply flex items-center gap-3 mb-4;
+  }
+
+  .skeleton-icon {
+    @apply w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded;
+  }
+
+  .skeleton-title {
+    @apply h-6 bg-gray-300 dark:bg-gray-600 rounded w-32;
+  }
+
+  .skeleton-body {
+    @apply space-y-3;
+  }
+
+  .skeleton-line {
+    @apply h-4 bg-gray-300 dark:bg-gray-600 rounded;
+  }
+
+  .skeleton-line.short {
+    @apply w-3/4;
+  }
+
+  /* Hide skeleton when content is loaded */
+  .dynamic-section-container[data-loaded="true"] .dynamic-section-skeleton {
+    @apply hidden;
+  }
+
+  .dynamic-section-container[data-loaded="true"] .dynamic-section-content {
+    @apply block;
+  }
+</style>
+
+<script>
+  // Progressive hydration script
+  document.addEventListener('DOMContentLoaded', () => {
+    const containers = document.querySelectorAll('.dynamic-section-container');
+    
+    containers.forEach(container => {
+      const clientLoad = container.getAttribute('data-client-load');
+      const clientMedia = container.getAttribute('data-client-media');
+      
+      // Check media query if specified
+      if (clientMedia && !window.matchMedia(clientMedia).matches) {
+        return;
+      }
+      
+      // Handle different loading strategies
+      switch (clientLoad) {
+        case 'visible':
+          // Use Intersection Observer for viewport-based loading
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                loadSection(entry.target);
+                observer.unobserve(entry.target);
+              }
+            });
+          }, {
+            rootMargin: '50px'
+          });
+          observer.observe(container);
+          break;
+          
+        case 'idle':
+          // Load when browser is idle
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => loadSection(container));
+          } else {
+            setTimeout(() => loadSection(container), 100);
+          }
+          break;
+          
+        case 'load':
+          // Load immediately
+          loadSection(container);
+          break;
+          
+        case 'media':
+          // Load based on media query
+          if (clientMedia && window.matchMedia(clientMedia).matches) {
+            loadSection(container);
+          }
+          break;
+      }
+    });
+    
+    function loadSection(container) {
+      // Mark as loaded
+      container.setAttribute('data-loaded', 'true');
+      
+      // Trigger any custom loading logic
+      const event = new CustomEvent('section-loaded', {
+        detail: { container }
+      });
+      container.dispatchEvent(event);
+    }
+  });
+</script>

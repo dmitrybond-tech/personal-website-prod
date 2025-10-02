@@ -5,140 +5,38 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="robots" content="noindex" />
   <title>Content Manager</title>
-  <link rel="cms-config-url" type="text/yaml" href="/api/website-admin/config.yml" />
-  <script>window.CMS_MANUAL_INIT = true;</script>
-  <script src="/website-admin/vendor/decap-cms.js" defer></script>
-  <script>
-    if (!window.__CMS_BOOTED__) {
-      window.__CMS_BOOTED__ = true;
-      document.addEventListener('DOMContentLoaded', () => {
-        if (!window.CMS) return;
-        window.CMS.registerEventListener({
-          name: 'configLoaded',
-          handler: ({ config }) => console.log('[CMS]', { backend: config.backend?.name, local: !!config.local_backend })
-        });
-        window.CMS.init();
-      });
-    }
-  </script>
+
+  <!-- Конфиг: должен идти ДО загрузки CMS -->
+  <link rel="cms-config-url" type="text/yaml" href="/api/website-admin/config.yml?v=6" />
+
+  <!-- ЕДИНСТВЕННЫЙ загрузчик CMS: сначала локальный бандл, если не выйдет — CDN -->
   <script>
     (function () {
-      const T = setInterval(() => {
-        if (!window.CMS) return;
-        try {
-          const state = window.CMS.store.getState();
-          const i18n = state?.i18n;
-          const collections = state?.collections?.collections || {};
-          const posts = collections['posts']?.pages?.length || 0;
-          console.info('[DECAP DEBUG] locale=', i18n?.locale, ' posts(listed)=', posts);
-          clearInterval(T);
-        } catch (e) {}
-      }, 500);
+      if (window.__CMS_BOOTED__) return; // защита от дублей
+      window.__CMS_BOOTED__ = true;
+
+      function load(src, onload, onerror) {
+        var s = document.createElement('script');
+        s.src = src;
+        s.defer = true;
+        s.onload = onload;
+        s.onerror = onerror;
+        document.head.appendChild(s);
+      }
+
+      // 1) пробуем локальный бандл
+      load('/website-admin/decap-cms.js?v=6',
+        function () { console.log('[CMS] loaded (local)'); },
+        function () {
+          console.warn('[CMS] local load failed, fallback to CDN');
+          // 2) фолбэк: CDN (фиксит битый/неправильный путь локального бандла)
+          load('https://unpkg.com/decap-cms@3.3.1/dist/decap-cms.js',
+            function () { console.log('[CMS] loaded (CDN)'); },
+            function () { console.error('[CMS] failed to load both local and CDN'); }
+          );
+        }
+      );
     })();
-  </script>
-  <script>
-    (function() {
-      function toISO(d) {
-        if (typeof d !== 'string') return d;
-        let s = d.trim().replace(/[\u2012\u2013\u2014\u2212]/g, '-');
-        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-        const m = s.match(/^(\d{2})[./-](\d{2})[./-](\d{4})$/);
-        if (m) return `${m[3]}-${m[2]}-${m[1]}`;
-        return s;
-      }
-      CMS.registerEventListener({
-        name: 'preSave',
-        handler: ({ entry }) => {
-          let e = entry;
-          const data = e.get('data');
-          const rawDate = data?.get?.('date');
-          const iso = toISO(rawDate);
-          const today = new Date().toISOString().slice(0,10);
-          if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
-            e = e.setIn(['data', 'date'], today);
-          } else if (iso !== rawDate) {
-            e = e.setIn(['data', 'date'], iso);
-          }
-          const hasDraft = data?.has?.('draft');
-          if (!hasDraft) e = e.setIn(['data', 'draft'], false);
-          return { entry: e };
-        }
-      });
-    })();
-  </script>
-  <script>
-    // Git sync on post save
-    window.CMS?.registerEventListener({
-      name: 'postSave',
-      handler: async ({ entry }) => {
-        try {
-          const path = entry?.path; // relative path to file from Decap
-          if (!path) return;
-          
-          // Determine the full path - check if it already includes the content prefix
-          let fullPath;
-          if (path.startsWith('apps/website/src/content/')) {
-            fullPath = path;
-          } else {
-            fullPath = `apps/website/src/content/${path}`;
-          }
-          
-          const response = await fetch('/api/content/git-sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              paths: [fullPath],
-              message: `cms: update ${path}`
-            })
-          });
-          
-          if (response.ok) {
-            const result = await response.json();
-            console.log('[CMS git-sync] Success:', result);
-          } else {
-            console.warn('[CMS git-sync] Failed:', response.status, await response.text());
-          }
-        } catch (e) {
-          console.warn('[CMS git-sync] Error:', e);
-        }
-      }
-    });
-    
-    // Also handle postUnpublishedEntryPublished for future use
-    window.CMS?.registerEventListener({
-      name: 'postUnpublishedEntryPublished',
-      handler: async ({ entry }) => {
-        try {
-          const path = entry?.path;
-          if (!path) return;
-          
-          let fullPath;
-          if (path.startsWith('apps/website/src/content/')) {
-            fullPath = path;
-          } else {
-            fullPath = `apps/website/src/content/${path}`;
-          }
-          
-          const response = await fetch('/api/content/git-sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              paths: [fullPath],
-              message: `cms: publish ${path}`
-            })
-          });
-          
-          if (response.ok) {
-            const result = await response.json();
-            console.log('[CMS git-sync] Publish success:', result);
-          } else {
-            console.warn('[CMS git-sync] Publish failed:', response.status, await response.text());
-          }
-        } catch (e) {
-          console.warn('[CMS git-sync] Publish error:', e);
-        }
-      }
-    });
   </script>
   <noscript>Enable JavaScript to use the CMS.</noscript>
 </head>

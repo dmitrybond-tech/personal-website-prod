@@ -65,9 +65,65 @@ const posts = defineCollection({
   }),
 });
 
+// About page collection
+const aboutPage = defineCollection({
+  type: "content",
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      lead: z.string().optional(),
+      sections: z.array(
+        z.object({
+          icon: z.string().optional(),
+          heading: z.string().optional(),
+          body: z.string().optional(),
+          image: image().optional(),
+        })
+      ).optional(),
+      links: z.array(
+        z.object({
+          label: z.string(),
+          url: z.string(),
+          icon: z.string().optional(),
+        })
+      ).optional(),
+      cv_pdf: z.string().optional(),
+      gallery: z.array(image()).optional(),
+    }),
+});
+
+// Book.me page collection
+const bookmeConfig = defineCollection({
+  type: "data",
+  schema: z.object({
+    page_title: z.string().optional(),
+    page_subtitle: z.string().optional(),
+    cal: z.object({
+      handle: z.string(),
+      eventType: z.string().optional(),
+      attrs: z.record(z.string()).optional(),
+    }),
+    tiles: z.array(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        description: z.string().optional(),
+        image: z.string().optional(),
+        cta_text: z.string(),
+        cta_kind: z.enum(['cal', 'link', 'mailto', 'download']),
+        cal_preset: z.string().optional(),
+        href: z.string().optional(),
+        visible: z.boolean(),
+        icon: z.string().optional(),
+      })
+    ),
+    footer_note: z.string().optional(),
+  }),
+});
+
 // Pass-through to silence auto-generation warnings without refactor
 const en = defineCollection({ type: "content" });
 const ru = defineCollection({ type: "content" });
 const pages = defineCollection({ type: "content" });
 
-export const collections = { blog, legal, footer, posts, en, ru, pages };
+export const collections = { blog, legal, footer, posts, aboutPage, bookmeConfig, en, ru, pages };

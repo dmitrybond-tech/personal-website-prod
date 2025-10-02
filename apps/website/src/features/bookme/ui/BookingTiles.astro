@@ -1,0 +1,125 @@
+---
+import type { CalEventType } from '@app/data/cal/event-types';
+import type { BookmeModel } from '../../../shared/content/bookme';
+import { mapIconToken } from '../../../shared/ui/icons/mapIconToken';
+
+export interface Props {
+  locale: 'en' | 'ru';
+  events?: CalEventType[];
+  bookmeData?: BookmeModel;
+}
+
+const { locale, events, bookmeData } = Astro.props;
+
+// Use CMS data if available, otherwise fall back to events
+const tiles = bookmeData?.tiles?.filter(tile => tile.visible) || events?.map(event => ({
+  id: event.id,
+  title: event.i18n[locale]?.title || event.i18n.en.title,
+  description: event.i18n[locale]?.subtitle || event.i18n.en.subtitle,
+  cta_text: event.i18n[locale]?.cta || event.i18n.en.cta || (locale === 'ru' ? 'Записаться' : 'Book'),
+  cta_kind: 'cal' as const,
+  cal_preset: event.calLink,
+  visible: true,
+  icon: 'calendar',
+})) || [];
+---
+
+<div class="booker-row-3">
+  {tiles.map(tile => (
+    <button
+      type="button"
+      class="booking-tile w-full group rounded-2xl border p-4 text-left hover:shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      data-inline-link={tile.cal_preset || tile.href}
+      data-inline-config='{"hideEventTypeDetails":true}'
+      aria-pressed="false"
+      aria-label={tile.title + ' — ' + (tile.description || '')}
+    >
+      <div class="flex items-start gap-3">
+        {tile.icon && (
+          <iconify-icon 
+            icon={mapIconToken(tile.icon) || 'fa6-solid:calendar'} 
+            class="text-xl text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1"
+          />
+        )}
+        <div class="flex-1">
+          <div class="text-lg font-semibold">{tile.title}</div>
+          {tile.description && <div class="text-sm opacity-70">{tile.description}</div>}
+        </div>
+      </div>
+      <div class="mt-4 inline-flex items-center gap-2 text-sm opacity-90">
+        <span>{tile.cta_text}</span>
+        <span aria-hidden="true">→</span>
+      </div>
+    </button>
+  ))}
+</div>
+
+<style>
+  /* Active state for selected tiles */
+  .booking-tile.active {
+    outline: 2px solid var(--cv-accent);
+    outline-offset: -2px;
+    background: rgba(79, 70, 229, 0.05);
+    border-color: var(--cv-accent);
+  }
+
+  /* Dark theme active state */
+  :global(.dark) .booking-tile.active {
+    background: rgba(79, 70, 229, 0.1);
+    border-color: var(--cv-accent);
+  }
+
+  /* Loading state for cal-inline */
+  :global(#cal-inline.is-loading) {
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Grid layout for booking tiles */
+  .booker-row-3 {
+    @apply grid grid-cols-1 gap-4;
+  }
+  
+  @media (min-width: 768px) {
+    .booker-row-3 {
+      @apply grid-cols-2;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .booker-row-3 {
+      @apply grid-cols-3;
+    }
+  }
+</style>
+
+<script type="module">
+  // Handle tile interactions
+  document.addEventListener('DOMContentLoaded', () => {
+    const tiles = document.querySelectorAll('.booking-tile');
+    
+    tiles.forEach(tile => {
+      tile.addEventListener('click', () => {
+        // Remove active class from all tiles
+        tiles.forEach(t => t.classList.remove('active'));
+        // Add active class to clicked tile
+        tile.classList.add('active');
+        
+        // Handle different CTA kinds
+        const calPreset = tile.getAttribute('data-inline-link');
+        if (calPreset) {
+          // Trigger Cal.com inline booking
+          if (window.Cal) {
+            window.Cal('init', 'inline', {
+              elementOrSelector: '#cal-inline',
+              calLink: calPreset,
+              config: {
+                hideEventTypeDetails: true
+              }
+            });
+          }
+        }
+      });
+    });
+  });
+</script>

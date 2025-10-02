@@ -81,7 +81,11 @@ export default defineConfig({
         ...(process.env.TUNNEL_HOSTS?.split(',').map(h => h.trim()).filter(Boolean) ?? []),
       ],
       fs: {
-        allow: [path.resolve(__dirname, '../website-vanilla_ref')],
+        allow: [
+          path.resolve(__dirname),
+          path.resolve(__dirname, 'src'),
+          path.resolve(__dirname, '../website-vanilla_ref'),
+        ],
       },
     },
     preview: {

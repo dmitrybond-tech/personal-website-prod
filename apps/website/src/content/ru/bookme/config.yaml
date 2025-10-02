@@ -1,0 +1,33 @@
+page_title: "Записаться на встречу"
+page_subtitle: "Запланируйте звонок для обсуждения вашего проекта"
+cal:
+  handle: "dima-bond-git"
+  eventType: "intro"
+  attrs:
+    hideEventTypeDetails: "true"
+tiles:
+  - id: "intro-30"
+    title: "Знакомство"
+    description: "30 минут"
+    cta_text: "Записаться"
+    cta_kind: "cal"
+    cal_preset: "dima-bond-git/intro-30m"
+    visible: true
+    icon: "calendar"
+  - id: "tech-consultation"
+    title: "Техническая консультация"
+    description: "90 минут"
+    cta_text: "Записаться"
+    cta_kind: "cal"
+    cal_preset: "dima-bond-git/tech-90m"
+    visible: true
+    icon: "code"
+  - id: "mentoring"
+    title: "Менторинг"
+    description: "60 минут"
+    cta_text: "Записаться"
+    cta_kind: "cal"
+    cal_preset: "dima-bond-git/mentoring-60m"
+    visible: true
+    icon: "graduation-cap"
+footer_note: "Я доступен для консультаций, менторства и обсуждения проектов. Выберите удобное время ниже."

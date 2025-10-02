@@ -114,14 +114,14 @@ const bodyClasses = [
         padding-top: var(--nav-gap);   /* needed top offset */
         /* IMPORTANT: NO transform here */
         pointer-events: auto;          /* clicks pass through */
-        max-width: var(--cv-container-max, 80rem);
+        max-width: min(var(--cv-nav-max-w), calc(100vw - 2 * var(--cv-content-pad-x)));
         margin-inline: auto;
-        padding-inline: var(--cv-gutter-x, 1rem);
+        padding-inline: var(--cv-content-pad-x);
       }
       
       @media (max-width: 640px) {
         .nav-float-wrap {
-          padding-inline: 1rem;
+          padding-inline: var(--cv-content-pad-x);
         }
       }
     </style>

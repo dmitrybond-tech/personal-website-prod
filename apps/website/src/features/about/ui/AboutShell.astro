@@ -1,0 +1,217 @@
+---
+import type { Data } from '../devscard/types/data';
+import type { AboutModel } from '../../../shared/content/about';
+import SideNav from '../devscard/ui/SideNav.astro';
+import MainSection from '../devscard/ui/sections/MainSection.astro';
+import SkillsSection from '../devscard/ui/sections/SkillsSection.astro';
+import ExperienceSection from '../devscard/ui/sections/ExperienceSection.astro';
+import PortfolioSection from '../devscard/ui/sections/PortfolioSection.astro';
+import EducationSection from '../devscard/ui/sections/EducationSection.astro';
+import TestimonialsSection from '../devscard/ui/sections/TestimonialsSection.astro';
+import FavoritesSection from '../devscard/ui/sections/FavoritesSection.astro';
+import DynamicSection from '../devscard/ui/DynamicSection.astro';
+import { mapIconToken } from '../../../shared/ui/icons/mapIconToken';
+
+export interface Props {
+  locale: 'en' | 'ru';
+  data: Data;
+  aboutData?: AboutModel;
+}
+
+const { locale, data, aboutData } = Astro.props;
+const { config, sections } = data;
+
+// Define section components for dynamic loading
+const sectionComponents = {
+  main: MainSection,
+  skills: SkillsSection,
+  experience: ExperienceSection,
+  portfolio: PortfolioSection,
+  education: EducationSection,
+  testimonials: TestimonialsSection,
+  favorites: FavoritesSection,
+};
+
+// If we have CMS data, we can use it to enhance the existing sections
+// For now, we'll keep the existing structure but make it extensible
+---
+
+<section class="cv-root">
+  <div class="cv-layout mx-auto max-w-[var(--cv-max-w)] px-[var(--cv-gap)]
+              grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-8
+              overflow-visible">
+    <main class="min-w-0 isolate">
+      <div class="cv-sections flex flex-col gap-8 xl:gap-10 pt-1">
+        <!-- Dynamic Islands for Devs Cards with progressive hydration -->
+        <DynamicSection 
+          component={sectionComponents.main} 
+          props={sections.main} 
+          clientLoad="visible"
+          minHeight="300px"
+        />
+        <DynamicSection 
+          component={sectionComponents.skills} 
+          props={sections.skills} 
+          clientLoad="visible"
+          minHeight="200px"
+        />
+        <DynamicSection 
+          component={sectionComponents.experience} 
+          props={sections.experience} 
+          clientLoad="visible"
+          minHeight="250px"
+        />
+        <DynamicSection 
+          component={sectionComponents.portfolio} 
+          props={sections.portfolio} 
+          clientLoad="visible"
+          minHeight="300px"
+        />
+        <DynamicSection 
+          component={sectionComponents.education} 
+          props={sections.education} 
+          clientLoad="visible"
+          minHeight="200px"
+        />
+        <DynamicSection 
+          component={sectionComponents.testimonials} 
+          props={sections.testimonials} 
+          clientLoad="visible"
+          minHeight="200px"
+        />
+        <DynamicSection 
+          component={sectionComponents.favorites} 
+          props={sections.favorites} 
+          clientLoad="visible"
+          minHeight="250px"
+        />
+        
+        <!-- CMS-managed sections can be added here -->
+        {aboutData?.sections?.map((section, index) => (
+          <div class="cv-section" data-section-id={`cms-section-${index}`}>
+            <div class="cv-section-header">
+              {section.icon && (
+                <iconify-icon 
+                  icon={mapIconToken(section.icon) || 'fa6-solid:circle'} 
+                  class="cv-section-icon"
+                />
+              )}
+              {section.heading && (
+                <h2 class="cv-section-title">{section.heading}</h2>
+              )}
+            </div>
+            {section.body && (
+              <div class="cv-section-content prose prose-sm max-w-none">
+                <div set:html={section.body} />
+              </div>
+            )}
+            {section.image && (
+              <div class="cv-section-image">
+                <img 
+                  src={section.image} 
+                  alt={section.heading || 'Section image'} 
+                  class="w-full h-auto rounded-lg"
+                />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </main>
+    <aside class="hidden xl:block overflow-visible">
+      <div id="sidebar"
+           class="sticky top-[calc(var(--navbar-h)+16px)] self-start h-min w-[64px]">
+        <SideNav sections={sections} />
+      </div>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .cv-root {
+    @apply flex justify-center;
+    /* Background now handled at body level for About pages */
+    overflow: visible !important;
+  }
+  
+  @media (min-width: 1280px) {
+    .cv-root {
+      @apply relative left-7;
+    }
+  }
+  
+  .cv-layout {
+    overflow: visible !important;
+  }
+  
+  .cv-main {
+    @apply w-full max-w-5xl space-y-4 px-2 py-3;
+  }
+  
+  @media (min-width: 640px) {
+    .cv-main {
+      @apply space-y-6 px-8 py-12;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .cv-main {
+      @apply space-y-8 py-20;
+    }
+  }
+  
+  /* Ensure proper spacing for sticky navbar */
+  .cv-main > * {
+    scroll-margin-top: var(--navbar-h);
+  }
+
+  /* CMS section styles */
+  .cv-section {
+    @apply bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700;
+  }
+
+  .cv-section-header {
+    @apply flex items-center gap-3 mb-4;
+  }
+
+  .cv-section-icon {
+    @apply text-2xl text-blue-600 dark:text-blue-400;
+  }
+
+  .cv-section-title {
+    @apply text-xl font-semibold text-gray-900 dark:text-white;
+  }
+
+  .cv-section-content {
+    @apply text-gray-700 dark:text-gray-300;
+  }
+
+  .cv-section-image {
+    @apply mt-4;
+  }
+</style>
+
+<script is:inline>
+  function setActiveItem() {
+    try {
+      var path = (window && window.location && window.location.pathname) || '';
+      var hash = (window && window.location && window.location.hash) || '';
+      var links = document.querySelectorAll('[data-sidenav-link]');
+      links.forEach(function (a) {
+        var href = a && a.getAttribute ? (a.getAttribute('href') || '') : '';
+        if (!href) {
+          a && a.setAttribute && a.setAttribute('aria-current', 'false');
+          return;
+        }
+        var active =
+          (path && href && path.endsWith(href)) ||
+          (hash && href && hash === href);
+        a.classList.toggle('active', !!active);
+        a.setAttribute('aria-current', active ? 'page' : 'false');
+      });
+    } catch (e) { /* no-op */ }
+  }
+
+  document.addEventListener('DOMContentLoaded', setActiveItem);
+  window.addEventListener('hashchange', setActiveItem);
+</script>
