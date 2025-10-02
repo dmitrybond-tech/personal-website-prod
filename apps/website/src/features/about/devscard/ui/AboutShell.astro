@@ -18,11 +18,11 @@ const { locale, data } = Astro.props;
 const { config, sections } = data;
 ---
 
-<section class="cv-root">
+<section class="cv-root flex justify-center xl:relative xl:left-7">
   <div class="cv-layout mx-auto max-w-[var(--cv-max-w)] px-[var(--cv-gap)]
               grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-8
               overflow-visible">
-    <main class="min-w-0 isolate">
+    <main class="min-w-0 isolate w-full max-w-5xl space-y-4 px-2 py-3 sm:space-y-6 sm:px-8 sm:py-12 lg:space-y-8 lg:py-20">
       <div class="cv-sections flex flex-col gap-8 xl:gap-10 pt-1">
         <MainSection {...sections.main} client:visible />
         <SkillsSection {...sections.skills} client:visible />
@@ -46,15 +46,8 @@ const { config, sections } = data;
   @reference "../../../../styles/tailwind.css";
   
   .cv-root {
-    @apply flex justify-center;
     /* Background now handled at body level for About pages */
     overflow: visible !important;
-  }
-  
-  @media (min-width: 1280px) {
-    .cv-root {
-      @apply relative left-7;
-    }
   }
   
   .cv-layout {
@@ -62,19 +55,7 @@ const { config, sections } = data;
   }
   
   .cv-main {
-    @apply w-full max-w-5xl space-y-4 px-2 py-3;
-  }
-  
-  @media (min-width: 640px) {
-    .cv-main {
-      @apply space-y-6 px-8 py-12;
-    }
-  }
-  
-  @media (min-width: 1024px) {
-    .cv-main {
-      @apply space-y-8 py-20;
-    }
+    /* Utilities moved to markup */
   }
   
   /* Ensure proper spacing for sticky navbar */

@@ -229,7 +229,10 @@ body {
   @reference "./tailwind.css";
   
   .nav-surface {
-    @apply sticky top-0 z-50 w-full;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    width: 100%;
     /* Using unified cv-root tokens */
     background-color: var(--cv-nav-surface);
     color: var(--cv-nav-text);

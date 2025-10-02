@@ -20,6 +20,7 @@ const ICON_MAP: Record<string, string> = {
   'work': 'fa6-solid:briefcase',
   'job': 'fa6-solid:briefcase',
   'career': 'fa6-solid:briefcase',
+  'suitcase': 'fa6-solid:suitcase',
   
   // Education icons
   'education': 'fa6-solid:graduation-cap',
@@ -49,10 +50,25 @@ const ICON_MAP: Record<string, string> = {
   
   // Social media icons
   'github': 'fa6-brands:github',
-  'linkedin': 'fa6-brands:linkedin',
+  'linkedin': 'fa6-brands:linkedin-in',
   'twitter': 'fa6-brands:twitter',
-  'facebook': 'fa6-brands:facebook',
+  'facebook': 'fa6-brands:facebook-f',
   'instagram': 'fa6-brands:instagram',
+  'pinterest': 'fa6-brands:pinterest',
+  'codepen': 'fa6-brands:codepen',
+  'dev': 'fa6-brands:dev',
+  'medium': 'fa6-brands:medium',
+  'reddit': 'fa6-brands:reddit',
+  'quora': 'fa6-brands:quora',
+  'stack-overflow': 'fa6-brands:stack-overflow',
+  'behance': 'fa6-brands:behance',
+  'dribbble': 'fa6-brands:dribbble',
+  'figma': 'fa6-brands:figma',
+  'spotify': 'fa6-brands:spotify',
+  'soundcloud': 'fa6-brands:soundcloud',
+  'youtube': 'fa6-brands:youtube',
+  'twitch': 'fa6-brands:twitch',
+  'vimeo': 'fa6-brands:vimeo',
   
   // File and document icons
   'file': 'fa6-solid:file',
@@ -68,14 +84,17 @@ const ICON_MAP: Record<string, string> = {
   'address': 'fa6-solid:location-dot',
   
   // Skills and tools icons
-  'skills': 'fa6-solid:tools',
+  'skills': 'fa6-solid:bars-progress',
   'tools': 'fa6-solid:tools',
   'technologies': 'fa6-solid:tools',
   'stack': 'fa6-solid:tools',
+  'bars-progress': 'fa6-solid:bars-progress',
   
   // Project and portfolio icons
   'project': 'fa6-solid:folder',
   'portfolio': 'fa6-solid:folder',
+  'rocket': 'fa6-solid:rocket',
+  'images': 'fa6-solid:images',
   
   // Experience icons
   'experience': 'fa6-solid:briefcase',
@@ -83,16 +102,18 @@ const ICON_MAP: Record<string, string> = {
   'timeline': 'fa6-solid:clock-rotate-left',
   
   // Testimonials and reviews icons
-  'testimonial': 'fa6-solid:quote-left',
+  'testimonial': 'fa6-solid:comment',
   'review': 'fa6-solid:star',
   'rating': 'fa6-solid:star',
   'recommendation': 'fa6-solid:thumbs-up',
+  'comment': 'fa6-solid:comment',
   
   // Favorites and interests icons
-  'favorite': 'fa6-solid:heart',
+  'favorite': 'fa6-solid:star',
   'interest': 'fa6-solid:heart',
   'hobby': 'fa6-solid:heart',
   'passion': 'fa6-solid:heart',
+  'star': 'fa6-solid:star',
   
   // Search and find icons
   'search': 'fa6-solid:magnifying-glass',
@@ -102,7 +123,12 @@ const ICON_MAP: Record<string, string> = {
   // Link and external icons
   'link': 'fa6-solid:link',
   'external': 'fa6-solid:arrow-up-right-from-square',
+  'external-link': 'fa6-solid:arrow-up-right-from-square', // Fix broken token
   'url': 'fa6-solid:link',
+  'globe': 'fa6-solid:globe',
+  'desktop': 'fa6-solid:desktop',
+  'paintbrush': 'fa6-solid:paintbrush',
+  'code-branch': 'fa6-solid:code-branch',
   
   // Menu and navigation icons
   'menu': 'fa6-solid:bars',
@@ -139,6 +165,34 @@ const ICON_MAP: Record<string, string> = {
   // Edit and delete icons
   'edit': 'fa6-solid:pencil',
   'delete': 'fa6-solid:trash',
+  
+  // Technology and framework icons
+  'react': 'fa6-brands:react',
+  'typescript': 'fa6-brands:typescript',
+  'node': 'fa6-brands:node-js',
+  'python': 'fa6-brands:python',
+  'rust': 'fa6-brands:rust',
+  'go': 'fa6-brands:golang',
+  'next': 'fa6-brands:next-js',
+  'vue': 'fa6-brands:vue',
+  'mongodb': 'fa6-brands:mongodb',
+  'docker': 'fa6-brands:docker',
+  'postgresql': 'fa6-brands:postgresql',
+  'stripe': 'fa6-brands:stripe',
+  'socketio': 'fa6-brands:socket-io',
+  'tailwind': 'fa6-brands:tailwind-css',
+  
+  // Language icons
+  'english': 'fa6-solid:flag-usa',
+  'russian': 'fa6-solid:flag',
+  'spanish': 'fa6-solid:flag',
+  
+  // Additional icons
+  'camera': 'fa6-solid:camera',
+  'travel': 'fa6-solid:plane',
+  'book': 'fa6-solid:book',
+  'ml': 'fa6-solid:brain',
+  'circle': 'fa6-solid:circle',
 };
 
 /**

@@ -1,0 +1,77 @@
+---
+export interface Props {
+  data: {
+    skillSets: Array<{
+      title: string;
+      skills: Array<{
+        name: string;
+        icon?: string;
+        level?: number;
+        description?: string;
+      }>;
+    }>;
+  };
+}
+
+const { data } = Astro.props;
+const { mapIconToken } = await import('@shared/ui/icons/mapIconToken');
+---
+
+<div class="skills-section bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+  <div class="mb-6">
+    <div class="flex items-center gap-3 mb-4">
+      <iconify-icon icon="fa6-solid:bars-progress" class="text-2xl text-blue-600 dark:text-blue-400"></iconify-icon>
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Skills</h2>
+    </div>
+  </div>
+  
+  <div class="space-y-8">
+    {data.skillSets.map((skillSet) => (
+      <div class="skill-set">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+          {skillSet.title}
+        </h3>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {skillSet.skills.map((skill) => (
+            <div class="skill-item bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <div class="flex items-center gap-3 mb-2">
+                {skill.icon && (
+                  <iconify-icon 
+                    icon={mapIconToken(skill.icon) || 'fa6-solid:circle'} 
+                    class="text-lg text-blue-600 dark:text-blue-400"
+                  ></iconify-icon>
+                )}
+                <span class="font-medium text-gray-900 dark:text-white">
+                  {skill.name}
+                </span>
+              </div>
+              
+              {skill.level && (
+                <div class="mb-2">
+                  <div class="flex gap-1">
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <div 
+                        class={`w-3 h-3 rounded-full ${
+                          i < skill.level! 
+                            ? 'bg-blue-500 dark:bg-blue-400' 
+                            : 'bg-gray-300 dark:bg-gray-600'
+                        }`}
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {skill.description && (
+                <p class="text-sm text-gray-600 dark:text-gray-300">
+                  {skill.description}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</div>

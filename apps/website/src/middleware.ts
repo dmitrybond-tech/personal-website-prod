@@ -2,6 +2,10 @@ import type { MiddlewareHandler } from 'astro';
 
 const DEV = process.env.NODE_ENV !== 'production';
 
+// i18n configuration
+const SUPPORTED_LOCALES = ['en', 'ru'] as const;
+const DEFAULT_LOCALE = 'en';
+
 // GitHub repository configuration for dev asset fallback
 const GITHUB_OWNER = 'dmitrybond-tech';
 const GITHUB_REPO = 'personal-website-dev';
@@ -28,6 +32,39 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
   const path = url.pathname;
 
   if (DEV) console.log(`[MW] ${request.method} ${path}`);
+
+  // System paths that should bypass i18n redirects
+  const SYSTEM_PATHS = [
+    '/website-admin',
+    '/admin',
+    '/api',
+    '/oauth',
+    '/auth',
+    '/favicon',
+    '/robots.txt',
+    '/sitemap',
+    '/assets',
+    '/fonts',
+    '/images',
+    '/public'
+  ];
+
+  // Check if path should bypass i18n redirect
+  const shouldBypassI18n = SYSTEM_PATHS.some(systemPath => path.startsWith(systemPath));
+
+  // i18n routing: redirect bare paths and non-localized paths to default locale
+  if (!shouldBypassI18n && (path === '/' || (!SUPPORTED_LOCALES.includes(path.split('/')[1] as any)))) {
+    const redirectPath = path === '/' ? `/${DEFAULT_LOCALE}/` : `/${DEFAULT_LOCALE}${path}`;
+    const redirectUrl = new URL(redirectPath, url);
+    
+    // Preserve query parameters
+    for (const [key, value] of url.searchParams) {
+      redirectUrl.searchParams.set(key, value);
+    }
+    
+    if (DEV) console.log(`[MW] i18n redirect: ${path} → ${redirectUrl.pathname}`);
+    return Response.redirect(redirectUrl.toString(), 302);
+  }
 
   // Dev uploads proxy: if static file returns 404, proxy to GitHub
   if (DEV && path.startsWith('/uploads/')) {

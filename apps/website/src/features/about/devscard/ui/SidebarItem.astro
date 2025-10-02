@@ -9,30 +9,10 @@ const { icon, slug, title } = Astro.props;
 
 <a
   href={`#${slug}`}
-  class="inline-flex h-10 w-10 items-center justify-center rounded-lg transition"
+  class="inline-flex h-10 w-10 items-center justify-center rounded-lg transition text-gray-400 hover:bg-primary-600 hover:text-white dark:text-gray-200 [&[aria-current='page']]:bg-primary-600 [&[aria-current='page']]:text-white"
   aria-label={`${title} section`}
   data-tooltip={title}
   data-tooltip-placement="left"
 >
   <Icon name={icon} size={20} />
 </a>
-
-<style>
-  @reference "../../../../styles/tailwind.css";
-  
-  [aria-current='page'] {
-    @apply bg-primary-600 text-white;
-  }
-
-  :not([aria-current='page']) {
-    @apply text-gray-400;
-  }
-  
-  :not([aria-current='page']):hover {
-    @apply bg-primary-600 text-white;
-  }
-  
-  .dark :not([aria-current='page']) {
-    @apply text-gray-200;
-  }
-</style>

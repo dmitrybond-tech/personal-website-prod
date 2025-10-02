@@ -21,76 +21,40 @@ const {
 ---
 
 <div 
-  class="dynamic-section-container"
+  class="dynamic-section-container relative"
   style={`min-height: ${minHeight};`}
   data-client-load={clientLoad}
   data-client-media={clientMedia}
 >
   <!-- Skeleton placeholder -->
-  <div class="dynamic-section-skeleton" data-skeleton>
-    <div class="skeleton-content">
-      <div class="skeleton-header">
-        <div class="skeleton-icon"></div>
-        <div class="skeleton-title"></div>
+  <div class="dynamic-section-skeleton animate-pulse" data-skeleton>
+    <div class="skeleton-content bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+      <div class="skeleton-header flex items-center gap-3 mb-4">
+        <div class="skeleton-icon w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded"></div>
+        <div class="skeleton-title h-6 bg-gray-300 dark:bg-gray-600 rounded w-32"></div>
       </div>
-      <div class="skeleton-body">
-        <div class="skeleton-line"></div>
-        <div class="skeleton-line"></div>
-        <div class="skeleton-line short"></div>
+      <div class="skeleton-body space-y-3">
+        <div class="skeleton-line h-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
+        <div class="skeleton-line h-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
+        <div class="skeleton-line short h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
       </div>
     </div>
   </div>
 
   <!-- Actual content (will be hydrated) -->
-  <div class="dynamic-section-content" data-content style="display: none;">
+  <div class="dynamic-section-content hidden" data-content>
     <Component {...props} client:load={clientLoad} client:media={clientMedia} />
   </div>
 </div>
 
 <style>
-  .dynamic-section-container {
-    @apply relative;
-  }
-
-  .dynamic-section-skeleton {
-    @apply animate-pulse;
-  }
-
-  .skeleton-content {
-    @apply bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700;
-  }
-
-  .skeleton-header {
-    @apply flex items-center gap-3 mb-4;
-  }
-
-  .skeleton-icon {
-    @apply w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded;
-  }
-
-  .skeleton-title {
-    @apply h-6 bg-gray-300 dark:bg-gray-600 rounded w-32;
-  }
-
-  .skeleton-body {
-    @apply space-y-3;
-  }
-
-  .skeleton-line {
-    @apply h-4 bg-gray-300 dark:bg-gray-600 rounded;
-  }
-
-  .skeleton-line.short {
-    @apply w-3/4;
-  }
-
   /* Hide skeleton when content is loaded */
   .dynamic-section-container[data-loaded="true"] .dynamic-section-skeleton {
-    @apply hidden;
+    display: none;
   }
 
   .dynamic-section-container[data-loaded="true"] .dynamic-section-content {
-    @apply block;
+    display: block;
   }
 </style>
 

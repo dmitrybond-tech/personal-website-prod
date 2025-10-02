@@ -1,0 +1,156 @@
+---
+export interface Props {
+  data: {
+    items: Array<{
+      role?: string;
+      company?: string;
+      degree?: string;
+      institution?: string;
+      image?: string;
+      dates: Array<Date | null>;
+      description: string;
+      tagsList?: {
+        title: string;
+        tags: Array<{
+          name: string;
+          icon?: string;
+        }>;
+      };
+      links?: Array<{
+        label: string;
+        url: string;
+        icon?: string;
+      }>;
+    }>;
+  };
+  title: string;
+  icon: string;
+}
+
+const { data, title, icon } = Astro.props;
+const { mapIconToken } = await import('@shared/ui/icons/mapIconToken');
+
+// Helper function to format date range
+function formatDateRange(dates: Array<Date | null>): string {
+  if (dates.length === 0) return '';
+  
+  const startDate = dates[0];
+  const endDate = dates[1];
+  
+  if (!startDate) return '';
+  
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long' 
+    });
+  };
+  
+  const start = formatDate(startDate);
+  const end = endDate ? formatDate(endDate) : 'Present';
+  
+  return `${start} - ${end}`;
+}
+---
+
+<div class="timeline-section bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+  <div class="mb-6">
+    <div class="flex items-center gap-3 mb-4">
+      <iconify-icon icon={mapIconToken(icon) || 'fa6-solid:circle'} class="text-2xl text-blue-600 dark:text-blue-400"></iconify-icon>
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>
+    </div>
+  </div>
+  
+  <div class="timeline">
+    {data.items.map((item, index) => (
+      <div class="timeline-item relative pl-8 pb-8 last:pb-0">
+        <!-- Timeline line -->
+        {index < data.items.length - 1 && (
+          <div class="absolute left-3 top-8 w-0.5 h-full bg-gray-300 dark:bg-gray-600"></div>
+        )}
+        
+        <!-- Timeline dot -->
+        <div class="absolute left-0 top-2 w-6 h-6 bg-blue-600 dark:bg-blue-400 rounded-full border-4 border-white dark:border-gray-800"></div>
+        
+        <!-- Content -->
+        <div class="timeline-content">
+          <!-- Header with image, title, and dates -->
+          <div class="flex items-start gap-4 mb-3">
+            {item.image && (
+              <img 
+                src={item.image} 
+                alt={item.company || item.institution || 'Company/Institution'}
+                class="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+              />
+            )}
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {item.role || item.degree}
+                  </h3>
+                  <p class="text-blue-600 dark:text-blue-400 font-medium">
+                    {item.company || item.institution}
+                  </p>
+                </div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                  {formatDateRange(item.dates)}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Description -->
+          <div class="mb-4 prose prose-sm max-w-none text-gray-700 dark:text-gray-300">
+            <div set:html={item.description} />
+          </div>
+          
+          <!-- Tags -->
+          {item.tagsList && item.tagsList.tags.length > 0 && (
+            <div class="mb-4">
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                {item.tagsList.title}
+              </h4>
+              <div class="flex flex-wrap gap-2">
+                {item.tagsList.tags.map((tag) => (
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                    {tag.icon && (
+                      <iconify-icon 
+                        icon={mapIconToken(tag.icon) || 'fa6-solid:circle'} 
+                        class="text-xs"
+                      ></iconify-icon>
+                    )}
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <!-- Links -->
+          {item.links && item.links.length > 0 && (
+            <div class="flex gap-2">
+              {item.links.map((link) => (
+                <a 
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1 px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+                >
+                  {link.icon && (
+                    <iconify-icon 
+                      icon={mapIconToken(link.icon) || 'fa6-solid:link'} 
+                      class="text-sm"
+                    ></iconify-icon>
+                  )}
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+</div>

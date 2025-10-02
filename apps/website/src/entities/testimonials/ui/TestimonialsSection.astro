@@ -1,0 +1,62 @@
+---
+export interface Props {
+  data: {
+    items: Array<{
+      quote: string;
+      author: string;
+      role?: string;
+      company?: string;
+      image?: string;
+    }>;
+  };
+}
+
+const { data } = Astro.props;
+---
+
+<div class="testimonials-section bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+  <div class="mb-6">
+    <div class="flex items-center gap-3 mb-4">
+      <iconify-icon icon="fa6-solid:comment" class="text-2xl text-blue-600 dark:text-blue-400"></iconify-icon>
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Testimonials</h2>
+    </div>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {data.items.map((testimonial) => (
+      <div class="testimonial-card bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+        <!-- Quote -->
+        <div class="mb-4">
+          <iconify-icon icon="fa6-solid:quote-left" class="text-2xl text-blue-600 dark:text-blue-400 mb-2"></iconify-icon>
+          <blockquote class="text-gray-700 dark:text-gray-300 italic">
+            {testimonial.quote}
+          </blockquote>
+        </div>
+        
+        <!-- Author -->
+        <div class="flex items-center gap-3">
+          {testimonial.image && (
+            <img 
+              src={testimonial.image} 
+              alt={testimonial.author}
+              class="w-10 h-10 rounded-full object-cover"
+            />
+          )}
+          <div>
+            <div class="font-medium text-gray-900 dark:text-white">
+              {testimonial.author}
+            </div>
+            {(testimonial.role || testimonial.company) && (
+              <div class="text-sm text-gray-500 dark:text-gray-400">
+                {testimonial.role && testimonial.company 
+                  ? `${testimonial.role} at ${testimonial.company}`
+                  : testimonial.role || testimonial.company
+                }
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>

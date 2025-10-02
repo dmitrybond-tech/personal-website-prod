@@ -1,0 +1,19 @@
+---
+import { mapIconToken } from './mapIconToken';
+
+export interface Props {
+  icon: string;
+  class?: string;
+  fallback?: string;
+}
+
+const { icon, class: className = '', fallback = 'fa6-solid:circle' } = Astro.props;
+
+// Map the token to a valid iconify icon
+const mappedIcon = mapIconToken(icon) || fallback;
+---
+
+<iconify-icon 
+  icon={mappedIcon} 
+  class={className}
+/>

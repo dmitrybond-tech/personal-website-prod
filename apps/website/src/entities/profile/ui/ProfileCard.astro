@@ -1,0 +1,139 @@
+---
+export interface Props {
+  data: {
+    image?: string;
+    fullName: string;
+    role: string;
+    description: string;
+    details?: Array<{
+      label: string;
+      value: string;
+      url?: string;
+    }>;
+    tags?: Array<{
+      name: string;
+    }>;
+    action?: {
+      label: string;
+      url: string;
+      downloadedFileName?: string;
+    };
+    links?: Array<{
+      label: string;
+      url: string;
+      icon?: string;
+    }>;
+  };
+}
+
+const { data } = Astro.props;
+const { mapIconToken } = await import('@shared/ui/icons/mapIconToken');
+---
+
+<div class="profile-card bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+  <div class="flex flex-col md:flex-row gap-6">
+    <!-- Profile Image -->
+    {data.image && (
+      <div class="flex-shrink-0">
+        <img 
+          src={data.image} 
+          alt={data.fullName}
+          class="w-32 h-32 md:w-40 md:h-40 rounded-lg object-cover"
+        />
+      </div>
+    )}
+    
+    <!-- Profile Content -->
+    <div class="flex-1 min-w-0">
+      <!-- Name and Role -->
+      <div class="mb-4">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          {data.fullName}
+        </h1>
+        <p class="text-lg text-blue-600 dark:text-blue-400 font-medium">
+          {data.role}
+        </p>
+      </div>
+      
+      <!-- Description -->
+      <div class="mb-6 prose prose-sm max-w-none text-gray-700 dark:text-gray-300">
+        <div set:html={data.description} />
+      </div>
+      
+      <!-- Details -->
+      {data.details && data.details.length > 0 && (
+        <div class="mb-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {data.details.map((detail) => (
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400 min-w-0 flex-shrink-0">
+                  {detail.label}:
+                </span>
+                {detail.url ? (
+                  <a 
+                    href={detail.url} 
+                    class="text-sm text-blue-600 dark:text-blue-400 hover:underline truncate"
+                  >
+                    {detail.value}
+                  </a>
+                ) : (
+                  <span class="text-sm text-gray-900 dark:text-white truncate">
+                    {detail.value}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      <!-- Tags -->
+      {data.tags && data.tags.length > 0 && (
+        <div class="mb-6">
+          <div class="flex flex-wrap gap-2">
+            {data.tags.map((tag) => (
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      <!-- Action Button and Links -->
+      <div class="flex flex-col sm:flex-row gap-4">
+        {data.action && (
+          <a 
+            href={data.action.url}
+            download={data.action.downloadedFileName}
+            class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            <iconify-icon icon="fa6-solid:download" class="mr-2"></iconify-icon>
+            {data.action.label}
+          </a>
+        )}
+        
+        {data.links && data.links.length > 0 && (
+          <div class="flex gap-3">
+            {data.links.map((link) => (
+              <a 
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                title={link.label}
+              >
+                {link.icon && (
+                  <iconify-icon 
+                    icon={mapIconToken(link.icon) || 'fa6-solid:link'} 
+                    class="text-lg"
+                  ></iconify-icon>
+                )}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</div>

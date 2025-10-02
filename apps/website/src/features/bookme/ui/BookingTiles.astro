@@ -77,18 +77,20 @@ const tiles = bookmeData?.tiles?.filter(tile => tile.visible) || events?.map(eve
 
   /* Grid layout for booking tiles */
   .booker-row-3 {
-    @apply grid grid-cols-1 gap-4;
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
   }
   
   @media (min-width: 768px) {
     .booker-row-3 {
-      @apply grid-cols-2;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   
   @media (min-width: 1024px) {
     .booker-row-3 {
-      @apply grid-cols-3;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 </style>

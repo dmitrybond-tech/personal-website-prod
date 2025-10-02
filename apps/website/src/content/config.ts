@@ -36,18 +36,18 @@ const aboutPage = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
-    lead: z.string().optional(),
+    profile: z.object({
+      fullName: z.string(),
+      title: z.string(),
+      avatar: z.string().optional(),
+    }),
     sections: z.array(z.object({
+      heading: z.string(),
+      body: z.string(),
       icon: z.string().optional(),
-      heading: z.string().optional(),
-      body: z.string().optional(),
       image: z.string().optional(),
-    })).optional(),
-    links: z.array(z.object({
-      label: z.string(),
-      url: z.string(),
-      icon: z.string().optional(),
-    })).optional(),
+    })),
+    links: z.array(z.string()).optional(),
     cv_pdf: z.string().optional(),
     gallery: z.array(z.string()).optional(),
   }),

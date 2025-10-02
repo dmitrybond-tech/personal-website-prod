@@ -1,0 +1,118 @@
+---
+export interface Props {
+  data: {
+    projects: Array<{
+      name: string;
+      description: string;
+      image?: string;
+      url?: string;
+      tagsList?: {
+        title: string;
+        tags: Array<{
+          name: string;
+          icon?: string;
+        }>;
+      };
+      links?: Array<{
+        label: string;
+        url: string;
+        icon?: string;
+      }>;
+    }>;
+  };
+}
+
+const { data } = Astro.props;
+const { mapIconToken } = await import('@shared/ui/icons/mapIconToken');
+---
+
+<div class="portfolio-section bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+  <div class="mb-6">
+    <div class="flex items-center gap-3 mb-4">
+      <iconify-icon icon="fa6-solid:rocket" class="text-2xl text-blue-600 dark:text-blue-400"></iconify-icon>
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Portfolio</h2>
+    </div>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {data.projects.map((project) => (
+      <div class="project-card bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+        <!-- Project Image -->
+        {project.image && (
+          <div class="aspect-video bg-gray-200 dark:bg-gray-600">
+            <img 
+              src={project.image} 
+              alt={project.name}
+              class="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        
+        <!-- Project Content -->
+        <div class="p-4">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            {project.name}
+          </h3>
+          
+          <div class="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 mb-4">
+            <div set:html={project.description} />
+          </div>
+          
+          <!-- Tags -->
+          {project.tagsList && project.tagsList.tags.length > 0 && (
+            <div class="mb-4">
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                {project.tagsList.title}
+              </h4>
+              <div class="flex flex-wrap gap-1">
+                {project.tagsList.tags.map((tag) => (
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    {tag.icon && (
+                      <iconify-icon 
+                        icon={mapIconToken(tag.icon) || 'fa6-solid:circle'} 
+                        class="text-xs"
+                      ></iconify-icon>
+                    )}
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <!-- Links -->
+          <div class="flex gap-2">
+            {project.url && (
+              <a 
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1 px-3 py-1 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors"
+              >
+                <iconify-icon icon="fa6-solid:external-link" class="text-sm"></iconify-icon>
+                View Project
+              </a>
+            )}
+            
+            {project.links && project.links.map((link) => (
+              <a 
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1 px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+              >
+                {link.icon && (
+                  <iconify-icon 
+                    icon={mapIconToken(link.icon) || 'fa6-solid:link'} 
+                    class="text-sm"
+                  ></iconify-icon>
+                )}
+                {link.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>

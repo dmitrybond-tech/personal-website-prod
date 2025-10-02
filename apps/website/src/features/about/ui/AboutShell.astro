@@ -1,112 +1,126 @@
 ---
-import type { Data } from '../devscard/types/data';
-import type { AboutModel } from '../../../shared/content/about';
-import SideNav from '../devscard/ui/SideNav.astro';
-import MainSection from '../devscard/ui/sections/MainSection.astro';
-import SkillsSection from '../devscard/ui/sections/SkillsSection.astro';
-import ExperienceSection from '../devscard/ui/sections/ExperienceSection.astro';
-import PortfolioSection from '../devscard/ui/sections/PortfolioSection.astro';
-import EducationSection from '../devscard/ui/sections/EducationSection.astro';
-import TestimonialsSection from '../devscard/ui/sections/TestimonialsSection.astro';
-import FavoritesSection from '../devscard/ui/sections/FavoritesSection.astro';
-import DynamicSection from '../devscard/ui/DynamicSection.astro';
 import { mapIconToken } from '../../../shared/ui/icons/mapIconToken';
+import Icon from '../../../shared/ui/icons/Icon.astro';
+
+// Import new entity components
+import ProfileCard from '../../../entities/profile/ui/ProfileCard.astro';
+import SkillsSection from '../../../entities/skills/ui/SkillsSection.astro';
+import TimelineSection from '../../../entities/timeline/ui/TimelineSection.astro';
+import PortfolioGrid from '../../../entities/portfolio/ui/PortfolioGrid.astro';
+import TestimonialsSection from '../../../entities/testimonials/ui/TestimonialsSection.astro';
+import FavoritesSection from '../../../entities/favorites/ui/FavoritesSection.astro';
 
 export interface Props {
   locale: 'en' | 'ru';
-  data: Data;
-  aboutData?: AboutModel;
+  data: {
+    config: {
+      title: string;
+      lead?: string;
+    };
+    sections: {
+      main?: any;
+      skills?: any;
+      experience?: any;
+      education?: any;
+      portfolio?: any;
+      testimonials?: any;
+      favorites?: any;
+    };
+  };
+  aboutData?: {
+    profile?: any;
+    skills?: any;
+    experience?: any;
+    education?: any;
+    portfolio?: any;
+    testimonials?: any;
+    favorites?: any;
+    sections?: any[];
+    links?: any[];
+    cv_pdf?: string;
+    gallery?: string[];
+  };
 }
 
 const { locale, data, aboutData } = Astro.props;
 const { config, sections } = data;
 
-// Define section components for dynamic loading
-const sectionComponents = {
-  main: MainSection,
-  skills: SkillsSection,
-  experience: ExperienceSection,
-  portfolio: PortfolioSection,
-  education: EducationSection,
-  testimonials: TestimonialsSection,
-  favorites: FavoritesSection,
-};
-
-// If we have CMS data, we can use it to enhance the existing sections
-// For now, we'll keep the existing structure but make it extensible
+// Helper function to get section data from the new content structure
+function getSectionData(sectionKey: string) {
+  return aboutData?.[sectionKey] || null;
+}
 ---
 
-<section class="cv-root">
+<section class="cv-root flex justify-center xl:relative xl:left-7">
   <div class="cv-layout mx-auto max-w-[var(--cv-max-w)] px-[var(--cv-gap)]
               grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-8
               overflow-visible">
-    <main class="min-w-0 isolate">
+    <main class="min-w-0 isolate w-full max-w-5xl space-y-4 px-2 py-3 sm:space-y-6 sm:px-8 sm:py-12 lg:space-y-8 lg:py-20">
       <div class="cv-sections flex flex-col gap-8 xl:gap-10 pt-1">
-        <!-- Dynamic Islands for Devs Cards with progressive hydration -->
-        <DynamicSection 
-          component={sectionComponents.main} 
-          props={sections.main} 
-          clientLoad="visible"
-          minHeight="300px"
-        />
-        <DynamicSection 
-          component={sectionComponents.skills} 
-          props={sections.skills} 
-          clientLoad="visible"
-          minHeight="200px"
-        />
-        <DynamicSection 
-          component={sectionComponents.experience} 
-          props={sections.experience} 
-          clientLoad="visible"
-          minHeight="250px"
-        />
-        <DynamicSection 
-          component={sectionComponents.portfolio} 
-          props={sections.portfolio} 
-          clientLoad="visible"
-          minHeight="300px"
-        />
-        <DynamicSection 
-          component={sectionComponents.education} 
-          props={sections.education} 
-          clientLoad="visible"
-          minHeight="200px"
-        />
-        <DynamicSection 
-          component={sectionComponents.testimonials} 
-          props={sections.testimonials} 
-          clientLoad="visible"
-          minHeight="200px"
-        />
-        <DynamicSection 
-          component={sectionComponents.favorites} 
-          props={sections.favorites} 
-          clientLoad="visible"
-          minHeight="250px"
-        />
+        <!-- Profile Section -->
+        {getSectionData('profile') && (
+          <ProfileCard data={getSectionData('profile')} />
+        )}
+        
+        <!-- Skills Section -->
+        {getSectionData('skills') && (
+          <SkillsSection data={getSectionData('skills')} />
+        )}
+        
+        <!-- Experience Section -->
+        {getSectionData('experience') && (
+          <TimelineSection 
+            data={{ items: getSectionData('experience').jobs || [] }}
+            title={locale === 'ru' ? 'Опыт работы' : 'Work Experience'}
+            icon="suitcase"
+          />
+        )}
+        
+        <!-- Portfolio Section -->
+        {getSectionData('portfolio') && (
+          <PortfolioGrid data={getSectionData('portfolio')} />
+        )}
+        
+        <!-- Education Section -->
+        {getSectionData('education') && (
+          <TimelineSection 
+            data={{ items: getSectionData('education').items || [] }}
+            title={locale === 'ru' ? 'Образование' : 'Education'}
+            icon="graduation-cap"
+          />
+        )}
+        
+        <!-- Testimonials Section -->
+        {getSectionData('testimonials') && (
+          <TestimonialsSection data={getSectionData('testimonials')} />
+        )}
+        
+        <!-- Favorites Section -->
+        {getSectionData('favorites') && (
+          <FavoritesSection data={getSectionData('favorites')} />
+        )}
         
         <!-- CMS-managed sections can be added here -->
         {aboutData?.sections?.map((section, index) => (
-          <div class="cv-section" data-section-id={`cms-section-${index}`}>
-            <div class="cv-section-header">
+          <div class="cv-section bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700" data-section-id={`cms-section-${index}`}>
+            <div class="cv-section-header flex items-center gap-3 mb-4">
               {section.icon && (
-                <iconify-icon 
-                  icon={mapIconToken(section.icon) || 'fa6-solid:circle'} 
-                  class="cv-section-icon"
+                <Icon 
+                  icon={section.icon} 
+                  class="cv-section-icon text-2xl text-blue-600 dark:text-blue-400"
                 />
               )}
               {section.heading && (
-                <h2 class="cv-section-title">{section.heading}</h2>
+                <h2 class="cv-section-title text-xl font-semibold text-gray-900 dark:text-white">{section.heading}</h2>
               )}
             </div>
             {section.body && (
-              <div class="cv-section-content prose prose-sm max-w-none">
+              <div class="cv-section-content prose prose-sm max-w-none text-gray-700 dark:text-gray-300">
                 <div set:html={section.body} />
               </div>
             )}
             {section.image && (
-              <div class="cv-section-image">
+              <div class="cv-section-image mt-4">
                 <img 
                   src={section.image} 
                   alt={section.heading || 'Section image'} 
@@ -118,46 +132,23 @@ const sectionComponents = {
         ))}
       </div>
     </main>
-    <aside class="hidden xl:block overflow-visible">
-      <div id="sidebar"
-           class="sticky top-[calc(var(--navbar-h)+16px)] self-start h-min w-[64px]">
-        <SideNav sections={sections} />
-      </div>
-    </aside>
+    <!-- Sidebar removed - using new content structure -->
   </div>
 </section>
 
 <style>
   .cv-root {
-    @apply flex justify-center;
     /* Background now handled at body level for About pages */
     overflow: visible !important;
   }
   
-  @media (min-width: 1280px) {
-    .cv-root {
-      @apply relative left-7;
-    }
-  }
   
   .cv-layout {
     overflow: visible !important;
   }
   
   .cv-main {
-    @apply w-full max-w-5xl space-y-4 px-2 py-3;
-  }
-  
-  @media (min-width: 640px) {
-    .cv-main {
-      @apply space-y-6 px-8 py-12;
-    }
-  }
-  
-  @media (min-width: 1024px) {
-    .cv-main {
-      @apply space-y-8 py-20;
-    }
+    /* Utilities moved to markup */
   }
   
   /* Ensure proper spacing for sticky navbar */
@@ -165,29 +156,29 @@ const sectionComponents = {
     scroll-margin-top: var(--navbar-h);
   }
 
-  /* CMS section styles */
+  /* CMS section styles - utilities moved to markup */
   .cv-section {
-    @apply bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700;
+    /* Utilities moved to markup */
   }
 
   .cv-section-header {
-    @apply flex items-center gap-3 mb-4;
+    /* Utilities moved to markup */
   }
 
   .cv-section-icon {
-    @apply text-2xl text-blue-600 dark:text-blue-400;
+    /* Utilities moved to markup */
   }
 
   .cv-section-title {
-    @apply text-xl font-semibold text-gray-900 dark:text-white;
+    /* Utilities moved to markup */
   }
 
   .cv-section-content {
-    @apply text-gray-700 dark:text-gray-300;
+    /* Utilities moved to markup */
   }
 
   .cv-section-image {
-    @apply mt-4;
+    /* Utilities moved to markup */
   }
 </style>
 

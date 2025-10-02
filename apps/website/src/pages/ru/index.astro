@@ -1,8 +1,4 @@
 ---
-import { redirect } from 'astro:redirect';
-
-export const prerender = true;
-
-// Redirect to the Russian about page
-return redirect('/ru/about', 302);
+const target = new URL('/ru/about', Astro.request.url).toString();
+return new Response(null, { status: 302, headers: { Location: target } });
 ---

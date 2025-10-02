@@ -39,30 +39,248 @@ collections:
     format: "frontmatter"
     extension: "mdx"
     slug: "about"
-    media_folder: "apps/website/src/content/en/assets"
-    public_folder: "/media/en"
+    media_folder: "apps/website/public/uploads"
+    public_folder: "/uploads"
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Lead", name: "lead", widget: "text", required: false }
-      - label: "Sections"
+      
+      # Profile Section
+      - label: "Profile"
+        name: "profile"
+        widget: "object"
+        required: false
+        fields:
+          - { label: "Image", name: "image", widget: "image", required: false }
+          - { label: "Full Name", name: "fullName", widget: "string" }
+          - { label: "Role", name: "role", widget: "string" }
+          - { label: "Description", name: "description", widget: "markdown" }
+          - label: "Details"
+            name: "details"
+            widget: "list"
+            required: false
+            fields:
+              - { label: "Label", name: "label", widget: "string" }
+              - { label: "Value", name: "value", widget: "string" }
+              - { label: "URL", name: "url", widget: "string", required: false }
+          - label: "Tags"
+            name: "tags"
+            widget: "list"
+            required: false
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+          - label: "Action"
+            name: "action"
+            widget: "object"
+            required: false
+            fields:
+              - { label: "Label", name: "label", widget: "string" }
+              - { label: "URL", name: "url", widget: "string" }
+              - { label: "Downloaded File Name", name: "downloadedFileName", widget: "string", required: false }
+          - label: "Links"
+            name: "links"
+            widget: "list"
+            required: false
+            fields:
+              - { label: "Label", name: "label", widget: "string" }
+              - { label: "URL", name: "url", widget: "string" }
+              - { label: "Icon", name: "icon", widget: "select", options: ["github", "linkedin", "twitter", "facebook", "instagram", "email", "phone", "globe"], required: false }
+      
+      # Skills Section
+      - label: "Skills"
+        name: "skills"
+        widget: "object"
+        required: false
+        fields:
+          - label: "Skill Sets"
+            name: "skillSets"
+            widget: "list"
+            fields:
+              - { label: "Title", name: "title", widget: "string" }
+              - label: "Skills"
+                name: "skills"
+                widget: "list"
+                fields:
+                  - { label: "Name", name: "name", widget: "string" }
+                  - { label: "Icon", name: "icon", widget: "select", options: ["react", "typescript", "javascript", "node", "python", "java", "csharp", "php", "html", "css", "sass", "tailwind", "bootstrap", "vue", "angular", "svelte", "next", "nuxt", "gatsby", "astro", "express", "fastify", "nestjs", "django", "flask", "laravel", "symfony", "rails", "spring", "dotnet", "mongodb", "postgresql", "mysql", "redis", "elasticsearch", "docker", "kubernetes", "aws", "azure", "gcp", "firebase", "supabase", "vercel", "netlify", "github", "gitlab", "bitbucket", "figma", "sketch", "photoshop", "illustrator", "xd", "invision", "zeplin", "jira", "trello", "asana", "slack", "discord", "teams", "zoom", "meet", "webex"], required: false }
+                  - { label: "Level", name: "level", widget: "number", min: 1, max: 5, required: false }
+                  - { label: "Description", name: "description", widget: "text", required: false }
+      
+      # Experience Section
+      - label: "Experience"
+        name: "experience"
+        widget: "object"
+        required: false
+        fields:
+          - label: "Jobs"
+            name: "jobs"
+            widget: "list"
+            fields:
+              - { label: "Role", name: "role", widget: "string" }
+              - { label: "Company", name: "company", widget: "string" }
+              - { label: "Image", name: "image", widget: "image", required: false }
+              - label: "Dates"
+                name: "dates"
+                widget: "list"
+                max: 2
+                fields:
+                  - { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", time_format: false, required: false }
+              - { label: "Description", name: "description", widget: "markdown" }
+              - label: "Tags List"
+                name: "tagsList"
+                widget: "object"
+                required: false
+                fields:
+                  - { label: "Title", name: "title", widget: "string" }
+                  - label: "Tags"
+                    name: "tags"
+                    widget: "list"
+                    fields:
+                      - { label: "Name", name: "name", widget: "string" }
+                      - { label: "Icon", name: "icon", widget: "select", options: ["react", "typescript", "javascript", "node", "python", "java", "csharp", "php", "html", "css", "sass", "tailwind", "bootstrap", "vue", "angular", "svelte", "next", "nuxt", "gatsby", "astro", "express", "fastify", "nestjs", "django", "flask", "laravel", "symfony", "rails", "spring", "dotnet", "mongodb", "postgresql", "mysql", "redis", "elasticsearch", "docker", "kubernetes", "aws", "azure", "gcp", "firebase", "supabase", "vercel", "netlify", "github", "gitlab", "bitbucket", "figma", "sketch", "photoshop", "illustrator", "xd", "invision", "zeplin", "jira", "trello", "asana", "slack", "discord", "teams", "zoom", "meet", "webex"], required: false }
+              - label: "Links"
+                name: "links"
+                widget: "list"
+                required: false
+                fields:
+                  - { label: "Label", name: "label", widget: "string" }
+                  - { label: "URL", name: "url", widget: "string" }
+                  - { label: "Icon", name: "icon", widget: "select", options: ["github", "linkedin", "twitter", "facebook", "instagram", "email", "phone", "globe"], required: false }
+      
+      # Education Section
+      - label: "Education"
+        name: "education"
+        widget: "object"
+        required: false
+        fields:
+          - label: "Items"
+            name: "items"
+            widget: "list"
+            fields:
+              - { label: "Degree", name: "degree", widget: "string" }
+              - { label: "Institution", name: "institution", widget: "string" }
+              - { label: "Image", name: "image", widget: "image", required: false }
+              - label: "Dates"
+                name: "dates"
+                widget: "list"
+                max: 2
+                fields:
+                  - { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", time_format: false, required: false }
+              - { label: "Description", name: "description", widget: "markdown", required: false }
+              - label: "Tags List"
+                name: "tagsList"
+                widget: "object"
+                required: false
+                fields:
+                  - { label: "Title", name: "title", widget: "string" }
+                  - label: "Tags"
+                    name: "tags"
+                    widget: "list"
+                    fields:
+                      - { label: "Name", name: "name", widget: "string" }
+                      - { label: "Icon", name: "icon", widget: "select", options: ["react", "typescript", "javascript", "node", "python", "java", "csharp", "php", "html", "css", "sass", "tailwind", "bootstrap", "vue", "angular", "svelte", "next", "nuxt", "gatsby", "astro", "express", "fastify", "nestjs", "django", "flask", "laravel", "symfony", "rails", "spring", "dotnet", "mongodb", "postgresql", "mysql", "redis", "elasticsearch", "docker", "kubernetes", "aws", "azure", "gcp", "firebase", "supabase", "vercel", "netlify", "github", "gitlab", "bitbucket", "figma", "sketch", "photoshop", "illustrator", "xd", "invision", "zeplin", "jira", "trello", "asana", "slack", "discord", "teams", "zoom", "meet", "webex"], required: false }
+              - label: "Links"
+                name: "links"
+                widget: "list"
+                required: false
+                fields:
+                  - { label: "Label", name: "label", widget: "string" }
+                  - { label: "URL", name: "url", widget: "string" }
+                  - { label: "Icon", name: "icon", widget: "select", options: ["github", "linkedin", "twitter", "facebook", "instagram", "email", "phone", "globe"], required: false }
+      
+      # Portfolio Section
+      - label: "Portfolio"
+        name: "portfolio"
+        widget: "object"
+        required: false
+        fields:
+          - label: "Projects"
+            name: "projects"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Description", name: "description", widget: "markdown" }
+              - { label: "Image", name: "image", widget: "image", required: false }
+              - { label: "URL", name: "url", widget: "string", required: false }
+              - label: "Tags List"
+                name: "tagsList"
+                widget: "object"
+                required: false
+                fields:
+                  - { label: "Title", name: "title", widget: "string" }
+                  - label: "Tags"
+                    name: "tags"
+                    widget: "list"
+                    fields:
+                      - { label: "Name", name: "name", widget: "string" }
+                      - { label: "Icon", name: "icon", widget: "select", options: ["react", "typescript", "javascript", "node", "python", "java", "csharp", "php", "html", "css", "sass", "tailwind", "bootstrap", "vue", "angular", "svelte", "next", "nuxt", "gatsby", "astro", "express", "fastify", "nestjs", "django", "flask", "laravel", "symfony", "rails", "spring", "dotnet", "mongodb", "postgresql", "mysql", "redis", "elasticsearch", "docker", "kubernetes", "aws", "azure", "gcp", "firebase", "supabase", "vercel", "netlify", "github", "gitlab", "bitbucket", "figma", "sketch", "photoshop", "illustrator", "xd", "invision", "zeplin", "jira", "trello", "asana", "slack", "discord", "teams", "zoom", "meet", "webex"], required: false }
+              - label: "Links"
+                name: "links"
+                widget: "list"
+                required: false
+                fields:
+                  - { label: "Label", name: "label", widget: "string" }
+                  - { label: "URL", name: "url", widget: "string" }
+                  - { label: "Icon", name: "icon", widget: "select", options: ["github", "linkedin", "twitter", "facebook", "instagram", "email", "phone", "globe"], required: false }
+      
+      # Testimonials Section
+      - label: "Testimonials"
+        name: "testimonials"
+        widget: "object"
+        required: false
+        fields:
+          - label: "Items"
+            name: "items"
+            widget: "list"
+            fields:
+              - { label: "Quote", name: "quote", widget: "text" }
+              - { label: "Author", name: "author", widget: "string" }
+              - { label: "Role", name: "role", widget: "string", required: false }
+              - { label: "Company", name: "company", widget: "string", required: false }
+              - { label: "Image", name: "image", widget: "image", required: false }
+      
+      # Favorites Section
+      - label: "Favorites"
+        name: "favorites"
+        widget: "object"
+        required: false
+        fields:
+          - label: "Items"
+            name: "items"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Description", name: "description", widget: "text", required: false }
+              - { label: "Image", name: "image", widget: "image", required: false }
+              - { label: "URL", name: "url", widget: "string", required: false }
+              - { label: "Icon", name: "icon", widget: "select", options: ["star", "heart", "book", "music", "game", "movie", "food", "travel", "sport", "art", "photo", "video", "podcast", "book", "magazine", "newspaper", "blog", "website", "app", "tool", "software", "hardware", "gadget", "device", "car", "bike", "plane", "train", "ship", "hotel", "restaurant", "cafe", "bar", "club", "theater", "museum", "gallery", "park", "beach", "mountain", "city", "country", "continent", "planet", "universe"], required: false }
+      
+      # Additional CMS sections
+      - label: "Additional Sections"
         name: "sections"
         widget: "list"
         required: false
         fields:
-          - { label: "Icon", name: "icon", widget: "string", required: false }
+          - { label: "Icon", name: "icon", widget: "select", options: ["user", "briefcase", "graduation-cap", "code", "star", "heart", "comment", "rocket", "images", "bars-progress", "suitcase", "tools", "folder", "link", "external", "globe", "desktop", "paintbrush", "code-branch"], required: false }
           - { label: "Heading", name: "heading", widget: "string", required: false }
           - { label: "Body", name: "body", widget: "markdown", required: false }
           - { label: "Image", name: "image", widget: "image", required: false }
-      - label: "Links"
+      
+      # Global links and files
+      - label: "Global Links"
         name: "links"
         widget: "list"
         required: false
         fields:
           - { label: "Label", name: "label", widget: "string" }
           - { label: "URL", name: "url", widget: "string" }
-          - { label: "Icon", name: "icon", widget: "string", required: false }
-      - { label: "CV PDF", name: "cv_pdf", widget: "string", required: false }
-      - { label: "Gallery", name: "gallery", widget: "list", required: false, field: { label: "Image", name: "image", widget: "image" } }
+          - { label: "Icon", name: "icon", widget: "select", options: ["github", "linkedin", "twitter", "facebook", "instagram", "email", "phone", "globe"], required: false }
+      - { label: "CV PDF", name: "cv_pdf", widget: "file", required: false }
+      - label: "Gallery"
+        name: "gallery"
+        widget: "list"
+        required: false
+        field: { label: "Image", name: "image", widget: "image" }
 
   - name: "ru_about"
     label: "About Page (RU)"
