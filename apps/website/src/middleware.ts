@@ -2,11 +2,81 @@ import type { MiddlewareHandler } from 'astro';
 
 const DEV = process.env.NODE_ENV !== 'production';
 
-export const onRequest: MiddlewareHandler = (context, next) => {
+// GitHub repository configuration for dev asset fallback
+const GITHUB_OWNER = 'dmitrybond-tech';
+const GITHUB_REPO = 'personal-website-dev';
+const GITHUB_BRANCH = 'main';
+
+// MIME type mapping for common image formats
+const MIME_TYPES: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+};
+
+function getMimeType(path: string): string {
+  const ext = path.toLowerCase().substring(path.lastIndexOf('.'));
+  return MIME_TYPES[ext] || 'application/octet-stream';
+}
+
+export const onRequest: MiddlewareHandler = async (context, next) => {
   const { url, request } = context;
   const path = url.pathname;
 
   if (DEV) console.log(`[MW] ${request.method} ${path}`);
+
+  // Dev uploads proxy: if static file returns 404, proxy to GitHub
+  if (DEV && path.startsWith('/uploads/')) {
+    try {
+      // First, try to serve the static file
+      const response = await next();
+      
+      // If static file exists (status 200), return it
+      if (response.status === 200) {
+        if (DEV) console.log(`[MW] Static file found: ${path}`);
+        return response;
+      }
+      
+      // If static file not found (404), proxy to GitHub
+      if (response.status === 404) {
+        const githubUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/apps/website/public${path}`;
+        
+        if (DEV) console.log(`[MW] Proxying to GitHub: ${githubUrl}`);
+        
+        try {
+          const githubResponse = await fetch(githubUrl);
+          
+          if (githubResponse.ok) {
+            const contentType = getMimeType(path);
+            const buffer = await githubResponse.arrayBuffer();
+            
+            return new Response(buffer, {
+              status: 200,
+              headers: {
+                'Content-Type': contentType,
+                'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+              },
+            });
+          } else {
+            if (DEV) console.log(`[MW] GitHub proxy failed: ${githubResponse.status}`);
+            return new Response('File not found', { status: 404 });
+          }
+        } catch (error) {
+          if (DEV) console.error(`[MW] GitHub proxy error:`, error);
+          return new Response('Proxy error', { status: 500 });
+        }
+      }
+      
+      return response;
+    } catch (error) {
+      if (DEV) console.error(`[MW] Uploads proxy error:`, error);
+      return new Response('Internal error', { status: 500 });
+    }
+  }
 
   // Log admin asset requests for debugging
   if (DEV && path === '/website-admin/vendor/decap-cms.js') {

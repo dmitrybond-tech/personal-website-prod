@@ -1,0 +1,39 @@
+# Development Setup
+
+## Cache Cleanup
+
+If you encounter issues with the development server or need to clear cached files, use the following commands:
+
+### Quick Cache Cleanup
+```bash
+npm run del:cache
+```
+This command will:
+1. Kill any processes running on port 4321
+2. Remove `.astro` and `node_modules/.vite` cache directories
+
+### Manual Cache Cleanup
+If you prefer to run the commands manually:
+```bash
+# Kill processes on port 4321
+npm run port:kill:4321
+
+# Clean cache directories
+npm run clean:cache
+```
+
+### PowerShell Command (Alternative)
+You can also run the PowerShell command directly:
+```powershell
+Remove-Item -Recurse -Force .astro, node_modules\.vite -ErrorAction SilentlyContinue
+```
+
+## Content Auto-Puller
+
+The content auto-puller script (`scripts/content-autopull.mjs`) now automatically:
+- Detects the repository root using `git rev-parse --show-toplevel`
+- Changes to the repository root directory before running git commands
+- Handles errors gracefully with proper cleanup
+- Reduces log verbosity for better development experience
+
+The script will exit gracefully if not run from within a git repository.
