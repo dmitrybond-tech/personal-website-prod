@@ -1,0 +1,47 @@
+---
+import type { Sections } from '../../types/data';
+import SidebarItem from './SidebarItem.astro';
+
+export interface Props {
+  className?: string;
+  sections: Sections;
+}
+
+const { className, sections } = Astro.props;
+const sectionConfigs = Object.values(sections).map((section) => section.config);
+---
+
+<nav
+  id="sidebar"
+  class:list={[
+    'hidden xl:flex flex-col w-max h-fit p-2 rounded-lg gap-2 bg-white dark:bg-gray-800 shadow-md',
+    className,
+  ]}
+>
+  {sectionConfigs.filter((config) => config.visible).map((config) => <SidebarItem {...config} />)}
+</nav>
+
+<script is:inline>
+  function setActiveItem() {
+    try {
+      var path = (window && window.location && window.location.pathname) || '';
+      var hash = (window && window.location && window.location.hash) || '';
+      var links = document.querySelectorAll('[data-sidenav-link]');
+      links.forEach(function (a) {
+        var href = a && a.getAttribute ? (a.getAttribute('href') || '') : '';
+        if (!href) {
+          a && a.setAttribute && a.setAttribute('aria-current', 'false');
+          return;
+        }
+        var active =
+          (path && href && path.endsWith(href)) ||
+          (hash && href && hash === href);
+        a.classList.toggle('active', !!active);
+        a.setAttribute('aria-current', active ? 'page' : 'false');
+      });
+    } catch (e) { /* no-op */ }
+  }
+
+  document.addEventListener('DOMContentLoaded', setActiveItem);
+  window.addEventListener('hashchange', setActiveItem);
+</script>

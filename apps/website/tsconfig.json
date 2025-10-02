@@ -1,11 +1,23 @@
 {
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "strict": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "types": ["astro/client", "node"],
     "paths": {
-      "@shared/*": ["src/shared/*"],
-      "@app/*": ["src/app/*"]
+      "@/*": ["src/*"],
+      "@app/*": ["src/app/*"],
+      "@shared/*": ["src/shared/*"]
     }
   },
   "include": ["src", "astro.config.*", "env.d.ts"]

@@ -1,0 +1,14 @@
+local_backend: true
+media_folder: "public/uploads"
+public_folder: "/uploads"
+backend:
+  name: test-repo
+collections:
+  - name: pages
+    label: Pages
+    files:
+      - name: home
+        label: Home
+        file: "apps/website/src/content/pages/home.md"
+        fields:
+          - { label: Title, name: title, widget: string }

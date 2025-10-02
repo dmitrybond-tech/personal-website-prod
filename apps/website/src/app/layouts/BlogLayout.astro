@@ -1,0 +1,32 @@
+---
+import AppShell from './AppShell.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  lang?: 'en' | 'ru';
+  meta?: Record<string, string>;
+  pageClass?: string;
+}
+
+const { 
+  title = '', 
+  description = '', 
+  lang = 'en',
+  meta = {},
+  pageClass = ''
+} = Astro.props as Props;
+---
+
+<AppShell 
+  title={title} 
+  description={description} 
+  lang={lang} 
+  meta={meta}
+  variant="blog"
+  pageClass={pageClass}
+>
+  <div class="mx-auto max-w-3xl px-4 py-8 prose prose-lg dark:prose-invert">
+    <slot />
+  </div>
+</AppShell>

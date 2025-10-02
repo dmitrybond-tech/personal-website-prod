@@ -1,151 +1,96 @@
 ---
-import bookingTilesClientUrl from '@app/features/bookme/ui/booking-tiles-client.ts?url';
+// BookingTiles component for Cal.com integration
+interface Props {
+  locale?: 'en' | 'ru';
+  events?: Array<{
+    slug: string;
+    label: string;
+    duration: number;
+  }>;
+}
 
-// apps/website/src/app/features/bookme/ui/BookingTiles.astro
-interface Props { locale: 'en' | 'ru'; }
-const { locale } = Astro.props as Props;
+const { locale = 'en', events = [] } = Astro.props;
 
-const labels = {
+const texts = {
   en: {
-    desc: 'Pick a meeting type to tailor duration and availability.',
-    tech: 'Technical Consultation · 90 min',
-    interview: 'Interview · 30 min',
-    mentoring: 'Mentoring · 60 min',
-    sub: {
-      tech: 'Architecture, DevOps',
-      interview: 'Screening / quick call',
-      mentoring: 'Career & tech tracks',
-    }
+    title: 'Choose your meeting type',
+    subtitle: 'Select the duration that works best for you'
   },
   ru: {
-    desc: 'Выберите тип встречи: длительность и доступность подстроятся.',
-    tech: 'Техническая консультация · 1,5 часа',
-    interview: 'Интервью · 30 мин',
-    mentoring: 'Менторинг · 1 час',
-    sub: {
-      tech: 'Архитектура, DevOps',
-      interview: 'Screening / быстрый созвон',
-      mentoring: 'Карьерные и тех. треки',
-    }
+    title: 'Выберите тип встречи',
+    subtitle: 'Выберите продолжительность, которая вам подходит'
   }
-}[locale];
+};
+
+const t = texts[locale];
 ---
 
-<section class="booking-tiles-section">
-  <p class="booking-tiles-description">{labels.desc}</p>
-  
-  <div class="booking-tiles-grid">
-    <button class="booking-tile tile tile-1-техконсультация" data-cal-inline-link="dmitrybond/tech-consultation" data-event-id="tech-consultation" role="button" tabindex="0" aria-pressed="false">
-      <div class="tile-title">{labels.tech}</div>
-      <div class="tile-subtitle">{labels.sub.tech}</div>
-    </button>
-
-    <button class="booking-tile tile tile-2-интервью active" data-cal-inline-link="dmitrybond/intro-30m" data-event-id="intro-30" role="button" tabindex="0" aria-pressed="true">
-      <div class="tile-title">{labels.interview}</div>
-      <div class="tile-subtitle">{labels.sub.interview}</div>
-    </button>
-
-    <button class="booking-tile tile tile-3-менторинг" data-cal-inline-link="dmitrybond/mentoring" data-event-id="mentoring" role="button" tabindex="0" aria-pressed="false">
-      <div class="tile-title">{labels.mentoring}</div>
-      <div class="tile-subtitle">{labels.sub.mentoring}</div>
-    </button>
+<section class="booking-tiles">
+  <div class="booking-header">
+    <h2>{t.title}</h2>
+    <p>{t.subtitle}</p>
   </div>
+  
+  {events.length > 0 && (
+    <div class="tiles-grid">
+      {events.map((event) => (
+        <div class="booking-tile" data-slug={event.slug}>
+          <h3>{event.label}</h3>
+          <p class="duration">{event.duration} min</p>
+        </div>
+      ))}
+    </div>
+  )}
 </section>
 
 <style>
-  .booking-tiles-section {
-    margin-bottom: 40px;
-  }
-
-  .booking-tiles-description {
-    font-size: 1rem;
-    color: #666;
-    margin: 0 0 24px 0;
+  .booking-tiles {
+    padding: 2rem;
     text-align: center;
-    line-height: 1.5;
   }
-
-  .booking-tiles-grid {
+  
+  .booking-header h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .booking-header p {
+    color: #666;
+    margin-bottom: 2rem;
+  }
+  
+  .tiles-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
   }
-
+  
   .booking-tile {
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    border-radius: 12px;
-    padding: 24px;
-    text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
     cursor: pointer;
-    border: none;
-    width: 100%;
+    transition: all 0.3s ease;
   }
-
+  
   .booking-tile:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
   }
-
-  .tile.active {
-    outline: 2px solid var(--brand-color, #0ea5e9);
-    outline-offset: -2px;
-    background: rgba(14, 165, 233, 0.05);
-    border-color: var(--brand-color, #0ea5e9);
-  }
-
-  .tile-title {
-    font-size: 1.25rem;
+  
+  .booking-tile h3 {
+    font-size: 1.2rem;
     font-weight: 600;
-    margin: 0 0 12px 0;
-    color: #1a1a1a;
+    margin-bottom: 0.5rem;
   }
-
-  .tile-subtitle {
+  
+  .duration {
     color: #666;
-    line-height: 1.5;
-    margin: 0;
     font-size: 0.9rem;
   }
-
-  /* Dark theme */
-  :global(.dark) .booking-tiles-description {
-    color: #ccc;
-  }
-
-  :global(.dark) .booking-tile {
-    background: rgba(40, 40, 40, 0.6);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  :global(.dark) .booking-tile:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  }
-
-  :global(.dark) .tile-title {
-    color: #ffffff;
-  }
-
-  :global(.dark) .tile-subtitle {
-    color: #ccc;
-  }
-
-  :global(.dark) .tile.active {
-    background: rgba(14, 165, 233, 0.1);
-    border-color: var(--brand-color, #0ea5e9);
-  }
-
-  @media (max-width: 768px) {
-    .booking-tiles-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .booking-tile {
-      padding: 20px;
-    }
-  }
 </style>
-
-<script type="module" src={bookingTilesClientUrl}></script>

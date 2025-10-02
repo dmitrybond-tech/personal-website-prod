@@ -1,0 +1,40 @@
+---
+interface Props { 
+  locale: 'en' | 'ru' 
+}
+
+const { locale } = Astro.props;
+
+// Текущий путь без префикса локали
+const path = Astro.url.pathname.replace(/^\/(en|ru)/, '') || '/about';
+const targetLocale = locale === 'en' ? 'ru' : 'en';
+const targetHref = `/${targetLocale}${path}`;
+const label = locale.toUpperCase(); // показываем текущую локаль на кнопке
+---
+
+<style>
+  .lang-switch {
+    display: inline-flex; 
+    align-items: center;
+    border: 1px solid var(--cv-nav-border);
+    background: var(--cv-nav-bar);
+    backdrop-filter: blur(6px);
+    border-radius: 999px; 
+    padding: 6px 14px;
+    font-size: .9rem; 
+    color: var(--cv-nav-text); 
+    text-decoration: none;
+    transition: background .2s ease, transform .05s ease;
+  }
+  .lang-switch:hover { 
+    background: var(--cv-nav-accent);
+    color: var(--cv-nav-accent-text);
+  }
+  .lang-switch:active { 
+    transform: translateY(1px); 
+  }
+</style>
+
+<a class="lang-switch ui-outline ui-outline-brandlight" href={targetHref} aria-label={`Switch to ${targetLocale.toUpperCase()}`}>
+  {label}
+</a>

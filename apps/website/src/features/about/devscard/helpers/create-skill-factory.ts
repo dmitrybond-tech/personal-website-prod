@@ -1,4 +1,4 @@
-import type { Skill } from '../../types/shared';
+import type { Skill } from '../types/sections/skills-section.types';
 import type { Merge } from 'type-fest';
 
 type SkillWithoutLevel = Omit<Skill, 'level'>;

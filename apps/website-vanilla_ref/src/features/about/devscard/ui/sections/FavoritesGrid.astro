@@ -1,0 +1,44 @@
+---
+import type { FavoritesGrid as FavoritesGridType } from '../../types/sections/favorites-section.types';
+import Photo from '../Photo.astro';
+import Typography from '../Typography.astro';
+
+export interface Props extends FavoritesGridType {}
+
+const { title, data } = Astro.props;
+---
+
+<div class="flex flex-col gap-4">
+  <Typography variant="section-subtitle">{title}</Typography>
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+    {data.map((item) => (
+      <a
+        href={item.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex flex-col gap-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      >
+        <Photo
+          src={item.image}
+          alt={item.title || item.name}
+          class="w-full h-24 object-cover rounded"
+        />
+        <div class="text-center">
+          <Typography variant="tile-title" class="text-xs leading-tight">
+            {item.title || item.name}
+          </Typography>
+          {'author' in item && (
+            <Typography variant="tile-subtitle" class="text-xs">
+              {item.author}
+            </Typography>
+          )}
+          {'type' in item && (
+            <Typography variant="tile-subtitle" class="text-xs">
+              {item.type}
+            </Typography>
+          )}
+        </div>
+      </a>
+    ))}
+  </div>
+</div>

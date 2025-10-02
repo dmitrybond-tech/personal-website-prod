@@ -1,0 +1,39 @@
+{
+  "name": "website",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "astro dev --host --port 4321",
+    "build": "astro build",
+    "preview": "astro preview --host --port 4321",
+    "cal:webhook:create": "node ../../scripts/cal-webhook.mjs create",
+    "cal:webhook:update": "node ../../scripts/cal-webhook.mjs update",
+    "cal:webhook:list": "node ../../scripts/cal-webhook.mjs list"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "engines": {
+    "node": ">=18",
+    "npm": ">=9"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.4.4",
+    "@astrojs/tailwind": "3.1.2",
+    "autoprefixer": "10.4.20",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.2.2",
+    "iconify-icon": "^3.0.1",
+    "marked": "^16.3.0",
+    "postcss": "8.4.47",
+    "tailwindcss": "3.4.14",
+    "type-fest": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "astro": "^4",
+    "typescript": "^5"
+  }
+}

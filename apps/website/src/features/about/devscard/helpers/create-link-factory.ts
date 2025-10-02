@@ -1,4 +1,4 @@
-import type { LinkButton } from '../../types/shared';
+import type { LinkButton } from '../types/shared';
 import type { Merge } from 'type-fest';
 
 type LinkWithoutUrl = Omit<LinkButton, 'url'>;

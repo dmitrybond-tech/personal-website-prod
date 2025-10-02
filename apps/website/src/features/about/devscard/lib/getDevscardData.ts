@@ -6,10 +6,10 @@ import sectionsDataRu from '../locales/ru/index.js';
 
 export function getDevscardData(locale: 'en' | 'ru'): Data {
   if (locale === 'ru') {
-    return { config: configDataRu, sections: sectionsDataRu } as Data;
+    return { config: configDataRu, sections: sectionsDataRu } as unknown as Data;
   }
   
-  return { config: configDataEn, sections: sectionsDataEn } as Data;
+  return { config: configDataEn, sections: sectionsDataEn } as unknown as Data;
 }
 
 export type { Data } from '../types/data';

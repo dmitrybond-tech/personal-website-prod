@@ -1,0 +1,12 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["astro/client", "node"],
+    "paths": {
+      "@shared/*": ["src/shared/*"],
+      "@app/*": ["src/app/*"]
+    }
+  },
+  "include": ["src", "astro.config.*", "env.d.ts"]
+}

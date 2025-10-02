@@ -1,171 +1,219 @@
-# CMS Integration Setup Guide
+# Decap CMS Integration Setup
 
-This guide explains how to set up and use the Git-based CMS integration with Decap CMS.
+This document explains how to set up and use the Decap CMS integration with GitHub OAuth authentication.
 
 ## Overview
 
-The website now includes a plug-and-play Git CMS with admin interface at `/website-admin`. The CMS provides:
+The website includes a Decap CMS admin interface at `/website-admin/` that allows authorized users to manage content through a web interface. The integration uses:
 
-- **Pages**: Override any route content (e.g., `/en/about`, `/ru/privacy`)
-- **Blog**: Create blog posts in English and Russian
-- **Legal**: Manage legal documents and policies
+- **Decap CMS** for the admin interface
+- **GitHub OAuth** for authentication
+- **Auth.js** for session management
+- **GitHub API** for authorization (organization/team membership or allowlist)
 
-## Local Development Setup
+## Prerequisites
 
-### Prerequisites
+1. A GitHub repository with the website code
+2. GitHub OAuth App credentials
+3. Environment variables configured
 
-- Node.js and npm installed
-- Git repository access
-- PowerShell (for Windows)
+## GitHub OAuth App Setup
 
-### Running the CMS Locally
+### 1. Create a GitHub OAuth App
 
-1. **Start the main development server:**
-   ```powershell
-   cd apps/website
-   npm run dev
-   ```
+1. Go to GitHub Settings → Developer settings → OAuth Apps
+2. Click "New OAuth App"
+3. Fill in the details:
+   - **Application name**: `Your Website CMS`
+   - **Homepage URL**: `https://yourdomain.com` (or `http://localhost:4321` for dev)
+   - **Authorization callback URL**: `https://yourdomain.com/oauth/callback` (or `http://localhost:4321/oauth/callback` for dev)
+4. Click "Register application"
+5. Copy the **Client ID** and generate a **Client Secret**
 
-2. **Start the CMS proxy server (in a separate terminal):**
-   ```powershell
-   cd apps/website
-   npx decap-cms-proxy-server@1.4.0
-   ```
+### 2. Configure Environment Variables
 
-3. **Access the admin interface:**
-   - Open `http://localhost:4321/website-admin`
-   - The CMS will use the local proxy for Git operations
+Copy `env.example` to `.env.local` and fill in the values:
 
-## CMS Features
+```bash
+# GitHub OAuth credentials
+OAUTH_GITHUB_CLIENT_ID=your_client_id_here
+OAUTH_GITHUB_CLIENT_SECRET=your_client_secret_here
 
-### Content Collections
+# Auth.js configuration
+AUTH_REDIRECT_URI=http://localhost:4321/oauth/callback  # For production: https://yourdomain.com/oauth/callback
+AUTH_STATE_SECRET=your-random-32-plus-character-secret-here
+AUTH_TRUST_HOST=true
 
-- **Pages**: Override existing page content by matching `lang` and `route`
-- **Blog**: Create blog posts with tags, summaries, and full content
-- **Legal**: Manage legal documents with version tracking
+# Admin authorization (choose one or both)
+ADMIN_GH_ALLOWLIST=your-github-username,another-admin  # Comma-separated usernames
+ADMIN_GH_ORG=your-org-name                            # Optional: GitHub organization
+ADMIN_GH_TEAM_SLUG=admin-team                         # Optional: Team slug within the org
+```
 
-### Transparent Override System
+### 3. Generate AUTH_STATE_SECRET
 
-The `CmsOptional` component provides transparent content override:
+Generate a secure random string for `AUTH_STATE_SECRET`:
 
-- If a CMS entry exists for a route, it renders the CMS content wrapped in `cv-root`
-- If no CMS entry exists, it renders the original page content unchanged
-- Zero layout shifts or DOM changes when CMS is not used
+```bash
+# Using Node.js
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
-### Cal.com Integration
+# Using OpenSSL
+openssl rand -hex 32
+```
 
-- Reliable inline embed using the new `CalEmbed` component
-- Prevents duplicate script loading
-- Works seamlessly with the CMS override system
+## Authorization Methods
+
+The admin panel supports two authorization methods:
+
+### Method 1: Allowlist (Recommended for small teams)
+Set `ADMIN_GH_ALLOWLIST` with comma-separated GitHub usernames:
+```bash
+ADMIN_GH_ALLOWLIST=alice,bob,charlie
+```
+
+### Method 2: GitHub Organization/Team (Recommended for larger teams)
+Set both `ADMIN_GH_ORG` and `ADMIN_GH_TEAM_SLUG`:
+```bash
+ADMIN_GH_ORG=mycompany
+ADMIN_GH_TEAM_SLUG=content-editors
+```
+
+Users must be members of the specified team to access the admin panel.
+
+### Method 3: Both (Most Flexible)
+You can use both methods - users in the allowlist OR team members can access the admin.
+
+## Development Setup
+
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Check Environment Variables
+```bash
+npm run check:env
+```
+
+### 3. Start Development Server
+```bash
+npm run dev:cms
+```
+
+This will:
+- Start the Astro development server on `http://localhost:4321`
+- Display the admin URL and OAuth callback URL
+- Enable the CMS interface at `http://localhost:4321/website-admin`
+
+### 4. Access the Admin Panel
+
+1. Navigate to `http://localhost:4321/website-admin`
+2. You'll be redirected to GitHub OAuth if not authenticated
+3. After authentication, you'll see the Decap CMS interface
+4. If you're not authorized, you'll see an "Access Denied" message
+
+## Production Deployment
+
+### 1. Update OAuth App Settings
+
+For production, update your GitHub OAuth App:
+- **Homepage URL**: `https://yourdomain.com`
+- **Authorization callback URL**: `https://yourdomain.com/oauth/callback`
+
+### 2. Update Environment Variables
+
+```bash
+AUTH_REDIRECT_URI=https://yourdomain.com/oauth/callback
+```
+
+### 3. Deploy
+
+The CMS will be available at `https://yourdomain.com/website-admin`
+
+## Content Management
+
+### Collections
+
+The CMS is configured with the following collections (see `public/website-admin/config.yml`):
+
+- **Blog**: Markdown blog posts with i18n support
+- **About Page**: JSON-based page content with blocks
+- **BookMe Page**: Calendar integration content
+- **Footer**: Site footer content with links and legal information
+
+### Media Management
+
+- **Upload folder**: `public/uploads/`
+- **Public URL**: `/uploads/`
+- Files are committed directly to the repository
+
+### Internationalization
+
+The CMS supports multiple languages (English and Russian) with:
+- Separate folders for each locale
+- i18n-aware field widgets
+- Default locale configuration
+
+## Security Considerations
+
+1. **Repository Access**: Users need write access to the GitHub repository to commit changes
+2. **OAuth Scopes**: The GitHub OAuth app requests minimal scopes (user:email, read:org)
+3. **Session Management**: Auth.js handles secure session management
+4. **Authorization**: Double-gated access (session + GitHub membership/allowlist)
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"Access Denied" Error**
+   - Check if your GitHub username is in `ADMIN_GH_ALLOWLIST`
+   - Verify organization/team membership if using that method
+   - Ensure the GitHub OAuth app has the correct callback URL
+
+2. **OAuth Redirect Issues**
+   - Verify `AUTH_REDIRECT_URI` matches the GitHub OAuth app callback URL
+   - Check that `AUTH_TRUST_HOST=true` is set
+   - Ensure the domain is allowed in your OAuth app settings
+
+3. **CMS Not Loading**
+   - Check browser console for JavaScript errors
+   - Verify all environment variables are set
+   - Ensure the development server is running on the correct port
+
+### Debug Mode
+
+Enable debug logging by setting:
+```bash
+DEBUG=1
+```
+
+### Environment Check
+
+Run the environment check script:
+```bash
+npm run check:env
+```
 
 ## File Structure
 
 ```
 apps/website/
+├── public/website-admin/
+│   ├── config.yml          # Development CMS config
+│   └── config.prod.yml     # Production CMS config
 ├── src/
-│   ├── content/
-│   │   ├── config.ts              # Content collections schema
-│   │   ├── pages/                 # Page overrides
-│   │   ├── blog/                  # Blog posts
-│   │   └── legal/                 # Legal documents
-│   └── app/
-│       ├── content/
-│       │   ├── lib/content.ts     # Content facade functions
-│       │   └── ui/CmsOptional.astro # Transparent CMS wrapper
-│       └── integrations/
-│           └── cal/CalEmbed.astro # Cal.com embed component
-├── public/
-│   └── website-admin/
-│       ├── index.html             # CMS admin interface
-│       └── config.yml             # CMS configuration
-└── pages/
-    ├── en/blog.astro              # Blog listing (EN)
-    ├── ru/blog.astro              # Blog listing (RU)
-    ├── en/blog/[slug].astro       # Blog detail (EN)
-    ├── ru/blog/[slug].astro       # Blog detail (RU)
-    ├── en/legal.astro             # Legal listing (EN)
-    ├── ru/legal.astro             # Legal listing (RU)
-    ├── en/legal/[slug].astro      # Legal detail (EN)
-    └── ru/legal/[slug].astro      # Legal detail (RU)
+│   ├── middleware.ts       # Authorization middleware
+│   └── pages/website-admin/
+│       └── index.html      # CMS admin interface
+├── auth.config.ts          # Auth.js configuration
+├── astro.config.ts         # Astro configuration with CMS integration
+└── env.example             # Environment variables template
 ```
 
-## Usage Examples
+## Support
 
-### Creating a Page Override
-
-1. Go to `/website-admin`
-2. Navigate to "Pages" collection
-3. Create new entry with:
-   - **Title**: "About Me"
-   - **Slug**: "about"
-   - **Language**: "en"
-   - **Route**: "/en/about"
-   - **Updated At**: Current date
-   - **Body**: Your markdown content
-
-### Creating a Blog Post
-
-1. Go to `/website-admin`
-2. Navigate to "Blog" collection
-3. Create new entry with:
-   - **Title**: "My First Post"
-   - **Slug**: "my-first-post"
-   - **Language**: "en"
-   - **Published At**: Current date
-   - **Tags**: ["welcome", "introduction"]
-   - **Body**: Your markdown content
-
-## Content Facade API
-
-The `content.ts` module provides these functions:
-
-```typescript
-// Get page override by route
-getPageByRoute(lang: 'en' | 'ru', route: string)
-
-// Blog functions
-listBlog(lang: 'en' | 'ru')
-getBlogBySlug(lang: 'en' | 'ru', slug: string)
-
-// Legal functions
-listLegal(lang: 'en' | 'ru')
-getLegalBySlug(lang: 'en' | 'ru', slug: string)
-```
-
-## Styling Guidelines
-
-- CMS content is wrapped in `cv-root` class for consistent styling
-- Reuse existing DevsCard styles and tokens
-- No new global CSS introduced
-- Maintain pixel-perfect layout stability
-
-## Troubleshooting
-
-### CMS Admin Not Loading
-
-1. Ensure both servers are running (main dev server + proxy)
-2. Check browser console for errors
-3. Verify Git repository access
-
-### Content Not Appearing
-
-1. Check that the route in CMS matches exactly (e.g., "/en/about")
-2. Verify language setting matches the page locale
-3. Ensure content is published (not draft)
-
-### Cal.com Embed Issues
-
-1. Verify the `link` prop is correct (e.g., "your-username/event-type")
-2. Check browser console for script loading errors
-3. Ensure no duplicate Cal.com scripts are loaded
-
-## Production Deployment
-
-The CMS works with any Git-based hosting:
-
-- GitHub Pages
-- Netlify
-- Vercel
-- GitLab Pages
-
-No additional configuration needed beyond the standard Astro build process.
+For issues related to:
+- **Decap CMS**: Check the [official documentation](https://decapcms.org/docs/)
+- **Auth.js**: Check the [Auth.js documentation](https://authjs.dev/)
+- **GitHub OAuth**: Check the [GitHub OAuth documentation](https://docs.github.com/en/developers/apps/building-oauth-apps)

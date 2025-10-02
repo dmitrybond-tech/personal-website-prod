@@ -37,6 +37,8 @@ const parseMarkdown = (str: string) =>
 <div set:html={parseMarkdown(content)} class:list={['description', 'text-sm leading-relaxed font-normal text-gray-500 sm:text-base sm:leading-relaxed dark:text-gray-300', className]} />
 
 <style is:global>
+  @reference "../../../../styles/tailwind.css";
+  
   .description ul {
     @apply list-disc pl-5;
   }

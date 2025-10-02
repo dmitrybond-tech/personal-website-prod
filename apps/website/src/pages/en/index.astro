@@ -1,0 +1,8 @@
+---
+import { redirect } from 'astro:redirect';
+
+export const prerender = true;
+
+// Redirect to the English about page
+return redirect('/en/about', 302);
+---

@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import type { DateRange } from '../../types/shared';
+import type { DateRange } from '../types/shared';
 
 // Простая реализация без зависимости от config
 const formatDateRange = ([from, to]: DateRange): string => {

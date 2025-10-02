@@ -1,6 +1,8 @@
 ---
 import { getCollection } from "astro:content";
-import { renderBlocks } from "@/app/content/renderBlocks";
+import { readPage, type PageData } from "../lib/cmsLoader";
+import CmsBlocks from "./CmsBlocks.astro";
+import CmsBookMeEvents from "./CmsBookMeEvents.astro";
 
 const { lang, route, class: klass = "" } = Astro.props as {
   lang: "en" | "ru";
@@ -8,24 +10,49 @@ const { lang, route, class: klass = "" } = Astro.props as {
   class?: string;
 };
 
+// Try to get CMS data from JSON files first
+let cmsData: PageData | null = null;
+try {
+  const slug = route.includes('/about') ? 'about' : 'bookme';
+  cmsData = await readPage(lang, slug);
+} catch (e) {
+  console.warn("[CmsOptional] CMS data loading failed:", e);
+}
+
+// Fallback to Astro content collections
 const [entry] = await getCollection("pages", (e) => e.data.lang === lang && e.data.route === route);
 
 let Content: any = null;
 if (entry) ({ Content } = await entry.render());
 
-// resolve dynamic blocks without variable-path imports
-const mapped: Array<[any, Record<string, any>]> = await (async () => {
-  try {
-    const blocks = entry?.data?.blocks || [];
-    return await renderBlocks(blocks);
-  } catch (e) {
-    console.warn("[CmsOptional] blocks disabled:", e);
-    return [];
-  }
-})();
+// Soft-load renderBlocks at runtime so the page never crashes
+let mapped: Array<[any, Record<string, any>]> = [];
+try {
+  // string literal => no dynamic-import-vars warning
+  const mod = await import("@/app/content/renderBlocks");
+  const blocks = entry?.data?.blocks || [];
+  mapped = await mod.renderBlocks(blocks);
+} catch (e) {
+  console.warn("[CmsOptional] blocks disabled:", e);
+}
 ---
 
-{Content ? (
+{cmsData ? (
+  <section class={`cv-root ${klass}`}>
+    <h1 class="mb-4 text-2xl font-bold">{cmsData.title}</h1>
+    {cmsData.route.includes('/about') && 'blocks' in cmsData ? (
+      <CmsBlocks blocks={cmsData.blocks} />
+    ) : null}
+    {cmsData.route.includes('/bookme') && 'events' in cmsData ? (
+      <>
+        {cmsData.intro && (
+          <div class="prose prose-lg max-w-none mb-6" set:html={cmsData.intro} />
+        )}
+        <CmsBookMeEvents events={cmsData.events} locale={lang} />
+      </>
+    ) : null}
+  </section>
+) : Content ? (
   <section class={`cv-root ${klass}`}>
     <Content />
     {mapped?.map(([Comp, props]) => <Comp {...props} />)}

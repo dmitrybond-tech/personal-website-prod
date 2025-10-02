@@ -1,0 +1,50 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+const today = new Date().toISOString().slice(0,10);
+---
+<BaseLayout title="Privacy Policy">
+  <main class="cv-root prose prose-zinc dark:prose-invert mx-auto max-w-3xl px-4 py-10">
+    <h1>Privacy Policy</h1>
+    <p>This Privacy Policy explains how we process personal data in accordance with the GDPR.</p>
+
+    <h2>1. Controller</h2>
+    <p>Controller: Dima Bond (sole proprietor). Contact: <a href="mailto:privacy@topnotchtechnologies.cloud">privacy@topnotchtechnologies.cloud</a>.</p>
+
+    <h2>2. Data we collect</h2>
+    <ul>
+      <li>Data you provide when booking a call (name, email, phone).</li>
+      <li>Technical data (IP address, cookie identifiers, device/browser parameters).</li>
+    </ul>
+
+    <h2>3. Purposes</h2>
+    <ul>
+      <li>Scheduling and providing consultations;</li>
+      <li>Responding to your requests and performing a contract;</li>
+      <li>Ensuring the website's functionality and improving quality.</li>
+    </ul>
+
+    <h2>4. Legal bases (Art. 6 GDPR)</h2>
+    <ul>
+      <li>Consent (Art. 6(1)(a));</li>
+      <li>Performance of a contract or pre-contractual steps (Art. 6(1)(b));</li>
+      <li>Legitimate interests (Art. 6(1)(f)) for essential operations and security.</li>
+    </ul>
+
+    <h2>5. Recipients / processors</h2>
+    <p>We may share data with service providers (e.g., calendar, email, hosting, analytics) as needed under appropriate data processing arrangements.</p>
+
+    <h2>6. International transfers</h2>
+    <p>Where data is transferred outside the EEA, we rely on appropriate safeguards (e.g., Standard Contractual Clauses) if required.</p>
+
+    <h2>7. Retention</h2>
+    <p>We retain data only as long as necessary for the purposes above or until you withdraw consent, unless longer retention is required by law.</p>
+
+    <h2>8. Your rights</h2>
+    <p>You have the rights of access, rectification, erasure, restriction, data portability, and to object. Contact: <a href="mailto:privacy@topnotchtechnologies.cloud">privacy@topnotchtechnologies.cloud</a>. You may also lodge a complaint with your supervisory authority.</p>
+
+    <h2>9. Cookies</h2>
+    <p>See our <a href="/en/cookies">Cookie Policy</a> for details and preference management.</p>
+
+    <p class="text-sm opacity-70 mt-8">Last updated: {today}. This document is informational and not legal advice.</p>
+  </main>
+</BaseLayout>

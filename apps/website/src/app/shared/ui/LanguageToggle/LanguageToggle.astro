@@ -1,15 +1,17 @@
 ---
+import { switchLocaleHref, getOppositeLocale, getLocaleDisplayName, getLocaleFlag } from '@shared/i18n/switch';
+
 interface Props { 
   locale: 'en' | 'ru' 
 }
 
 const { locale } = Astro.props;
 
-// Текущий путь без префикса локали
-const path = Astro.url.pathname.replace(/^\/(en|ru)/, '') || '/about';
-const targetLocale = locale === 'en' ? 'ru' : 'en';
-const targetHref = `/${targetLocale}${path}`;
-const label = locale.toUpperCase(); // показываем текущую локаль на кнопке
+// Use the new language switcher utility
+const targetLocale = getOppositeLocale(locale);
+const targetHref = switchLocaleHref(Astro.url.pathname, targetLocale);
+const label = getLocaleDisplayName(locale);
+const flag = getLocaleFlag(locale);
 ---
 
 <style>
@@ -33,8 +35,18 @@ const label = locale.toUpperCase(); // показываем текущую ло�
   .lang-switch:active { 
     transform: translateY(1px); 
   }
+  
+  .flag {
+    margin-right: 6px;
+    font-size: 1rem;
+  }
+  
+  .label {
+    font-weight: 500;
+  }
 </style>
 
-<a class="lang-switch ui-outline ui-outline-brandlight" href={targetHref} aria-label={`Switch to ${targetLocale.toUpperCase()}`}>
-  {label}
+<a class="lang-switch ui-outline ui-outline-brandlight" href={targetHref} aria-label={`Switch to ${getLocaleDisplayName(targetLocale)}`}>
+  <span class="flag">{flag}</span>
+  <span class="label">{label}</span>
 </a>

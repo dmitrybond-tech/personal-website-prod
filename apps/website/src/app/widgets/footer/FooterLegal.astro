@@ -1,13 +1,14 @@
 ---
-const year = new Date().getFullYear();
+import { readFooter } from '../../content/lib/cmsLoader';
+import { mapFooterData } from '../../content/lib/mapFooter';
+import { getLocaleFromPath } from '../../shared/i18n/locales';
+
 const pathname = Astro.url?.pathname || "/";
-const isRu = pathname.startsWith("/ru");
-const links = isRu
-  ? [{ href: "/ru/privacy", label: "Политика конфиденциальности" }]
-  : [
-      { href: "/en/privacy", label: "Privacy Policy" },
-      { href: "/en/cookies", label: "Cookie Policy" },
-    ];
+const locale = getLocaleFromPath(pathname);
+
+// Load footer data from CMS with fallback to defaults
+const cmsFooterData = await readFooter(locale);
+const footerData = mapFooterData(cmsFooterData, locale);
 ---
 <footer
   class="mt-12 border-t border-black/10 dark:border-white/10 bg-white/70 dark:bg-[#0b0c10]/70 backdrop-blur supports-[backdrop-filter]:bg-white/60 supports-[backdrop-filter]:dark:bg-[#0b0c10]/60"
@@ -16,23 +17,24 @@ const links = isRu
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
       <div class="min-w-0">
         <p class="text-sm leading-relaxed text-gray-800 dark:text-gray-100">
-          © {year} Dima Bond. All rights reserved.
+          {footerData.brandLine}
         </p>
-        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
-          {isRu
-            ? "Этот сайт использует файлы cookies. Продолжая пользоваться сайтом, вы соглашаетесь с условиями, описанными в Политике конфиденциальности."
-            : "This site uses cookies. By continuing to browse, you agree to the terms described in the Privacy and Cookie Policies."
-          }
-        </p>
+        {footerData.consent && (
+          <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+            {footerData.consent.bannerText}
+          </p>
+        )}
       </div>
 
       <nav class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-        {links.map((l) => (
+        {footerData.links.map((link) => (
           <a
-            href={l.href}
+            href={link.href}
             class="ui-outline rounded px-2 py-1 text-gray-800 dark:text-gray-100 hover:opacity-90 focus-visible:outline-2"
+            target={link.external ? "_blank" : undefined}
+            rel={link.external ? "noopener noreferrer" : undefined}
           >
-            {l.label}
+            {link.label}
           </a>
         ))}
       </nav>

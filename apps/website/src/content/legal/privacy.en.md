@@ -1,25 +1,25 @@
 ---
-title: "Privacy Policy"
 lang: "en"
-updatedAt: 2024-01-15T10:00:00.000Z
-summary: "Our privacy policy and data handling practices"
-body: |
-  # Privacy Policy
+title: "Privacy Policy"
+draft: true
+---
 
-  This privacy policy describes how we collect, use, and protect your personal information.
+# Privacy Policy
 
-  ## Information We Collect
+This privacy policy describes how we collect, use, and protect your personal information.
 
-  We may collect information you provide directly to us, such as when you contact us or use our services.
+## Information We Collect
 
-  ## How We Use Your Information
+We may collect information you provide directly to us, such as when you contact us or use our services.
 
-  We use the information we collect to provide, maintain, and improve our services.
+## How We Use Your Information
 
-  ## Data Protection
+We use the information we collect to provide, maintain, and improve our services.
 
-  We implement appropriate security measures to protect your personal information.
+## Data Protection
 
-  ## Contact Us
+We implement appropriate security measures to protect your personal information.
 
-  If you have any questions about this privacy policy, please contact us.
+## Contact Us
+
+If you have any questions about this privacy policy, please contact us.

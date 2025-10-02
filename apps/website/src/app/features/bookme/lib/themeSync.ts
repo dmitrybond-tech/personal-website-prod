@@ -85,14 +85,9 @@ interface ThemeBridge {
 // Window-level symbol for singleton guard
 const THEME_BRIDGE_SYMBOL = Symbol('__bookmeThemeBridge');
 
-// Type declarations for Cal.com
+// Cal global declaration is handled in src/types/ambient.d.ts
 declare global {
   interface Window {
-    Cal: {
-      (command: string, ...args: any[]): void;
-      ns?: Record<string, any>;
-      loaded?: boolean;
-    };
     [THEME_BRIDGE_SYMBOL]?: ThemeBridge;
   }
 }

@@ -1,9 +1,48 @@
 // apps/website/src/app/shared/lib/cal/embed.ts
-import { calEmbedConfig, CalLocale, BookingType } from '@shared/config/cal/config';
+import { CAL_CONFIG } from '../../../../shared/config/cal/config';
 
-declare global {
-  interface Window { Cal?: any }
-}
+type CalLocale = 'en' | 'ru';
+type BookingType = 'interview' | 'consultation' | 'quick';
+
+const calEmbedConfig = {
+  defaultLocale: 'en' as CalLocale,
+  localeMap: {
+    en: 'en',
+    ru: 'ru'
+  },
+  linksByType: {
+    interview: {
+      en: `${CAL_CONFIG.baseUrl}/interview`,
+      ru: `${CAL_CONFIG.baseUrl}/interview`
+    },
+    consultation: {
+      en: `${CAL_CONFIG.baseUrl}/consultation`,
+      ru: `${CAL_CONFIG.baseUrl}/consultation`
+    },
+    quick: {
+      en: `${CAL_CONFIG.baseUrl}/quick`,
+      ru: `${CAL_CONFIG.baseUrl}/quick`
+    }
+  },
+  ui: {
+    hideEventTypeDetails: false,
+    layout: 'month_view' as const,
+    forceLanguage: true,
+    themeSync: true,
+    branding: {
+      brandColor: '#007bff'
+    }
+  },
+  behavior: {
+    selector: '#cal-inline',
+    lazy: true,
+    threshold: 0.1,
+    scrollIntoViewOnSelect: true
+  },
+  origin: 'https://cal.com'
+};
+
+// Cal global declaration is handled in src/types/ambient.d.ts
 
 let calScriptInjected = false;
 let calBootstrapped = false;
@@ -74,7 +113,9 @@ function applyUI(locale: CalLocale) {
   if (calEmbedConfig.ui.forceLanguage && language) {
     ui.language = language; // если Cal поддерживает language/locale — пробросим
   }
-  window.Cal('ui', ui);
+  if (window.Cal) {
+    window.Cal('ui', ui);
+  }
 }
 
 async function mountInline(locale: CalLocale, type: BookingType) {
@@ -88,14 +129,16 @@ async function mountInline(locale: CalLocale, type: BookingType) {
 
   injectCalLoader('https://app.cal.com/embed/embed.js');
   bootstrapCal();
-  window.Cal('init', { origin: calEmbedConfig.origin });
-  applyUI(locale);
+  if (window.Cal) {
+    window.Cal('init', { origin: calEmbedConfig.origin });
+    applyUI(locale);
 
-  clearContainer(sel);
-  window.Cal('inline', {
-    elementOrSelector: sel,
-    calLink: getCalLink(locale, type),
-  });
+    clearContainer(sel);
+    window.Cal('inline', {
+      elementOrSelector: sel,
+      calLink: getCalLink(locale, type),
+    });
+  }
 
   mounted = true;
 }

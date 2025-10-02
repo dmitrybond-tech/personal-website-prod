@@ -1,58 +1,197 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
-import { getBlogBySlug, listBlog } from '@app/content/lib/content';
+import { getCollection } from 'astro:content';
+import AppShell from '../../../app/layouts/AppShell.astro';
 
-export async function getStaticPaths() {
-  const posts = await listBlog('ru');
-  return posts.map((post) => ({
-    params: { slug: post.slug },
-    props: { post },
-  }));
-}
+const lang = Astro.url.pathname.split('/')[1];
+const { slug } = Astro.params;
+// basename — последняя часть, даже если пришло "ru/hello-world"
+const base = Array.isArray(slug) ? slug.at(-1) : slug;
 
-const locale = 'ru';
-const { post } = Astro.props;
-const { Content } = await post.render();
+const entries = await getCollection('posts', ({ id }) => id.startsWith(`${lang}/`));
+const entry = entries.find((e) => e.slug.split('/').pop() === base);
+
+if (!entry) return Astro.redirect(`/${lang}/blog`, 302);
+
+const { Content } = await entry.render();
 ---
 
-<BaseLayout title={post.data.title}>
-  <Navbar locale={locale} />
-  
-  <main class="cv-container">
-    <article class="cv-root">
-      <header class="mb-8">
-        <h1 class="text-3xl font-bold mb-4">{post.data.title}</h1>
-        <div class="flex items-center text-sm text-gray-500 mb-4">
-          <time datetime={post.data.publishedAt.toISOString()}>
-            {post.data.publishedAt.toLocaleDateString('ru-RU', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
+<AppShell title={entry.data.title} variant="blog">
+  <article class="blog-post">
+    <div class="post-container">
+      <nav class="post-nav">
+        <a href={`/${lang}/blog`} class="back-link">
+          ← {lang === 'ru' ? 'Назад к блогу' : 'Back to blog'}
+        </a>
+      </nav>
+      
+      <header class="post-header">
+        <h1 class="post-title">{entry.data.title}</h1>
+        <div class="post-meta">
+          <time class="post-date">
+            {new Date(entry.data.date).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US')}
           </time>
-          {post.data.tags && post.data.tags.length > 0 && (
-            <span class="ml-4">
-              {post.data.tags.map(tag => (
-                <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs mr-1">
-                  {tag}
-                </span>
+          {entry.data.tags && entry.data.tags.length > 0 && (
+            <div class="post-tags">
+              {entry.data.tags.map((tag) => (
+                <span class="tag">{tag}</span>
               ))}
-            </span>
+            </div>
           )}
         </div>
-        {post.data.summary && (
-          <p class="text-lg text-gray-600">{post.data.summary}</p>
+        {entry.data.description && (
+          <p class="post-description">{entry.data.description}</p>
         )}
       </header>
       
-      <div class="prose max-w-none">
+      <div class="post-content">
         <Content />
       </div>
-    </article>
-    
-    <nav class="mt-8">
-      <a href="/ru/blog" class="text-blue-600 hover:text-blue-800">← Назад к блогу</a>
-    </nav>
-  </main>
-</BaseLayout>
+    </div>
+  </article>
+</AppShell>
+
+<style>
+  .blog-post {
+    padding: 2rem 0;
+  }
+  
+  .post-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  .post-nav {
+    margin-bottom: 2rem;
+  }
+  
+  .back-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+  
+  .back-link:hover {
+    text-decoration: underline;
+  }
+  
+  .post-header {
+    margin-bottom: 2rem;
+  }
+  
+  .post-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+  
+  .post-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #9ca3af;
+  }
+  
+  .post-tags {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .tag {
+    background: #f3f4f6;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+  }
+  
+  .post-description {
+    font-size: 1.125rem;
+    color: #6b7280;
+    font-style: italic;
+    margin-bottom: 0;
+  }
+  
+  .post-content {
+    line-height: 1.7;
+  }
+  
+  .post-content :global(h1),
+  .post-content :global(h2),
+  .post-content :global(h3),
+  .post-content :global(h4),
+  .post-content :global(h5),
+  .post-content :global(h6) {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  
+  .post-content :global(h1) { font-size: 2rem; }
+  .post-content :global(h2) { font-size: 1.75rem; }
+  .post-content :global(h3) { font-size: 1.5rem; }
+  .post-content :global(h4) { font-size: 1.25rem; }
+  
+  .post-content :global(p) {
+    margin-bottom: 1.5rem;
+  }
+  
+  .post-content :global(ul),
+  .post-content :global(ol) {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+  
+  .post-content :global(li) {
+    margin-bottom: 0.5rem;
+  }
+  
+  .post-content :global(blockquote) {
+    border-left: 4px solid #3b82f6;
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: #6b7280;
+  }
+  
+  .post-content :global(code) {
+    background: #f3f4f6;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .post-content :global(pre) {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+  
+  .post-content :global(pre code) {
+    background: none;
+    padding: 0;
+  }
+  
+  .dark .tag {
+    background: #374151;
+    color: #d1d5db;
+  }
+  
+  .dark .post-description {
+    color: #9ca3af;
+  }
+  
+  .dark .post-content :global(code) {
+    background: #374151;
+    color: #d1d5db;
+  }
+  
+  .dark .post-content :global(pre) {
+    background: #111827;
+  }
+</style>

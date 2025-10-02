@@ -1,0 +1,8 @@
+---
+import { redirect } from 'astro:redirect';
+
+export const prerender = true;
+
+// Redirect to the Russian about page
+return redirect('/ru/about', 302);
+---

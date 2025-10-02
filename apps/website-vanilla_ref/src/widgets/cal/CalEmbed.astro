@@ -1,0 +1,219 @@
+---
+// apps/website/src/widgets/cal/CalEmbed.astro
+
+interface Props {
+  locale?: 'en' | 'ru';
+  className?: string;
+}
+
+const { locale = 'en', className = '' } = Astro.props;
+
+// Получаем базовую ссылку на Cal.com из env (публичная переменная)
+const baseCalLink = import.meta.env.PUBLIC_CAL_EMBED_LINK;
+
+// Локализованные тексты
+const texts = {
+  en: {
+    title: 'Book a Meeting',
+    subtitle: 'Schedule a time that works for you',
+    loading: 'Loading calendar...',
+  },
+  ru: {
+    title: 'Выберите продолжительность',
+    subtitle: 'Выберите удобное время',
+    loading: 'Загрузка календаря...',
+  },
+};
+
+const t = texts[locale];
+---
+
+<section class={`cal-embed-section ${className}`}>
+  <div class="cal-embed-container">
+    <div class="cal-embed-header">
+      <h2 class="cal-embed-title">{t.title}</h2>
+      <p class="cal-embed-subtitle">{t.subtitle}</p>
+    </div>
+    
+    <div class="cal-embed-wrapper">
+      {baseCalLink ? (
+        <div id="cal-embed" class="cal" data-cal-link={baseCalLink}></div>
+      ) : (
+        <div class="cal-embed-error">
+          <p>⚠️ Cal.com embed not configured</p>
+          <p>Please set PUBLIC_CAL_EMBED_LINK in your environment variables</p>
+          <p>Example: PUBLIC_CAL_EMBED_LINK=https://cal.com/username</p>
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .cal-embed-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+
+  .cal-embed-container {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .cal-embed-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .cal-embed-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    color: #1a1a1a;
+  }
+
+  .cal-embed-subtitle {
+    font-size: 1.25rem;
+    color: #666;
+    margin: 0;
+  }
+
+  .cal-embed-wrapper {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .cal-embed-wrapper #cal-embed {
+    min-height: 600px;
+    width: 100%;
+  }
+
+  .cal-embed-error {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    color: #666;
+  }
+
+  /* Dark theme */
+  :global(.dark) .cal-embed-container {
+    background: rgba(30, 30, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(.dark) .cal-embed-title {
+    color: #ffffff;
+  }
+
+  :global(.dark) .cal-embed-subtitle {
+    color: #ccc;
+  }
+
+  :global(.dark) .cal-embed-wrapper {
+    background: rgba(40, 40, 40, 0.8);
+  }
+
+  :global(.dark) .cal-embed-error {
+    background: rgba(50, 50, 50, 0.8);
+    color: #ccc;
+  }
+
+  @media (max-width: 768px) {
+    .cal-embed-section {
+      padding: 24px 16px;
+    }
+
+    .cal-embed-container {
+      padding: 24px;
+    }
+
+    .cal-embed-title {
+      font-size: 2rem;
+    }
+
+    .cal-embed-wrapper #cal-embed {
+      min-height: 500px;
+    }
+  }
+</style>
+
+<script define:vars={{ baseCalLink }}>
+  // Асинхронная загрузка Cal.com embed
+  (function() {
+    const calEmbed = document.getElementById('cal-embed');
+    if (!calEmbed || !baseCalLink) return;
+
+    // Проверяем, не загружен ли уже скрипт
+    if (document.querySelector('script[src*="cal.com/embed"]')) {
+      initCalEmbed();
+      return;
+    }
+
+    // Загружаем Cal.com embed скрипт
+    const script = document.createElement('script');
+    script.src = 'https://cal.com/embed.js';
+    script.async = true;
+    
+    script.onload = function() {
+      initCalEmbed();
+    };
+
+    script.onerror = function() {
+      calEmbed.innerHTML = `
+        <div class="cal-embed-error">
+          <p>Failed to load calendar. Please try again later.</p>
+          <a href="${baseCalLink}" target="_blank" class="cal-embed-fallback">
+            Open Calendar in New Tab
+          </a>
+        </div>
+      `;
+    };
+
+    document.head.appendChild(script);
+
+    function initCalEmbed() {
+      // Ждем, пока Cal будет доступен
+      const checkCal = () => {
+        if (window.Cal) {
+          try {
+            // Инициализируем Cal.com
+            window.Cal('init', { origin: 'https://cal.com' });
+            
+            // Настраиваем UI с базовым calLink
+            window.Cal('ui', { calLink: baseCalLink });
+            
+            console.log('Cal.com embed initialized with:', baseCalLink);
+          } catch (error) {
+            console.error('Cal.com embed initialization failed:', error);
+            calEmbed.innerHTML = `
+              <div class="cal-embed-error">
+                <p>Calendar initialization failed. Please try again later.</p>
+                <a href="${baseCalLink}" target="_blank" class="cal-embed-fallback">
+                  Open Calendar in New Tab
+                </a>
+              </div>
+            `;
+          }
+        } else {
+          // Повторяем попытку через 100ms
+          setTimeout(checkCal, 100);
+        }
+      };
+      
+      checkCal();
+    }
+  })();
+</script>

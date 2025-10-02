@@ -1,11 +1,12 @@
 ---
-title: "Hello World - Welcome to My Blog"
+title: "Hello World"
 lang: "en"
-publishedAt: 2024-01-15T10:00:00.000Z
-tags: ["welcome", "introduction"]
-summary: "My first blog post introducing myself and this website"
-body: |
-  # Hello World - Welcome to My Blog
+publishedAt: "2025-10-01"
+description: "Kickoff post."
+tags: ["intro"]
+---
+
+# Hello World - Welcome to My Blog
 
   Welcome to my personal blog! This is my first post, and I'm excited to share my thoughts and experiences with you.
 

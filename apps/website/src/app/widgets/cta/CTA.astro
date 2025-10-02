@@ -1,0 +1,62 @@
+---
+// Placeholder CTA component
+interface Props {
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  buttonUrl?: string;
+}
+
+const { 
+  title = "Ready to get started?", 
+  description = "Contact us today to learn more about our services.",
+  buttonText = "Get in Touch",
+  buttonUrl = "#contact"
+} = Astro.props;
+---
+
+<section class="cta-section">
+  <div class="cta-content">
+    <h2>{title}</h2>
+    <p>{description}</p>
+    <a href={buttonUrl} class="cta-button">{buttonText}</a>
+  </div>
+</section>
+
+<style>
+  .cta-section {
+    background-color: #f8f9fa;
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+  
+  .cta-content h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  .cta-content p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .cta-button {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 1rem 2rem;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+  
+  .cta-button:hover {
+    background-color: #0056b3;
+  }
+</style>

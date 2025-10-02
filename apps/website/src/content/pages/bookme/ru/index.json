@@ -1,0 +1,22 @@
+{
+  "route": "/ru/bookme",
+  "title": "Записаться на встречу",
+  "intro": "Выберите предпочитаемый тип встречи и назначьте время, которое вам подходит.",
+  "events": [
+    {
+      "id": "intro-30",
+      "label": "Знакомство",
+      "link": "dmitrybond/intro-30m"
+    },
+    {
+      "id": "tech-consultation",
+      "label": "Техническая консультация",
+      "link": "dmitrybond/tech-90m"
+    },
+    {
+      "id": "mentoring",
+      "label": "Менторинг",
+      "link": "dmitrybond/mentoring-60m"
+    }
+  ]
+}

@@ -1,0 +1,212 @@
+---
+import { switchLocaleHref, getCurrentLocale, getOppositeLocale, getLocaleDisplayName, getLocaleFlag } from '@/app/shared/i18n/switch';
+import { getLocaleFromPath } from '@/app/shared/lib/locale';
+
+interface Props {
+  locale?: 'en' | 'ru';
+}
+
+const { locale = 'en' } = Astro.props;
+
+// Get current locale from URL if not provided
+const currentLocale = getLocaleFromPath(Astro.url.pathname) || locale;
+const oppositeLocale = getOppositeLocale(currentLocale);
+
+// Localized labels
+const labels = {
+  en: { about: 'About', bookme: 'Book Me', blog: 'Blog' },
+  ru: { about: 'Обо мне', bookme: 'Записаться', blog: 'Блог' }
+};
+
+const currentLabels = labels[currentLocale];
+
+// Generate navigation links for current locale
+const navLinks = [
+  { href: `/${currentLocale}/about`, label: currentLabels.about, key: 'about' },
+  { href: `/${currentLocale}/bookme`, label: currentLabels.bookme, key: 'bookme' },
+  { href: `/${currentLocale}/blog`, label: currentLabels.blog, key: 'blog' }
+];
+
+// Determine active tab based on current pathname
+function getActiveTab(pathname: string): string | null {
+  if (pathname.includes('/about')) return 'about';
+  if (pathname.includes('/bookme')) return 'bookme';
+  if (pathname.includes('/blog')) return 'blog';
+  return null;
+}
+
+const activeTab = getActiveTab(Astro.url.pathname);
+
+// Generate locale switch href
+const localeSwitchHref = switchLocaleHref(Astro.url.pathname, oppositeLocale);
+---
+
+<nav class="navisland" aria-label="Main navigation" role="tablist">
+  <!-- Navigation tabs -->
+  <nav class="nav-tabs" role="tablist" aria-label="Main navigation">
+    {navLinks.map((link) => (
+      <a
+        href={link.href}
+        class={`nav-tab ${activeTab === link.key ? 'nav-tab-active' : ''}`}
+        role="tab"
+        aria-current={activeTab === link.key ? 'page' : 'false'}
+        aria-selected={activeTab === link.key ? 'true' : 'false'}
+      >
+        {link.label}
+      </a>
+    ))}
+  </nav>
+
+  <!-- Locale switcher -->
+  <div class="locale-switcher">
+    <a
+      href={localeSwitchHref}
+      class="locale-switch-btn"
+      aria-label={`Switch to ${getLocaleDisplayName(oppositeLocale)}`}
+      data-locale={oppositeLocale}
+    >
+      <span class="locale-code">{oppositeLocale.toUpperCase()}</span>
+      <span class="locale-caption">{currentLocale === 'en' ? 'Language' : 'Язык'}</span>
+    </a>
+  </div>
+</nav>
+
+<style>
+  .navisland {
+    position: relative;
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    gap: .75rem;
+    border: 1px solid var(--cv-border-hairline);
+    border-radius: 16px;
+    padding: .375rem .5rem;
+    background: var(--cv-surface-elevated-2);
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    max-width: 100%;
+    pointer-events: auto; /* clicks definitely pass through */
+  }
+
+  .nav-tabs {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: .25rem;
+    padding: .125rem;
+  }
+
+  .nav-tab {
+    display: inline-flex; 
+    justify-content: center; 
+    align-items: center;
+    height: 2.25rem; 
+    min-width: 5.5rem; 
+    padding: 0 .9rem;
+    border-radius: 12px; 
+    font-weight: 600;
+    text-decoration: none; 
+    color: var(--cv-text);
+    opacity: .9;
+    transition: opacity .15s, background-color .15s;
+  }
+
+  .nav-tab:hover { 
+    opacity: 1;
+    background: color-mix(in oklab, var(--cv-text) 8%, transparent);
+  }
+
+  .nav-tab-active {
+    background: color-mix(in oklab, var(--cv-primary-500) 16%, transparent);
+    color: var(--cv-primary-700);
+    opacity: 1;
+  }
+
+  .locale-switcher { 
+    display: grid; 
+    place-items: center; 
+  }
+
+  .locale-switch-btn {
+    display: grid; 
+    grid-template-rows: auto auto; 
+    justify-items: center;
+    padding: .25rem .6rem; 
+    border: 1px solid var(--cv-border-hairline);
+    border-radius: 12px; 
+    background: var(--cv-surface-elevated);
+    color: var(--cv-text);
+    text-decoration: none; 
+    transition: background .15s;
+  }
+
+  .locale-switch-btn:hover { 
+    background: color-mix(in oklab, var(--cv-text) 8%, transparent);
+  }
+
+  .locale-code { 
+    font-size: .75rem; 
+    font-weight: 700; 
+    letter-spacing: .06em; 
+  }
+
+  .locale-caption { 
+    margin-top: .125rem; 
+    font-size: .625rem; 
+    line-height: 1; 
+    opacity: .72; 
+  }
+
+  /* Dark mode support */
+  .dark .navisland {
+    background: var(--cv-navisland-bg-dark, #1f2937);
+    border-color: var(--cv-border-hairline);
+  }
+
+  .dark .nav-tab {
+    color: var(--cv-text);
+  }
+
+  .dark .nav-tab:hover {
+    background: color-mix(in oklab, var(--cv-text) 12%, transparent);
+  }
+
+  .dark .nav-tab-active {
+    background: color-mix(in oklab, var(--cv-primary-400) 20%, transparent);
+    color: var(--cv-primary-300);
+  }
+
+  .dark .locale-switch-btn {
+    background: var(--cv-surface-elevated);
+    color: var(--cv-text);
+  }
+
+  .dark .locale-switch-btn:hover {
+    background: color-mix(in oklab, var(--cv-text) 12%, transparent);
+  }
+
+  @media (max-width: 640px) {
+    .nav-tab { 
+      min-width: 0; 
+      padding: 0 .7rem; 
+      height: 2rem; 
+    }
+    .navisland { 
+      padding: .3rem .4rem; 
+    }
+  }
+
+</style>
+
+<script>
+  // Handle locale switching with cookie persistence
+  document.addEventListener('click', function(e) {
+    const localeBtn = e.target?.closest('[data-locale]');
+    if (localeBtn) {
+      const locale = localeBtn.getAttribute('data-locale');
+      if (locale === 'en' || locale === 'ru') {
+        // Set cookie for locale preference
+        document.cookie = `locale=${locale}; Max-Age=31536000; Path=/; SameSite=Lax`;
+      }
+    }
+  });
+</script>

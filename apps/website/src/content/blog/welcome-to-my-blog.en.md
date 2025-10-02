@@ -1,10 +1,10 @@
 ---
 title: "Welcome to My Blog"
 lang: "en"
-publishedAt: 2024-01-15T10:00:00.000Z
+publishedAt: "2025-10-01"
+description: "A warm welcome to my new blog where I'll share insights about web development, technology trends, and my journey as a developer."
 tags: ["welcome", "blog", "introduction"]
-summary: "A warm welcome to my new blog where I'll share insights about web development, technology trends, and my journey as a developer."
-body: |
+---
   # Welcome to My Blog
 
   Hello and welcome to my new blog! I'm excited to share my thoughts, experiences, and insights about web development, technology trends, and my journey as a full-stack developer.

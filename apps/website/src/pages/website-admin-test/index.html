@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Website Admin (Local Test)</title>
+    <script>window.CMS_MANUAL_INIT = true;</script>
+  </head>
+  <body>
+    <div id="nc-root"></div>
+    <script src="https://unpkg.com/decap-cms@3.8.3/dist/decap-cms.js"></script>
+    <script>
+      (function () {
+        function init() {
+          const isLocal = /localhost|127\.0\.0\.1/.test(location.hostname);
+          if (!isLocal) { document.body.innerHTML = '<pre>403: /website-admin-test is localhost-only</pre>'; return; }
+          if (!window.CMS || !window.CMS.init) return setTimeout(init, 50);
+          // No YAML in dev — provide a full object to avoid schema errors
+          const config = {
+            load_config_file: false,
+            backend: { name: 'test-repo' },
+            media_folder: 'public/uploads',
+            public_folder: '/uploads',
+            collections: [
+              {
+                name: 'pages',
+                label: 'Pages',
+                files: [
+                  {
+                    name: 'home',
+                    label: 'Home',
+                    file: 'apps/website/src/content/pages/home.md',
+                    fields: [{ label: 'Title', name: 'title', widget: 'string' }],
+                  },
+                ],
+              },
+            ],
+          };
+          const start = () => window.CMS.init({ config });
+          if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
+          else start();
+        }
+        init();
+      })();
+    </script>
+  </body>
+</html>

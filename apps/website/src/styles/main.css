@@ -1,9 +1,8 @@
 /* DevsCard styles */
 @import './devscard.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4 single import */
+@import './tailwind.css';
 
 /* Базовые стили из devscard */
 @font-face {
@@ -131,11 +130,6 @@ body {
   animation: show 225ms ease-in-out;
 }
 
-@keyframes show {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 /* Lightweight utilities that mirror cv-root */
 @layer utilities {
   .bg-surface       { background: var(--cv-surface); }
@@ -228,6 +222,8 @@ body {
 
 /* NavBar component classes - now using DRY utilities/vars */
 @layer components {
+  @reference "./tailwind.css";
+  
   .nav-surface {
     @apply sticky top-0 z-50 w-full;
     /* Using unified cv-root tokens */
@@ -238,8 +234,8 @@ body {
     min-height: var(--navbar-h, 60px);
   }
 
-  /* Nav island using elevated surface */
-  .nav-island {
+  /* Nav island using elevated surface - updated to .navisland */
+  .navisland {
     background-color: var(--cv-nav-island);
     color: var(--cv-nav-text);
     border: 1px solid var(--cv-nav-border);

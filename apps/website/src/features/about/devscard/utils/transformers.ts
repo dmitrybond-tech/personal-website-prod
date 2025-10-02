@@ -1,4 +1,4 @@
-import type { Data } from '@/types/data';
+import type { Data } from '../types/data';
 import type { Draft } from 'immer';
 import type { PreciseData } from './get-cv-data';
 
@@ -36,14 +36,14 @@ type SkillsBySkillSet<SkillSet extends SkillSetTitle> = Filter<
 export const hideSection =
   (section: SectionKey): DataTransformer =>
   (draft) => {
-    draft.sections[section].config.visible = false;
+    (draft.sections as any)[section].config.visible = false;
   };
 
 export const hideJob =
   (role: JobRole, company?: JobCompany): DataTransformer =>
   (draft) => {
     draft.sections.experience.jobs = draft.sections.experience.jobs.filter(
-      (job) => job.role !== role && job.company !== company
+      (job: any) => job.role !== role && job.company !== company
     );
   };
 
@@ -51,26 +51,26 @@ export const hideDiploma =
   (title: DiplomaTitle, institution?: DiplomaInstitution): DataTransformer =>
   (draft) => {
     draft.sections.education.diplomas = draft.sections.education.diplomas.filter(
-      (diploma) => diploma.title === title && diploma.institution === institution
+      (diploma: any) => diploma.title === title && diploma.institution === institution
     );
   };
 
 export const hideProject =
   (name: ProjectName): DataTransformer =>
   (draft) => {
-    draft.sections.portfolio.projects = draft.sections.portfolio.projects.filter((project) => project.name !== name);
+    draft.sections.portfolio.projects = draft.sections.portfolio.projects.filter((project: any) => project.name !== name);
   };
 
 export const hideSkillSet =
   (name: SkillSetTitle): DataTransformer =>
   (draft) => {
-    draft.sections.skills.skillSets = draft.sections.skills.skillSets.filter((skillSet) => skillSet.title !== name);
+    draft.sections.skills.skillSets = draft.sections.skills.skillSets.filter((skillSet: any) => skillSet.title !== name);
   };
 
 export const renameSkillSet =
   (from: SkillSetTitle, to: string): DataTransformer =>
   (draft) => {
-    draft.sections.skills.skillSets = draft.sections.skills.skillSets.map((skillSet) =>
+    draft.sections.skills.skillSets = draft.sections.skills.skillSets.map((skillSet: any) =>
       skillSet.title === from ? { ...skillSet, title: to } : skillSet
     );
   };
@@ -81,12 +81,12 @@ export const hideSkills =
     skills: SkillsBySkillSet<SkillSet>[]
   ): DataTransformer =>
   (draft) => {
-    draft.sections.skills.skillSets = draft.sections.skills.skillSets.map((skillSet) => {
+    draft.sections.skills.skillSets = draft.sections.skills.skillSets.map((skillSet: any) => {
       if (skillSet.title !== skillSetTitle) return skillSet;
 
       return {
         ...skillSet,
-        skills: skillSet.skills.filter((skill) => !skills.includes(skill.name as (typeof skills)[number])),
+        skills: skillSet.skills.filter((skill: any) => !skills.includes(skill.name as (typeof skills)[number])),
       };
     });
   };

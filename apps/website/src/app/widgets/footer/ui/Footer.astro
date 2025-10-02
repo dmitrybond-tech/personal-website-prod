@@ -1,0 +1,44 @@
+---
+const pathname = Astro.url.pathname || "/";
+const isRu = pathname.startsWith("/ru");
+const year = new Date().getFullYear();
+
+const links = isRu
+  ? [
+      { label: "Пользовательское соглашение", href: "/ru/legal/user-agreement" },
+      { label: "Политика обработки персональных данных (152-ФЗ)", href: "/ru/legal/personal-data-152fz" }
+    ]
+  : [
+      { label: "Privacy Policy (GDPR)", href: "/en/legal/privacy-policy" },
+      { label: "Cookie Policy", href: "/en/legal/cookies" }
+    ];
+---
+
+<footer role="contentinfo" data-probe="footer" class="cv-root border-t hairline mt-[var(--cv-gap-y-xl,24px)]">
+  <div class="cv-container py-[var(--cv-gap-y-md,16px)] flex flex-wrap items-center justify-between gap-[var(--cv-gap-x-md,12px)] text-sm">
+    <p class="cv-muted">&copy; {year} Dmitry Bondarenko</p>
+    <nav class="flex flex-wrap gap-[var(--cv-gap-x-lg,16px)]">
+      {links.map((l) => (
+        <a class="cv-link" href={l.href} rel="nofollow">{l.label}</a>
+      ))}
+    </nav>
+  </div>
+</footer>
+
+<style is:global>
+  /* 1) Fallback токены без Tailwind конфликтов */
+  @import "../../../../styles/tokens-fallback.css";
+
+  /* 2) Sticky footer */
+  html, body { min-height: 100svh; }
+  body { display: flex; flex-direction: column; }
+  footer[role="contentinfo"] { margin-top: auto; }
+
+  /* 3) Дополнительные стили для футера */
+  footer[role="contentinfo"].cv-root {
+    border-top-width: 1px; /* hairline */
+    border-top-style: solid;
+    border-top-color: var(--cv-border-hairline, rgba(0,0,0,.12));
+    background: var(--cv-surface, transparent);
+  }
+</style>

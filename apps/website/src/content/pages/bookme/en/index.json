@@ -1,0 +1,22 @@
+{
+  "route": "/en/bookme",
+  "title": "Book a meeting",
+  "intro": "Choose your preferred meeting type and schedule a time that works for you.",
+  "events": [
+    {
+      "id": "intro-30",
+      "label": "Intro call",
+      "link": "dmitrybond/intro-30m"
+    },
+    {
+      "id": "tech-consultation",
+      "label": "Technical Consultation",
+      "link": "dmitrybond/tech-90m"
+    },
+    {
+      "id": "mentoring",
+      "label": "Mentoring",
+      "link": "dmitrybond/mentoring-60m"
+    }
+  ]
+}

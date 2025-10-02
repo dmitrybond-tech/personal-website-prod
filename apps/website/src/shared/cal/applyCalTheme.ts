@@ -8,8 +8,7 @@ export function applyCalTheme() {
     root.getAttribute('data-theme') === 'dark';
   
   // Инструкция UI: выставляем тему embed без перезагрузки
-  // @ts-ignore
-  if (typeof Cal !== 'undefined') {
-    Cal('ui', { theme: isDark ? 'dark' : 'light' });
+  if (typeof window !== 'undefined' && window.Cal) {
+    window.Cal('ui', { theme: isDark ? 'dark' : 'light' });
   }
 }

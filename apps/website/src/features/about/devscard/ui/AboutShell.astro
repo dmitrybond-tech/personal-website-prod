@@ -43,6 +43,8 @@ const { config, sections } = data;
 </section>
 
 <style>
+  @reference "../../../../styles/tailwind.css";
+  
   .cv-root {
     @apply flex justify-center xl:relative xl:left-7;
     /* Background now handled at body level for About pages */
@@ -88,13 +90,4 @@ const { config, sections } = data;
   window.addEventListener('hashchange', setActiveItem);
 </script>
 
-<script>
-  // Синхронизация высоты Navbar для sticky сайдбара
-  const el = document.querySelector('header[data-app-navbar]');
-  const set = () => {
-    const h = (el && el.offsetHeight) || 72;
-    document.documentElement.style.setProperty('--navbar-h', h + 'px');
-  };
-  set();
-  new ResizeObserver(set).observe(el);
-</script>
+<!-- Navbar height sync removed - handled globally in AppShell.astro -->

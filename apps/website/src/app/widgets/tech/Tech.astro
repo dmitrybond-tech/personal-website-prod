@@ -1,0 +1,47 @@
+---
+// Placeholder Tech component
+interface Props {
+  title?: string;
+  technologies?: string[];
+}
+
+const { title = "Technologies", technologies = [] } = Astro.props;
+---
+
+<section class="tech-section">
+  <h2>{title}</h2>
+  {technologies.length > 0 && (
+    <div class="tech-list">
+      {technologies.map((tech) => (
+        <span class="tech-tag">{tech}</span>
+      ))}
+    </div>
+  )}
+</section>
+
+<style>
+  .tech-section {
+    padding: 2rem;
+  }
+  
+  .tech-section h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+  
+  .tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .tech-tag {
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+</style>

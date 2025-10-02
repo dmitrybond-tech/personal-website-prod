@@ -1,0 +1,135 @@
+/* Fallback tokens without Tailwind conflicts */
+
+/* Unified theme tokens - DevsCard as single source of truth */
+:root {
+  /* Base surface + text, reused by cv-root and nav */
+  --cv-surface: var(--cv-page-bg, #f6f7fb);
+  --cv-surface-elevated: #ffffff;
+  --cv-surface-elevated-2: #ffffff;
+  --cv-text: #001111;
+  --cv-muted: #6b7280;
+  --cv-on-primary: #ffffff;
+
+  /* Container/gutter variables */
+  --cv-container-max: var(--cv-max-w, 80rem);
+  --cv-gutter-x: var(--cv-gap, 1.5rem);
+  
+  /* Bookme pages width constraint */
+  --bookme-max-w: 960px;
+
+  /* Hairline border (derive from text) */
+  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/12%, transparent);
+
+  /* Nav offset for subtle positioning */
+  --cv-nav-offset-y: var(--cv-gap-y-sm, 6px);
+
+  /* Primary colors from DevsCard */
+  --cv-primary-50: #eef2ff;
+  --cv-primary-100: #e0e7ff;
+  --cv-primary-200: #c7d2fe;
+  --cv-primary-300: #a5b4fc;
+  --cv-primary-400: #818cf8;
+  --cv-primary-500: #6366f1;
+  --cv-primary-600: #4f46e5;
+  --cv-primary-700: #4338ca;
+  --cv-primary-800: #3730a3;
+  --cv-primary-900: #312e81;
+  --cv-primary-950: #1e1b4b;
+
+  /* Nav aliases that point to the same base (DRY) */
+  --cv-nav-surface: var(--cv-surface);
+  --cv-nav-bar: var(--cv-surface-elevated);
+  --cv-nav-island: var(--cv-surface-elevated-2);
+  --cv-nav-border: var(--cv-border-hairline);
+  --cv-nav-text: var(--cv-text);
+  --cv-nav-muted: var(--cv-muted);
+  --cv-nav-accent: var(--cv-primary-600);
+  --cv-nav-accent-text: var(--cv-on-primary);
+
+  /* Brand color for Cal.com integration */
+  --brand-color: #0ea5e9;
+
+  /* Light-only brand outline color */
+  --cv-brand-light: #5b49ee;
+
+  /* Dark-only inner backgrounds for nav */
+  --cv-navisland-bg-dark: #1f2937; /* gray-800 */
+  --cv-navpanel-bg-dark: #374151; /* gray-700 */
+}
+
+.dark {
+  /* Dark theme overrides for unified tokens */
+  --cv-surface: var(--cv-page-bg, #111827);
+  --cv-surface-elevated: #1f2937;
+  --cv-surface-elevated-2: #374151;
+  --cv-text: #f9fafb;
+  --cv-muted: #9ca3af;
+  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/16%, transparent);
+  
+  /* Dark nav accent */
+  --cv-nav-accent: var(--cv-primary-400);
+}
+
+/* Дублирующий селектор для data-theme (если где-то завязано на data-theme) */
+html[data-theme="dark"] {
+  /* Dark theme overrides for unified tokens */
+  --cv-surface: var(--cv-page-bg, #111827);
+  --cv-surface-elevated: #1f2937;
+  --cv-surface-elevated-2: #374151;
+  --cv-text: #f9fafb;
+  --cv-muted: #9ca3af;
+  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/16%, transparent);
+  
+  /* Dark nav accent */
+  --cv-nav-accent: var(--cv-primary-400);
+}
+
+/* Базовые стили для body */
+html, body {
+  background: var(--cv-surface);
+  color: var(--cv-text);
+}
+
+/* About pages: body-level background using cv-root tokens */
+body.page-about {
+  background: var(--cv-surface);
+  color: var(--cv-text);
+}
+
+.dark body.page-about {
+  background: var(--cv-surface);
+  color: var(--cv-text);
+}
+
+html[data-theme="dark"] body.page-about {
+  background: var(--cv-surface);
+  color: var(--cv-text);
+}
+
+body {
+  font-family: 'Inter var', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-variation-settings: normal;
+}
+
+/* Lightweight utilities that mirror cv-root */
+.cv-container {
+  max-width: var(--cv-container-max);
+  padding-left: var(--cv-gutter-x);
+  padding-right: var(--cv-gutter-x);
+  margin-inline: auto;
+}
+
+.cv-muted {
+  color: var(--cv-muted);
+}
+
+.cv-link {
+  color: var(--cv-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cv-link:hover {
+  opacity: 0.8;
+}

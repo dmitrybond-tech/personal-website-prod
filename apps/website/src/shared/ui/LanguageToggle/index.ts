@@ -1,1 +1,2 @@
-export { default as LanguageToggle } from './LanguageToggle.astro';
+// Re-export LanguageToggle component
+export { default } from './LanguageToggle.astro';

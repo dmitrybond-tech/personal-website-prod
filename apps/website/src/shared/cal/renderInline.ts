@@ -10,9 +10,8 @@ export function renderInline(calLink: string) {
   // Чистим предыдущее содержимое, чтобы не плодить iframe'ы
   host.innerHTML = '';
   
-  // @ts-ignore
-  if (typeof Cal !== 'undefined') {
-    Cal('inline', { elementOrSelector: host, calLink });
+  if (typeof window !== 'undefined' && window.Cal) {
+    window.Cal('inline', { elementOrSelector: host, calLink });
     // Сразу применяем текущую тему к новому встраиванию
     applyCalTheme();
   }

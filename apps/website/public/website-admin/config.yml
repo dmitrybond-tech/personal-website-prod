@@ -1,51 +1,58 @@
-local_backend: true
-
 backend:
   name: github
-  repo: dima-bond-git/personal-website
+  repo: dmitrybond-tech/personal-website-dev
   branch: main
+  site_domain: "localhost:4321"
+  base_url: "http://localhost:4321"
+  auth_endpoint: "oauth"
 
-media_folder: "apps/website/public/uploads"
+media_folder: "public/uploads"
 public_folder: "/uploads"
 
+site_url: "/"
+display_url: "/"
+
+slug:
+  encoding: "unicode"
+  clean_accents: true
+
+i18n:
+  structure: multiple_folders
+  locales: [en, ru]
+  default_locale: en
+
+# Uncomment to force PR workflow:
+# publish_mode: editorial_workflow
+
 collections:
-  - name: pages
-    label: Pages
-    folder: "apps/website/src/content/pages"
+  - name: "pages"
+    label: "Pages"
+    label_singular: "Page"
+    i18n: true
+    format: "frontmatter"
+    folder: "content/pages"
     create: true
-    format: frontmatter
-    extension: md
+    path: "{{slug}}"
+    slug: "{{slug}}"
     fields:
-      - { label: Title, name: title, widget: string }
-      - { label: Language, name: lang, widget: select, options: ["en","ru"] }
-      - { label: Route, name: route, widget: string, hint: "/en/about or /ru/about" }
-      - { label: Updated At, name: updatedAt, widget: datetime, required: false }
-      - { label: Summary, name: summary, widget: text, required: false }
-      - { label: Body, name: body, widget: markdown }
+      - { label: "Title", name: "title", widget: "string", i18n: true }
+      - { label: "Permalink", name: "permalink", widget: "string", i18n: duplicate, hint: "e.g. / or /about" }
+      - { label: "Date", name: "date", widget: "datetime", i18n: duplicate, date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true }
 
-  - name: blog
-    label: Blog
-    folder: "apps/website/src/content/blog"
+  - name: "posts"
+    label: "Posts"
+    i18n: true
+    format: "frontmatter"
+    folder: "src/content/posts"
     create: true
-    format: frontmatter
-    extension: md
+    path: "{{slug}}"
+    slug: "{{slug}}"
     fields:
-      - { label: Title, name: title, widget: string }
-      - { label: Language, name: lang, widget: select, options: ["en","ru"] }
-      - { label: Published At, name: publishedAt, widget: datetime }
-      - { label: Tags, name: tags, widget: list, required: false }
-      - { label: Summary, name: summary, widget: text, required: false }
-      - { label: Body, name: body, widget: markdown }
-
-  - name: legal
-    label: Legal
-    folder: "apps/website/src/content/legal"
-    create: true
-    format: frontmatter
-    extension: md
-    fields:
-      - { label: Title, name: title, widget: string }
-      - { label: Language, name: lang, widget: select, options: ["en","ru"] }
-      - { label: Updated At, name: updatedAt, widget: datetime }
-      - { label: Summary, name: summary, widget: text, required: false }
-      - { label: Body, name: body, widget: markdown }
+      - { label: "Title", name: "title", widget: "string", i18n: true }
+      - { label: "Description", name: "description", widget: "string", required: false, i18n: true }
+      - { label: "Date", name: "date", widget: "datetime", i18n: false, date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true }
+      - { label: "Draft", name: "draft", widget: "boolean", required: false, i18n: false, default: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false, i18n: false, default: [] }
+      - { label: "Cover", name: "cover", widget: "string", required: false, i18n: false }

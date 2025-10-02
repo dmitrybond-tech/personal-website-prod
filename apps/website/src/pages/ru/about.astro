@@ -1,20 +1,19 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
+import AppShell from '../../app/layouts/AppShell.astro';
 import AboutShell from '../../features/about/devscard/ui/AboutShell.astro';
 import { getDevscardData } from '../../features/about/devscard/lib/getDevscardData';
 import CmsOptional from '@app/content/ui/CmsOptional.astro';
+import Footer from '../../app/widgets/footer/ui/Footer.astro';
 
 const locale = 'ru';
 const devscardData = getDevscardData(locale);
 ---
 
-<BaseLayout variant="about">
-  <Navbar locale={locale} />
+<AppShell variant="about">
   <CmsOptional lang={locale} route="/ru/about">
     <AboutShell locale={locale} data={devscardData} />
   </CmsOptional>
-</BaseLayout>
+</AppShell>
 
 <style>
   html {
@@ -34,3 +33,5 @@ const devscardData = getDevscardData(locale);
     location.replace('/ru/bookme');
   }
 </script>
+
+<Footer />

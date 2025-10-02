@@ -1,0 +1,47 @@
+{
+  "route": "/ru/about",
+  "title": "Обо мне",
+  "blocks": [
+    {
+      "type": "heading",
+      "text": "Обо мне"
+    },
+    {
+      "type": "text",
+      "md": "Lorem ipsum dolor sit amet, consectetur **adipiscing elit**. In sodales ac dui at *vestibulum*. In condimentum metus id dui tincidunt, in blandit mi [vehicula](/). Nulla lacinia, erat sit amet elementum vulputate, lectus mauris volutpat mi, vitae accumsan metus elit ut nunc. Vestibulum lacinia enim eget eros fermentum scelerisque. Proin augue leo, posuere ut imperdiet vitae, fermentum eu ipsum. Sed sed neque sagittis, posuere urna nec, commodo leo. Pellentesque posuere justo vitae massa volutpat maximus."
+    },
+    {
+      "type": "heading",
+      "text": "Контактная информация"
+    },
+    {
+      "type": "items",
+      "items": [
+        {
+          "label": "Phone",
+          "value": "605 475 6961"
+        },
+        {
+          "label": "Email",
+          "value": "mark.freeman.dev@gmail.com"
+        },
+        {
+          "label": "From",
+          "value": "Warsaw, Poland"
+        },
+        {
+          "label": "Salary range",
+          "value": "18 000 - 25 000 PLN"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "Навыки и опыт"
+    },
+    {
+      "type": "text",
+      "md": "**Frontend разработка**: React, Vue, Astro, TypeScript\n\n**Backend разработка**: Node.js, Python, Go\n\n**DevOps**: Docker, CI/CD, облачные платформы\n\n**Базы данных**: PostgreSQL, MongoDB, Redis"
+    }
+  ]
+}

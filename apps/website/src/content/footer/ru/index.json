@@ -1,0 +1,13 @@
+{
+  "lang": "ru",
+  "links": [
+    {
+      "label": "Пользовательское соглашение",
+      "href": "/ru/legal/user-agreement"
+    },
+    {
+      "label": "Политика обработки персональных данных (152-ФЗ)",
+      "href": "/ru/legal/personal-data-152fz"
+    }
+  ]
+}

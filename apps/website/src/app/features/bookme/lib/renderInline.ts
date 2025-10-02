@@ -104,13 +104,4 @@ export async function renderInline(
   }
 }
 
-// Type declarations for Cal.com
-declare global {
-  interface Window {
-    Cal: {
-      (command: string, ...args: any[]): void;
-      ns?: Record<string, any>;
-      loaded?: boolean;
-    };
-  }
-}
+// Cal global declaration is handled in src/types/ambient.d.ts

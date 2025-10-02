@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CvEmbed from '../../components/CvEmbed.astro';
+const lang = 'ru';
+---
+
+<BaseLayout lang={lang} title="Резюме" description="Резюме">
+  <CvEmbed src="/cv_ru/index.html#profile" title="Резюме (Русский)" />
+</BaseLayout>
+

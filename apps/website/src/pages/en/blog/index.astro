@@ -1,12 +1,138 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import AppShell from '../../../app/layouts/AppShell.astro';
+
+const lang = Astro.url.pathname.split('/')[1]; // "en" or "ru"
+
+// фильтруем по локали по id (он содержит префикс каталога)
+const all = await getCollection('posts', ({ id, data }) =>
+  id.startsWith(`${lang}/`) && data.draft !== true
+);
+
+// сортировка
+const posts = all.sort((a, b) => +b.data.date - +a.data.date);
+
+// строим ЧИСТЫЕ ссылки: если slug уже содержит "en/...",
+// берём только последнюю часть
+const linkFor = (e) => `/${lang}/blog/${e.slug.split('/').pop()}`;
+
+const pageTitle = lang === 'ru' ? 'Блог' : 'Blog';
 ---
 
-<BaseLayout title="Blog — Dmitry Bond" description="Blog posts and articles" lang="en">
-  <div class="mx-auto max-w-3xl px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-900">Blog</h1>
-    <p class="mt-2 text-gray-700">Blog posts coming soon...</p>
-  </div>
-</BaseLayout>
+<AppShell title={pageTitle} variant="blog">
+  <section class="blog-index">
+    <div class="blog-container">
+      <h1 class="blog-title">{pageTitle}</h1>
+      <div class="posts-list">
+        {posts.map((p) => (
+          <article class="post-preview">
+            <h2 class="post-title">
+              <a href={linkFor(p)} class="post-link">{p.data.title}</a>
+            </h2>
+            {p.data.description && (
+              <p class="post-description">{p.data.description}</p>
+            )}
+            <div class="post-meta">
+              <time class="post-date">
+                {new Date(p.data.date).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US')}
+              </time>
+              {p.data.tags && p.data.tags.length > 0 && (
+                <div class="post-tags">
+                  {p.data.tags.map((tag) => (
+                    <span class="tag">{tag}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</AppShell>
 
-
+<style>
+  .blog-index {
+    padding: 2rem 0;
+  }
+  
+  .blog-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  .blog-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .post-preview {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1.5rem;
+  }
+  
+  .post-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .post-link {
+    color: #3b82f6;
+    text-decoration: none;
+  }
+  
+  .post-link:hover {
+    text-decoration: underline;
+  }
+  
+  .post-description {
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+  
+  .post-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #9ca3af;
+  }
+  
+  .post-tags {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .tag {
+    background: #f3f4f6;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+  }
+  
+  .dark .post-preview {
+    border-bottom-color: #374151;
+  }
+  
+  .dark .post-description {
+    color: #9ca3af;
+  }
+  
+  .dark .post-meta {
+    color: #6b7280;
+  }
+  
+  .dark .tag {
+    background: #374151;
+    color: #d1d5db;
+  }
+</style>

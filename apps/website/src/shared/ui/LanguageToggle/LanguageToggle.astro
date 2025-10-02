@@ -1,6 +1,67 @@
 ---
-/** SHIM. DO NOT EDIT: kept for backward-compatible imports. */
-import Real from '../../../app/shared/ui/LanguageToggle/LanguageToggle.astro';
-const props = Astro.props;
+// Language toggle component
+interface Props {
+  currentLocale?: 'en' | 'ru';
+  className?: string;
+}
+
+const { currentLocale = 'en', className = '' } = Astro.props;
+
+const languages = [
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'ru', name: 'Русский', flag: '🇷🇺' }
+];
 ---
-<Real {...props}><slot /></Real>
+
+<div class={`language-toggle ${className}`}>
+  {languages.map((lang) => (
+    <a 
+      href={`/${lang.code}`}
+      class={`lang-link ${currentLocale === lang.code ? 'active' : ''}`}
+      aria-label={`Switch to ${lang.name}`}
+    >
+      <span class="flag">{lang.flag}</span>
+      <span class="code">{lang.code.toUpperCase()}</span>
+    </a>
+  ))}
+</div>
+
+<style>
+  .language-toggle {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .lang-link {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #666;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+  }
+  
+  .lang-link:hover {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  .lang-link.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+  
+  .flag {
+    font-size: 1rem;
+  }
+  
+  .code {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+</style>

@@ -1,0 +1,41 @@
+---
+import type { AboutBlock } from '../lib/cmsLoader';
+
+interface Props {
+  blocks: AboutBlock[];
+}
+
+const { blocks } = Astro.props;
+---
+
+{blocks.map((block) => {
+  switch (block.type) {
+    case 'heading':
+      return (
+        <h2 class="text-2xl font-bold mb-4 mt-8 first:mt-0">
+          {block.text}
+        </h2>
+      );
+    case 'text':
+      return (
+        <div class="prose prose-lg max-w-none mb-6" set:html={block.md} />
+      );
+    case 'items':
+      return (
+        <div class="grid gap-4 mb-6">
+          {block.items?.map((item) => (
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+              <span class="font-semibold text-gray-600 dark:text-gray-400 min-w-0 sm:min-w-[120px]">
+                {item.label}:
+              </span>
+              <span class="text-gray-900 dark:text-gray-100">
+                {item.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+    default:
+      return null;
+  }
+})}

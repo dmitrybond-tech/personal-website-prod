@@ -4,11 +4,19 @@
   "main": "index.js",
   "scripts": {
     "dev": "astro dev --host --port 4321",
+    "dev:local": "astro dev --host --port 4321 --strictPort",
+    "dev:cms": "cross-env NODE_OPTIONS=--trace-warnings npm run check:env && astro dev --host --port 4321 --strictPort",
+    "port:kill:4321": "powershell -NoProfile -Command \"$p=(Get-NetTCPConnection -LocalPort 4321 -ErrorAction SilentlyContinue).OwningProcess; if($p){Stop-Process -Id $p -Force}\"",
     "build": "astro build",
     "preview": "astro preview --host --port 4321",
+    "check": "tsc -p . --noEmit",
+    "check:env": "node --env-file=.env.local ./scripts/check-env.mjs",
     "cal:webhook:create": "node ../../scripts/cal-webhook.mjs create",
     "cal:webhook:update": "node ../../scripts/cal-webhook.mjs update",
-    "cal:webhook:list": "node ../../scripts/cal-webhook.mjs list"
+    "cal:webhook:list": "node ../../scripts/cal-webhook.mjs list",
+    "cms:proxy": "decap-server",
+    "cms:dev": "concurrently -k -n astro,proxy \"npm run dev -- --host --port 4321\" \"npm run cms:proxy\"",
+    "cms:seed:footer": "tsx scripts/cms/seed-footer.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,26 +24,34 @@
   "description": "",
   "type": "module",
   "engines": {
-    "node": ">=18",
+    "node": ">=18.20.4",
     "npm": ">=9"
   },
   "dependencies": {
-    "@astrojs/node": "^9.4.4",
-    "@astrojs/tailwind": "3.1.2",
-    "autoprefixer": "10.4.20",
-    "date-fns": "^4.1.0",
-    "dotenv": "^17.2.2",
-    "iconify-icon": "^3.0.1",
-    "marked": "^16.3.0",
-    "postcss": "8.4.47",
-    "tailwindcss": "3.4.14",
-    "type-fest": "^5.0.1"
+    "astro-decap-cms-oauth": "0.5.1",
+    "date-fns": "4.1.0",
+    "iconify-icon": "3.0.1",
+    "marked": "16.3.0",
+    "type-fest": "5.0.1"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "astro": "^4",
-    "astro-decap-cms-oauth": "^0.5.1",
-    "decap-cms": "3.8.3",
-    "typescript": "^5"
+    "@astrojs/node": "9.4.4",
+    "@astrojs/tailwind": "6.0.2",
+    "@auth/core": "0.40.0",
+    "@tailwindcss/postcss": "4.1.13",
+    "@tailwindcss/vite": "4.1.13",
+    "@types/node": "24.6.1",
+    "astro": "5.14.1",
+    "auth-astro": "4.2.0",
+    "autoprefixer": "10.4.21",
+    "concurrently": "9.2.1",
+    "cross-env": "10.1.0",
+    "decap-cms": "3.8.4",
+    "decap-server": "3.3.1",
+    "dotenv": "17.2.2",
+    "postcss": "8.4.47",
+    "tailwindcss": "4.1.13",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
   }
 }

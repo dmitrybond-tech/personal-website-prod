@@ -1,0 +1,44 @@
+---
+interface Props {
+  lang: 'en' | 'ru';
+  anchor?: string; // например, 'profile'
+}
+
+const { lang, anchor } = Astro.props;
+
+// В DEV ходим на прямой origin DevsCard, в PROD — на статику сайта
+const isDev = import.meta.env.DEV;
+
+const origin = isDev
+  ? (lang === 'en' ? 'http://localhost:4322' : 'http://localhost:4323')
+  : (lang === 'en' ? '/cv_en' : '/cv_ru');
+
+const hash = anchor ? `#${anchor}` : '';
+const src = `${origin}/index.html${hash}`;
+
+// Уникальный id для postMessage-ресайза
+const id = `cv-${Math.random().toString(36).slice(2)}`;
+---
+
+<iframe
+  id={id}
+  src={src}
+  style="display:block;width:100%;min-height:600px;border:0;overflow:hidden;"
+  class="cv-frame"
+/>
+
+<style>
+  .cv-frame { 
+    block-size: auto; 
+  }
+  /* родительских max-height быть не должно */
+</style>
+
+<script>
+  const iframe = document.getElementById({id: JSON.stringify(id)});
+  const setH = (h) => iframe.style.height = Math.max(600, Number(h) || 0) + 'px';
+  
+  window.addEventListener('message', (e) => {
+    if (e?.data?.type === 'cv-embed-height') setH(e.data.height);
+  });
+</script>

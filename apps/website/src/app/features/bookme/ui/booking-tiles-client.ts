@@ -201,7 +201,7 @@ function bind() {
 // Initialize on page load and HMR with Cal bootstrap readiness
 document.addEventListener('astro:page-load', async () => {
   // Wait for Cal bootstrap to be ready before initializing theme sync
-  if (typeof window !== 'undefined' && window.Cal) {
+  if (typeof window !== 'undefined' && window.Cal && typeof window.Cal === 'function') {
     // Small delay to ensure Cal is fully initialized
     await new Promise(resolve => setTimeout(resolve, 100));
   }
@@ -212,7 +212,7 @@ document.addEventListener('astro:page-load', async () => {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', async () => {
     // Wait for Cal bootstrap to be ready before initializing theme sync
-    if (typeof window !== 'undefined' && window.Cal) {
+    if (typeof window !== 'undefined' && window.Cal && typeof window.Cal === 'function') {
       // Small delay to ensure Cal is fully initialized
       await new Promise(resolve => setTimeout(resolve, 100));
     }

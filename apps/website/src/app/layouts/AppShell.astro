@@ -1,0 +1,183 @@
+---
+import "@/styles/main.css";
+import Navbar from '@/app/widgets/navbar/ui/Navbar.astro';
+import NavIsland from '@/app/widgets/navisland/NavIsland.astro';
+import { getLocaleFromPath, switchLocale } from '@/app/shared/lib/locale';
+
+interface Props {
+  title?: string;
+  description?: string;
+  lang?: 'en' | 'ru';
+  meta?: Record<string, string>;
+  variant?: 'default' | 'bookme' | 'about' | 'blog';
+  pageClass?: string;
+}
+
+const { 
+  lang = 'en', 
+  title = '', 
+  description = '', 
+  meta = {},
+  variant = 'default',
+  pageClass = ''
+} = Astro.props as Props;
+
+const url = Astro.url;
+const locale = getLocaleFromPath(url.pathname);
+const site = 'https://example.com'; // TODO: заменить на реальный домен
+const altEn = switchLocale(url, 'en');
+const altRu = switchLocale(url, 'ru');
+const canonical = locale === 'en' ? `${site}${altEn}` : `${site}${altRu}`;
+
+// Авто-детект page type по пути
+const isBookme = variant === 'bookme' || url.pathname.includes('/bookme');
+const isAbout = variant === 'about' || url.pathname.includes('/about');
+const isBlog = variant === 'blog' || url.pathname.includes('/blog');
+
+// Build body classes
+const bodyClasses = [
+  'min-h-screen antialiased',
+  isBookme ? 'page-bookme' : '',
+  isAbout ? 'page-about' : '',
+  isBlog ? 'page-blog' : '',
+  pageClass
+].filter(Boolean).join(' ');
+---
+
+<!DOCTYPE html>
+<html lang={Astro.url.pathname.startsWith('/ru') ? 'ru' : 'en'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <meta name="theme-color" content="#ffffff" />
+    
+    <!-- No-FOUC theme initialization -->
+    <script is:inline>
+      (function () {
+        try {
+          var ls = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = (ls === 'light' || ls === 'dark') ? ls : (prefersDark ? 'dark' : 'light');
+          var root = document.documentElement;
+          if (theme === 'dark') root.classList.add('dark');
+          root.setAttribute('data-theme', theme);
+        } catch {}
+      })();
+    </script>
+
+    <!-- Canonical and alternate links -->
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hrefLang="en" href={`${site}${altEn}`} />
+    <link rel="alternate" hrefLang="ru" href={`${site}${altRu}`} />
+    <link rel="alternate" hrefLang="x-default" href={`${site}${altEn}`} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonical} />
+    <meta property="twitter:title" content={title} />
+    {description && <meta property="twitter:description" content={description} />}
+
+    <!-- Custom meta tags -->
+    {Object.entries(meta).map(([key, value]) => (
+      <meta name={key} content={value} />
+    ))}
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Unified NavIsland styles -->
+    <style is:global>
+      :root {
+        /* constant gap from top; tweak as desired */
+        --nav-gap: 12px;
+        /* dynamic — set by script */
+        --navisland-h: 64px;     /* fallback */
+      }
+      
+      header[data-app-navbar] {
+        position: sticky;
+        top: 0;
+        z-index: 100; /* ensure above content */
+      }
+      
+      .nav-float-wrap {
+        display: grid;
+        place-items: center;
+        padding-top: var(--nav-gap);   /* needed top offset */
+        /* IMPORTANT: NO transform here */
+        pointer-events: auto;          /* clicks pass through */
+        max-width: var(--cv-container-max, 80rem);
+        margin-inline: auto;
+        padding-inline: var(--cv-gutter-x, 1rem);
+      }
+      
+      @media (max-width: 640px) {
+        .nav-float-wrap {
+          padding-inline: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body class={bodyClasses}>
+    <header data-app-navbar>
+      <div class="nav-float-wrap">
+        <NavIsland locale={locale} />
+      </div>
+    </header>
+    
+    <main class="cv-container">
+      <slot />
+    </main>
+    
+    <!-- Script for locale switching -->
+    <script is:inline>
+      document.addEventListener('click', function(e) {
+        var a = e.target && e.target.closest ? e.target.closest('a[data-locale]') : null;
+        if (a) {
+          var loc = a.getAttribute('data-locale');
+          if (loc === 'en' || loc === 'ru') {
+            document.cookie = 'locale=' + loc + '; Max-Age=31536000; Path=/; SameSite=Lax';
+          }
+        }
+      });
+    </script>
+
+    <!-- Height measurement script - no docking behavior -->
+    <script is:inline>
+      (() => {
+        const header = document.querySelector('header[data-app-navbar]');
+        const island = header?.querySelector('.navisland');
+        let raf = 0, ph = -1, pi = -1;
+        
+        const measure = () => {
+          raf = 0;
+          const h = Math.max(0, Math.round(header?.offsetHeight || 72));
+          if (h !== ph) { 
+            ph = h; 
+            document.documentElement.style.setProperty('--navbar-h', h + 'px'); 
+          }
+          const ih = Math.max(0, Math.round(island?.offsetHeight || 60));
+          if (ih !== pi) { 
+            pi = ih; 
+            document.documentElement.style.setProperty('--navisland-h', ih + 'px'); 
+          }
+        };
+        
+        const schedule = () => { if (!raf) raf = requestAnimationFrame(measure); };
+        schedule();
+        if (header) new ResizeObserver(schedule).observe(header);
+        addEventListener('resize', schedule, { passive: true });
+
+        /* NO dock/undock and translateY — header always at top */
+      })();
+    </script>
+  </body>
+</html>
