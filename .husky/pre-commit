@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+node apps/website/scripts/normalize-post-fields.mjs
+git add apps/website/src/content/posts

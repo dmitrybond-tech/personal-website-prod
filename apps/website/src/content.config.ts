@@ -1,23 +1,27 @@
 import { defineCollection, z } from "astro:content";
 
-function normalizeDate(input: unknown): unknown {
-  if (typeof input !== 'string') return input;
+function sanitizeDate(input: unknown): string | Date {
+  if (input instanceof Date) return input;
+  if (typeof input !== 'string') return new Date();
 
-  // Трим + замена типографских тире на обычные
-  let s = input.trim().replace(/\u2012|\u2013|\u2014|\u2212/g, '-');
+  let s = input
+    .replace(/[\u0000-\u001F]/g, '')
+    .replace(/[\u2012\u2013\u2014\u2212]/g, '-')
+    .replace(/[^\d\-./]/g, '')
+    .trim();
 
-  // Уже ISO?
-  if (/^\d{4}-\d{2}-\d{2}(T.*)?$/.test(s)) return s;
+  if (!s) return new Date();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
 
-  // DD.MM.YYYY | DD/MM/YYYY | DD-MM-YYYY
   const m = s.match(/^(\d{2})[./-](\d{2})[./-](\d{4})$/);
-  if (m) {
-    const [_, dd, mm, yyyy] = m;
-    return `${yyyy}-${mm}-${dd}`;
-  }
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
 
-  return s; // пусть попробует z.coerce.date()
+  const d = new Date(s);
+  return isNaN(+d) ? new Date() : d;
 }
+
+// Alias for backward compatibility
+const normalizeDate = sanitizeDate;
 
 const blog = defineCollection({
   type: "content",
@@ -25,7 +29,7 @@ const blog = defineCollection({
     z.object({
       title: z.string(),
       lang: z.enum(["en", "ru"]),
-      publishedAt: z.preprocess(normalizeDate, z.coerce.date()),
+      publishedAt: z.preprocess(sanitizeDate, z.coerce.date()),
       description: z.string().optional(),
       tags: z.array(z.string()).default([]),
       cover: image().optional(),
@@ -51,16 +55,13 @@ const footer = defineCollection({
 
 const posts = defineCollection({
   type: 'content',
-  // slug = только basename без "{locale}/"
-  slug: ({ defaultSlug }) => defaultSlug,
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
-    date: z.preprocess(normalizeDate, z.coerce.date()),
+    date: z.preprocess(sanitizeDate, z.coerce.date()),
     draft: z.boolean().optional().default(false),
-    // опционально для дизайна:
     tags: z.array(z.string()).optional().default([]),
-    cover: z.string().optional(), // если в лейауте есть обложка
+    cover: z.string().optional(),
   }),
 });
 

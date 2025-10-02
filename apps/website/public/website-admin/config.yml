@@ -42,22 +42,24 @@ collections:
   - name: "posts"
     label: "Posts"
     i18n: true
-    format: "frontmatter"
     folder: "apps/website/src/content/posts"
     create: true
     path: "{{slug}}"
     slug: "{{slug}}"
+    publish_mode: simple
     fields:
       - { label: "Title", name: "title", widget: "string", i18n: true }
       - { label: "Description", name: "description", widget: "string", required: false, i18n: true }
       - label: "Date"
         name: "date"
-        widget: "datetime"
+        widget: "date"
         format: "YYYY-MM-DD"
-        time_format: false
-        picker_utc: true
+        required: true
         i18n: false
-      - { label: "Body", name: "body", widget: "markdown", i18n: true }
-      - { label: "Draft", name: "draft", widget: "boolean", required: false, i18n: false, default: false }
-      - { label: "Tags", name: "tags", widget: "list", required: false, i18n: false, default: [] }
+        pattern:
+          - '^\d{4}-\d{2}-\d{2}$'
+          - 'Use YYYY-MM-DD'
+      - { label: "Body",  name: "body",  widget: "markdown", i18n: true }
+      - { label: "Draft", name: "draft", widget: "boolean", required: false, default: false, i18n: false }
+      - { label: "Tags",  name: "tags",  widget: "list", required: false, default: [], i18n: false }
       - { label: "Cover", name: "cover", widget: "string", required: false, i18n: false }

@@ -18,6 +18,7 @@
     "cms:dev": "concurrently -k -n astro,proxy \"npm run dev -- --host --port 4321\" \"npm run cms:proxy\"",
     "cms:seed:footer": "tsx scripts/cms/seed-footer.ts",
     "fix:dates": "node ./scripts/normalize-post-dates.mjs",
+    "fix:content": "node ./scripts/normalize-post-fields.mjs",
     "content:pull": "node ./scripts/content-pull.mjs"
   },
   "keywords": [],

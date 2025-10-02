@@ -26,6 +26,36 @@
       }, 500);
     })();
   </script>
+  <script>
+    (function() {
+      function toISO(d) {
+        if (typeof d !== 'string') return d;
+        let s = d.trim().replace(/[\u2012\u2013\u2014\u2212]/g, '-');
+        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+        const m = s.match(/^(\d{2})[./-](\d{2})[./-](\d{4})$/);
+        if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+        return s;
+      }
+      CMS.registerEventListener({
+        name: 'preSave',
+        handler: ({ entry }) => {
+          let e = entry;
+          const data = e.get('data');
+          const rawDate = data?.get?.('date');
+          const iso = toISO(rawDate);
+          const today = new Date().toISOString().slice(0,10);
+          if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+            e = e.setIn(['data', 'date'], today);
+          } else if (iso !== rawDate) {
+            e = e.setIn(['data', 'date'], iso);
+          }
+          const hasDraft = data?.has?.('draft');
+          if (!hasDraft) e = e.setIn(['data', 'draft'], false);
+          return { entry: e };
+        }
+      });
+    })();
+  </script>
   <noscript>Enable JavaScript to use the CMS.</noscript>
 </head>
 <body></body>
