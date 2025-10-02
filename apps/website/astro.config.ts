@@ -22,16 +22,21 @@ if (DEV) {
 
 const HAS_DECAP = !!(process.env.DECAP_GITHUB_CLIENT_ID && process.env.DECAP_GITHUB_CLIENT_SECRET);
 
-// Map DECAP_* to GITHUB_* only when present
-if (HAS_DECAP) {
-  process.env.GITHUB_CLIENT_ID = process.env.DECAP_GITHUB_CLIENT_ID!;
-  process.env.GITHUB_CLIENT_SECRET = process.env.DECAP_GITHUB_CLIENT_SECRET!;
+// Force Decap → OAuth App
+if (process.env.DECAP_GITHUB_CLIENT_ID && process.env.DECAP_GITHUB_CLIENT_SECRET) {
+  process.env.GITHUB_CLIENT_ID = process.env.DECAP_GITHUB_CLIENT_ID;
+  process.env.GITHUB_CLIENT_SECRET = process.env.DECAP_GITHUB_CLIENT_SECRET;
 }
+
+// Dev log for OAuth App client_id verification
+const eff = process.env.GITHUB_CLIENT_ID || '';
+console.log('[DECAP EFFECTIVE OAuthApp client_id]', eff ? eff.slice(0,8) + '…' : '[missing]');
 
 export default defineConfig({
   site: 'http://localhost:4321',
   output: 'server',
   adapter: node({ mode: 'standalone' }),
+  devToolbar: { enabled: false },
   server: { 
     port: 4321, 
     host: true,

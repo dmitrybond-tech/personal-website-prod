@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import AppShell from '../../../app/layouts/AppShell.astro';
+import Footer from '../../../app/widgets/footer/ui/Footer.astro';
 
 const lang = Astro.url.pathname.split('/')[1];
 const { slug } = Astro.params;
@@ -49,6 +50,7 @@ const { Content } = await entry.render();
     </div>
   </article>
 </AppShell>
+<Footer />
 
 <style>
   .blog-post {

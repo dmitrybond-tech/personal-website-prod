@@ -1,70 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="robots" content="noindex"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="robots" content="noindex" />
   <title>Content Manager</title>
-  <style>
-    #__admin_debug{position:fixed;inset:auto 8px 8px 8px;background:#111;color:#0f0;font:12px/1.5 monospace;padding:8px;border:1px solid #333;max-height:40vh;overflow:auto;z-index:99999;opacity:.9}
-    #__admin_debug b{color:#fff}
-  </style>
-  <link rel="cms-config-url" type="text/yaml" href="/api/website-admin/config.yml"/>
+  <link rel="cms-config-url" type="text/yaml" href="/api/website-admin/config.yml" />
   <script>window.CMS_MANUAL_INIT = true;</script>
+  <script src="/website-admin/vendor/decap-cms.js" defer></script>
   <script>
-    (function(){
-      const box=document.createElement('pre'); box.id='__admin_debug';
-      document.addEventListener('DOMContentLoaded',()=>document.body.appendChild(box));
-      const log=(...a)=>{ console.log('[ADMIN]',...a); box.textContent += a.map(x=>typeof x==='string'?x:JSON.stringify(x)).join(' ') + '\n'; };
-      window.__ADMIN_LOG = log;
-
-      log('Admin index loaded at', new Date().toISOString());
-      log('Config URL =', document.querySelector('link[rel="cms-config-url"]')?.getAttribute('href'));
-
-      // Проверим доступность конфига руками ДО CMS.init (чтобы видеть явный статус)
-      fetch('/api/website-admin/config.yml',{cache:'no-store'})
-        .then(r=>{ log('config.yml fetch →', r.status, r.statusText); return r.text(); })
-        .then(t=>log('config.yml bytes =', t.length))
-        .catch(e=>log('config.yml ERROR', e?.message||e));
-
-      // Загрузка CMS с явным onload/onerror
-      const s=document.createElement('script');
-      s.src='https://unpkg.com/decap-cms@^3/dist/decap-cms.js';
-      s.onload=()=>{ log('decap-cms.js loaded'); boot(); };
-      s.onerror=(e)=>{ log('decap-cms.js FAILED to load', e); showFatal('CMS script failed to load (CSP? offline? unpkg blocked)'); };
-      document.head.appendChild(s);
-
-      // Если через 1500мс скрипт так и не загрузился, пробуем локальный
-      setTimeout(function(){
-        if (!window.CMS) {
-          __ADMIN_LOG && __ADMIN_LOG('fallback to local decap-cms.js');
-          var s=document.createElement('script');
-          s.src='/website-admin/vendor/decap-cms.js';
-          s.onload=function(){ __ADMIN_LOG && __ADMIN_LOG('local decap-cms.js loaded'); };
-          s.onerror=function(){ __ADMIN_LOG && __ADMIN_LOG('local decap-cms.js FAILED'); };
-          document.head.appendChild(s);
-        }
-      }, 1500);
-
-      function boot(){
-        if(!window.CMS){ log('CMS global not ready, retry'); return setTimeout(boot,50); }
-        log('CMS global ready, calling CMS.init()');
-        try{ CMS.init(); log('CMS.init() called'); }
-        catch(e){ log('CMS.init() threw', e?.message||e); showFatal('CMS.init() exception: '+(e?.message||e)); }
-        // If UI still invisible after 2s → подсказка
-        setTimeout(()=>{
-          const el=document.querySelector('.nc-app-container, #nc-root');
-          if(!el) showFatal('CMS root not found after init. Check console for CSP/errors.');
-        }, 2000);
-      }
-      function showFatal(msg){
-        const d=document.createElement('div');
-        d.style.cssText='position:fixed;inset:0;background:#000C;color:#fff;padding:24px;z-index:100000;font:14px/1.6 system-ui';
-        d.innerHTML='<h1 style="margin:0 0 12px 0;">Decap Admin Debug</h1><p>'+msg+'</p><p>Open DevTools → Console & Network.</p>';
-        document.body.appendChild(d);
-      }
-    })();
+    (function boot(){ if(!window.CMS){ return setTimeout(boot, 50); } CMS.init(); })();
   </script>
+  <noscript>Enable JavaScript to use the CMS.</noscript>
 </head>
 <body></body>
 </html>

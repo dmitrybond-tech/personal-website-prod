@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import AppShell from '../../../app/layouts/AppShell.astro';
+import Footer from '../../../app/widgets/footer/ui/Footer.astro';
 
 const lang = Astro.url.pathname.split('/')[1]; // "en" or "ru"
 
@@ -11,6 +12,11 @@ const all = await getCollection('posts', ({ id, data }) =>
 
 // сортировка
 const posts = all.sort((a, b) => +b.data.date - +a.data.date);
+
+// Dev logging for blog post counts and file visibility
+if (import.meta.env.DEV) {
+  console.log('[BLOG]', lang, 'posts:', posts.length, 'slugs:', posts.map(p => p.slug));
+}
 
 // строим ЧИСТЫЕ ссылки: если slug уже содержит "ru/...",
 // берём только последнюю часть
@@ -50,6 +56,7 @@ const pageTitle = lang === 'ru' ? 'Блог' : 'Blog';
     </div>
   </section>
 </AppShell>
+<Footer />
 
 <style>
   .blog-index {

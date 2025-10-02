@@ -2,11 +2,10 @@ backend:
   name: github
   repo: dmitrybond-tech/personal-website-dev
   branch: main
-  site_domain: "localhost:4321"
   base_url: "http://localhost:4321"
   auth_endpoint: "oauth"
 
-media_folder: "public/uploads"
+media_folder: "apps/website/public/uploads"
 public_folder: "/uploads"
 
 site_url: "/"
@@ -21,8 +20,7 @@ i18n:
   locales: [en, ru]
   default_locale: en
 
-# Uncomment to force PR workflow:
-# publish_mode: editorial_workflow
+publish_mode: simple   # ← НЕ editorial_workflow
 
 collections:
   - name: "pages"
@@ -30,7 +28,7 @@ collections:
     label_singular: "Page"
     i18n: true
     format: "frontmatter"
-    folder: "content/pages"
+    folder: "apps/website/src/content/pages"
     create: true
     path: "{{slug}}"
     slug: "{{slug}}"
@@ -44,7 +42,7 @@ collections:
     label: "Posts"
     i18n: true
     format: "frontmatter"
-    folder: "src/content/posts"
+    folder: "apps/website/src/content/posts"
     create: true
     path: "{{slug}}"
     slug: "{{slug}}"

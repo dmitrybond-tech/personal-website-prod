@@ -8,8 +8,21 @@ export const onRequest: MiddlewareHandler = (context, next) => {
 
   if (DEV) console.log(`[MW] ${request.method} ${path}`);
 
-  // Полный байпас для auth / oauth / api-конфига
-  if (path.startsWith('/api/auth/')) { if (DEV) console.log('[MW] bypass /api/auth'); return next(); }
+  // Log admin asset requests for debugging
+  if (DEV && path === '/website-admin/vendor/decap-cms.js') {
+    console.log('[MW] GET /website-admin/vendor/decap-cms.js');
+  }
+
+  // Block Auth.js interference in admin flow
+  if (path.startsWith('/api/auth/')) {
+    const ref = request.headers.get('referer') || '';
+    if (ref.includes('/website-admin') || ref.includes('/oauth')) {
+      console.warn('[MW][BLOCK] /api/auth/* called from admin flow');
+      return new Response('Decap uses OAuth App; /api/auth/* disabled for admin.', { status: 409 });
+    }
+    if (DEV) console.log('[MW] bypass /api/auth'); 
+    return next(); 
+  }
   if (path.startsWith('/oauth'))     { if (DEV) console.log('[MW] bypass /oauth'); return next(); }
   if (path === '/api/website-admin/config.yml') { if (DEV) console.log('[MW] bypass admin config API'); return next(); }
 
