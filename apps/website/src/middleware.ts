@@ -102,17 +102,18 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
     return Response.redirect(new URL('/api/website-admin/config.yml', url).toString(), 302);
   }
 
-  // после твоего auth-гейта (если он есть) — принудительно статический index.html
-  const segs = path.split('/').filter(Boolean);
-  const isAdminRoot =
-    (segs.length === 1 && segs[0] === 'website-admin') ||
-    (segs.length === 2 && segs[1] === 'website-admin');
-
-  if (isAdminRoot) {
+  // Canonical admin redirect (single hop)
+  if (path === '/website-admin' || path === '/website-admin/') {
     const to = new URL('/website-admin/index.html', url);
     for (const [k, v] of url.searchParams) to.searchParams.set(k, v);
     if (DEV) console.log('[MW] redirect admin root → /website-admin/index.html');
-    return Response.redirect(to.toString(), 302);
+    return new Response(null, {
+      status: 302,
+      headers: {
+        'Location': to.toString(),
+        'Cache-Control': 'no-store'
+      }
+    });
   }
 
   return next();

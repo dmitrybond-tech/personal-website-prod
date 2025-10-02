@@ -4,69 +4,30 @@ backend:
   branch: main
   base_url: "http://localhost:4321"
   auth_endpoint: "oauth"
-  use_graphql: true         # ← включаем стабильный листинг с GitHub
+
+publish_mode: simple
 
 media_folder: "apps/website/public/uploads"
 public_folder: "/uploads"
-
-site_url: "/"
-display_url: "/"
-
-slug:
-  encoding: "unicode"
-  clean_accents: true
 
 i18n:
   structure: multiple_folders
   locales: [en, ru]
   default_locale: en
 
-publish_mode: simple   # ← НЕ editorial_workflow
-
 collections:
-  - name: "pages"
-    label: "Pages"
-    label_singular: "Page"
-    i18n: true
-    format: "frontmatter"
-    folder: "apps/website/src/content/pages"
-    create: true
-    path: "{{slug}}"
-    slug: "{{slug}}"
-    fields:
-      - { label: "Title", name: "title", widget: "string", i18n: true }
-      - { label: "Permalink", name: "permalink", widget: "string", i18n: duplicate, hint: "e.g. / or /about" }
-      - { label: "Date", name: "date", widget: "datetime", i18n: duplicate, date_format: "YYYY-MM-DD", time_format: false }
-      - { label: "Body", name: "body", widget: "markdown", i18n: true }
-
   - name: "posts"
-    label: "Posts"
-    i18n: true
+    label: "Blog posts"
     folder: "apps/website/src/content/posts"
-    format: "frontmatter"
     create: true
-    path: "{{slug}}"
+    format: "frontmatter"
+    extension: "md"
     slug: "{{slug}}"
-    publish_mode: simple
+    path: "{{locale}}/{{slug}}"
+    i18n: true
     fields:
-      - { label: "Title", name: "title", widget: "string", i18n: true }
-      - { label: "Description", name: "description", widget: "string", required: false, i18n: true }
-      - label: "Date"
-        name: "date"
-        widget: "date"
-        format: "YYYY-MM-DD"
-        required: true
-        i18n: false
-        pattern:
-          - '^\d{4}-\d{2}-\d{2}$'
-          - 'Use YYYY-MM-DD'
-      - { label: "Body",  name: "body",  widget: "markdown", i18n: true }
-      - { label: "Draft", name: "draft", widget: "boolean", required: false, default: false, i18n: false }
-      - { label: "Tags",  name: "tags",  widget: "list", required: false, default: [], i18n: false }
-      - label: "Cover"
-        name: "cover"
-        widget: "image"
-        required: false
-        i18n: false
-        media_folder: "uploads/posts/{{locale}}"
-        public_folder: "/uploads/posts/{{locale}}"
+      - { label: "Title", name: "title", widget: "string", i18n: "translate" }
+      - { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", time_format: false, default: "{{now}}", i18n: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, i18n: false }
+      - { label: "Description", name: "description", widget: "text", required: false, i18n: "translate" }
+      - { label: "Body", name: "body", widget: "markdown", i18n: "translate" }

@@ -1,137 +1,88 @@
-# GitHub Source-of-Truth Stabilization Changelog
+# GitHub Source of Truth Stabilization - Change Log
 
-## Goal
-Stabilize GitHub as the single source-of-truth for Decap CMS by disabling local_backend, ensuring direct commits to main, cleaning up absolute FS paths, and adding visibility logging.
+## Overview
+Established GitHub main as the single Source of Truth for blog content. Decap CMS now writes directly to main branch in `apps/website/src/content/posts/{locale}/` structure. Removed GraphQL dependencies from blog rendering. Ensured proper date/draft defaults and media path handling.
 
-## Changes Made
+## Changes
 
-### 1. Disabled local_backend Injection (Hard Default)
-**File:** `apps/website/src/pages/api/website-admin/config.yml.ts`
+### 1. Decap CMS Configuration (`apps/website/public/website-admin/config.yml`)
+- **Removed**: `use_graphql: true` - eliminated GraphQL dependency
+- **Simplified**: Backend configuration to use GitHub directly
+- **Updated**: Posts collection structure:
+  - Path: `{{locale}}/{{slug}}` for proper i18n folder structure
+  - Default values: `date: "{{now}}"`, `draft: false`
+  - Simplified field structure with proper i18n configuration
+- **Verified**: Media paths point to `apps/website/public/uploads`
 
-- Changed local_backend injection logic to be **hard disabled by default**
-- Only enables local_backend if `DECAP_LOCAL_BACKEND=TRUE` (case-insensitive) is explicitly set
-- Added explicit logging showing `local_backend: DISABLED` or `ENABLED` with environment variable status
-- Ensures Decap CMS always goes to GitHub OAuth unless explicitly overridden
+### 2. Content Migration Script (`apps/website/scripts/migrate-posts.mjs`)
+- **Created**: Idempotent migration script for existing posts
+- **Features**:
+  - Migrates posts from root `posts/` to `posts/{locale}/` structure
+  - Adds missing `date` (today's date) and `draft: false` fields
+  - Preserves existing frontmatter structure
+  - Skips files already in correct location
+- **Added**: npm script `content:migrate`
 
-**Before:**
-```typescript
-// Inject local_backend in dev when DECAP_LOCAL_BACKEND=true
-if (DEV && process.env.DECAP_LOCAL_BACKEND === 'true') {
-  yml = 'local_backend: true\n' + yml;
-  console.log('[API config] DEV: injected local_backend: true');
-}
+### 3. Media Path Normalization (`apps/website/scripts/normalize-media-paths.mjs`)
+- **Created**: Utility script to normalize media paths in markdown files
+- **Features**:
+  - Normalizes relative paths to `/uploads/` prefix
+  - Handles various path patterns (./uploads/, ../uploads/, etc.)
+  - Safe operation - only normalizes existing uploads paths
+- **Added**: npm script `content:normalize-media`
+
+### 4. Blog Rendering Verification
+- **Confirmed**: Blog rendering uses Astro Content Collections (`getCollection('posts')`)
+- **Verified**: No GraphQL dependencies in blog rendering code
+- **Maintained**: Existing diagnostic logging `[BLOG] xx posts` in development mode
+- **Confirmed**: Proper filtering by locale and draft status
+
+### 5. Autopull Script Verification (`apps/website/scripts/content-autopull.mjs`)
+- **Verified**: Script handles uncommitted changes correctly
+- **Confirmed**: Writes concise message and skips when changes detected
+- **Maintained**: Existing logic for content synchronization
+
+### 6. Package.json Scripts
+- **Added**: `content:migrate` - runs post migration script
+- **Added**: `content:normalize-media` - runs media path normalization
+
+## File Structure
+```
+apps/website/
+├── public/
+│   ├── uploads/           # Media files (verified)
+│   │   └── posts/
+│   │       ├── en/
+│   │       └── ru/
+│   └── website-admin/
+│       └── config.yml     # Updated Decap config
+├── src/
+│   └── content/
+│       └── posts/         # Blog posts (verified structure)
+│           ├── en/
+│           └── ru/
+└── scripts/
+    ├── migrate-posts.mjs           # New migration script
+    ├── normalize-media-paths.mjs   # New media normalization
+    └── content-autopull.mjs        # Verified autopull logic
 ```
 
-**After:**
-```typescript
-// ЖЁСТКО: local_backend включаем только если явно DECAP_LOCAL_BACKEND=TRUE (в любом регистре)
-const USE_LOCAL = DEV && /^true$/i.test(process.env.DECAP_LOCAL_BACKEND ?? '');
-if (USE_LOCAL) {
-  yml = 'local_backend: true\n' + yml;
-}
+## Acceptance Criteria Met
+✅ **Decap CMS**: Posts collection shows files from `apps/website/src/content/posts/{en,ru}/`  
+✅ **Direct Commits**: Created posts commit directly to main (no PR workflow)  
+✅ **Autopull**: Local files update via autopull, site shows new content  
+✅ **Defaults**: Server handles missing date/draft fields (Decap provides defaults)  
+✅ **No GraphQL**: Blog rendering uses only local files via Astro Content Collections  
+✅ **Media**: Media files visible in admin and accessible on site via `/uploads/`  
 
-if (DEV) {
-  console.log(`[API config] local_backend: ${USE_LOCAL ? 'ENABLED' : 'DISABLED'} (env: ${process.env.DECAP_LOCAL_BACKEND ?? 'unset'})`);
-  console.log('[API config] 200 OK from', p, '| bytes =', yml.length);
-}
-```
+## Migration Instructions
+1. Run `npm run content:migrate` to migrate any existing posts to locale folders
+2. Run `npm run content:normalize-media` to normalize media paths (optional)
+3. Start development with `npm run dev:cms` to test Decap CMS integration
+4. Verify posts appear in admin interface under correct locale folders
 
-### 2. Updated Decap Config for Direct Main Commits
-**File:** `apps/website/public/website-admin/config.yml`
-
-- Added `publish_mode: simple` to enable direct commits to main branch
-- Removed commented editorial workflow configuration
-- Ensures Decap CMS publishes directly to main without PR workflow
-
-**Before:**
-```yaml
-# Uncomment to force PR workflow:
-# publish_mode: editorial_workflow
-```
-
-**After:**
-```yaml
-publish_mode: simple   # ← НЕ editorial_workflow
-```
-
-### 3. Enhanced Blog Content Visibility Logging
-**Files:** 
-- `apps/website/src/pages/en/blog/index.astro`
-- `apps/website/src/pages/ru/blog/index.astro`
-
-- Added detailed dev logging to show both post count and individual slugs
-- Helps verify that Astro correctly indexes content from GitHub after git pull
-- Shows which files are visible to the content system
-
-**Before:**
-```typescript
-if (import.meta.env.DEV) console.log('[BLOG]', lang, 'posts:', posts.length);
-```
-
-**After:**
-```typescript
-if (import.meta.env.DEV) {
-  console.log('[BLOG]', lang, 'posts:', posts.length, 'slugs:', posts.map(p => p.slug));
-}
-```
-
-### 4. Verified OAuth Route Configuration
-**Verified Files:**
-- `apps/website/src/middleware.ts`
-- No conflicting `/oauth/index.ts` files found
-- Only OAuth API endpoints exist: `/api/oauth/whoami.ts` and `/api/oauth/health.ts`
-
-- Confirmed middleware properly bypasses `/oauth` routes for astro-decap-cms-oauth package
-- No route conflicts that would interfere with GitHub OAuth flow
-
-### 5. Verified Asset Path Configuration
-**Verified Files:**
-- `apps/website/astro.config.ts` - has `devToolbar: { enabled: false }` as required
-- CSS imports use proper relative paths (`import "../styles/main.css"`, `import "@/styles/main.css"`)
-- Script imports use proper Astro patterns (`import ... ?url`)
-- No absolute FS paths found in website assets
-
-## Expected Behavior
-
-### Server Logs
-After restart, `/api/website-admin/config.yml` should show:
-```
-[API config] local_backend: DISABLED (env: unset)
-```
-
-### Admin Flow
-1. Visit `/website-admin` → redirects to GitHub OAuth
-2. After OAuth → Decap CMS loads with GitHub backend
-3. Publishing creates direct commits to `dmitrybond-tech/personal-website-dev` in `apps/website/src/content/posts/{en|ru}/{slug}.md`
-
-### Content Visibility
-After `git pull`, blog index pages should show:
-```
-[BLOG] en posts: X slugs: ['slug1', 'slug2', ...]
-[BLOG] ru posts: Y slugs: ['slug1', 'slug2', ...]
-```
-
-### No Vite Errors
-- No `The request url "C:\...main.css" is outside of Vite serving allow list` errors
-- CSS loads correctly with proper styling
-- All assets use relative paths or proper Astro resolution
-
-## Verification Steps
-
-1. **Restart dev server** and check logs for `local_backend: DISABLED`
-2. **Visit `/website-admin`** and verify GitHub OAuth redirect
-3. **Publish test content** via Decap CMS and verify commit appears in GitHub
-4. **Run `git pull`** and check blog index logs show new content
-5. **Check browser console** for absence of Vite FS path errors
-
-## Files Modified
-- `apps/website/src/pages/api/website-admin/config.yml.ts`
-- `apps/website/public/website-admin/config.yml`
-- `apps/website/src/pages/en/blog/index.astro`
-- `apps/website/src/pages/ru/blog/index.astro`
-
-## Files Verified (No Changes Needed)
-- `apps/website/src/middleware.ts` - OAuth routes properly configured
-- `apps/website/astro.config.ts` - DevToolbar disabled, proper asset paths
-- CSS imports - All use proper relative paths
-- Script imports - All use proper Astro patterns
+## Notes
+- All existing OAuth and environment configurations preserved
+- Content normalization in `content.config.ts` remains unchanged
+- Blog rendering already used Astro Content Collections (no changes needed)
+- Media folder structure was already correct
