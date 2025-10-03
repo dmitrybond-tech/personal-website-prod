@@ -1,0 +1,27 @@
+---
+interface Props {
+  title?: string;
+  subtitle?: string;
+  footer?: any;
+  class?: string;
+  hasHeaderMedia?: boolean;
+}
+const { title, subtitle, footer, class: klass = '', hasHeaderMedia = true } = Astro.props;
+const hasSlot = Astro.slots.has('headerMedia');
+---
+
+<section class={`rounded-2xl border cv-panel shadow-sm ${klass}`}>
+  <div class="p-5 sm:p-6 lg:p-8">
+    {title && <h2 class="text-xl font-extrabold tracking-tight">{title}</h2>}
+    {subtitle && <p class="text-sm cv-muted mt-1">{subtitle}</p>}
+    {hasHeaderMedia && hasSlot && (
+      <div class="mt-2">
+        <slot name="headerMedia" />
+      </div>
+    )}
+    <div class={hasHeaderMedia && hasSlot ? 'mt-4' : 'mt-2'}>
+      <slot />
+    </div>
+    {footer && <div class="mt-6 pt-4 border-t border-gray-100 dark:border-white/10">{footer}</div>}
+  </div>
+</section>

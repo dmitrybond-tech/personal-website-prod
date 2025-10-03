@@ -1,0 +1,35 @@
+---
+import SectionCard from '../../../components/sections/SectionCard.astro';
+import SkillsIsland from '../../../components/about/SkillsIsland.tsx';
+
+export interface Props {
+  section: any;
+  lang: 'en' | 'ru';
+}
+
+const { section, lang } = Astro.props;
+
+// Helper function for i18n
+const t = (obj: any, lang: 'en' | 'ru') => (typeof obj === 'object' && obj ? obj[lang] ?? obj.en ?? '' : obj ?? '');
+
+// Process the skills data for the new format
+const skillsData = {
+  title: section.data?.title,
+  groups: section.data?.groups,
+  items: section.data?.items,
+  style: section.data?.style
+};
+
+---
+
+<SectionCard 
+  title={t(section.data?.title, lang) || 'Skills'} 
+  hasHeaderMedia={false}
+  class="mt-6 mb-10"
+>
+  <!-- Island -->
+  <SkillsIsland
+    client:visible
+    data={skillsData}
+  />
+</SectionCard>

@@ -2,6 +2,7 @@
 import "@/styles/main.css";
 import Navbar from '@/app/widgets/navbar/ui/Navbar.astro';
 import NavIsland from '@/app/widgets/navisland/NavIsland.astro';
+import Footer from '@/app/widgets/footer/ui/Footer.astro';
 import { getLocaleFromPath, switchLocale } from '@/app/shared/lib/locale';
 
 interface Props {
@@ -36,7 +37,7 @@ const isBlog = variant === 'blog' || url.pathname.includes('/blog');
 
 // Build body classes
 const bodyClasses = [
-  'min-h-screen antialiased',
+  'min-h-screen flex flex-col antialiased',
   isBookme ? 'page-bookme' : '',
   isAbout ? 'page-about' : '',
   isBlog ? 'page-blog' : '',
@@ -133,9 +134,11 @@ const bodyClasses = [
       </div>
     </header>
     
-    <main class="cv-container">
+    <main id="site-container" class="site-container flex-1">
       <slot />
     </main>
+    
+    <Footer />
     
     <!-- Script for locale switching -->
     <script is:inline>

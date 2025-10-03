@@ -1,0 +1,63 @@
+---
+import CardsSection from '../../../components/cards/CardsSection.astro';
+import { debug } from '../../../app/shared/lib/debug';
+
+export interface Props {
+  section: any;
+  lang?: 'en' | 'ru';
+}
+
+const { section, lang = 'en' } = Astro.props;
+
+// Helper function for i18n
+const t = (obj: any, lang: 'en' | 'ru') => (typeof obj === 'object' && obj ? obj[lang] ?? obj.en ?? '' : obj ?? '');
+
+// Normalize incoming data (section is already normalized by about.astro)
+const raw = section?.data ?? section ?? {};
+const variant = section?.type === 'skills' ? 'skills' : (raw?.variant ?? 'default');
+debug('[cards] raw data keys=%o', Object.keys(raw));
+debug('[cards] raw.groups=%o', raw?.groups);
+debug('[cards] raw.items=%o', raw?.items);
+
+// Enhanced data mapping to handle both groups and direct items
+let items: any[] = [];
+
+if (raw?.groups && Array.isArray(raw.groups)) {
+  // Flatten groups into a single array
+  items = raw.groups.flatMap((group: any) => 
+    (group.items || []).map((it: any, i: number) => ({
+      id: it.id ?? it.name ?? `card-${i}`,
+      name: t(it.name, lang),
+      title: t(it.title, lang), // fallback
+      icon: it.icon,
+      url: it.url,
+      level: it.level,
+      description: t(it.description, lang),
+      tooltip: t(it.description, lang), // alias for skills variant
+      ...it // passthrough any additional fields
+    }))
+  );
+} else if (raw?.items && Array.isArray(raw.items)) {
+  // Direct items array
+  items = raw.items.map((it: any, i: number) => ({
+    id: it.id ?? it.name ?? `card-${i}`,
+    name: t(it.name, lang),
+    title: t(it.title, lang), // fallback
+    icon: it.icon,
+    url: it.url,
+    level: it.level,
+    description: t(it.description, lang),
+    tooltip: t(it.description, lang), // alias for skills variant
+    ...it // passthrough any additional fields
+  }));
+}
+
+debug('[cards] variant=%s items=%d processed=%o', variant, items.length, items);
+---
+
+<CardsSection 
+  title={t(raw?.title, lang) || 'Skills'}
+  items={items}
+  variant={variant}
+  hydrate="visible"
+/>

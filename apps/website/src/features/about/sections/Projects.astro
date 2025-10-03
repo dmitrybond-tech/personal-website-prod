@@ -1,0 +1,83 @@
+---
+import type { Section } from '../../../entities/cv/types';
+import { resolveIcon } from '../../../shared/icons/resolve';
+
+export interface Props {
+  section: Section;
+}
+
+const { section } = Astro.props;
+const data = section.data || {};
+const { items } = data;
+---
+
+<section class="projects-section">
+  {section.heading && (
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+      {section.icon && (
+        <span class="text-blue-500" set:html={resolveIcon(section.icon)}></span>
+      )}
+      {section.heading}
+    </h2>
+  )}
+  
+  {items && items.length > 0 && (
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {items.map((project: any) => (
+        <div class="project-item bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="aspect-video overflow-hidden">
+            {project.image ? (
+              <img 
+                src={project.image} 
+                alt={project.name} 
+                class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+                onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500', innerHTML:'<svg class=\\'w-12 h-12\\' fill=\\'currentColor\\' viewBox=\\'0 0 20 20\\'><path fill-rule=\\'evenodd\\' d=\\'M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z\\' clip-rule=\\'evenodd\\' /></svg>'}))"
+              />
+            ) : (
+              <div class="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500">
+                <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                </svg>
+              </div>
+            )}
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              {project.name}
+            </h3>
+            {project.description && (
+              <p class="text-gray-600 dark:text-gray-400 mb-4">
+                {project.description}
+              </p>
+            )}
+            {project.stack && project.stack.length > 0 && (
+              <div class="mb-4">
+                <div class="flex flex-wrap gap-2">
+                  {project.stack.map((tech: any) => (
+                    <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-sm">
+                      {tech.name || tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {project.link && (
+              <a 
+                href={project.link} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                <span>View Project</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+              </a>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</section>

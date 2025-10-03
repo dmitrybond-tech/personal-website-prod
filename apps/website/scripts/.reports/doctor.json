@@ -1,0 +1,26 @@
+{
+  "C:\\PersonalProjects\\website-v3\\website\\apps\\website\\src\\content\\aboutPage\\en\\about.md": {
+    "path": "C:\\PersonalProjects\\website-v3\\website\\apps\\website\\src\\content\\aboutPage\\en\\about.md",
+    "hasBom": false,
+    "firstLine": "---",
+    "hasFrontmatter": true,
+    "keysTopLevel": [
+      "title",
+      "slug",
+      "sections"
+    ],
+    "errors": []
+  },
+  "C:\\PersonalProjects\\website-v3\\website\\apps\\website\\src\\content\\aboutPage\\ru\\about.md": {
+    "path": "C:\\PersonalProjects\\website-v3\\website\\apps\\website\\src\\content\\aboutPage\\ru\\about.md",
+    "hasBom": false,
+    "firstLine": "---",
+    "hasFrontmatter": true,
+    "keysTopLevel": [
+      "title",
+      "slug",
+      "sections"
+    ],
+    "errors": []
+  }
+}

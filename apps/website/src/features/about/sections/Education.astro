@@ -1,0 +1,42 @@
+---
+import SectionCard from '../../../components/sections/SectionCard.astro';
+import EducationIsland from '../../../components/about/EducationIsland.tsx';
+
+export interface Props {
+  section: any;
+  lang: 'en' | 'ru';
+}
+
+const { section, lang } = Astro.props;
+
+// Helper function for i18n
+const t = (obj: any, lang: 'en' | 'ru') => (typeof obj === 'object' && obj ? obj[lang] ?? obj.en ?? '' : obj ?? '');
+
+// Process the education data
+const educationData = section.data || {};
+const title = t(educationData.title, lang) || 'Education';
+const items = Array.isArray(educationData.items) ? educationData.items.map((item: any) => ({
+  institution: t(item.institution, lang),
+  degree: t(item.degree, lang),
+  field: t(item.field, lang),
+  dates: item.dates,
+  description: t(item.description, lang),
+  image: item.image,
+  achievements: Array.isArray(item.achievements) ? item.achievements.map((achievement: any) => t(achievement, lang)) : [],
+  gpa: item.gpa,
+  location: t(item.location, lang)
+})) : [];
+
+---
+
+<SectionCard 
+  title={title}
+  class="mt-6 mb-10"
+  hasHeaderMedia={false}
+>
+  <!-- Island -->
+  <EducationIsland
+    client:visible
+    items={items}
+  />
+</SectionCard>

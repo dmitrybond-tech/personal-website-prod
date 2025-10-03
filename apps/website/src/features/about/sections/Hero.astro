@@ -1,0 +1,64 @@
+---
+import SectionCard from '../../../components/sections/SectionCard.astro';
+import HeroIsland from '../../../components/about/HeroIsland.tsx';
+
+export interface Props {
+  section: any;
+  lang: 'en' | 'ru';
+  frontmatter: any;
+}
+
+const { section, lang, frontmatter } = Astro.props;
+
+// Helper function for i18n
+const t = (obj: any, lang: 'en' | 'ru') => (typeof obj === 'object' && obj ? obj[lang] ?? obj.en ?? '' : obj ?? '');
+
+// Process the hero data
+const heroData = section.data || {};
+const name = t(heroData.name, lang);
+const role = t(heroData.role, lang);
+const avatar = heroData.avatar;
+const location = t(heroData.location, lang);
+const bio = t(heroData.bio, lang);
+const links = Array.isArray(heroData.links) ? heroData.links.map((link: any) => ({
+  label: t(link.label, lang),
+  url: link.url,
+  icon: link.icon
+})) : [];
+const badges = Array.isArray(heroData.badges) ? heroData.badges.map((badge: any) => ({
+  name: t(badge.name, lang)
+})) : [];
+
+// Calculate CV URL with fallback logic
+const fm = frontmatter;
+const d = heroData;
+const cvUrl =
+  fm.cv_pdf ??
+  d.cv_url ??
+  (Array.isArray(fm.files) && fm.files.find((x: string) => x.toLowerCase().endsWith('.pdf'))) ??
+  (Array.isArray(fm.gallery) && fm.gallery.find((x: any) => typeof x === 'string' ? x.toLowerCase().endsWith('.pdf') : (x?.src?.toLowerCase?.()?.endsWith?.('.pdf')))?.src) ??
+  null;
+
+// Calculate avatar size with safeguards
+const avatarSizePx = Number(d.avatarSizePx ?? 160);
+---
+
+<SectionCard 
+  title="Profile"
+  hasHeaderMedia={false}
+  class="mt-6 mb-10"
+>
+  <!-- Island -->
+  <HeroIsland
+    client:visible
+    name={name}
+    role={role}
+    avatar={avatar}
+    avatarSizePx={avatarSizePx}
+    location={location}
+    bio={bio}
+    links={links}
+    badges={badges}
+    cvUrl={cvUrl}
+  />
+</SectionCard>

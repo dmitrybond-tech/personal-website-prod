@@ -31,6 +31,10 @@
   --cv-container-max: var(--cv-content-max-w);  /* Use unified content width */
   --cv-gutter-x: var(--cv-gap, 1.5rem);
   
+  /* Unified site container variables */
+  --cv-content-max: 1040px;     /* default for about */
+  --cv-content-pad-x: 16px;
+  
   /* Bookme pages width constraint - now unified with content width */
   --bookme-max-w: var(--cv-content-max-w);
 
@@ -72,6 +76,14 @@
   /* Dark-only inner backgrounds for nav */
   --cv-navisland-bg-dark: #1f2937; /* gray-800 */
   --cv-navpanel-bg-dark: #374151; /* gray-700 */
+
+  /* CV-specific tokens for skills and sections */
+  --cv-surface-2: #ffffff; /* Secondary surface for chips */
+  --cv-border: var(--cv-border-hairline);
+  --cv-ring: var(--cv-primary-500);
+  --cv-accent: var(--cv-primary-600);
+  --cv-level-filled: var(--cv-primary-600);
+  --cv-level-empty: #e5e7eb; /* gray-200 */
 }
 
 .dark {
@@ -85,6 +97,11 @@
   
   /* Dark nav accent */
   --cv-nav-accent: var(--cv-primary-400);
+
+  /* CV-specific dark theme overrides */
+  --cv-surface-2: #374151; /* gray-700 for chips */
+  --cv-level-filled: var(--cv-primary-400);
+  --cv-level-empty: #4b5563; /* gray-600 */
 }
 
 /* Дублирующий селектор для data-theme (если где-то завязано на data-theme) */
@@ -99,6 +116,11 @@ html[data-theme="dark"] {
   
   /* Dark nav accent */
   --cv-nav-accent: var(--cv-primary-400);
+
+  /* CV-specific dark theme overrides */
+  --cv-surface-2: #374151; /* gray-700 for chips */
+  --cv-level-filled: var(--cv-primary-400);
+  --cv-level-empty: #4b5563; /* gray-600 */
 }
 
 /* Базовые стили для body */
@@ -183,6 +205,21 @@ body {
     box-shadow: 0 6px 20px rgba(0,0,0,.06);
   }
 
+  /* Unified site container */
+  .site-container {
+    width: 100%;
+    max-width: var(--cv-content-max);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--cv-content-pad-x);
+    padding-right: var(--cv-content-pad-x);
+  }
+  
+  /* Content inside container doesn't overflow max-width */
+  #site-container *:where(img,video,canvas,svg) {
+    max-width: 100%;
+  }
+
   /* Bookme pages unified layout utilities */
   .booker-container {
     max-width: var(--bookme-max-w);
@@ -222,11 +259,33 @@ body {
      Dark  -> exact hex from centralized token. */
   .navpanel-bg { background: var(--cv-surface-elevated-2); }
   html.dark .navpanel-bg { background-color: var(--cv-navpanel-bg-dark); }
+
+  /* CV-specific utility classes */
+  .cv-panel {
+    background-color: var(--cv-surface);
+    color: var(--cv-text);
+    border-color: var(--cv-border);
+  }
+  .cv-chip {
+    background-color: var(--cv-surface-2);
+    color: var(--cv-text);
+    border-color: var(--cv-border);
+  }
+  .cv-muted { color: var(--cv-muted); }
+  .cv-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--cv-ring);
+  }
+  .cv-level {
+    height: 0.375rem; /* h-1.5 */
+    border-radius: 2px;
+  }
+  .cv-level--on  { background-color: var(--cv-level-filled); }
+  .cv-level--off { background-color: var(--cv-level-empty); }
 }
 
 /* NavBar component classes - now using DRY utilities/vars */
 @layer components {
-  @reference "./tailwind.css";
   
   .nav-surface {
     position: sticky;

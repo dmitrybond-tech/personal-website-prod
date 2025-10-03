@@ -1,0 +1,63 @@
+---
+import SkillItem from './SkillItem.astro';
+import type { SkillsData } from '../../lib/cms/skills';
+
+export interface Props {
+  data: SkillsData;
+  lang: 'en' | 'ru';
+}
+
+const { data, lang } = Astro.props;
+---
+
+<section class="skills-section max-w-[1040px] mx-auto px-4 md:px-6">
+  {data.title && (
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+      <iconify-icon 
+        icon="fa6-solid:bars-progress" 
+        class="text-blue-500" 
+        aria-hidden="true"
+      ></iconify-icon>
+      {data.title}
+    </h2>
+  )}
+  
+  {data.groups && data.groups.length > 0 && (
+    <div class="space-y-8">
+      {data.groups.map((group) => (
+        <div class="skill-group">
+          <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
+            {group.title}
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {group.items.map((item) => (
+              <SkillItem 
+                item={item} 
+                lang={lang}
+                showLevel={!!item.level}
+                showTooltip={!!item.description}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</section>
+
+<style>
+  @reference "../../styles/tailwind.css";
+  
+  .skills-section {
+    @apply py-8;
+  }
+  
+  .skill-group {
+    @apply space-y-4;
+  }
+  
+  /* Ensure proper spacing for sticky navbar */
+  .skills-section:first-child {
+    @apply pt-4;
+  }
+</style>

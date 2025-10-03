@@ -1,0 +1,49 @@
+---
+import SectionCard from '../../../components/sections/SectionCard.astro';
+import ExperienceIsland from '../../../components/about/ExperienceIsland.tsx';
+
+export interface Props {
+  section: any;
+  lang: 'en' | 'ru';
+}
+
+const { section, lang } = Astro.props;
+
+// Helper function for i18n
+const t = (obj: any, lang: 'en' | 'ru') => (typeof obj === 'object' && obj ? obj[lang] ?? obj.en ?? '' : obj ?? '');
+
+// Process the experience data
+const experienceData = section.data || {};
+const title = t(experienceData.title, lang) || 'Experience';
+const items = Array.isArray(experienceData.items) ? experienceData.items.map((item: any) => ({
+  company: t(item.company, lang),
+  role: t(item.role, lang),
+  dates: item.dates,
+  location: t(item.location, lang),
+  description: t(item.description, lang),
+  image: item.image,
+  stack: item.stack || [],
+  bullets: Array.isArray(item.bullets) ? item.bullets.map((bullet: any) => t(bullet, lang)) : [],
+  links: Array.isArray(item.links) ? item.links.map((link: any) => ({
+    label: t(link.label, lang),
+    url: link.url,
+    icon: link.icon
+  })) : [],
+  tagsList: item.tagsList ? {
+    title: t(item.tagsList.title, lang),
+    tags: item.tagsList.tags || []
+  } : undefined
+})) : [];
+
+---
+
+<SectionCard 
+  title={title}
+  class="mt-6 mb-10"
+  hasHeaderMedia={false}
+>
+  <ExperienceIsland
+    client:visible
+    items={items}
+  />
+</SectionCard>

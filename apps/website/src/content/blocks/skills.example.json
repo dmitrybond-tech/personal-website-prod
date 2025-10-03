@@ -1,0 +1,126 @@
+{
+  "title": {
+    "en": "Skills",
+    "ru": "Навыки"
+  },
+  "groups": [
+    {
+      "title": {
+        "en": "I already know",
+        "ru": "Уже умею"
+      },
+      "items": [
+        {
+          "name": "React.js",
+          "icon": "simple-icons:react",
+          "url": "https://reactjs.org/",
+          "level": 5,
+          "description": {
+            "en": "Advanced React development with hooks, context, and modern patterns",
+            "ru": "Продвинутая разработка на React с хуками, контекстом и современными паттернами"
+          }
+        },
+        {
+          "name": "TypeScript",
+          "icon": "simple-icons:typescript",
+          "url": "https://www.typescriptlang.org/",
+          "level": 4,
+          "description": {
+            "en": "Strong typing and modern JavaScript features",
+            "ru": "Строгая типизация и современные возможности JavaScript"
+          }
+        },
+        {
+          "name": "Astro",
+          "icon": "simple-icons:astro",
+          "url": "https://astro.build/",
+          "level": 3,
+          "description": {
+            "en": "Static site generation and modern web development",
+            "ru": "Генерация статических сайтов и современная веб-разработка"
+          }
+        },
+        {
+          "name": "Tailwind CSS",
+          "icon": "simple-icons:tailwindcss",
+          "url": "https://tailwindcss.com/",
+          "level": 4,
+          "description": {
+            "en": "Utility-first CSS framework for rapid UI development",
+            "ru": "CSS-фреймворк с утилитарным подходом для быстрой разработки интерфейсов"
+          }
+        },
+        {
+          "name": "Node.js",
+          "icon": "simple-icons:nodedotjs",
+          "url": "https://nodejs.org/",
+          "level": 3,
+          "description": {
+            "en": "Server-side JavaScript runtime and development",
+            "ru": "Серверная JavaScript-платформа и разработка"
+          }
+        },
+        {
+          "name": "PostgreSQL",
+          "icon": "simple-icons:postgresql",
+          "url": "https://www.postgresql.org/",
+          "level": 2,
+          "description": {
+            "en": "Relational database management system",
+            "ru": "Система управления реляционными базами данных"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "en": "I want to learn",
+        "ru": "Хочу выучить"
+      },
+      "items": [
+        {
+          "name": "Rust",
+          "icon": "simple-icons:rust",
+          "url": "https://www.rust-lang.org/"
+        },
+        {
+          "name": "WebAssembly",
+          "icon": "simple-icons:webassembly",
+          "url": "https://webassembly.org/"
+        },
+        {
+          "name": "Go",
+          "icon": "simple-icons:go",
+          "url": "https://golang.org/"
+        },
+        {
+          "name": "Kubernetes",
+          "icon": "simple-icons:kubernetes",
+          "url": "https://kubernetes.io/"
+        }
+      ]
+    },
+    {
+      "title": {
+        "en": "I speak",
+        "ru": "Языки"
+      },
+      "items": [
+        {
+          "name": {
+            "en": "English - C1",
+            "ru": "Английский — C1"
+          },
+          "icon": "circle-flags:us"
+        },
+        {
+          "name": {
+            "en": "Russian - Native",
+            "ru": "Русский — Родной"
+          },
+          "icon": "circle-flags:ru"
+        }
+      ]
+    }
+  ]
+}

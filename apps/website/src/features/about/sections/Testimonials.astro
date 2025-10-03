@@ -1,0 +1,64 @@
+---
+import type { Section } from '../../../entities/cv/types';
+import { resolveIcon } from '../../../shared/icons/resolve';
+
+export interface Props {
+  section: Section;
+}
+
+const { section } = Astro.props;
+const data = section.data || {};
+const { items } = data;
+---
+
+<section class="testimonials-section">
+  {section.heading && (
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+      {section.icon && (
+        <span class="text-blue-500" set:html={resolveIcon(section.icon)}></span>
+      )}
+      {section.heading}
+    </h2>
+  )}
+  
+  {items && items.length > 0 && (
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {items.map((testimonial: any) => (
+        <div class="testimonial-item p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="flex-shrink-0">
+              {testimonial.avatar ? (
+                <img 
+                  src={testimonial.avatar} 
+                  alt={testimonial.name} 
+                  class="w-12 h-12 rounded-full object-cover"
+                  loading="lazy"
+                  onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center', innerHTML:'<svg class=\\'w-6 h-6 text-gray-400\\' fill=\\'currentColor\\' viewBox=\\'0 0 20 20\\'><path fill-rule=\\'evenodd\\' d=\\'M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z\\' clip-rule=\\'evenodd\\' /></svg>'}))"
+                />
+              ) : (
+                <div class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            <div class="flex-1">
+              <h4 class="font-semibold text-gray-900 dark:text-white">
+                {testimonial.name}
+              </h4>
+              {testimonial.role && (
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  {testimonial.role}
+                </p>
+              )}
+            </div>
+          </div>
+          <blockquote class="text-gray-700 dark:text-gray-300 italic">
+            "{testimonial.text}"
+          </blockquote>
+        </div>
+      ))}
+    </div>
+  )}
+</section>

@@ -1,9 +1,9 @@
 param(
-  [int[]]$PortsToKill = @(4321, 4322),
+  [int[]]$PortsToKill = @(4321, 4322, 8081),
   [int]$SitePort = 4321,
-  [int]$CmsPort  = 4322,
+  [int]$CmsPort  = 8081,
   [string]$SiteScript = "dev",
-  [string]$CmsScript  = "cms:dev",
+  [string]$CmsScript  = "cms:proxy",
   [switch]$NoCms
 )
 

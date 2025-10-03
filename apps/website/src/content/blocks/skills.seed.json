@@ -1,0 +1,27 @@
+{
+  "title": { "en": "Skills", "ru": "Навыки" },
+  "groups": [
+    {
+      "title": { "en": "I already know", "ru": "Уже умею" },
+      "items": [
+        { "name": "React", "icon": "simple-icons:react", "url": "https://react.dev", "level": 5, "description": { "en": "Hooks, Suspense, RSC basics", "ru": "Хуки, Suspense, основы RSC" } },
+        { "name": "TypeScript", "icon": "simple-icons:typescript", "url": "https://www.typescriptlang.org/", "level": 5, "description": { "en": "Generics, utils, TSConfig", "ru": "Дженерики, утилиты, TSConfig" } },
+        { "name": "Astro", "icon": "simple-icons:astro", "url": "https://astro.build/", "level": 4, "description": { "en": "Islands, content collections", "ru": "Islands, content collections" } }
+      ]
+    },
+    {
+      "title": { "en": "I want to learn", "ru": "Хочу выучить" },
+      "items": [
+        { "name": "Remix", "icon": "simple-icons:remix", "url": "https://remix.run/" },
+        { "name": "tRPC", "icon": "simple-icons:trpc", "url": "https://trpc.io/" }
+      ]
+    },
+    {
+      "title": { "en": "I speak", "ru": "Языки" },
+      "items": [
+        { "name": { "en": "English — C1", "ru": "Английский — C1" }, "icon": "circle-flags:gb" },
+        { "name": { "en": "Russian — native", "ru": "Русский — родной" }, "icon": "circle-flags:ru" }
+      ]
+    }
+  ]
+}

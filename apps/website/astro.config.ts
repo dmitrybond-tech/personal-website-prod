@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
+import react from '@astrojs/react';
 import auth from 'auth-astro';
 import decapCmsOAuth from 'astro-decap-cms-oauth';
 import tailwindcss from '@tailwindcss/vite';
@@ -50,6 +51,7 @@ export default defineConfig({
     }
   },
   integrations: [
+    react(),
     auth(),
     decapCmsOAuth({
       adminRoute: '/website-admin',

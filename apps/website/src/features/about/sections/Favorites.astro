@@ -1,0 +1,46 @@
+---
+import SectionCard from '../../../components/sections/SectionCard.astro';
+import FavoritesIsland from '../../../components/about/FavoritesIsland.tsx';
+
+export interface Props {
+  section: any;
+  lang: 'en' | 'ru';
+}
+
+const { section, lang } = Astro.props;
+
+// Helper function for i18n
+const t = (obj: any, lang: 'en' | 'ru') => (typeof obj === 'object' && obj ? obj[lang] ?? obj.en ?? '' : obj ?? '');
+
+// Process the favorites data
+const favoritesData = section.data || {};
+const title = t(favoritesData.title, lang) || 'Favorites';
+const groups = Array.isArray(favoritesData.groups) ? favoritesData.groups.map((group: any) => ({
+  title: t(group.title, lang),
+  style: group.style,
+  items: Array.isArray(group.items) ? group.items.map((item: any) => ({
+    id: item.id,
+    name: t(item.name, lang),
+    title: t(item.title, lang),
+    author: t(item.author, lang),
+    image: item.image,
+    url: item.url,
+    description: t(item.description, lang),
+    category: t(item.category, lang)
+  })) : []
+})) : [];
+
+---
+
+<SectionCard 
+  title={title}
+  hasHeaderMedia={false}
+  class="mt-6 mb-10"
+>
+  <!-- Island -->
+  <FavoritesIsland
+    client:visible
+    groups={groups}
+    style={favoritesData.style}
+  />
+</SectionCard>

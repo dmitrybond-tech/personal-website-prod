@@ -1,167 +1,111 @@
-# Content Width Unification Implementation Changelog
+# Content Width Unification & React Islands Implementation - Changelog
 
-## Overview
-Successfully unified the content width across the entire site by implementing a shared, adaptive container system with a maximum width of 1040px. The NavIsland and all main body sections now use the same centered container, tied to a global "web bar width" variable for centralized future adjustments.
+## 1. Unified Container System Implementation
+**File:** `apps/website/src/app/layouts/AppShell.astro`
+**Change:** Wrapped `<slot />` in `<main id="site-container" class="site-container flex-1">`
+**Reason:** Centralize content width control through a single container element that can be styled with CSS variables.
 
-## Implementation Summary
+## 2. CSS Variables for Content Width Control
+**File:** `apps/website/src/styles/main.css`
+**Changes:** 
+- Added `--cv-content-max: 1040px` and `--cv-content-pad-x: 16px` variables
+- Added `.site-container` class with unified styling
+- Added `#site-container *:where(img,video,canvas,svg)` rule to prevent content overflow
+**Reason:** Enable dynamic width control per page without modifying individual components.
 
-### ✅ Goals Achieved
-- **Unified Content Width**: All main content areas now use 1040px max-width
-- **Centralized Control**: Single source of truth via `--cv-bar-w-web` variable
-- **Adaptive Design**: Responsive padding using `clamp(16px, 3.5vw, 24px)`
-- **NavIsland Alignment**: Navigation island now matches content width
-- **Footer Preservation**: Footer remains completely unchanged
-- **Cross-Page Consistency**: About and Bookme pages (both EN/RU) use unified container
+## 3. React Island Component for Dynamic Cards
+**File:** `apps/website/src/components/cards/CardGridIsland.tsx` (NEW)
+**Features:**
+- TypeScript Card type definitions with id, title, subtitle, description, icon, url, tags, level, tooltip
+- Support for 'default' and 'skills' variants
+- Interactive tooltips with ESC key handling
+- 5-segment skill level visualization
+- Debug logging for development
+**Reason:** Provide dynamic, interactive card rendering as React islands for better performance and user experience.
 
-### 🔧 Technical Changes
+## 4. SSR Wrapper with Skeleton Loading
+**File:** `apps/website/src/components/cards/CardsSection.astro` (NEW)
+**Features:**
+- SSR skeleton with animate-pulse animation
+- Configurable skeleton count (3-6 based on items length)
+- Island mounting with client:load/visible hydration strategies
+- Proper accessibility with aria-hidden on skeleton
+**Reason:** Eliminate "empty" states and provide immediate visual feedback while islands hydrate.
 
-#### 1. Global CSS Variables & Utilities
-**File**: `apps/website/src/styles/main.css`
+## 5. Registry Integration for Cards System
+**File:** `apps/website/src/features/about/sections/Cards.astro` (NEW)
+**Features:**
+- Transforms section data to Card format
+- Handles title, variant, hydrate props with fallbacks
+- Supports both 'default' and 'skills' variants
+- Language-aware title fallbacks
+**Reason:** Integrate new cards system into existing about page registry without breaking existing functionality.
 
-**Changes**:
-- Added `--cv-bar-w-web: 1040px` as the single source of truth for content width
-- Added `--cv-content-max-w: var(--cv-bar-w-web, 1040px)` for unified content width
-- Added `--cv-content-pad-x: clamp(16px, 3.5vw, 24px)` for responsive horizontal padding
-- Updated `--cv-container-max` to reference the unified content width
-- Updated `--bookme-max-w` to use unified content width instead of hardcoded 960px
-- Updated `.cv-container` utility to use responsive padding
-- Updated `.booker-container` and `.booker-calendar` to use unified width and padding
+## 6. Registry Component Registration
+**File:** `apps/website/src/features/about/registry.ts`
+**Change:** Added `import Cards from './sections/Cards.astro'` and `cards: Cards` to registry
+**Reason:** Enable about pages to use the new cards system through the existing registry pattern.
 
-#### 2. NavIsland Container Updates
-**File**: `apps/website/src/app/layouts/AppShell.astro`
+## 7. About Page Container Cleanup
+**File:** `apps/website/src/pages/[lang]/about.astro`
+**Change:** Replaced `<main class="container mx-auto px-4 py-8 flex-1">` with `<div class="py-8">`
+**Reason:** Remove local container styling since AppShell now provides unified container.
 
-**Changes**:
-- Updated `.nav-float-wrap` to use `--cv-content-max-w` instead of `--cv-container-max`
-- Updated padding to use `--cv-content-pad-x` for consistency
-- Removed hardcoded mobile padding, now uses unified responsive padding
+## 8. Bookme Page Width Override
+**File:** `apps/website/src/pages/[lang]/bookme.astro`
+**Change:** Replaced `<main class="container mx-auto px-4 py-8 flex-1">` with `<div class="py-8" style="--cv-content-max: 990px;">`
+**Reason:** Apply narrower width (990px) for bookme pages while using unified container system.
 
-#### 3. DevsCard Width Unification
-**File**: `apps/website/src/styles/devscard.css`
+## 9. Content Examples for Testing
+**File:** `apps/website/src/content/aboutPage/en/about.md`
+**Changes:** Added two new cards sections:
+- "Technologies & Tools" with default variant and client:load
+- "Skill Levels" with skills variant and client:visible
+**Reason:** Demonstrate both card variants and hydration strategies in real content.
 
-**Changes**:
-- Updated `--cv-max-w` to reference `--cv-content-max-w` with 1040px fallback
-- Ensures DevsCard components use the unified width system
+## Technical Benefits
 
-### 📐 Width System Architecture
+### Performance
+- **SSR skeletons** eliminate layout shift and empty states
+- **Selective hydration** (client:load vs client:visible) optimizes loading
+- **React islands** only hydrate interactive components
 
-```css
-:root {
-  /* Single source of truth */
-  --cv-bar-w-web: 1040px;
-  
-  /* Derived variables */
-  --cv-content-max-w: var(--cv-bar-w-web, 1040px);
-  --cv-content-pad-x: clamp(16px, 3.5vw, 24px);
-  --cv-container-max: var(--cv-content-max-w);
-  --bookme-max-w: var(--cv-content-max-w);
-}
+### Maintainability
+- **Unified container** eliminates duplicate container code across pages
+- **CSS variables** enable easy width adjustments without code changes
+- **Registry pattern** maintains consistency with existing architecture
 
-.cv-container {
-  max-width: var(--cv-container-max);
-  padding-inline: var(--cv-content-pad-x);
-  margin-inline: auto;
-}
+### User Experience
+- **Immediate visual feedback** with skeleton loading
+- **Interactive tooltips** with proper accessibility
+- **Responsive design** with proper grid layouts
+- **Dark mode support** throughout all components
+
+## Usage Instructions
+
+### Changing Content Width
+To change content width on any page, add inline style:
+```html
+<div style="--cv-content-max: 1200px;">
+  <!-- page content -->
+</div>
 ```
 
-### 🎯 Affected Components
-
-#### Navigation
-- **NavIsland**: Now uses unified container width and responsive padding
-- **Navbar**: Already using unified container through AppShell layout
-
-#### Main Content Areas
-- **All Pages**: Main content wrapped in `.cv-container` via AppShell
-- **About Pages** (`/en/about`, `/ru/about`): Use unified container through AppShell
-- **Bookme Pages** (`/en/bookme`, `/ru/bookme`): Updated to use unified width (was 960px, now 1040px)
-- **DevsCard Components**: Updated to use unified width system
-
-#### Unchanged Components
-- **Footer**: Completely untouched as required
-- **ColumnBed.astro**: Cal.com embed behavior preserved
-- **Route Structure**: No changes to folder or route structure
-
-### 📱 Responsive Behavior
-
-#### Wide Viewports (≥1200px)
-- Content width caps at 1040px
-- NavIsland and main content align perfectly
-- Centered layout with consistent margins
-
-#### Narrow Viewports (<1040px + padding)
-- Content becomes full-width minus side padding
-- Responsive padding scales from 16px to 24px based on viewport width
-- No horizontal scrollbars on standard breakpoints
-
-### 🔍 Verification Results
-
-#### Before/After Measurements
-- **Before**: NavIsland used `80rem` (1280px), Bookme pages used 960px
-- **After**: All content areas use 1040px unified width
-- **Padding**: Consistent responsive padding across all components
-
-#### Cross-Page Consistency
-- ✅ Homepage: Unified container applied
-- ✅ `/en/about`: Unified container applied
-- ✅ `/ru/about`: Unified container applied  
-- ✅ `/en/bookme`: Unified container applied (was 960px, now 1040px)
-- ✅ `/ru/bookme`: Unified container applied (was 960px, now 1040px)
-
-### 🚀 Benefits Achieved
-
-1. **Design Consistency**: All content areas now have identical width constraints
-2. **Maintainability**: Single variable controls entire site width
-3. **Future-Proof**: Easy to adjust site-wide width by changing `--cv-bar-w-web`
-4. **Responsive**: Adaptive padding ensures good UX across all devices
-5. **Performance**: No layout shifts or overflow issues
-6. **Accessibility**: Maintained all existing interactive behaviors
-
-### 🔧 Future Adjustments
-
-To change the site-wide content width in the future, simply update the `--cv-bar-w-web` variable in `apps/website/src/styles/main.css`:
-
-```css
-:root {
-  --cv-bar-w-web: 1200px; /* Change this value to update entire site width */
-}
+### Adding Cards Sections
+In about page content, add:
+```yaml
+- type: cards
+  heading: "Section Title"
+  data:
+    title: "Cards Title"
+    variant: "default" # or "skills"
+    hydrate: "load" # or "visible"
+    items:
+      - id: "unique-id"
+        title: "Card Title"
+        # ... other card properties
 ```
 
-All components will automatically inherit the new width through the CSS variable cascade.
-
-## Files Modified
-
-1. `apps/website/src/styles/main.css` - Core CSS variables and utilities
-2. `apps/website/src/app/layouts/AppShell.astro` - NavIsland container updates
-3. `apps/website/src/styles/devscard.css` - DevsCard width unification
-
-## Testing Commands
-
-```powershell
-# Start development server
-cd apps/website
-npm run dev -- --host --port 4321
-
-# Verify routes:
-# http://localhost:4321/
-# http://localhost:4321/en/about
-# http://localhost:4321/ru/about  
-# http://localhost:4321/en/bookme
-# http://localhost:4321/ru/bookme
-```
-
-## Acceptance Criteria Status
-
-- ✅ NavIsland and all main body sections use same centered container with max-width: 1040px
-- ✅ `--cv-content-max-w` resolves to `var(--cv-bar-w-web, 1040px)` for centralized control
-- ✅ Footer remains visually and structurally unchanged
-- ✅ About and Bookme pages (both locales) render correctly and align with NavIsland width
-- ✅ No regressions in interactivity (nav remains fully clickable, hover/outline unchanged)
-- ✅ No horizontal scrollbars on standard breakpoints
-- ✅ Lighthouse layout shift remains acceptable (no new CLS spikes)
-
-## Implementation Notes
-
-- **DRY Principle**: All width constraints now reference the same CSS variable
-- **Token-Friendly**: Maintains existing `cv-*` naming convention
-- **Backward Compatible**: No breaking changes to existing functionality
-- **Windows Compatible**: All changes tested in PowerShell environment
-- **No Dependencies**: No new packages added, uses existing CSS variable system
+### Hydration Strategy
+- Use `client:load` for above-the-fold content (skills, main sections)
+- Use `client:visible` for below-the-fold content (testimonials, favorites)

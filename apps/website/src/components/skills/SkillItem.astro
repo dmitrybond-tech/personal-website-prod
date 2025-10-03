@@ -1,0 +1,126 @@
+---
+import SkillBarIsland from './SkillBarIsland.tsx';
+import type { SkillItem } from '../../lib/cms/skills';
+
+export interface Props {
+  item: SkillItem;
+  lang: 'en' | 'ru';
+  showLevel?: boolean;
+  showTooltip?: boolean;
+}
+
+const { item, lang, showLevel = true, showTooltip = true } = Astro.props;
+
+const hasDescription = item.description && (item.description[lang] || item.description[lang === 'en' ? 'ru' : 'en']);
+const isLanguageSkill = !item.level && item.icon?.includes('circle-flags');
+const isLearningSkill = !item.level && !isLanguageSkill;
+---
+
+<div class="skill-item group">
+  <div class="flex items-center gap-3 mb-2">
+    {item.icon && (
+      <span 
+        class="text-2xl flex-shrink-0" 
+        set:html={`<iconify-icon icon="${item.icon}" aria-hidden="true"></iconify-icon>`}
+      ></span>
+    )}
+    <span class="font-medium text-gray-900 dark:text-white flex-1">
+      {item.name}
+    </span>
+    {hasDescription && showTooltip && (
+      <button
+        class="tooltip-trigger text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+        aria-describedby={`tooltip-${item.name.replace(/\s+/g, '-').toLowerCase()}`}
+        data-tooltip-content={item.description?.[lang] || item.description?.[lang === 'en' ? 'ru' : 'en']}
+      >
+        <iconify-icon icon="fa6-solid:circle-info" class="text-sm" aria-hidden="true"></iconify-icon>
+        <span class="sr-only">More information</span>
+      </button>
+    )}
+  </div>
+  
+  {showLevel && item.level && (
+    <SkillBarIsland level={item.level} client:load />
+  )}
+  
+  {isLearningSkill && (
+    <div class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+      Learning
+    </div>
+  )}
+  
+  {isLanguageSkill && (
+    <div class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+      Language
+    </div>
+  )}
+  
+  {hasDescription && showTooltip && (
+    <div
+      id={`tooltip-${item.name.replace(/\s+/g, '-').toLowerCase()}`}
+      class="tooltip-content hidden absolute z-10 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg max-w-xs"
+      role="tooltip"
+    >
+      {item.description?.[lang] || item.description?.[lang === 'en' ? 'ru' : 'en']}
+    </div>
+  )}
+</div>
+
+<style>
+  @reference "../../styles/tailwind.css";
+  
+  .skill-item {
+    @apply relative p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200;
+  }
+  
+  .tooltip-trigger {
+    @apply relative;
+  }
+  
+  .tooltip-trigger:hover + .tooltip-content,
+  .tooltip-trigger:focus + .tooltip-content {
+    @apply block;
+  }
+  
+  .tooltip-content {
+    @apply absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2;
+  }
+  
+  .tooltip-content::after {
+    content: '';
+    @apply absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900;
+  }
+</style>
+
+<script>
+  // Handle tooltip keyboard navigation
+  document.addEventListener('DOMContentLoaded', () => {
+    const tooltipTriggers = document.querySelectorAll('.tooltip-trigger');
+    
+    tooltipTriggers.forEach(trigger => {
+      trigger.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const tooltip = trigger.nextElementSibling as HTMLElement;
+          if (tooltip && tooltip.classList.contains('tooltip-content')) {
+            tooltip.classList.add('hidden');
+            trigger.blur();
+          }
+        }
+      });
+      
+      trigger.addEventListener('focus', () => {
+        const tooltip = trigger.nextElementSibling as HTMLElement;
+        if (tooltip && tooltip.classList.contains('tooltip-content')) {
+          tooltip.classList.remove('hidden');
+        }
+      });
+      
+      trigger.addEventListener('blur', () => {
+        const tooltip = trigger.nextElementSibling as HTMLElement;
+        if (tooltip && tooltip.classList.contains('tooltip-content')) {
+          tooltip.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>

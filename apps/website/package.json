@@ -7,8 +7,9 @@
     "dev:cms": "cross-env NODE_OPTIONS=--trace-warnings DECAP_LOCAL_BACKEND=true concurrently -k -s first -n astro,proxy \"astro dev --host --port 4321 --strictPort\" \"decap-server --port 8081\"",
     "dev:git": "cross-env NODE_OPTIONS=--trace-warnings concurrently -k -s first -n astro \"astro dev --host --port 4321 --strictPort\"",
     "port:kill:4321": "powershell -NoProfile -Command \"$p=(Get-NetTCPConnection -LocalPort 4321 -ErrorAction SilentlyContinue).OwningProcess; if($p){Stop-Process -Id $p -Force}\"",
+    "port:kill:8081": "powershell -NoProfile -Command \"$p=(Get-NetTCPConnection -LocalPort 8081 -ErrorAction SilentlyContinue).OwningProcess; if($p){Stop-Process -Id $p -Force}\"",
     "clean:cache": "powershell -NoProfile -Command \"Remove-Item -Recurse -Force .astro, node_modules\\.vite -ErrorAction SilentlyContinue\"",
-    "del:cache": "npm run port:kill:4321 && npm run clean:cache",
+    "del:cache": "npm run port:kill:4321 && npm run port:kill:8081 && npm run clean:cache",
     "build": "astro build",
     "preview": "astro preview --host --port 4321",
     "check": "tsc -p . --noEmit",
@@ -25,6 +26,14 @@
     "content:normalize-media": "node ./scripts/normalize-media-paths.mjs",
     "content:seed:about": "tsx ./scripts/content-seed-about.ts",
     "content:seed:bookme": "tsx ./scripts/content-seed-bookme.ts",
+    "migrate:devscard": "tsx ./scripts/migrate-devscard-to-decap.ts",
+    "migrate:one-skill": "tsx scripts/migrate-one-skill.ts",
+    "migrate:ru:clone-en": "tsx scripts/clone-en-about-to-ru.ts",
+    "migrate:ru:clone-en:dry": "tsx scripts/clone-en-about-to-ru.ts --dry-run",
+    "content:sanitize": "tsx scripts/content-sanitize-frontmatter.ts",
+    "content:format:dry": "tsx scripts/content-formatter.ts --dry-run --lang=en,ru --format=md --debug",
+    "content:format": "npm run content:sanitize && tsx scripts/content-formatter.ts --write --lang=en,ru --format=md --backup --pretty",
+    "content:doctor": "npm run content:sanitize && npm run content:format:dry",
     "dev:cms:about": "concurrently -k -n astro,proxy \"npm run dev -- --host --port 4321\" \"npm run cms:proxy\"",
     "dev": "astro dev --host --port 4321",
     "cms:dev": "decap-server --port 4322",
@@ -41,10 +50,14 @@
     "npm": ">=9"
   },
   "dependencies": {
+    "@astrojs/react": "4.4.0",
+    "@iconify/react": "6.0.2",
     "astro-decap-cms-oauth": "0.5.1",
     "date-fns": "4.1.0",
     "iconify-icon": "3.0.1",
     "marked": "16.3.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "type-fest": "5.0.1"
   },
   "devDependencies": {
@@ -62,10 +75,13 @@
     "decap-cms": "3.8.4",
     "decap-server": "3.3.1",
     "dotenv": "17.2.2",
+    "gray-matter": "4.0.3",
+    "js-yaml": "4.1.0",
     "postcss": "8.4.47",
     "tailwindcss": "4.1.13",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
-    "yaml": "2.4.5"
+    "yaml": "2.4.5",
+    "zod": "3.23.8"
   }
 }

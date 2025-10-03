@@ -1,13 +1,35 @@
 import { defineCollection, z } from 'astro:content';
 
-const pages = defineCollection({
+const aboutPage = defineCollection({
   type: 'content',
   schema: z.object({
-    title: z.string(),
-    lang: z.enum(['en', 'ru']),
-    route: z.string(),
-    updatedAt: z.date(),
-    summary: z.string().optional(),
+    title: z.string().optional(),
+    profile: z.object({
+      fullName: z.string().optional(),
+      title: z.string().optional(),
+      avatar: z.string().optional(),
+    }).optional(),
+    sections: z.array(z.object({
+      type: z.string(),            // hero | projects | experience | education | testimonials | favorites | skills ...
+      heading: z.string().optional(),
+      icon: z.string().optional(),
+      data: z.any().optional(),
+    })).default([]),
+    links: z.array(z.object({
+      label: z.string(),
+      url: z.string(),
+      icon: z.string().optional(),
+    })).optional(),
+    cv_pdf: z.string().optional(),
+  }),
+});
+
+const bookmePage = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string().optional(),
+    cal_link: z.string().optional(),   // например: your-cal-handle/intro
+    intro: z.string().optional(),
   }),
 });
 
@@ -15,7 +37,6 @@ const blog = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
-    lang: z.enum(['en', 'ru']),
     publishedAt: z.date(),
     tags: z.array(z.string()).optional(),
     summary: z.string().optional(),
@@ -26,30 +47,38 @@ const legal = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
-    lang: z.enum(['en', 'ru']),
     updatedAt: z.date(),
     summary: z.string().optional(),
   }),
 });
 
-const aboutPage = defineCollection({
+const pages = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
-    profile: z.object({
-      fullName: z.string(),
-      title: z.string(),
-      avatar: z.string().optional(),
-    }),
-    sections: z.array(z.object({
-      heading: z.string(),
-      body: z.string(),
-      icon: z.string().optional(),
-      image: z.string().optional(),
-    })),
-    links: z.array(z.string()).optional(),
-    cv_pdf: z.string().optional(),
-    gallery: z.array(z.string()).optional(),
+    updatedAt: z.date(),
+    summary: z.string().optional(),
+  }),
+});
+
+const posts = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    publishedAt: z.date(),
+    tags: z.array(z.string()).optional(),
+    summary: z.string().optional(),
+  }),
+});
+
+const footer = defineCollection({
+  type: 'data',
+  schema: z.object({
+    title: z.string().optional(),
+    links: z.array(z.object({
+      label: z.string(),
+      url: z.string(),
+    })).optional(),
   }),
 });
 
@@ -61,28 +90,17 @@ const bookmeConfig = defineCollection({
     cal: z.object({
       handle: z.string(),
       eventType: z.string().optional(),
-      attrs: z.record(z.string()).optional(),
     }),
-    tiles: z.array(z.object({
-      id: z.string(),
-      title: z.string(),
-      description: z.string().optional(),
-      image: z.string().optional(),
-      cta_text: z.string(),
-      cta_kind: z.enum(['cal', 'link', 'mailto', 'download']),
-      cal_preset: z.string().optional(),
-      href: z.string().optional(),
-      visible: z.boolean(),
-      icon: z.string().optional(),
-    })),
-    footer_note: z.string().optional(),
   }),
 });
 
-export const collections = {
-  pages,
-  blog,
-  legal,
-  aboutPage,
-  bookmeConfig,
+export const collections = { 
+  aboutPage, 
+  bookmePage, 
+  blog, 
+  legal, 
+  pages, 
+  posts, 
+  footer, 
+  bookmeConfig 
 };
