@@ -12,28 +12,52 @@ const { section, lang } = Astro.props;
 // Helper function for i18n
 const t = (obj: any, lang: 'en' | 'ru') => (typeof obj === 'object' && obj ? obj[lang] ?? obj.en ?? '' : obj ?? '');
 
-// Process the experience data
+// Process the experience data with backward compatibility
 const experienceData = section.data || {};
 const title = t(experienceData.title, lang) || 'Experience';
-const items = Array.isArray(experienceData.items) ? experienceData.items.map((item: any) => ({
-  company: t(item.company, lang),
-  role: t(item.role, lang),
-  dates: item.dates,
-  location: t(item.location, lang),
-  description: t(item.description, lang),
-  image: item.image,
-  stack: item.stack || [],
-  bullets: Array.isArray(item.bullets) ? item.bullets.map((bullet: any) => t(bullet, lang)) : [],
-  links: Array.isArray(item.links) ? item.links.map((link: any) => ({
-    label: t(link.label, lang),
-    url: link.url,
-    icon: link.icon
-  })) : [],
-  tagsList: item.tagsList ? {
-    title: t(item.tagsList.title, lang),
-    tags: item.tagsList.tags || []
-  } : undefined
-})) : [];
+
+// Normalize data: support both new company-with-roles structure and legacy flat structure
+let companies = [];
+
+if (Array.isArray(experienceData.items)) {
+  // New structure: companies with roles
+  companies = experienceData.items.map((company: any) => ({
+    company: t(company.company, lang),
+    location: t(company.location, lang),
+    url: company.url,
+    logo: company.logo,
+    roles: Array.isArray(company.roles) ? company.roles.map((role: any) => ({
+      title: t(role.title, lang),
+      period: t(role.period, lang),
+      bullets: Array.isArray(role.bullets) ? role.bullets.map((bullet: any) => t(bullet, lang)) : []
+    })) : []
+  }));
+} else if (Array.isArray(experienceData.legacyItems)) {
+  // Legacy structure: convert flat items to company-with-roles
+  const companyMap = new Map();
+  
+  experienceData.legacyItems.forEach((item: any) => {
+    const companyName = t(item.company, lang);
+    if (!companyMap.has(companyName)) {
+      companyMap.set(companyName, {
+        company: companyName,
+        location: t(item.location, lang),
+        url: item.links?.[0]?.url,
+        logo: item.image,
+        roles: []
+      });
+    }
+    
+    const company = companyMap.get(companyName);
+    company.roles.push({
+      title: t(item.role, lang),
+      period: item.dates ? `${item.dates[0]} – ${item.dates[1] || 'Present'}` : '',
+      bullets: Array.isArray(item.bullets) ? item.bullets.map((bullet: any) => t(bullet, lang)) : []
+    });
+  });
+  
+  companies = Array.from(companyMap.values());
+}
 
 ---
 
@@ -44,6 +68,6 @@ const items = Array.isArray(experienceData.items) ? experienceData.items.map((it
 >
   <ExperienceIsland
     client:visible
-    items={items}
+    companies={companies}
   />
 </SectionCard>

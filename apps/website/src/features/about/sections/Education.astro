@@ -15,28 +15,33 @@ const t = (obj: any, lang: 'en' | 'ru') => (typeof obj === 'object' && obj ? obj
 // Process the education data
 const educationData = section.data || {};
 const title = t(educationData.title, lang) || 'Education';
-const items = Array.isArray(educationData.items) ? educationData.items.map((item: any) => ({
-  institution: t(item.institution, lang),
-  degree: t(item.degree, lang),
-  field: t(item.field, lang),
-  dates: item.dates,
-  description: t(item.description, lang),
-  image: item.image,
-  achievements: Array.isArray(item.achievements) ? item.achievements.map((achievement: any) => t(achievement, lang)) : [],
-  gpa: item.gpa,
-  location: t(item.location, lang)
-})) : [];
+
+// Normalize data - support both new institution structure and legacy flat items
+let institutions = [];
+if (Array.isArray(educationData.items)) {
+  // New structure: institutions with degrees
+  institutions = educationData.items;
+} else if (Array.isArray(educationData.legacyItems)) {
+  // Legacy structure: flat items, normalize to institution structure
+  institutions = educationData.legacyItems.map((item: any) => ({
+    school: item.institution,
+    location: item.location,
+    url: item.url,
+    logo: item.image,
+    degrees: [{
+      degree: item.degree,
+      program: item.field,
+      period: item.dates ? `${item.dates[0]} – ${item.dates[1] || 'Present'}` : undefined,
+      bullets: item.achievements
+    }]
+  }));
+}
 
 ---
 
 <SectionCard 
   title={title}
-  class="mt-6 mb-10"
   hasHeaderMedia={false}
 >
-  <!-- Island -->
-  <EducationIsland
-    client:visible
-    items={items}
-  />
+  <EducationIsland institutions={institutions} />
 </SectionCard>

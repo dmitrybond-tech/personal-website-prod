@@ -121,7 +121,23 @@ const SkillsData = z.object({
   }).passthrough().optional(),
 }).passthrough();
 
-// Experience item schema
+// Role inside a company
+const ExperienceRole = z.object({
+  title: i18n,                      // "Delivery Manager"
+  period: i18n,                     // "Mar 2023 – Apr 2025" (keep as string)
+  bullets: z.array(i18n).optional() // bullet points
+}).passthrough();
+
+// Company
+const ExperienceCompany = z.object({
+  company: i18n,                    // "CloudBlue"
+  location: i18n.optional(),        // "Enschede, the Netherlands"
+  url: z.string().url().optional(),
+  logo: z.string().optional(),      // /logos/cloudblue.svg
+  roles: z.array(ExperienceRole)    // one or many roles at this company
+}).passthrough();
+
+// Legacy Experience item schema (for backward compatibility)
 const ExperienceItem = z.object({
   company: i18n,
   role: i18n,
@@ -146,11 +162,31 @@ const ExperienceItem = z.object({
 
 // Experience section data schema
 const ExperienceData = z.object({
-  title: z.string().optional(),
-  items: z.array(ExperienceItem),
+  title: i18n.optional(),
+  items: z.array(ExperienceCompany).optional(), // preferred structure
+  // Keep accepting old flat entries if present and normalize at runtime
+  legacyItems: z.array(ExperienceItem).optional(), // fallback for backward compatibility
 }).passthrough();
 
-// Education item schema
+// Degree item inside an institution
+const EducationDegree = z.object({
+  degree: i18n.optional(),        // "BSc" / "Бакалавр"
+  program: i18n.optional(),       // "Information and Computing Technology"
+  faculty: i18n.optional(),       // "Faculty of Computer Science and Engineering"
+  period: i18n,                   // "Sep 2012 – Sep 2016"
+  bullets: z.array(i18n).optional()
+}).passthrough();
+
+// Institution
+const EducationInstitution = z.object({
+  school: i18n,                   // "Siberian State University of Telecommunications and Information Sciences (SibSUTIS)"
+  location: i18n.optional(),      // optional
+  url: z.string().url().optional(), // <- NEW
+  logo: z.string().optional(),    // /logos/sibsutis.svg
+  degrees: z.array(EducationDegree)
+}).passthrough();
+
+// Legacy Education item schema (for backward compatibility)
 const EducationItem = z.object({
   institution: i18n,
   degree: i18n,
@@ -165,8 +201,10 @@ const EducationItem = z.object({
 
 // Education section data schema
 const EducationData = z.object({
-  title: z.string().optional(),
-  items: z.array(EducationItem),
+  title: i18n.optional(),
+  items: z.array(EducationInstitution).optional(), // preferred structure
+  // Keep accepting old flat entries if present and normalize at runtime
+  legacyItems: z.array(EducationItem).optional(), // fallback for backward compatibility
 }).passthrough();
 
 // Favorites group item schema

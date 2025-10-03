@@ -1,26 +1,30 @@
 ---
 title: Обо мне
 slug: ru/about
-cv_pdf: https://example.com/cv.pdf
+cv_pdf: 'https://example.com/cv.pdf'
 sections:
   - type: hero
     data:
       name: Иван Иванов
       role: Full-Stack Разработчик
-      avatar: https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face
+      avatar: >-
+        https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face
       avatarSizePx: 160
-      location: Москва, Россия
-      bio: Увлеченный разработчик с 5+ годами опыта создания масштабируемых веб-приложений. Люблю работать с современными технологиями и создавать удобные интерфейсы.
+      location: 'Москва, Россия'
+      bio: >-
+        Увлеченный разработчик с 5+ годами опыта создания масштабируемых
+        веб-приложений. Люблю работать с современными технологиями и создавать
+        удобные интерфейсы.
       links:
         - label: GitHub
-          url: https://github.com/ivanivanov
-          icon: simple-icons:github
+          url: 'https://github.com/ivanivanov'
+          icon: 'simple-icons:github'
         - label: LinkedIn
-          url: https://linkedin.com/in/ivanivanov
-          icon: simple-icons:linkedin
+          url: 'https://linkedin.com/in/ivanivanov'
+          icon: 'simple-icons:linkedin'
         - label: Портфолио
-          url: https://ivanivanov.dev
-          icon: simple-icons:portfolio
+          url: 'https://ivanivanov.dev'
+          icon: 'simple-icons:portfolio'
       badges:
         - name: React Эксперт
         - name: TypeScript Профи
@@ -31,143 +35,275 @@ sections:
         - title: General
           items:
             - name: React.js
-              icon: logos:react
+              icon: 'logos:react'
               level: 4
             - name: TypeScript
-              icon: logos:typescript-icon
+              icon: 'logos:typescript-icon'
               level: 4
             - name: SASS
-              icon: logos:sass
+              icon: 'logos:sass'
               level: 3
         - title: Frameworks
           items:
             - name: NestJS
-              icon: logos:nestjs
+              icon: 'logos:nestjs'
               level: 3
             - name: Tailwind CSS
-              icon: logos:tailwindcss-icon
+              icon: 'logos:tailwindcss-icon'
               level: 4
             - name: Astro
-              icon: logos:astro-icon
+              icon: 'logos:astro-icon'
               level: 3
             - name: Next.js
-              icon: logos:nextjs-icon
+              icon: 'logos:nextjs-icon'
               level: 3
             - name: Cypress
-              icon: logos:cypress
+              icon: 'logos:cypress'
               level: 3
             - name: ESLint
-              icon: logos:eslint
+              icon: 'logos:eslint'
               level: 4
         - title: Technical
           items:
             - name: PostgreSQL
-              icon: logos:postgresql
+              icon: 'logos:postgresql'
               level: 3
             - name: MongoDB
-              icon: logos:mongodb-icon
+              icon: 'logos:mongodb-icon'
               level: 3
             - name: Firebase
-              icon: logos:firebase
+              icon: 'logos:firebase'
               level: 3
             - name: GraphQL
-              icon: logos:graphql
+              icon: 'logos:graphql'
               level: 3
             - name: pnpm
-              icon: logos:pnpm
+              icon: 'logos:pnpm'
               level: 3
             - name: Supabase
-              icon: logos:supabase-icon
+              icon: 'logos:supabase-icon'
               level: 3
         - title: Languages
           items:
             - name: English - C1
-              icon: twemoji:flag-united-kingdom
+              icon: 'twemoji:flag-united-kingdom'
             - name: Polish - native
-              icon: twemoji:flag-poland
+              icon: 'twemoji:flag-poland'
             - name: Spanish - B1
-              icon: twemoji:flag-spain
+              icon: 'twemoji:flag-spain'
   - type: experience
     data:
-      title: Опыт работы
+      title: Опыт
       items:
-        - company: ТехКорп Инк.
-          role: Старший Full-Stack Разработчик
-          dates: ["2022-01-01", "2024-12-31"]
-          location: Москва, Россия
-          description: Руководил разработкой масштабируемых веб-приложений с использованием React, Node.js и PostgreSQL. Наставлял младших разработчиков и внедрял CI/CD пайплайны.
-          image: https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop
-          stack: ["React", "TypeScript", "Node.js", "PostgreSQL", "Docker"]
-          bullets:
-            - "Улучшил производительность приложения на 40% через оптимизацию кода"
-            - "Руководил командой из 5 разработчиков на нескольких проектах"
-            - "Внедрил автоматизированное тестирование, сократив количество багов на 60%"
-          links:
-            - label: Сайт компании
-              url: https://techcorp.ru
-              icon: simple-icons:web
-        - company: СтартапXYZ
-          role: Frontend Разработчик
-          dates: ["2020-06-01", "2021-12-31"]
-          location: Удаленно
-          description: Создавал адаптивные пользовательские интерфейсы и сотрудничал с командой дизайнеров для создания увлекательного пользовательского опыта.
-          stack: ["React", "Vue.js", "SASS", "Webpack"]
-          bullets:
-            - "Разработал 15+ переиспользуемых UI компонентов"
-            - "Сократил размер бандла на 30% через разделение кода"
+        - company: CloudBlue
+          location: 'Энсхеде, Нидерланды'
+          url: 'https://www.cloudblue.com'
+          logo: /logos/cloudblue.svg
+          roles:
+            - title: Delivery Manager
+              period: мар 2023 – апр 2025
+              bullets:
+                - >-
+                  Руководил enablement-инициативами партнёров и поддержкой после
+                  запуска на облачной коммерческой платформе.
+                - >-
+                  Управлял поставкой интеграционных проектов, консультировал по
+                  конфигурации продукта и стратегиям монетизации SaaS.
+                - >-
+                  Координировал кросс-функциональные команды для масштабируемого
+                  внедрения решений и улучшения опыта партнёров.
+                - >-
+                  Участвовал в трансформации платформы: миграции, внедрении
+                  микросервисов и развитии e-commerce функционала.
+        - company: Datacom
+          location: 'Куала-Лумпур, Малайзия'
+          url: 'https://datacom.com'
+          logo: /logos/datacom.svg
+          roles:
+            - title: Business Consultant
+              period: июн 2019 – мар 2023
+              bullets:
+                - >-
+                  Оказывал стратегическую и операционную поддержку процессов
+                  managed services, выступая экспертом по платформенным
+                  практикам.
+                - >-
+                  Вёл инициативы по передаче знаний и enablement, помогая
+                  глобальным командам внедрять продуктовые пайплайны и
+                  ITIL-процессы (Problem/Change).
+                - >-
+                  Совместно с партнёрами улучшал процессы: быстрее инциденты,
+                  меньше бэклога, выше соблюдение SLA.
+                - >-
+                  Играл ключевую роль в платформенном enablement, соединяя
+                  продуктовые знания и повседневную операционную эффективность.
+            - title: Lead Technical Account Manager
+              period: июн 2019 – мар 2023
+              bullets:
+                - >-
+                  Стратегический мост между enterprise-клиентами и внутренними
+                  командами: оптимизация облачной платформы, managed-услуги и
+                  успех партнёров.
+                - >-
+                  Руководил операциями TAM, координировал эскалации и
+                  кросс-функциональное взаимодействие поддержки, продукта и
+                  доставки.
+                - >-
+                  Продвигал улучшения процессов, управление изменениями и
+                  оптимизацию контрактов в нескольких регионах.
+                - >-
+                  Консультировал по использованию платформы, дорожным картам и
+                  планированию апгрейдов; проводил обзоры со стейкхолдерами и
+                  поддерживал внедрение продукта.
+                - >-
+                  Способствовал удержанию и восстановлению рисковых аккаунтов
+                  через onsite-консалтинг и адаптированный дизайн решений.
+        - company: CloudBlue
+          location: 'Новосибирск, Россия'
+          url: 'https://www.cloudblue.com'
+          logo: /logos/cloudblue.svg
+          roles:
+            - title: Technical Account Manager
+              period: июн 2018 – июн 2019
+              bullets:
+                - >-
+                  Поддерживал телеком- и хостинг-провайдеров в развитии
+                  облачного бизнеса на XaaS-платформе.
+                - >-
+                  Координировал апгрейды и миграции, обеспечивал технический
+                  надзор аккаунтов и содействовал в инцидент-менеджменте.
+                - >-
+                  Улучшал внутренние процессы, базу знаний и инициативы customer
+                  success.
+                - >-
+                  Участвовал в восстановлении выручки и реанимации «спящих»
+                  клиентов через enablement и апгрейды.
+        - company: Implementation Engineer — банковские проекты
+          location: 'Новосибирск, Россия'
+          logo: /logos/banking.svg
+          roles:
+            - title: Implementation Engineer
+              period: сен 2016 – июн 2018
+              bullets:
+                - >-
+                  Полный цикл внедрения ядра и модулей: деплой, конфигурация,
+                  координация SIT/UAT и поддержка после запуска.
+                - >-
+                  Совместно со стейкхолдерами (фронт-офис, ИТ, комплаенс)
+                  переводил бизнес-требования в технические спецификации.
+                - >-
+                  Готовил документацию (SRS), локализованные материалы;
+                  участвовал в международном развёртывании в ЮВА.
+                - >-
+                  Выступал QA-лидом на приёмке и менторил младших инженеров
+                  команды.
   - type: education
     data:
       title: Образование
       items:
-        - institution: Московский Государственный Университет
-          degree: Бакалавр компьютерных наук
-          field: Программная инженерия
-          dates: ["2016-09-01", "2020-05-31"]
-          location: Москва, Россия
-          description: Сосредоточился на программной инженерии, алгоритмах и структурах данных. Участвовал в множественных хакатонах и соревнованиях по программированию.
-          gpa: "4.8/5.0"
-          achievements:
-            - "Список декана в течение 6 семестров подряд"
-            - "1 место в университетском хакатоне 2019"
-            - "Президент клуба компьютерных наук"
-        - institution: Академия Кода
-          degree: Сертификат Full-Stack веб-разработки
-          dates: ["2020-01-01", "2020-06-30"]
-          description: Интенсивный буткемп, охватывающий современные технологии веб-разработки и лучшие практики.
+        - school: >-
+            Сибирский государственный университет телекоммуникаций и информатики
+            (СибГУТИ)
+          location: 'Новосибирск, Россия'
+          url: 'https://www.sibsutis.ru'
+          logo: /logos/sibsutis.svg
+          degrees:
+            - degree: Бакалавр
+              program: Информационные и вычислительные технологии
+              faculty: Факультет компьютерных наук и инженерии
+              period: сен 2012 – сен 2016
+              bullets:
+                - >-
+                  Сосредоточился на программной инженерии, алгоритмах и
+                  структурах данных
+                - >-
+                  Участвовал в множественных хакатонах и соревнованиях по
+                  программированию
+                - Список декана в течение 6 семестров подряд
+                - 1 место в университетском хакатоне 2015
+                - Президент клуба компьютерных наук
   - type: favorites
     data:
       title: Избранное
       style:
         variant: tile
-        cols: { base: 2, sm: 3, lg: 6 }
+        cols:
+          base: 2
+          sm: 3
+          lg: 6
       groups:
         - title: Хобби
-          style: { limit: 5 }
+          style:
+            limit: 5
           items:
-            - { title: "Фотография", image: "/fav/hobbies/photo.jpg", url: "https://unsplash.com/@johndoe" }
-            - { title: "Велоспорт", image: "/fav/hobbies/cycle.jpg" }
-            - { title: "Кулинария", image: "/fav/hobbies/cook.jpg" }
-            - { title: "Шахматы", image: "/fav/hobbies/chess.jpg" }
-            - { title: "Путешествия", image: "/fav/hobbies/travel.jpg" }
-            - { title: "Музыка", image: "/fav/hobbies/music.jpg" }
-        - title: Люди, за которыми слежу
-          style: { limit: 5 }
+            - title: Технологии
+              url: 'https://github.com/trending'
+            - title: Сноуборд
+              url: 'https://www.redbull.com/us-en/snowboarding'
+            - title: Искусство
+              url: 'https://www.artsy.net'
+            - title: Стендап
+              url: 'https://www.netflix.com/browse/genre/11559'
+            - title: Кулинария
+              url: 'https://www.bonappetit.com'
+        - title: 'Люди, за которыми я слежу'
+          style:
+            limit: 5
           items:
-            - { title: "Дан Абрамов", image: "/fav/people/dan.jpg", url: "https://twitter.com/dan_abramov" }
-            - { title: "Тео Браун", image: "/fav/people/theo.jpg", url: "https://youtube.com/@t3dotgg" }
-        - title: Медиа, которое смотрю
-          style: { limit: 5 }
+            - title: Джо Роган
+              url: 'https://www.youtube.com/@joerogan'
+            - title: Сет Роген
+              url: 'https://www.instagram.com/sethrogen'
+            - title: Марк Мэнсон
+              url: 'https://markmanson.net'
+            - title: Трэвис Райс
+              url: 'https://www.instagram.com/travisrice'
+            - title: Эндрю Хуберман
+              url: 'https://www.youtube.com/@hubermanlab'
+        - title: 'Медиа, за которыми я слежу'
+          style:
+            limit: 5
           items:
-            - { title: "Fireship", author: "YouTube", image: "/fav/media/fireship.jpg", url: "https://youtube.com/@Fireship" }
-            - { title: "ThePrimeTime", author: "Twitch",  image: "/fav/media/primetime.jpg", url: "https://twitch.tv/theprimeagen" }
+            - title: BBC
+              url: 'https://www.bbc.com'
+            - title: Y Combinator
+              url: 'https://www.ycombinator.com'
+            - title: Red Bull Media House
+              url: 'https://www.redbull.com'
+            - title: Artsy
+              url: 'https://www.artsy.net'
+            - title: Inked Magazine
+              url: 'https://www.inkedmag.com'
         - title: Книги
-          style: { limit: 5 }
+          style:
+            limit: 5
           items:
-            - { title: "Чистый код", author: "Роберт Мартин", image: "/fav/books/cleancode.jpg", url: "https://..." }
-            - { title: "Прагматичный программист", author: "Хант/Томас", image: "/fav/books/pragprog.jpg", url: "https://..." }
+            - title: 'Как создавать технологические продукты, которые любят клиенты'
+              url: >-
+                https://www.goodreads.com/book/show/18043039-how-to-create-tech-products-customers-love
+            - title: Шантарам
+              url: 'https://www.goodreads.com/book/show/33600.Shantaram'
+            - title: Тонкое искусство пофигизма
+              url: >-
+                https://www.goodreads.com/book/show/28257707-the-subtle-art-of-not-giving-a-f-ck
+            - title: Идиот
+              url: >-
+                https://www.goodreads.com/book/show/18043039-how-to-create-tech-products-customers-love
+            - title: Преступление и наказание
+              url: 'https://www.goodreads.com/book/show/7144.Crime_and_Punishment'
         - title: Фильмы
-          style: { limit: 5 }
+          style:
+            limit: 5
           items:
-            - { title: "Матрица", author: "Вачовски", image: "/fav/movies/matrix.jpg" }
-            - { title: "Начало", author: "Кристофер Нолан", image: "/fav/movies/inception.jpg" }
+            - title: Криминальное чтиво
+              url: 'https://www.imdb.com/title/tt0110912'
+            - title: Унесённые призраками
+              url: 'https://www.imdb.com/title/tt0245429'
+            - title: Большой Лебовски
+              url: 'https://www.imdb.com/title/tt0118715'
+            - title: Большой куш
+              url: 'https://www.imdb.com/title/tt0208092'
+            - title: Бойцовский клуб
+              url: 'https://www.imdb.com/title/tt0137523'
 ---
+
