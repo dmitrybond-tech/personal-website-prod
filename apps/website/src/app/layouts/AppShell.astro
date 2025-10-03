@@ -1,7 +1,7 @@
 ---
 import "@/styles/main.css";
 import Navbar from '@/app/widgets/navbar/ui/Navbar.astro';
-import NavIsland from '@/app/widgets/navisland/NavIsland.astro';
+import NavFloat from '@/app/widgets/navfloat/NavFloat.astro';
 import Footer from '@/app/widgets/footer/ui/Footer.astro';
 import { getLocaleFromPath, switchLocale } from '@/app/shared/lib/locale';
 
@@ -115,9 +115,7 @@ const bodyClasses = [
         padding-top: var(--nav-gap);   /* needed top offset */
         /* IMPORTANT: NO transform here */
         pointer-events: auto;          /* clicks pass through */
-        max-width: min(var(--cv-nav-max-w), calc(100vw - 2 * var(--cv-content-pad-x)));
-        margin-inline: auto;
-        padding-inline: var(--cv-content-pad-x);
+        /* width and background moved to main.css for better specificity */
       }
       
       @media (max-width: 640px) {
@@ -128,9 +126,12 @@ const bodyClasses = [
     </style>
   </head>
   <body class={bodyClasses}>
-    <header data-app-navbar>
-      <div class="nav-float-wrap">
-        <NavIsland locale={locale} />
+    <header data-app-navbar style="--navbar-h:44px">
+      <div 
+        class="nav-float-wrap"
+        style="max-width:none;width:calc(100vw - 2*var(--cv-content-pad-x));margin-inline:auto;padding-inline:var(--cv-content-pad-x);box-sizing:border-box"
+      >
+        <NavFloat locale={locale} />
       </div>
     </header>
     

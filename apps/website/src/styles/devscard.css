@@ -306,13 +306,13 @@
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
-  background: var(--cv-primary-100);
-  color: var(--cv-primary-800);
+  background: var(--cv-gray-100);
+  color: var(--cv-gray-800);
 }
 
 .dark .cv-root .cv-tag {
-  background: var(--cv-primary-900);
-  color: var(--cv-primary-200);
+  background: var(--cv-gray-800);
+  color: var(--cv-gray-200);
 }
 
 /* Сетка для деталей */

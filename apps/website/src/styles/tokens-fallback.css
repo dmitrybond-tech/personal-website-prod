@@ -5,7 +5,7 @@
   /* Base surface + text, reused by cv-root and nav */
   --cv-surface: var(--cv-page-bg, #f6f7fb);
   --cv-surface-elevated: #ffffff;
-  --cv-surface-elevated-2: #ffffff;
+  --cv-surface-2: var(--cv-surface);             /* используем для подповерхностей/чипов */
   --cv-text: #001111;
   --cv-muted: #6b7280;
   --cv-on-primary: #ffffff;
@@ -18,7 +18,7 @@
   --bookme-max-w: 960px;
 
   /* Hairline border (derive from text) */
-  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/12%, transparent);
+  --cv-border-hairline: transparent;
 
   /* Nav offset for subtle positioning */
   --cv-nav-offset-y: var(--cv-gap-y-sm, 6px);
@@ -60,11 +60,11 @@
 .dark {
   /* Dark theme overrides for unified tokens */
   --cv-surface: var(--cv-page-bg, #111827);
-  --cv-surface-elevated: #1f2937;
+  --cv-surface-elevated: var(--cv-navpanel-bg-dark); /* #374151 */
   --cv-surface-elevated-2: #374151;
   --cv-text: #f9fafb;
   --cv-muted: #9ca3af;
-  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/16%, transparent);
+  --cv-border-hairline: transparent;
   
   /* Dark nav accent */
   --cv-nav-accent: var(--cv-primary-400);
@@ -74,11 +74,11 @@
 html[data-theme="dark"] {
   /* Dark theme overrides for unified tokens */
   --cv-surface: var(--cv-page-bg, #111827);
-  --cv-surface-elevated: #1f2937;
+  --cv-surface-elevated: var(--cv-navpanel-bg-dark); /* #374151 */
   --cv-surface-elevated-2: #374151;
   --cv-text: #f9fafb;
   --cv-muted: #9ca3af;
-  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/16%, transparent);
+  --cv-border-hairline: transparent;
   
   /* Dark nav accent */
   --cv-nav-accent: var(--cv-primary-400);

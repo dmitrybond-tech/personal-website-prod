@@ -15,7 +15,7 @@ const { title, slug, hideTitle, className, visible } = Astro.props;
     <div
       id={slug}
       data-type="section"
-      class:list={['flex flex-col gap-6 rounded-2xl bg-white p-8 shadow-md dark:bg-gray-800', className]}
+      class:list={['flex flex-col gap-6 rounded-2xl bg-elev-1 p-8 shadow-md', className]}
     >
       {!hideTitle && <Typography variant="section-title">{title}</Typography>}
       <slot />

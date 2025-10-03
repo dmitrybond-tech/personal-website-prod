@@ -1,0 +1,285 @@
+---
+import { switchLocaleHref, getCurrentLocale, getOppositeLocale, getLocaleDisplayName, getLocaleFlag } from '@/app/shared/i18n/switch';
+import { getLocaleFromPath } from '@/app/shared/lib/locale';
+
+interface Props {
+  locale?: 'en' | 'ru';
+}
+
+const { locale = 'en' } = Astro.props;
+
+// Get current locale from URL if not provided
+const currentLocale = getLocaleFromPath(Astro.url.pathname) || locale;
+const oppositeLocale = getOppositeLocale(currentLocale);
+
+// Localized labels
+const labels = {
+  en: { about: 'About', bookme: 'Book Me', blog: 'Blog' },
+  ru: { about: 'Обо мне', bookme: 'Записаться', blog: 'Блог' }
+};
+
+const currentLabels = labels[currentLocale];
+
+// Generate navigation links for current locale
+const navLinks = [
+  { href: `/${currentLocale}/about`, label: currentLabels.about, key: 'about' },
+  { href: `/${currentLocale}/bookme`, label: currentLabels.bookme, key: 'bookme' },
+  { href: `/${currentLocale}/blog`, label: currentLabels.blog, key: 'blog' }
+];
+
+// Determine active tab based on current pathname
+function getActiveTab(pathname: string): string | null {
+  if (pathname.includes('/about')) return 'about';
+  if (pathname.includes('/bookme')) return 'bookme';
+  if (pathname.includes('/blog')) return 'blog';
+  return null;
+}
+
+const activeTab = getActiveTab(Astro.url.pathname);
+
+// Generate locale switch href
+const localeSwitchHref = switchLocaleHref(Astro.url.pathname, oppositeLocale);
+---
+
+<nav class="navfloat w-full grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-2xl" aria-label="Main navigation" role="tablist">
+  <!-- LEFT: Theme toggle -->
+  <div class="theme-toggle">
+    <button 
+      type="button" 
+      class="theme-toggle-btn"
+      aria-label={currentLocale === 'en' ? 'Toggle theme' : 'Переключить тему'}
+      onClick="(function(){
+        const k='theme'; const root=document.documentElement;
+        const dark=root.classList.toggle('dark'); 
+        localStorage.setItem(k,dark?'dark':'light');
+      })()"
+    >
+      <svg class="theme-icon-light w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />
+      </svg>
+      <svg class="theme-icon-dark w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- CENTER: Navigation tabs -->
+  <nav class="nav-tabs nav-panel justify-self-center" role="tablist" aria-label="Main navigation">
+    {navLinks.map((link) => (
+      <a
+        href={link.href}
+        class={`nav-tab ${activeTab === link.key ? 'nav-tab-active' : ''}`}
+        role="tab"
+        aria-current={activeTab === link.key ? 'page' : 'false'}
+        aria-selected={activeTab === link.key ? 'true' : 'false'}
+      >
+        {link.label}
+      </a>
+    ))}
+  </nav>
+
+  <!-- RIGHT: Locale switcher -->
+  <div class="locale-switcher nav-lang justify-self-end">
+    <a
+      href={localeSwitchHref}
+      class="locale-switch-btn"
+      aria-label={`Switch to ${getLocaleDisplayName(oppositeLocale)}`}
+      data-locale={oppositeLocale}
+      data-role="locale-switch"
+    >
+      <span class="locale-code">{oppositeLocale.toUpperCase()}</span>
+      <span class="locale-caption">{currentLocale === 'en' ? 'Language' : 'Язык'}</span>
+    </a>
+  </div>
+</nav>
+
+<style>
+  .navfloat {
+    position: relative;
+    border: 1px solid var(--cv-border-hairline);
+    border-radius: 16px;
+    padding: .25rem .5rem;
+    background: var(--cv-surface-elevated-2);
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    max-width: 100%;
+    pointer-events: auto; /* clicks definitely pass through */
+  }
+
+  .nav-tabs {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: .25rem;
+    padding: .125rem;
+  }
+
+  .nav-tab {
+    display: inline-flex; 
+    justify-content: center; 
+    align-items: center;
+    height: 1.75rem; 
+    min-width: 4.5rem; 
+    padding: 0 .6rem;
+    border-radius: 10px; 
+    font-weight: 600;
+    text-decoration: none; 
+    color: var(--cv-text);
+    opacity: .9;
+    transition: opacity .15s, background-color .15s;
+  }
+
+  .nav-tab:hover { 
+    opacity: 1;
+    background: color-mix(in oklab, var(--cv-text) 8%, transparent);
+  }
+
+  .nav-tab-active {
+    background: color-mix(in oklab, var(--cv-primary-500) 16%, transparent);
+    color: var(--cv-primary-700);
+    opacity: 1;
+  }
+
+  .theme-toggle {
+    display: grid; 
+    place-items: center; 
+  }
+
+  .theme-toggle-btn {
+    position: relative;
+    display: grid; 
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: .2rem; 
+    border: 1px solid var(--cv-border-hairline);
+    border-radius: 10px; 
+    background: var(--cv-surface-elevated);
+    color: var(--cv-text);
+    cursor: pointer;
+    transition: background .15s;
+  }
+
+  .theme-toggle-btn:hover { 
+    background: color-mix(in oklab, var(--cv-text) 8%, transparent);
+  }
+
+  .theme-icon-light,
+  .theme-icon-dark {
+    position: absolute;
+    transition: opacity .15s;
+  }
+
+  .theme-icon-light {
+    opacity: 1;
+  }
+
+  .theme-icon-dark {
+    opacity: 0;
+  }
+
+  .dark .theme-icon-light {
+    opacity: 0;
+  }
+
+  .dark .theme-icon-dark {
+    opacity: 1;
+  }
+
+  .locale-switcher { 
+    display: grid; 
+    place-items: center; 
+  }
+
+  .locale-switch-btn {
+    display: grid; 
+    grid-template-rows: auto auto; 
+    justify-items: center;
+    padding: .2rem .5rem; 
+    border: 1px solid var(--cv-border-hairline);
+    border-radius: 10px; 
+    background: var(--cv-surface-elevated);
+    color: var(--cv-text);
+    text-decoration: none; 
+    transition: background .15s;
+  }
+
+  .locale-switch-btn:hover { 
+    background: color-mix(in oklab, var(--cv-text) 8%, transparent);
+  }
+
+  .locale-code { 
+    font-size: .75rem; 
+    font-weight: 700; 
+    letter-spacing: .06em; 
+  }
+
+  .locale-caption { 
+    margin-top: .125rem; 
+    font-size: .625rem; 
+    line-height: 1; 
+    opacity: .72; 
+  }
+
+  /* Dark mode support */
+  .dark .navfloat {
+    background: var(--cv-navisland-bg-dark, #1f2937);
+    border-color: var(--cv-border-hairline);
+  }
+
+  .dark .nav-tab {
+    color: var(--cv-text);
+  }
+
+  .dark .nav-tab:hover {
+    background: color-mix(in oklab, var(--cv-text) 12%, transparent);
+  }
+
+  .dark .nav-tab-active {
+    background: color-mix(in oklab, var(--cv-primary-400) 20%, transparent);
+    color: var(--cv-primary-300);
+  }
+
+  .dark .locale-switch-btn {
+    background: var(--cv-surface-elevated);
+    color: var(--cv-text);
+  }
+
+  .dark .locale-switch-btn:hover {
+    background: color-mix(in oklab, var(--cv-text) 12%, transparent);
+  }
+
+  .dark .theme-toggle-btn {
+    background: var(--cv-surface-elevated);
+    color: var(--cv-text);
+  }
+
+  .dark .theme-toggle-btn:hover {
+    background: color-mix(in oklab, var(--cv-text) 12%, transparent);
+  }
+
+  @media (max-width: 640px) {
+    .nav-tab { 
+      min-width: 0; 
+      padding: 0 .5rem; 
+      height: 1.5rem; 
+    }
+    .navfloat { 
+      padding: .2rem .3rem; 
+    }
+  }
+
+</style>
+
+<script>
+  // Handle locale switching with cookie persistence
+  document.addEventListener('click', function(e) {
+    const localeBtn = e.target?.closest('[data-locale]');
+    if (localeBtn) {
+      const locale = localeBtn.getAttribute('data-locale');
+      if (locale === 'en' || locale === 'ru') {
+        // Set cookie for locale preference
+        document.cookie = `locale=${locale}; Max-Age=31536000; Path=/; SameSite=Lax`;
+      }
+    }
+  });
+</script>

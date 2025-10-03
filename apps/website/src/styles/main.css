@@ -16,17 +16,16 @@
 /* Unified theme tokens - DevsCard as single source of truth */
 :root {
   /* Base surface + text, reused by cv-root and nav */
-  --cv-surface: var(--cv-page-bg, #f6f7fb);
-  --cv-surface-elevated: #ffffff;
-  --cv-surface-elevated-2: #ffffff;
+  --cv-surface: var(--cv-page-bg, #f6f7fb);       /* фон страницы (для внутренних) */
+  --cv-surface-elevated: #ffffff;                 /* родительские карточки */
+  --cv-surface-2: var(--cv-surface);             /* используем для подповерхностей/чипов */
   --cv-text: #001111;
   --cv-muted: #6b7280;
-  --cv-on-primary: #ffffff;
 
   /* Container/gutter variables */
   --cv-content-max-w: 1040px;  /* Content max width */
   --cv-nav-extra-w: 48px;  /* "slightly wider" than content */
-  --cv-nav-max-w: calc(var(--cv-content-max-w) + var(--cv-nav-extra-w));  /* NavBar max width */
+  --cv-nav-max-w: 100vw; /* было calc(var(--cv-content-max-w) + var(--cv-nav-extra-w)) */
   --cv-content-pad-x: clamp(16px, 3.5vw, 24px);  /* Responsive horizontal padding */
   --cv-container-max: var(--cv-content-max-w);  /* Use unified content width */
   --cv-gutter-x: var(--cv-gap, 1.5rem);
@@ -39,7 +38,7 @@
   --bookme-max-w: var(--cv-content-max-w);
 
   /* Hairline border (derive from text) */
-  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/12%, transparent);
+  --cv-border-hairline: transparent;
 
   /* Nav offset for subtle positioning */
   --cv-nav-offset-y: var(--cv-gap-y-sm, 6px);
@@ -89,11 +88,11 @@
 .dark {
   /* Dark theme overrides for unified tokens */
   --cv-surface: var(--cv-page-bg, #111827);
-  --cv-surface-elevated: #1f2937;
+  --cv-surface-elevated: var(--cv-navpanel-bg-dark); /* #374151 */
   --cv-surface-elevated-2: #374151;
   --cv-text: #f9fafb;
   --cv-muted: #9ca3af;
-  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/16%, transparent);
+  --cv-border-hairline: transparent;
   
   /* Dark nav accent */
   --cv-nav-accent: var(--cv-primary-400);
@@ -108,11 +107,11 @@
 html[data-theme="dark"] {
   /* Dark theme overrides for unified tokens */
   --cv-surface: var(--cv-page-bg, #111827);
-  --cv-surface-elevated: #1f2937;
+  --cv-surface-elevated: var(--cv-navpanel-bg-dark); /* #374151 */
   --cv-surface-elevated-2: #374151;
   --cv-text: #f9fafb;
   --cv-muted: #9ca3af;
-  --cv-border-hairline: color-mix(in oklab, var(--cv-text)/16%, transparent);
+  --cv-border-hairline: transparent;
   
   /* Dark nav accent */
   --cv-nav-accent: var(--cv-primary-400);
@@ -171,8 +170,7 @@ body {
 
   /* Subtle, token-driven outline that respects border radius */
   .ui-outline {
-    box-shadow: inset 0 0 0 1px var(--cv-border-hairline);
-    border-radius: inherit;
+    box-shadow: none;
   }
   .ui-outline:hover,
   .ui-outline:focus-visible {
@@ -180,6 +178,15 @@ body {
     box-shadow: inset 0 0 0 1.5px color-mix(in oklab, var(--cv-text) 20%, transparent);
     outline: none;
   }
+
+  /* Accessible focus-visible treatment using existing ring tokens */
+  *:focus-visible {
+    outline: 2px solid var(--cv-primary-500);
+    outline-offset: 2px;
+  }
+
+  /* helper с тенью-окантовкой отключаем только в тёмной */
+  .dark .ui-outline { box-shadow: none !important; }
 
   /* Light-only brand outline (1px, no width change on hover/focus) */
   .ui-outline-brandlight {
@@ -284,9 +291,6 @@ body {
   .cv-level--off { background-color: var(--cv-level-empty); }
 }
 
-/* NavBar component classes - now using DRY utilities/vars */
-@layer components {
-  
   .nav-surface {
     position: sticky;
     top: 0;
@@ -352,5 +356,93 @@ body {
   .nav-item:focus-visible {
     opacity: 1;
   }
+
+
+/* --- PARENT CARDS: белые в light, #374151 в dark --- */
+@layer components {
+  /* Широкий таргет по родителям + перебиваем утилиты */
+  html:not(.dark) #site-container :is([data-type="section"], .cv-section, .section-card, .cv-card, .card, .cv-panel) {
+    background-color: var(--cv-surface-elevated) !important;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06) !important;
+  }
+
+  html.dark #site-container :is([data-type="section"], .cv-section, .section-card, .cv-card, .card, .cv-panel),
+  html[data-theme="dark"] #site-container :is([data-type="section"], .cv-section, .section-card, .cv-card, .card, .cv-panel) {
+    background-color: var(--cv-navpanel-bg-dark) !important; /* #374151 */
+    border-color: transparent !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,.10) !important;
+  }
 }
 
+/* --- INNER (Skills): остаются на --cv-surface --- */
+@layer components {
+  .skills-grid .tile,
+  .skills-tile,
+  .cv-chip,
+  .cv-profile .cv-tag,
+  .cv-card--profile .cv-tag,
+  .cv-profile .cv-icon,
+  .cv-card--profile .cv-icon,
+  /* если внутри skills используют .cv-panel ─ принудительно вернуть surface */
+  .skills-grid .cv-panel {
+    background-color: var(--cv-surface) !important;
+    color: var(--cv-text);
+    border-color: var(--cv-border);
+  }
+}
+
+/* --- Без перекрытия контента хедером --- */
+@layer components {
+  header[data-app-navbar] { pointer-events: none; z-index: 50; }
+  header[data-app-navbar] .nav-float-wrap,
+  header[data-app-navbar] .navisland,
+  header[data-app-navbar] .nav-panel { pointer-events: auto; }
+}
+
+/* ===== NAVFLOAT FULL-BLEED OVERRIDE ===== */
+@layer components {
+  /* Перебиваем локальные стили компонента для full-bleed */
+  header[data-app-navbar] .navfloat {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0.5rem 1rem !important;
+    
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    
+    border-radius: 16px !important;
+    border: 0 !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06) !important;
+    background: var(--cv-surface-elevated) !important;
+  }
+  
+  /* Dark theme для navfloat */
+  html.dark header[data-app-navbar] .navfloat,
+  html[data-theme="dark"] header[data-app-navbar] .navfloat {
+    background: var(--cv-navpanel-bg-dark) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,.10) !important;
+  }
+  
+  /* Центрируем вкладки */
+  header[data-app-navbar] .navfloat .nav-tabs {
+    grid-column: 2 !important;
+    justify-self: center !important;
+  }
+  
+  /* Левый контрол - тема */
+  header[data-app-navbar] .navfloat .theme-toggle {
+    grid-column: 1 !important;
+    justify-self: start !important;
+  }
+  
+  /* Правый контрол - язык */
+  header[data-app-navbar] .navfloat .locale-switcher {
+    grid-column: 3 !important;
+    justify-self: end !important;
+  }
+}
