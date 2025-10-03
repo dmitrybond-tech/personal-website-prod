@@ -5,29 +5,35 @@ cv_pdf: 'https://example.com/cv.pdf'
 sections:
   - type: hero
     data:
-      name: John Doe
-      role: Full-Stack Developer
+      name: Dmitry Bondarenko
+      role: Technical Project Manager
       avatar: >-
-        https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face
+        https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=160&h=240&fit=crop&crop=face
       avatarSizePx: 160
-      location: 'San Francisco, CA'
+      location: 'Siberia, Russia'
       bio: >-
-        Passionate developer with 5+ years of experience building scalable web
-        applications. I love working with modern technologies and creating
-        user-friendly interfaces.
+        You've landed on my page for a reason, I believe. If you already know what you're looking for, feel free to jump straight to my BookMe page and check my availability. Otherwise, take a moment to browse my blog where I share reflections on tech, life, and everything in between.
+
+        But if we haven't met yet, let me introduce myself. I'm a seasoned IT enthusiast and Technical Project Manager with more than eight years of experience working with large enterprises and navigating complex software products. Here you'll find a snapshot of my skills, some of my favorite things, and even a tailored CV you can download just below my picture.
       links:
-        - label: GitHub
-          url: 'https://github.com/johndoe'
-          icon: 'simple-icons:github'
+        - label: Telegram
+          url: 'https://t.me/d1mab0nd'
+          icon: 'simple-icons:telegram'
         - label: LinkedIn
-          url: 'https://linkedin.com/in/johndoe'
+          url: 'https://www.linkedin.com/in/dmitry-bond/'
           icon: 'simple-icons:linkedin'
         - label: Portfolio
-          url: 'https://johndoe.dev'
+          url: 'https://dmitrybond.tech/'
           icon: 'simple-icons:portfolio'
-      badges:
-        - name: React Expert
-        - name: TypeScript Pro
+      contact:
+        email: dima@dmitrybond.tech
+        phone: "+79137311003"
+      tags:
+        - Technical PM
+        - Delivery Expert
+        - IT Enthusiast
+        - Amazing Friend
+        - Humble Guy
   - type: skills
     data:
       title: Skills

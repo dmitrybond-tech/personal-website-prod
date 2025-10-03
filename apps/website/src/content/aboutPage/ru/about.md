@@ -5,34 +5,40 @@ cv_pdf: 'https://example.com/cv.pdf'
 sections:
   - type: hero
     data:
-      name: Иван Иванов
-      role: Full-Stack Разработчик
+      name: Дмитрий Бондаренко
+      role: Технический менеджер проектов
       avatar: >-
-        https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face
+        https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=160&h=240&fit=crop&crop=face
       avatarSizePx: 160
-      location: 'Москва, Россия'
+      location: 'Сибирь, Россия'
       bio: >-
-        Увлеченный разработчик с 5+ годами опыта создания масштабируемых
-        веб-приложений. Люблю работать с современными технологиями и создавать
-        удобные интерфейсы.
+        Вы попали на мою страницу не случайно, я уверен. Если вы уже знаете, что ищете, смело переходите на мою страницу BookMe и проверьте мою доступность. В противном случае, уделите немного времени моему блогу, где я делюсь размышлениями о технологиях, жизни и всем остальном.
+
+        Но если мы еще не знакомы, позвольте представиться. Я опытный IT-энтузиаст и технический менеджер проектов с более чем восьмилетним опытом работы с крупными предприятиями и управления сложными программными продуктами. Здесь вы найдете краткий обзор моих навыков, некоторые из моих любимых вещей и даже адаптированное резюме, которое можно скачать прямо под моей фотографией.
       links:
-        - label: GitHub
-          url: 'https://github.com/ivanivanov'
-          icon: 'simple-icons:github'
+        - label: Telegram
+          url: 'https://t.me/d1mab0nd'
+          icon: 'simple-icons:telegram'
         - label: LinkedIn
-          url: 'https://linkedin.com/in/ivanivanov'
+          url: 'https://www.linkedin.com/in/dmitry-bond/'
           icon: 'simple-icons:linkedin'
         - label: Портфолио
-          url: 'https://ivanivanov.dev'
+          url: 'https://dmitrybond.tech/'
           icon: 'simple-icons:portfolio'
-      badges:
-        - name: React Эксперт
-        - name: TypeScript Профи
+      contact:
+        email: dima@dmitrybond.tech
+        phone: "+79137311003"
+      tags:
+        - Technical PM
+        - Delivery Expert
+        - IT Enthusiast
+        - Amazing Friend
+        - Humble Guy
   - type: skills
     data:
       title: Навыки
       groups:
-        - title: General
+        - title: Общие
           items:
             - name: React.js
               icon: 'logos:react'
@@ -43,7 +49,7 @@ sections:
             - name: SASS
               icon: 'logos:sass'
               level: 3
-        - title: Frameworks
+        - title: Фреймворки
           items:
             - name: NestJS
               icon: 'logos:nestjs'
@@ -63,7 +69,7 @@ sections:
             - name: ESLint
               icon: 'logos:eslint'
               level: 4
-        - title: Technical
+        - title: Технические
           items:
             - name: PostgreSQL
               icon: 'logos:postgresql'
@@ -83,7 +89,7 @@ sections:
             - name: Supabase
               icon: 'logos:supabase-icon'
               level: 3
-        - title: Languages
+        - title: Языки
           items:
             - name: English - C1
               icon: 'twemoji:flag-united-kingdom'

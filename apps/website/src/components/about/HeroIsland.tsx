@@ -19,8 +19,10 @@ export default function HeroIsland({
   location, 
   bio, 
   links = [], 
-  badges = [],
-  cvUrl
+  tags = [],
+  contact,
+  cvUrl,
+  lang = 'en'
 }: {
   name?: string;
   role?: string;
@@ -29,13 +31,15 @@ export default function HeroIsland({
   location?: string;
   bio?: string;
   links?: HeroLink[];
-  badges?: HeroBadge[];
+  tags?: string[];
+  contact?: { email?: string; phone?: string };
   cvUrl?: string | null;
+  lang?: 'en' | 'ru';
 }) {
   // Extract social links for header toolbar
-  const githubLink = links.find(link => 
-    link.label.toLowerCase().includes('github') || 
-    link.url.includes('github.com')
+  const telegramLink = links.find(link => 
+    link.label.toLowerCase().includes('telegram') || 
+    link.url.includes('t.me')
   );
   const linkedinLink = links.find(link => 
     link.label.toLowerCase().includes('linkedin') || 
@@ -44,11 +48,12 @@ export default function HeroIsland({
   const portfolioLink = links.find(link => 
     link.label.toLowerCase().includes('portfolio') || 
     link.label.toLowerCase().includes('website') ||
-    (!link.url.includes('github.com') && !link.url.includes('linkedin.com'))
+    (!link.url.includes('t.me') && !link.url.includes('linkedin.com'))
   );
 
-  // Calculate avatar size with safeguards
-  const size = Math.max(80, Math.min(512, Number(avatarSizePx ?? 160)));
+  // Calculate avatar size with safeguards - using fixed 160x240 for vertical scaling
+  const avatarWidth = 160;
+  const avatarHeight = 240;
 
   return (
     <div className="flex flex-col sm:flex-row gap-6 items-start">
@@ -56,7 +61,7 @@ export default function HeroIsland({
       <div className="flex-shrink-0 flex flex-col items-center">
         <div
           className="relative rounded-2xl overflow-hidden border"
-          style={{ width: `${size}px`, height: `${size}px` }}
+          style={{ width: `${avatarWidth}px`, height: `${avatarHeight}px` }}
         >
           {avatar ? (
             <img
@@ -79,12 +84,12 @@ export default function HeroIsland({
           <a 
             href={cvUrl} 
             download 
-            className="mt-3 inline-flex items-center gap-2 px-3 py-2 rounded-xl cv-ring"
+            className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-xl cv-ring w-full justify-center"
             style={{ background: 'var(--cv-accent)', color: 'white' }}
-            title="Download CV (PDF)"
+            title={lang === 'ru' ? 'Скачать резюме (PDF)' : 'Download CV (PDF)'}
           >
             <Icon icon="mdi:download" aria-hidden />
-            <span>Download CV</span>
+            <span>{lang === 'ru' ? 'Резюме' : 'Download CV'}</span>
           </a>
         )}
       </div>
@@ -105,23 +110,49 @@ export default function HeroIsland({
               </p>
             )}
             {location && (
-              <p className="text-sm cv-muted mt-1">
+              <a 
+                href="https://www.google.com/maps?q=55.03055266227897,82.92296996190106"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm cv-muted mt-1 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cv-ring)] rounded-sm inline-block"
+              >
                 📍 {location}
-              </p>
+              </a>
+            )}
+            {/* Contact row under location */}
+            {(contact?.email || contact?.phone) && (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm mt-2">
+                {contact?.email && (
+                  <a 
+                    href={`mailto:${contact.email}`} 
+                    className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cv-ring)] rounded-sm"
+                  >
+                    ✉️ Email: {contact.email}
+                  </a>
+                )}
+                {contact?.phone && (
+                  <a 
+                    href={`tel:${contact.phone.replace(/[^\d+]/g, '')}`} 
+                    className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cv-ring)] rounded-sm"
+                  >
+                    📞 Phone: {contact.phone}
+                  </a>
+                )}
+              </div>
             )}
           </div>
           
           {/* Social Icons Toolbar */}
-          <div className="flex items-center gap-2">
-            {githubLink && (
+          <div className="flex items-center gap-3">
+            {telegramLink && (
               <a 
-                href={githubLink.url} 
+                href={telegramLink.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border cv-chip cv-ring" 
-                aria-label="GitHub"
+                className="inline-flex h-12 w-12 items-center justify-center rounded-xl border cv-chip cv-ring" 
+                aria-label="Telegram"
               >
-                <Icon icon="mdi:github" className="text-[18px] cv-muted" aria-hidden />
+                <Icon icon="mdi:telegram" className="text-[24px] cv-muted" aria-hidden />
               </a>
             )}
             {linkedinLink && (
@@ -129,10 +160,10 @@ export default function HeroIsland({
                 href={linkedinLink.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border cv-chip cv-ring" 
+                className="inline-flex h-12 w-12 items-center justify-center rounded-xl border cv-chip cv-ring" 
                 aria-label="LinkedIn"
               >
-                <Icon icon="mdi:linkedin" className="text-[18px] cv-muted" aria-hidden />
+                <Icon icon="mdi:linkedin" className="text-[24px] cv-muted" aria-hidden />
               </a>
             )}
             {portfolioLink && (
@@ -140,10 +171,10 @@ export default function HeroIsland({
                 href={portfolioLink.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border cv-chip cv-ring" 
+                className="inline-flex h-12 w-12 items-center justify-center rounded-xl border cv-chip cv-ring" 
                 aria-label="Portfolio"
               >
-                <Icon icon="mdi:link-variant" className="text-[18px] cv-muted" aria-hidden />
+                <Icon icon="mdi:link-variant" className="text-[24px] cv-muted" aria-hidden />
               </a>
             )}
           </div>
@@ -156,15 +187,15 @@ export default function HeroIsland({
           </p>
         )}
         
-        {/* Badges */}
-        {badges.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {badges.map((badge, index) => (
+        {/* Tags */}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-3">
+            {tags.map((tag, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                className="px-3 py-2 text-sm rounded-xl border cv-chip"
               >
-                {badge.name}
+                {tag}
               </span>
             ))}
           </div>

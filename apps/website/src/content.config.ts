@@ -89,6 +89,11 @@ const HeroData = z.object({
       name: i18n,
     }).passthrough()
   ).optional(),
+  tags: z.array(i18n).optional(),
+  contact: z.object({
+    email: z.string().email().optional(),
+    phone: z.string().optional(),
+  }).optional(),
 }).passthrough();
 
 // Skill item schema

@@ -28,6 +28,8 @@ const links = Array.isArray(heroData.links) ? heroData.links.map((link: any) => 
 const badges = Array.isArray(heroData.badges) ? heroData.badges.map((badge: any) => ({
   name: t(badge.name, lang)
 })) : [];
+const tags = Array.isArray(heroData.tags) ? heroData.tags.map((tag: any) => t(tag, lang)) : [];
+const contact = heroData.contact;
 
 // Calculate CV URL with fallback logic
 const fm = frontmatter;
@@ -44,7 +46,7 @@ const avatarSizePx = Number(d.avatarSizePx ?? 160);
 ---
 
 <SectionCard 
-  title="Profile"
+  title={lang === 'ru' ? 'Профиль' : 'Profile'}
   hasHeaderMedia={false}
   class="mt-6 mb-10"
 >
@@ -58,7 +60,9 @@ const avatarSizePx = Number(d.avatarSizePx ?? 160);
     location={location}
     bio={bio}
     links={links}
-    badges={badges}
+    tags={tags.length > 0 ? tags : badges.map((badge: any) => badge.name)}
+    contact={contact}
     cvUrl={cvUrl}
+    lang={lang}
   />
 </SectionCard>
