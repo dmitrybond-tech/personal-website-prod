@@ -257,3 +257,51 @@ collections:
           - { label: "Visible", name: "visible", widget: "boolean" }
           - { label: "Icon", name: "icon", widget: "string", required: false }
       - { label: "Footer Note", name: "footer_note", widget: "text", required: false }
+
+  - name: "en_bookme_content"
+    label: "Book Me Page (EN)"
+    folder: "apps/website/src/content"
+    create: false
+    format: "frontmatter"
+    extension: "md"
+    slug: "bookme"
+    path: "en/bookme"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Subtitle", name: "subtitle", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "CTA", name: "cta", widget: "string" }
+      - { label: "Default Tile Slug", name: "defaultTileSlug", widget: "string" }
+      - label: "Tiles"
+        name: "tiles"
+        widget: "list"
+        fields:
+          - { label: "Slug", name: "slug", widget: "string" }
+          - { label: "Label", name: "label", widget: "string", required: false }
+          - { label: "Caption", name: "caption", widget: "string", required: false }
+          - { label: "Icon", name: "icon", widget: "string", required: false }
+      - { label: "Body", name: "body", widget: "markdown", required: false }
+
+  - name: "ru_bookme_content"
+    label: "Book Me Page (RU)"
+    folder: "apps/website/src/content"
+    create: false
+    format: "frontmatter"
+    extension: "md"
+    slug: "bookme"
+    path: "ru/bookme"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Subtitle", name: "subtitle", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "CTA", name: "cta", widget: "string" }
+      - { label: "Default Tile Slug", name: "defaultTileSlug", widget: "string" }
+      - label: "Tiles"
+        name: "tiles"
+        widget: "list"
+        fields:
+          - { label: "Slug", name: "slug", widget: "string" }
+          - { label: "Label", name: "label", widget: "string", required: false }
+          - { label: "Caption", name: "caption", widget: "string", required: false }
+          - { label: "Icon", name: "icon", widget: "string", required: false }
+      - { label: "Body", name: "body", widget: "markdown", required: false }

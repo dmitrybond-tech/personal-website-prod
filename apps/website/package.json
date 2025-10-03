@@ -75,13 +75,16 @@
     "decap-cms": "3.8.4",
     "decap-server": "3.3.1",
     "dotenv": "17.2.2",
+    "fast-glob": "3.3.2",
     "gray-matter": "4.0.3",
     "js-yaml": "4.1.0",
     "postcss": "8.4.47",
     "tailwindcss": "4.1.13",
+    "toml": "3.0.0",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
-    "yaml": "2.4.5",
+    "yaml": "2.5.0",
+    "yargs": "17.7.2",
     "zod": "3.23.8"
   }
 }

@@ -1,27 +1,18 @@
 ---
 // src/pages/[lang]/bookme.astro
 import AppShell from '../../app/layouts/AppShell.astro';
-import { getEntry } from 'astro:content';
-import { debug } from '../../app/shared/lib/debug';
+import BookMeSection from '../../app/entities/sections/ui/BookMeSection.astro';
 
 const { lang } = Astro.params as { lang: 'en' | 'ru' };
-const slug = `${lang}/bookme`;
-
-const entry = await getEntry({ collection: 'bookmePage', slug });
-const calLink = entry?.data?.cal_link ?? 'your-cal-handle/intro';
-
-debug('[bookme] lang=%s slug=%s hasEntry=%s cal=%s', lang, slug, !!entry, calLink);
 ---
 
 <AppShell lang={lang}>
-  <div class="py-8" style="--cv-content-max: 990px;">
-    <!-- Cal.com stub + embed + ui init -->
-    <script is:inline>
-      window.Cal = window.Cal || function(){ (window.Cal.q = window.Cal.q || []).push(arguments) };
-    </script>
-    <link rel="stylesheet" href="https://app.cal.com/embed/embed.css">
-    <script src="https://app.cal.com/embed/embed.js" async></script>
-    <div class="cal-inline" data-cal-link={calLink}></div>
-    <script is:inline> Cal('ui', { theme: 'auto' }); </script>
+  <Fragment slot="head">
+    <!-- Preload Cal CSS (harmless if not used); JS loads via helper -->
+    <link rel="preload" as="style" href="https://cal.com/embed.css" />
+    <link rel="preconnect" href="https://cal.com" crossorigin />
+  </Fragment>
+  <div class="py-8">
+    <BookMeSection locale={lang} />
   </div>
 </AppShell>

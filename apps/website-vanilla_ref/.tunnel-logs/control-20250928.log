@@ -1,8 +1,0 @@
-[start] 09/28/2025 16:28:52 dir=C:\PersonalProjects\website\apps\website key=C:\Users\dmevb\.ssh\id_ed25519_wsl port=4321 remote=localhost.run
-[hint] public URL will be printed in ssh-log
-2025-09-28 16:28:52 [connect] ssh -i C:\Users\dmevb\.ssh\id_ed25519_wsl -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -o TCPKeepAlive=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=NUL -R 80:localhost:4321 localhost.run
-2025-09-28 16:35:44 [exit] code=0 -> retry in 5 s
-2025-09-28 16:35:49 [connect] ssh -i C:\Users\dmevb\.ssh\id_ed25519_wsl -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -o TCPKeepAlive=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=NUL -R 80:localhost:4321 localhost.run
-[start] 09/28/2025 16:36:13 dir=C:\PersonalProjects\website\apps\website key=C:\Users\dmevb\.ssh\id_ed25519_wsl port=4321 remote=localhost.run
-[hint] public URL will be printed in ssh-log
-2025-09-28 16:36:13 [connect] ssh -i C:\Users\dmevb\.ssh\id_ed25519_wsl -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -o TCPKeepAlive=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=NUL -R 80:localhost:4321 localhost.run
