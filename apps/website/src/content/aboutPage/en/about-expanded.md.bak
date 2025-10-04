@@ -359,7 +359,6 @@ sections:
               bullets:
                 - Specialization in application development
                 - Foundation in computer science and mathematics
-    items: []
   - type: favorites
     data:
       title: Favorites

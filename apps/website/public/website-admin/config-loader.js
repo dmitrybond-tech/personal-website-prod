@@ -1,12 +1,26 @@
 // /public/website-admin/config-loader.js
+
+// Hard block any attempts to fetch default config.yml
+(function hardBlockDefaultConfig() {
+  const orig = window.fetch;
+  window.fetch = function(url, opts) {
+    try {
+      const str = typeof url === 'string' ? url : (url?.url || '');
+      // блокируем любые попытки трогать default config.yml
+      if (str.includes('/website-admin/config.yml') || str.includes('/api/website-admin/config.yml')) {
+        console.warn('[cms] Blocked fetch to default config.yml:', str);
+        return Promise.resolve(new Response('', { status: 404 }));
+      }
+    } catch {}
+    return orig.apply(this, arguments);
+  };
+})();
+
 const qs = new URLSearchParams(location.search);
 const param = qs.get('config');
 
-const candidates = [
-  '/website-admin/config.generated.yml',
-  '/admin/config.generated.yml',
-  '/admin/config.yml',
-];
+// Force load only generated config
+const FORCE_CONFIG_PATH = '/website-admin/config.generated.yml';
 
 async function fileExists(url) {
   try {
@@ -16,9 +30,14 @@ async function fileExists(url) {
 }
 
 async function resolvePath() {
-  if (param) return param;
-  for (const p of candidates) if (await fileExists(p)) return p;
-  return null;
+  // If param is explicitly set, use it (but still block if it's config.yml)
+  if (param && param !== '/website-admin/config.yml') return param;
+  
+  // Always prefer generated config
+  if (await fileExists(FORCE_CONFIG_PATH)) return FORCE_CONFIG_PATH;
+  
+  console.warn('[cms] Generated config not found, falling back to force path');
+  return FORCE_CONFIG_PATH;
 }
 
 async function loadYaml(url) {
@@ -42,23 +61,38 @@ function waitForCMS(timeoutMs = 10000, stepMs = 50) {
 }
 
 function ensureLocalBackend(cfg) {
-  const def = { url: 'http://localhost:8081', allowed_hosts: ['localhost:4321'] };
-  if (cfg.local_backend === true) cfg.local_backend = def;
-  else if (!cfg.local_backend) cfg.local_backend = def;
+  const qs = new URLSearchParams(location.search);
+  const forceLocal = qs.get('local_backend') === 'true'; // включаем ТОЛЬКО по параметру
+  if (forceLocal) {
+    const def = { url: 'http://localhost:8081', allowed_hosts: ['localhost:4321'] };
+    if (cfg.local_backend === true) cfg.local_backend = def;
+    else if (!cfg.local_backend) cfg.local_backend = def;
+  } else {
+    delete cfg.local_backend; // прод-режим/туннель → без локального бэкенда
+  }
   return cfg;
 }
 
 (async () => {
   try {
     const path = await resolvePath();
-    if (!path) { console.warn('[cms] No config found among candidates:', candidates); return; }
+    if (!path) { 
+      console.error('[cms] No valid config path found'); 
+      return; 
+    }
+    
     const cfg = ensureLocalBackend(await loadYaml(path));
     window.__CMS_CONFIG_PATH__ = path;
     window.__CMS_CONFIG__ = cfg;
     console.info('[cms] Loaded config from', path, cfg);
 
     await waitForCMS();
-    window.CMS.init({ config: cfg });
+    
+    // Initialize CMS without auto-loading default config file
+    window.CMS.init({
+      load_config_file: false,
+      config: cfg,
+    });
 
     setTimeout(() => {
       try {

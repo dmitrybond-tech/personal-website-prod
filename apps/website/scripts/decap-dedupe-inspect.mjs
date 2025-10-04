@@ -1,53 +1,133 @@
-// node apps/website/scripts/decap-dedupe-inspect.mjs
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import yaml from 'yaml'
+#!/usr/bin/env node
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname.replace(/^\/[A-Z]:/, ''))
-const CONFIG = path.resolve(__dirname, '../public/website-admin/config.generated.yml')
-const text = await fs.readFile(CONFIG, 'utf8')
-const cfg = yaml.parse(text)
-const errs = []
+import { fileURLToPath } from 'node:url';
+import { readFileSync, existsSync } from 'node:fs';
+import path from 'node:path';
+import jsyaml from 'js-yaml';
 
-function scanFields(node, trail) {
-  if (!node || typeof node !== 'object') return
-  // list of fields on this level
-  if (Array.isArray(node.fields)) {
-    const seen = new Map()
-    node.fields.forEach((f, i) => {
-      const nm = f?.name
-      if (nm) {
-        const arr = seen.get(nm) || []
-        arr.push(i)
-        seen.set(nm, arr)
-      }
-    })
-    for (const [nm, idxs] of seen.entries()) {
-      if (idxs.length > 1) errs.push(`${trail}.fields -> duplicate "name: ${nm}" at indexes [${idxs.join(', ')}]`)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Candidates to inspect
+const CANDIDATES = [
+  path.resolve(__dirname, '../public/website-admin/config.generated.yml'),
+  path.resolve(__dirname, '../public/website-admin/config.yml')
+];
+
+function inspectFieldsForDuplicates(fields, path = '') {
+  const seen = new Map();
+  let hasDuplicates = false;
+  
+  for (const field of fields) {
+    const key = field.name;
+    const fullPath = path ? `${path}.${key}` : key;
+    
+    if (seen.has(key)) {
+      console.error(`[inspect] DUPLICATE FIELD NAME: "${key}" at path: ${fullPath}`);
+      console.error(`[inspect] First occurrence: ${seen.get(key)}`);
+      console.error(`[inspect] Duplicate occurrence: ${fullPath}`);
+      hasDuplicates = true;
+    } else {
+      seen.set(key, fullPath);
     }
-    node.fields.forEach((f, i) => {
-      scanFields(f, `${trail}.fields[${i}]`)
-      if (f?.field) scanFields({ fields:[f.field] }, `${trail}.fields[${i}].field`)
-    })
+    
+    // Recursively inspect nested fields
+    if (field.fields) {
+      const nestedDuplicates = inspectFieldsForDuplicates(field.fields, `${fullPath}.fields`);
+      hasDuplicates = hasDuplicates || nestedDuplicates;
+    }
+    
+    // Inspect types in list widgets
+    if (field.types) {
+      for (const type of field.types) {
+        if (type.fields) {
+          const typeDuplicates = inspectFieldsForDuplicates(type.fields, `${fullPath}.types.${type.name}.fields`);
+          hasDuplicates = hasDuplicates || typeDuplicates;
+        }
+      }
+    }
   }
-  // scan common nested objects
-  for (const k of Object.keys(node)) {
-    if (k !== 'fields' && typeof node[k] === 'object') scanFields(node[k], `${trail}.${k}`)
+  
+  return hasDuplicates;
+}
+
+function inspectCollection(collection, collectionPath) {
+  let hasDuplicates = false;
+  
+  // Inspect files collections
+  if (collection.files) {
+    for (const file of collection.files) {
+      if (file.fields) {
+        const filePath = `${collectionPath}.files.${file.name}.fields`;
+        const fileDuplicates = inspectFieldsForDuplicates(file.fields, filePath);
+        hasDuplicates = hasDuplicates || fileDuplicates;
+      }
+    }
+  }
+  
+  // Inspect folder collections
+  if (collection.fields) {
+    const folderPath = `${collectionPath}.fields`;
+    const folderDuplicates = inspectFieldsForDuplicates(collection.fields, folderPath);
+    hasDuplicates = hasDuplicates || folderDuplicates;
+  }
+  
+  return hasDuplicates;
+}
+
+function inspectConfig(config, configPath) {
+  console.log(`[inspect] Inspecting: ${configPath}`);
+  
+  let hasDuplicates = false;
+  
+  // Inspect collections
+  for (const collection of config.collections || []) {
+    const collectionPath = `collections.${collection.name}`;
+    const collectionDuplicates = inspectCollection(collection, collectionPath);
+    hasDuplicates = hasDuplicates || collectionDuplicates;
+  }
+  
+  return hasDuplicates;
+}
+
+async function main() {
+  console.log('[inspect] Starting duplicate field inspection...');
+  
+  let totalDuplicates = 0;
+  
+  for (const configPath of CANDIDATES) {
+    if (!existsSync(configPath)) {
+      console.log(`[inspect] Skipping non-existent: ${configPath}`);
+      continue;
+    }
+    
+    try {
+      const content = readFileSync(configPath, 'utf8');
+      const config = jsyaml.load(content);
+      
+      const hasDuplicates = inspectConfig(config, configPath);
+      
+      if (hasDuplicates) {
+        totalDuplicates++;
+        console.error(`[inspect] ✗ Found duplicates in: ${configPath}`);
+      } else {
+        console.log(`[inspect] ✓ No duplicates found in: ${configPath}`);
+      }
+      
+    } catch (error) {
+      console.error(`[inspect] ✗ Failed to inspect ${configPath}:`, error.message);
+      process.exit(1);
+    }
+  }
+  
+  if (totalDuplicates > 0) {
+    console.error(`[inspect] FAIL: Found duplicates in ${totalDuplicates} config files`);
+    process.exit(1);
+  } else {
+    console.log('[inspect] SUCCESS: No duplicate field names found in any config files');
   }
 }
 
-(cfg.collections || []).forEach((col, ci) => {
-  if (Array.isArray(col.files)) {
-    col.files.forEach((file, fi) => {
-      if (Array.isArray(file.fields)) {
-        file.fields.forEach((fld, i) => scanFields(fld, `collections[${ci}].files[${fi}].fields[${i}]`))
-      }
-    })
-  }
-})
-if (errs.length) {
-  console.error('[dedupe-inspect] duplicates found:')
-  errs.forEach(e => console.error(' -', e))
-  process.exit(1)
-}
-console.log('[dedupe-inspect] no duplicates ✓')
+main().catch(error => {
+  console.error('[inspect] Fatal error:', error);
+  process.exit(1);
+});

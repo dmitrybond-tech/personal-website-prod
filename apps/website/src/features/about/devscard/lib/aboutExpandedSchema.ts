@@ -42,12 +42,13 @@ const MainSectionDataSchema = z.object({
 
 const SkillSchema = z.object({
   name: z.string(),
+  level: z.enum(['beginner', 'intermediate', 'advanced', 'expert']),
   icon: z.string().optional(),
-  level: z.number().min(1).max(5).optional(),
+  color: z.string().optional(),
   description: z.string().optional(),
 });
 
-const SkillSetSchema = z.object({
+const SkillsCategorySchema = z.object({
   title: z.string(),
   skills: z.array(SkillSchema),
 });
@@ -57,7 +58,7 @@ const SkillsSectionDataSchema = z.object({
   slug: z.string(),
   icon: z.string(),
   visible: z.boolean().optional().default(true),
-  skillSets: z.array(SkillSetSchema),
+  categories: z.array(SkillsCategorySchema),
 });
 
 const JobRoleSchema = z.object({

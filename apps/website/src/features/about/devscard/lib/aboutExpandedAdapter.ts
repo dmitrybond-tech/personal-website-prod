@@ -113,12 +113,12 @@ function mapSkillsSection(section?: AboutExpandedSection): SkillsSection {
       icon: data.icon as any,
       visible: data.visible ?? true,
     },
-    skillSets: data.skillSets.map(skillSet => ({
-      title: skillSet.title,
-      skills: skillSet.skills.map(skill => ({
+    skillSets: data.categories.map(category => ({
+      title: category.title,
+      skills: category.skills.map(skill => ({
         name: skill.name,
         icon: skill.icon as any,
-        level: skill.level as any,
+        level: mapSkillLevel(skill.level),
         description: skill.description,
       })),
     })),
@@ -320,6 +320,17 @@ function createDefaultFavoritesSection(): FavoritesSection {
       visible: true,
     },
   };
+}
+
+// Helper function to map skill levels from string to number
+function mapSkillLevel(level: 'beginner' | 'intermediate' | 'advanced' | 'expert'): number {
+  switch (level) {
+    case 'beginner': return 1;
+    case 'intermediate': return 3;
+    case 'advanced': return 4;
+    case 'expert': return 5;
+    default: return 1;
+  }
 }
 
 // Helper function to parse date ranges

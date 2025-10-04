@@ -22,7 +22,14 @@
     "dev:all": "concurrently \"npm run cv:en:dev\" \"npm run cv:ru:dev\" \"npm run website:dev\"",
     "cv:en:dev": "cd apps/CV/devscard_en && npm run dev",
     "cv:ru:dev": "cd apps/CV/devscard_ru && npm run dev",
-    "cms:preflight": "node apps/website/scripts/decap-config-preflight.mjs"
+    "cms:sanitize": "node apps/website/scripts/decap-sanitize-config.mjs",
+    "cms:inspect": "node apps/website/scripts/decap-dedupe-inspect.mjs",
+    "cms:preflight": "node apps/website/scripts/decap-config-preflight.mjs",
+    "cms:devcfg": "node apps/website/scripts/cms-config-swap.mjs dev",
+    "cms:prodcfg": "node apps/website/scripts/cms-config-swap.mjs prod",
+    "dev": "npm run cms:devcfg && astro dev --host --port 4321 --strictPort",
+    "build": "astro build",
+    "build:prod": "npm run cms:prodcfg && npm --workspace apps/website run build"
   },
   "engines": {
     "node": ">=18",
