@@ -21,7 +21,8 @@
     "website:build": "cd apps/website && npm run build",
     "dev:all": "concurrently \"npm run cv:en:dev\" \"npm run cv:ru:dev\" \"npm run website:dev\"",
     "cv:en:dev": "cd apps/CV/devscard_en && npm run dev",
-    "cv:ru:dev": "cd apps/CV/devscard_ru && npm run dev"
+    "cv:ru:dev": "cd apps/CV/devscard_ru && npm run dev",
+    "cms:preflight": "node apps/website/scripts/decap-config-preflight.mjs"
   },
   "engines": {
     "node": ">=18",

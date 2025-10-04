@@ -19,6 +19,8 @@
     "cal:webhook:update": "node ../../scripts/cal-webhook.mjs update",
     "cal:webhook:list": "node ../../scripts/cal-webhook.mjs list",
     "cms:proxy": "decap-server --port 8081",
+    "cms:inspect": "node scripts/decap-dedupe-inspect.mjs",
+    "cms:preflight": "node scripts/decap-config-preflight.mjs",
     "cms:seed:footer": "tsx scripts/cms/seed-footer.ts",
     "fix:dates": "node ./scripts/normalize-post-dates.mjs",
     "fix:content": "node ./scripts/normalize-post-fields.mjs",

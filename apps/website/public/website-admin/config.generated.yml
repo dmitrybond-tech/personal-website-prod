@@ -7,651 +7,322 @@ local_backend:
 media_folder: "public/uploads"
 public_folder: "/uploads"
 collections:
-  - name: about_expanded_(en)
-    label: About Expanded (EN)
-    type: files
-    format: frontmatter
-    file: apps/website/src/content/aboutPage/en/about-expanded.md
-    create: false
-    delete: false
-    fields:
-      - name: title
-        label: Page Title
-        type: string
-        required: true
-      - name: slug
-        label: URL Slug
-        type: string
-        required: true
-      - name: sections
-        label: Page Sections
-        type: list
-        required: true
+  - name: "about_en"
+    label: "About (EN)"
+    files:
+      - name: "about_en_file"
+        label: "About (EN)"
+        file: "content/en/about-expanded.md"
+        create: false
+        delete: false
         fields:
-          - name: type
-            label: Section Type
-            type: select
-            options:
-              - main
-              - skills
-              - experience
-              - favorites
-              - education
-              - portfolio
-              - testimonials
-            required: true
-          - name: data
-            label: Section Data
-            type: object
-            required: true
-            fields:
-              - name: title
-                label: Section Title
-                type: string
-                required: true
-              - name: slug
-                label: Section Slug
-                type: string
-                required: false
-              - name: icon
-                label: Section Icon
-                type: string
-                required: false
-              - name: visible
-                label: Visible
-                type: boolean
-                required: false
-              - name: fullName
-                label: Full Name
-                type: string
-                required: false
-              - name: role
-                label: Role/Position
-                type: string
-                required: false
-              - name: image
-                label: Profile Image
-                type: image
-                required: false
-              - name: description
-                label: Description
-                type: markdown
-                required: false
-              - name: details
-                label: Profile Details
-                type: list
-                required: false
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Slug", name: "slug", widget: "string" }
+          - label: "Sections"
+            name: "sections"
+            widget: "list"
+            typeKey: "type"
+            types:
+              - label: "Main"
+                name: "main"
+                widget: "object"
                 fields:
-                  - name: label
-                    label: Detail Label
-                    type: string
-                    required: true
-                  - name: value
-                    label: Detail Value
-                    type: string
-                    required: true
-                  - name: url
-                    label: Detail URL (optional)
-                    type: string
-                    required: false
-              - name: tags
-                label: Tags
-                type: list
-                required: false
-                fields:
-                  - name: name
-                    label: Tag Name
-                    type: string
-                    required: true
-              - name: action
-                label: Download Action
-                type: object
-                required: false
-                fields:
-                  - name: label
-                    label: Button Label
-                    type: string
-                    required: true
-                  - name: url
-                    label: Download URL
-                    type: string
-                    required: true
-                  - name: downloadedFileName
-                    label: Downloaded File Name
-                    type: string
-                    required: false
-              - name: links
-                label: Social Links
-                type: list
-                required: false
-                fields:
-                  - name: label
-                    label: Link Label
-                    type: string
-                    required: true
-                  - name: url
-                    label: Link URL
-                    type: string
-                    required: true
-                  - name: icon
-                    label: Link Icon
-                    type: string
-                    required: false
-                  - name: color
-                    label: Link Color
-                    type: string
-                    required: false
-              - name: skillSets
-                label: Skill Categories
-                type: list
-                required: false
-                fields:
-                  - name: title
-                    label: Category Title
-                    type: string
-                    required: true
-                  - name: skills
-                    label: Skills in Category
-                    type: list
+                  - { label: "Full name", name: "fullName", widget: "string" }
+                  - { label: "Role", name: "role", widget: "string" }
+                  - { label: "Image", name: "image", widget: "image", required: false }
+                  - { label: "Description", name: "description", widget: "markdown", required: false }
+                  - label: "Details"
+                    name: "details"
+                    widget: "list"
+                    fields:
+                      - { label: "Label", name: "label", widget: "string" }
+                      - { label: "Value", name: "value", widget: "string" }
+                      - { label: "URL", name: "url", widget: "string", required: false }
+                  - label: "Tags"
+                    name: "tags"
+                    widget: "list"
+                    fields:
+                      - { label: "Name", name: "name", widget: "string" }
+                  - label: "Action (CV button)"
+                    name: "action"
+                    widget: "object"
                     required: false
                     fields:
-                      - name: name
-                        label: Skill Name
-                        type: string
-                        required: true
-                      - name: level
-                        label: Skill Level (1-5)
-                        type: number
-                        required: false
-                      - name: icon
-                        label: Skill Icon
-                        type: string
-                        required: false
-                      - name: description
-                        label: Skill Description
-                        type: text
-                        required: false
-              - name: items
-                label: Experience Items
-                type: list
-                required: false
-                fields:
-                  - name: company
-                    label: Company Name
-                    type: string
-                    required: true
-                  - name: location
-                    label: Location
-                    type: string
+                      - { label: "Label", name: "label", widget: "string" }
+                      - { label: "URL", name: "url", widget: "string" }
+                      - { label: "Downloaded File Name", name: "downloadedFileName", widget: "string", required: false }
+                  - label: "Links"
+                    name: "links"
+                    widget: "list"
                     required: false
-                  - name: logo
-                    label: Company Logo
-                    type: image
-                    required: false
-                  - name: website
-                    label: Company Website
-                    type: string
-                    required: false
-                  - name: roles
-                    label: Job Roles
-                    type: list
-                    required: true
                     fields:
-                      - name: title
-                        label: Role Title
-                        type: string
-                        required: true
-                      - name: period
-                        label: Employment Period
-                        type: string
-                        required: true
-                      - name: description
-                        label: Role Description
-                        type: markdown
-                        required: false
-                      - name: bullets
-                        label: Achievements
-                        type: list
-                        required: false
-                        field:
-                          name: bullet
-                          label: Achievement
-                          type: text
-                      - name: technologies
-                        label: Technologies Used
-                        type: list
-                        required: false
-                        field:
-                          name: tech
-                          label: Technology
-                          type: string
-                      - name: links
-                        label: Project Links
-                        type: list
+                      - { label: "Label", name: "label", widget: "string", required: false }
+                      - { label: "URL", name: "url", widget: "string" }
+                      - { label: "Icon", name: "icon", widget: "string", required: false }
+                      - { label: "Color", name: "color", widget: "string", required: false }
+
+              - label: "Skills"
+                name: "skills"
+                widget: "object"
+                fields:
+                  - label: "Categories"
+                    name: "categories"
+                    widget: "list"
+                    fields:
+                      - { label: "Title", name: "title", widget: "string" }
+                      - label: "Skills"
+                        name: "skills"
+                        widget: "list"
+                        fields:
+                          - { label: "Name", name: "name", widget: "string" }
+                          - label: "Level"
+                            name: "level"
+                            widget: "select"
+                            options: ["beginner","intermediate","advanced","expert"]
+                          - { label: "Icon", name: "icon", widget: "string", required: false }
+                          - { label: "Color", name: "color", widget: "string", required: false }
+                          - { label: "Description", name: "description", widget: "text", required: false }
+
+              - label: "Experience"
+                name: "experience"
+                widget: "object"
+                fields:
+                  - label: "Items"
+                    name: "items"
+                    widget: "list"
+                    fields:
+                      - { label: "Company", name: "company", widget: "string" }
+                      - { label: "Location", name: "location", widget: "string", required: false }
+                      - { label: "Logo", name: "logo", widget: "image", required: false }
+                      - { label: "Website", name: "website", widget: "string", required: false }
+                      - label: "Roles"
+                        name: "roles"
+                        widget: "list"
+                        fields:
+                          - { label: "Title", name: "title", widget: "string" }
+                          - { label: "Period", name: "period", widget: "string" }
+                          - { label: "Description", name: "description", widget: "markdown", required: false }
+                          - { label: "Bullets", name: "bullets", widget: "list", field: { label: "Bullet", name: "bullet", widget: "string" }, required: false }
+                          - { label: "Technologies", name: "technologies", widget: "list", field: { label: "Tech", name: "tech", widget: "string" }, required: false }
+                          - label: "Links"
+                            name: "links"
+                            widget: "list"
+                            required: false
+                            fields:
+                              - { label: "Label", name: "label", widget: "string", required: false }
+                              - { label: "URL", name: "url", widget: "string" }
+                              - { label: "Icon", name: "icon", widget: "string", required: false }
+
+              - label: "Education"
+                name: "education"
+                widget: "object"
+                fields:
+                  - label: "Items"
+                    name: "items"
+                    widget: "list"
+                    fields:
+                      - { label: "Institution", name: "institution", widget: "string" }
+                      - { label: "Degree", name: "degree", widget: "string", required: false }
+                      - { label: "Location", name: "location", widget: "string", required: false }
+                      - { label: "Period", name: "period", widget: "string", required: false }
+                      - { label: "Notes", name: "notes", widget: "list", field: { label: "Note", name: "note", widget: "string" }, required: false }
+
+              - label: "Favorites"
+                name: "favorites"
+                widget: "object"
+                fields:
+                  - label: "Style"
+                    name: "style"
+                    widget: "object"
+                    required: false
+                    fields:
+                      - { label: "Variant", name: "variant", widget: "string", required: false }
+                      - { label: "Cols", name: "cols", widget: "number", required: false }
+                  - label: "Groups"
+                    name: "groups"
+                    widget: "list"
+                    fields:
+                      - { label: "Title", name: "title", widget: "string" }
+                      - label: "Type"
+                        name: "type"
+                        widget: "select"
+                        options: ["hobbies","people","medias","books","movies"]
+                      - label: "Style"
+                        name: "style"
+                        widget: "object"
                         required: false
                         fields:
-                          - name: label
-                            label: Link Label
-                            type: string
-                            required: true
-                          - name: url
-                            label: Link URL
-                            type: string
-                            required: true
-              - name: style
-                label: Display Style
-                type: object
-                required: false
-                fields:
-                  - name: variant
-                    label: Layout Variant
-                    type: select
-                    options:
-                      - tile
-                      - list
-                      - grid
-                      - card
-                    required: false
-                  - name: cols
-                    label: Column Settings
-                    type: object
-                    required: false
-                    fields:
-                      - name: base
-                        label: Base Columns
-                        type: number
-                        required: false
-                      - name: sm
-                        label: Small Screen Columns
-                        type: number
-                        required: false
-                      - name: lg
-                        label: Large Screen Columns
-                        type: number
-                        required: false
-              - name: groups
-                label: Favorite Groups
-                type: list
-                required: false
-                fields:
-                  - name: title
-                    label: Group Title
-                    type: string
-                    required: true
-                  - name: type
-                    label: Group Type
-                    type: select
-                    options:
-                      - books
-                      - people
-                      - videos
-                      - medias
-                      - hobbies
-                      - movies
-                    required: true
-                  - name: style
-                    label: Group Style
-                    type: object
-                    required: false
-                    fields:
-                      - name: limit
-                        label: Items Limit
-                        type: number
-                        required: false
-                  - name: items
-                    label: Group Items
-                    type: list
-                    required: false
-                    fields:
-                      - name: title
-                        label: Item Title
-                        type: string
-                        required: true
-                      - name: name
-                        label: Item Name (for people)
-                        type: string
-                        required: false
-                      - name: author
-                        label: Author (for books)
-                        type: string
-                        required: false
-                      - name: type
-                        label: Type (for media)
-                        type: string
-                        required: false
-                      - name: description
-                        label: Item Description
-                        type: text
-                        required: false
-                      - name: url
-                        label: Item URL
-                        type: string
-                        required: false
-                      - name: image
-                        label: Item Image/Thumbnail
-                        type: image
-                        required: false
-  - name: about_expanded_(ru)
-    label: About Expanded (RU)
-    type: files
-    format: frontmatter
-    file: apps/website/src/content/aboutPage/ru/about-expanded.md
-    create: false
-    delete: false
-    fields:
-      - name: title
-        label: Page Title
-        type: string
-        required: true
-      - name: slug
-        label: URL Slug
-        type: string
-        required: true
-      - name: sections
-        label: Page Sections
-        type: list
-        required: true
+                          - { label: "Limit", name: "limit", widget: "number", required: false }
+                      - label: "Items"
+                        name: "items"
+                        widget: "list"
+                        fields:
+                          - { label: "Title", name: "title", widget: "string" }
+                          - { label: "Subtitle", name: "subtitle", widget: "string", required: false }
+                          - { label: "URL", name: "url", widget: "string", required: false }
+                          - { label: "Image", name: "image", widget: "image", required: false }
+                          - { label: "Icon", name: "icon", widget: "string", required: false }
+                          - { label: "Author", name: "author", widget: "string", required: false }
+                          - { label: "Year", name: "year", widget: "number", required: false }
+                          - { label: "Timeframe", name: "timeframe", widget: "string", required: false }
+                          - { label: "Tags", name: "tags", widget: "list", field: { label: "Tag", name: "tag", widget: "string" }, required: false }
+
+  - name: "about_ru"
+    label: "Обо мне (RU)"
+    files:
+      - name: "about_ru_file"
+        label: "Обо мне (RU)"
+        file: "content/ru/about-expanded.md"
+        create: false
+        delete: false
         fields:
-          - name: type
-            label: Section Type
-            type: select
-            options:
-              - main
-              - skills
-              - experience
-              - favorites
-              - education
-              - portfolio
-              - testimonials
-            required: true
-          - name: data
-            label: Section Data
-            type: object
-            required: true
-            fields:
-              - name: title
-                label: Section Title
-                type: string
-                required: true
-              - name: slug
-                label: Section Slug
-                type: string
-                required: false
-              - name: icon
-                label: Section Icon
-                type: string
-                required: false
-              - name: visible
-                label: Visible
-                type: boolean
-                required: false
-              - name: fullName
-                label: Full Name
-                type: string
-                required: false
-              - name: role
-                label: Role/Position
-                type: string
-                required: false
-              - name: image
-                label: Profile Image
-                type: image
-                required: false
-              - name: description
-                label: Description
-                type: markdown
-                required: false
-              - name: details
-                label: Profile Details
-                type: list
-                required: false
+          - { label: "Заголовок", name: "title", widget: "string" }
+          - { label: "URL-адрес", name: "slug", widget: "string" }
+          - label: "Секции"
+            name: "sections"
+            widget: "list"
+            typeKey: "type"
+            types:
+              - label: "Основное"
+                name: "main"
+                widget: "object"
                 fields:
-                  - name: label
-                    label: Detail Label
-                    type: string
-                    required: true
-                  - name: value
-                    label: Detail Value
-                    type: string
-                    required: true
-                  - name: url
-                    label: Detail URL (optional)
-                    type: string
-                    required: false
-              - name: tags
-                label: Tags
-                type: list
-                required: false
-                fields:
-                  - name: name
-                    label: Tag Name
-                    type: string
-                    required: true
-              - name: action
-                label: Download Action
-                type: object
-                required: false
-                fields:
-                  - name: label
-                    label: Button Label
-                    type: string
-                    required: true
-                  - name: url
-                    label: Download URL
-                    type: string
-                    required: true
-                  - name: downloadedFileName
-                    label: Downloaded File Name
-                    type: string
-                    required: false
-              - name: links
-                label: Social Links
-                type: list
-                required: false
-                fields:
-                  - name: label
-                    label: Link Label
-                    type: string
-                    required: true
-                  - name: url
-                    label: Link URL
-                    type: string
-                    required: true
-                  - name: icon
-                    label: Link Icon
-                    type: string
-                    required: false
-                  - name: color
-                    label: Link Color
-                    type: string
-                    required: false
-              - name: skillSets
-                label: Skill Categories
-                type: list
-                required: false
-                fields:
-                  - name: title
-                    label: Category Title
-                    type: string
-                    required: true
-                  - name: skills
-                    label: Skills in Category
-                    type: list
+                  - { label: "Полное имя", name: "fullName", widget: "string" }
+                  - { label: "Должность", name: "role", widget: "string" }
+                  - { label: "Изображение", name: "image", widget: "image", required: false }
+                  - { label: "Описание", name: "description", widget: "markdown", required: false }
+                  - label: "Детали"
+                    name: "details"
+                    widget: "list"
+                    fields:
+                      - { label: "Метка", name: "label", widget: "string" }
+                      - { label: "Значение", name: "value", widget: "string" }
+                      - { label: "URL", name: "url", widget: "string", required: false }
+                  - label: "Теги"
+                    name: "tags"
+                    widget: "list"
+                    fields:
+                      - { label: "Название", name: "name", widget: "string" }
+                  - label: "Действие (кнопка CV)"
+                    name: "action"
+                    widget: "object"
                     required: false
                     fields:
-                      - name: name
-                        label: Skill Name
-                        type: string
-                        required: true
-                      - name: level
-                        label: Skill Level (1-5)
-                        type: number
-                        required: false
-                      - name: icon
-                        label: Skill Icon
-                        type: string
-                        required: false
-                      - name: description
-                        label: Skill Description
-                        type: text
-                        required: false
-              - name: items
-                label: Experience Items
-                type: list
-                required: false
-                fields:
-                  - name: company
-                    label: Company Name
-                    type: string
-                    required: true
-                  - name: location
-                    label: Location
-                    type: string
+                      - { label: "Метка", name: "label", widget: "string" }
+                      - { label: "URL", name: "url", widget: "string" }
+                      - { label: "Имя скачиваемого файла", name: "downloadedFileName", widget: "string", required: false }
+                  - label: "Ссылки"
+                    name: "links"
+                    widget: "list"
                     required: false
-                  - name: logo
-                    label: Company Logo
-                    type: image
-                    required: false
-                  - name: website
-                    label: Company Website
-                    type: string
-                    required: false
-                  - name: roles
-                    label: Job Roles
-                    type: list
-                    required: true
                     fields:
-                      - name: title
-                        label: Role Title
-                        type: string
-                        required: true
-                      - name: period
-                        label: Employment Period
-                        type: string
-                        required: true
-                      - name: description
-                        label: Role Description
-                        type: markdown
-                        required: false
-                      - name: bullets
-                        label: Achievements
-                        type: list
-                        required: false
-                        field:
-                          name: bullet
-                          label: Achievement
-                          type: text
-                      - name: technologies
-                        label: Technologies Used
-                        type: list
-                        required: false
-                        field:
-                          name: tech
-                          label: Technology
-                          type: string
-                      - name: links
-                        label: Project Links
-                        type: list
+                      - { label: "Метка", name: "label", widget: "string", required: false }
+                      - { label: "URL", name: "url", widget: "string" }
+                      - { label: "Иконка", name: "icon", widget: "string", required: false }
+                      - { label: "Цвет", name: "color", widget: "string", required: false }
+
+              - label: "Навыки"
+                name: "skills"
+                widget: "object"
+                fields:
+                  - label: "Категории"
+                    name: "categories"
+                    widget: "list"
+                    fields:
+                      - { label: "Заголовок", name: "title", widget: "string" }
+                      - label: "Навыки"
+                        name: "skills"
+                        widget: "list"
+                        fields:
+                          - { label: "Название", name: "name", widget: "string" }
+                          - label: "Уровень"
+                            name: "level"
+                            widget: "select"
+                            options: ["beginner","intermediate","advanced","expert"]
+                          - { label: "Иконка", name: "icon", widget: "string", required: false }
+                          - { label: "Цвет", name: "color", widget: "string", required: false }
+                          - { label: "Описание", name: "description", widget: "text", required: false }
+
+              - label: "Опыт работы"
+                name: "experience"
+                widget: "object"
+                fields:
+                  - label: "Элементы"
+                    name: "items"
+                    widget: "list"
+                    fields:
+                      - { label: "Компания", name: "company", widget: "string" }
+                      - { label: "Местоположение", name: "location", widget: "string", required: false }
+                      - { label: "Логотип", name: "logo", widget: "image", required: false }
+                      - { label: "Веб-сайт", name: "website", widget: "string", required: false }
+                      - label: "Роли"
+                        name: "roles"
+                        widget: "list"
+                        fields:
+                          - { label: "Должность", name: "title", widget: "string" }
+                          - { label: "Период", name: "period", widget: "string" }
+                          - { label: "Описание", name: "description", widget: "markdown", required: false }
+                          - { label: "Достижения", name: "bullets", widget: "list", field: { label: "Достижение", name: "bullet", widget: "string" }, required: false }
+                          - { label: "Технологии", name: "technologies", widget: "list", field: { label: "Технология", name: "tech", widget: "string" }, required: false }
+                          - label: "Ссылки"
+                            name: "links"
+                            widget: "list"
+                            required: false
+                            fields:
+                              - { label: "Метка", name: "label", widget: "string", required: false }
+                              - { label: "URL", name: "url", widget: "string" }
+                              - { label: "Иконка", name: "icon", widget: "string", required: false }
+
+              - label: "Образование"
+                name: "education"
+                widget: "object"
+                fields:
+                  - label: "Элементы"
+                    name: "items"
+                    widget: "list"
+                    fields:
+                      - { label: "Учебное заведение", name: "institution", widget: "string" }
+                      - { label: "Степень", name: "degree", widget: "string", required: false }
+                      - { label: "Местоположение", name: "location", widget: "string", required: false }
+                      - { label: "Период", name: "period", widget: "string", required: false }
+                      - { label: "Заметки", name: "notes", widget: "list", field: { label: "Заметка", name: "note", widget: "string" }, required: false }
+
+              - label: "Избранное"
+                name: "favorites"
+                widget: "object"
+                fields:
+                  - label: "Стиль"
+                    name: "style"
+                    widget: "object"
+                    required: false
+                    fields:
+                      - { label: "Вариант", name: "variant", widget: "string", required: false }
+                      - { label: "Колонки", name: "cols", widget: "number", required: false }
+                  - label: "Группы"
+                    name: "groups"
+                    widget: "list"
+                    fields:
+                      - { label: "Заголовок", name: "title", widget: "string" }
+                      - label: "Тип"
+                        name: "type"
+                        widget: "select"
+                        options: ["hobbies","people","medias","books","movies"]
+                      - label: "Стиль"
+                        name: "style"
+                        widget: "object"
                         required: false
                         fields:
-                          - name: label
-                            label: Link Label
-                            type: string
-                            required: true
-                          - name: url
-                            label: Link URL
-                            type: string
-                            required: true
-              - name: style
-                label: Display Style
-                type: object
-                required: false
-                fields:
-                  - name: variant
-                    label: Layout Variant
-                    type: select
-                    options:
-                      - tile
-                      - list
-                      - grid
-                      - card
-                    required: false
-                  - name: cols
-                    label: Column Settings
-                    type: object
-                    required: false
-                    fields:
-                      - name: base
-                        label: Base Columns
-                        type: number
-                        required: false
-                      - name: sm
-                        label: Small Screen Columns
-                        type: number
-                        required: false
-                      - name: lg
-                        label: Large Screen Columns
-                        type: number
-                        required: false
-              - name: groups
-                label: Favorite Groups
-                type: list
-                required: false
-                fields:
-                  - name: title
-                    label: Group Title
-                    type: string
-                    required: true
-                  - name: type
-                    label: Group Type
-                    type: select
-                    options:
-                      - books
-                      - people
-                      - videos
-                      - medias
-                      - hobbies
-                      - movies
-                    required: true
-                  - name: style
-                    label: Group Style
-                    type: object
-                    required: false
-                    fields:
-                      - name: limit
-                        label: Items Limit
-                        type: number
-                        required: false
-                  - name: items
-                    label: Group Items
-                    type: list
-                    required: false
-                    fields:
-                      - name: title
-                        label: Item Title
-                        type: string
-                        required: true
-                      - name: name
-                        label: Item Name (for people)
-                        type: string
-                        required: false
-                      - name: author
-                        label: Author (for books)
-                        type: string
-                        required: false
-                      - name: type
-                        label: Type (for media)
-                        type: string
-                        required: false
-                      - name: description
-                        label: Item Description
-                        type: text
-                        required: false
-                      - name: url
-                        label: Item URL
-                        type: string
-                        required: false
-                      - name: image
-                        label: Item Image/Thumbnail
-                        type: image
-                        required: false
+                          - { label: "Лимит", name: "limit", widget: "number", required: false }
+                      - label: "Элементы"
+                        name: "items"
+                        widget: "list"
+                        fields:
+                          - { label: "Заголовок", name: "title", widget: "string" }
+                          - { label: "Подзаголовок", name: "subtitle", widget: "string", required: false }
+                          - { label: "URL", name: "url", widget: "string", required: false }
+                          - { label: "Изображение", name: "image", widget: "image", required: false }
+                          - { label: "Иконка", name: "icon", widget: "string", required: false }
+                          - { label: "Автор", name: "author", widget: "string", required: false }
+                          - { label: "Год", name: "year", widget: "number", required: false }
+                          - { label: "Временные рамки", name: "timeframe", widget: "string", required: false }
+                          - { label: "Теги", name: "tags", widget: "list", field: { label: "Тег", name: "tag", widget: "string" }, required: false }
