@@ -1,0 +1,33 @@
+{
+  "about": {
+    "en": {
+      "patterns": [
+        "/about.*\\.en\\.md$/i",
+        "/\\/en\\/.*about.*\\.md$/i",
+        "/about.*en.*\\.md$/i",
+        "/home.*\\.en\\.md$/i",
+        "/\\/en\\/.*home.*\\.md$/i"
+      ],
+      "paths": ["content/pages/en"]
+    },
+    "ru": {
+      "patterns": [
+        "/about.*\\.ru\\.md$/i",
+        "/\\/ru\\/.*about.*\\.md$/i",
+        "/about.*ru.*\\.md$/i",
+        "/home.*\\.ru\\.md$/i",
+        "/\\/ru\\/.*home.*\\.md$/i"
+      ],
+      "paths": ["content/pages/ru"]
+    }
+  },
+  "blog": {
+    "patterns": [
+      "/\\/blog\\//i",
+      "/\\/posts\\//i"
+    ],
+    "frontmatter": {
+      "type": "blog"
+    }
+  }
+}

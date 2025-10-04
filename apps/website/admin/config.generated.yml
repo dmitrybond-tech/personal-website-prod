@@ -1,0 +1,163 @@
+backend:
+  name: git
+  branch: main
+local_backend: true
+media_folder: apps/website/public/uploads
+public_folder: /uploads
+collections:
+  - name: About (EN)
+    label: About (EN)
+    type: files
+    format: frontmatter
+    file: src/content/pages/about.en.md
+    create: false
+    delete: false
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: image
+        label: Image
+        type: image
+        required: false
+      - name: body
+        label: Body
+        type: markdown
+        required: true
+  - name: About (RU)
+    label: About (RU)
+    type: files
+    format: frontmatter
+    file: src/content/pages/about.ru.md
+    create: false
+    delete: false
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: image
+        label: Image
+        type: image
+        required: false
+      - name: body
+        label: Body
+        type: markdown
+        required: true
+  - name: blog_en
+    label: Blog (EN)
+    type: folder
+    folder: src/content/en/blog
+    extension: md
+    format: frontmatter
+    create: false
+    delete: false
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: date
+        label: Date
+        type: datetime
+        required: true
+      - name: tags
+        label: Tags
+        type: list
+        required: false
+      - name: cover
+        label: Cover Image
+        type: image
+        required: false
+      - name: body
+        label: Body
+        type: markdown
+        required: true
+  - name: blog_posts
+    label: Blog (EN)
+    type: folder
+    folder: content/posts
+    extension: md
+    format: frontmatter
+    create: false
+    delete: false
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: date
+        label: Date
+        type: datetime
+        required: true
+      - name: tags
+        label: Tags
+        type: list
+        required: false
+      - name: cover
+        label: Cover Image
+        type: image
+        required: false
+      - name: body
+        label: Body
+        type: markdown
+        required: true
+  - name: blog_src_blog
+    label: Blog (EN)
+    type: folder
+    folder: src/content/blog
+    extension: md
+    format: frontmatter
+    create: false
+    delete: false
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: date
+        label: Date
+        type: datetime
+        required: true
+      - name: tags
+        label: Tags
+        type: list
+        required: false
+      - name: cover
+        label: Cover Image
+        type: image
+        required: false
+      - name: body
+        label: Body
+        type: markdown
+        required: true
+  - name: blog_src_posts
+    label: Blog (EN)
+    type: folder
+    folder: src/content/posts
+    extension: md
+    format: frontmatter
+    create: false
+    delete: false
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: date
+        label: Date
+        type: datetime
+        required: true
+      - name: tags
+        label: Tags
+        type: list
+        required: false
+      - name: cover
+        label: Cover Image
+        type: image
+        required: false
+      - name: body
+        label: Body
+        type: markdown
+        required: true
