@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: YOUR_GH_USER/NEW_REPO
+  repo: dmitrybond-tech/personal-website-pre-prod 
   branch: main
   base_url: https://b5b1814eec25ae.lhr.life
   auth_endpoint: /oauth

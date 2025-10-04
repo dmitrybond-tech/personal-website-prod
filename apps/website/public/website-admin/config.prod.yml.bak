@@ -3,7 +3,7 @@ backend:
   repo: YOUR_GH_USER/NEW_REPO
   branch: main
   base_url: https://b5b1814eec25ae.lhr.life
-  auth_endpoint: /auth
+  auth_endpoint: /oauth
 publish_mode: editorial_workflow
 media_folder: "public/uploads"
 public_folder: "/uploads"
