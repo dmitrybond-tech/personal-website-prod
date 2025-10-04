@@ -1,4 +1,5 @@
 import Hero from './sections/Hero.astro';
+import Main from './sections/Main.astro';
 import Skills from './sections/Skills.astro';
 import Experience from './sections/Experience.astro';
 import Education from './sections/Education.astro';
@@ -9,6 +10,7 @@ import Cards from './sections/Cards.astro';
 
 export const registry: Record<string, any> = {
   hero: Hero,
+  main: Main,
   skills: Skills,
   experience: Experience,
   education: Education,

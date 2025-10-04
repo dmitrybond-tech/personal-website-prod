@@ -6,38 +6,18 @@
   <meta name="robots" content="noindex" />
   <title>Content Manager</title>
 
-  <!-- Конфиг: должен идти ДО загрузки CMS -->
-  <link rel="cms-config-url" type="text/yaml" href="/api/website-admin/config.yml?v=6" />
+  <!-- 1) disable auto init -->
+  <script>window.CMS_MANUAL_INIT = true;</script>
 
-  <!-- ЕДИНСТВЕННЫЙ загрузчик CMS: сначала локальный бандл, если не выйдет — CDN -->
-  <script>
-    (function () {
-      if (window.__CMS_BOOTED__) return; // защита от дублей
-      window.__CMS_BOOTED__ = true;
+  <!-- 2) load CMS core first -->
+  <script src="/website-admin/decap-cms.js?v=6"></script>
 
-      function load(src, onload, onerror) {
-        var s = document.createElement('script');
-        s.src = src;
-        s.defer = true;
-        s.onload = onload;
-        s.onerror = onerror;
-        document.head.appendChild(s);
-      }
+  <!-- 3) yaml parser -->
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
 
-      // 1) пробуем локальный бандл
-      load('/website-admin/decap-cms.js?v=6',
-        function () { console.log('[CMS] loaded (local)'); },
-        function () {
-          console.warn('[CMS] local load failed, fallback to CDN');
-          // 2) фолбэк: CDN (фиксит битый/неправильный путь локального бандла)
-          load('https://unpkg.com/decap-cms@3.3.1/dist/decap-cms.js',
-            function () { console.log('[CMS] loaded (CDN)'); },
-            function () { console.error('[CMS] failed to load both local and CDN'); }
-          );
-        }
-      );
-    })();
-  </script>
+  <!-- 4) our robust config loader -->
+  <script type="module" src="/website-admin/config-loader.js"></script>
+
   <noscript>Enable JavaScript to use the CMS.</noscript>
 </head>
 <body></body>

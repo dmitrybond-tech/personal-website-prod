@@ -28,9 +28,16 @@ const buildSkillsFromSeed = (seed: any, lang: 'en' | 'ru') => ({
   }
 });
 
-let entry = await getEntry({ collection: 'aboutPage', slug });
+// Try to read about-expanded.md first
+let entry = await getEntry({ collection: 'aboutPage', slug: `${lang}/about-expanded` });
 
-// fallback
+// Fallback to about.md if about-expanded.md doesn't exist
+if (!entry) {
+  debug('[about] about-expanded.md not found, trying about.md');
+  entry = await getEntry({ collection: 'aboutPage', slug });
+}
+
+// Final fallback - search through all entries
 if (!entry) {
   const all = await getCollection('aboutPage');
   debug('[about] NOT FOUND slug=%s. Available slugs:', slug, all.map(e => e.slug));

@@ -1,0 +1,82 @@
+---
+import SectionCard from '../../../components/sections/SectionCard.astro';
+import HeroIsland from '../../../components/about/HeroIsland.tsx';
+
+export interface Props {
+  section: any;
+  lang: 'en' | 'ru';
+  frontmatter: any;
+}
+
+const { section, lang, frontmatter } = Astro.props;
+
+// Helper function for i18n
+const t = (obj: any, lang: 'en' | 'ru') => (typeof obj === 'object' && obj ? obj[lang] ?? obj.en ?? '' : obj ?? '');
+
+// Process the main section data (from about-expanded.md format)
+const mainData = section.data || {};
+
+// Extract details for contact information
+const details = Array.isArray(mainData.details) ? mainData.details : [];
+const extractDetail = (label: string) => details.find((d: any) => 
+  d.label === label || 
+  d.label === (label === 'Phone' ? 'Телефон' : label === 'Email' ? 'Email' : label === 'Location' ? 'Местоположение' : label)
+);
+
+const phoneDetail = extractDetail('Phone') || extractDetail('Телефон');
+const emailDetail = extractDetail('Email');
+const locationDetail = extractDetail('Location') || extractDetail('Местоположение');
+
+// Map main section data to HeroIsland props
+const name = mainData.fullName;
+const role = mainData.role;
+const avatar = mainData.image;
+const location = locationDetail?.value;
+const bio = mainData.description;
+
+// Process links
+const links = Array.isArray(mainData.links) ? mainData.links.map((link: any) => ({
+  label: link.label,
+  url: link.url,
+  icon: link.icon
+})) : [];
+
+// Process tags (convert from {name} objects to strings)
+const tags = Array.isArray(mainData.tags) ? mainData.tags.map((tag: any) => 
+  typeof tag === 'string' ? tag : tag.name || tag
+) : [];
+
+// Build contact object
+const contact = {
+  email: emailDetail?.value,
+  phone: phoneDetail?.value
+};
+
+// Calculate CV URL from action
+const cvUrl = mainData.action?.url || frontmatter?.cv_pdf || null;
+
+// Calculate avatar size (use fixed size for consistency)
+const avatarSizePx = 160;
+---
+
+<SectionCard 
+  title={mainData.title || (lang === 'ru' ? 'Профиль' : 'Profile')}
+  hasHeaderMedia={false}
+  class="mt-6 mb-10"
+>
+  <!-- Island -->
+  <HeroIsland
+    client:visible
+    name={name}
+    role={role}
+    avatar={avatar}
+    avatarSizePx={avatarSizePx}
+    location={location}
+    bio={bio}
+    links={links}
+    tags={tags}
+    contact={contact}
+    cvUrl={cvUrl}
+    lang={lang}
+  />
+</SectionCard>

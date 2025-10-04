@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "dev:local": "astro dev --host --port 4321 --strictPort",
-    "dev:cms": "cross-env NODE_OPTIONS=--trace-warnings DECAP_LOCAL_BACKEND=true concurrently -k -s first -n astro,proxy \"astro dev --host --port 4321 --strictPort\" \"decap-server --port 8081\"",
+    "dev:cms": "concurrently -k -n astro,proxy \"astro dev --host --port 4321 --strictPort\" \"decap-server --port 8081 --allowed-hosts=localhost:4321\"",
+    "doctor:cms": "node scripts/decap-doctor.mjs",
     "dev:git": "cross-env NODE_OPTIONS=--trace-warnings concurrently -k -s first -n astro \"astro dev --host --port 4321 --strictPort\"",
     "port:kill:4321": "powershell -NoProfile -Command \"$p=(Get-NetTCPConnection -LocalPort 4321 -ErrorAction SilentlyContinue).OwningProcess; if($p){Stop-Process -Id $p -Force}\"",
     "port:kill:8081": "powershell -NoProfile -Command \"$p=(Get-NetTCPConnection -LocalPort 8081 -ErrorAction SilentlyContinue).OwningProcess; if($p){Stop-Process -Id $p -Force}\"",
@@ -30,6 +31,7 @@
     "migrate:one-skill": "tsx scripts/migrate-one-skill.ts",
     "migrate:ru:clone-en": "tsx scripts/clone-en-about-to-ru.ts",
     "migrate:ru:clone-en:dry": "tsx scripts/clone-en-about-to-ru.ts --dry-run",
+    "migrate:about": "tsx scripts/migrate-about.ts",
     "content:sanitize": "tsx scripts/content-sanitize-frontmatter.ts",
     "content:format:dry": "tsx scripts/content-formatter.ts --dry-run --lang=en,ru --format=md --debug",
     "content:format": "npm run content:sanitize && tsx scripts/content-formatter.ts --write --lang=en,ru --format=md --backup --pretty",

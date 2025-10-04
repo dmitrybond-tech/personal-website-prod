@@ -1,15 +1,17 @@
 backend:
   name: git
   branch: main
-local_backend: true
-media_folder: apps\website\public\uploads
-public_folder: /uploads
+local_backend:
+  url: "http://localhost:8081"
+  allowed_hosts: ["localhost:4321"]
+media_folder: "public/uploads"
+public_folder: "/uploads"
 collections:
   - name: about_expanded_(en)
     label: About Expanded (EN)
     type: files
     format: frontmatter
-    file: C:/PersonalProjects/website-v3/website/apps/website/src/content/aboutPage/en/about-expanded.md
+    file: apps/website/src/content/aboutPage/en/about-expanded.md
     create: false
     delete: false
     fields:
@@ -333,7 +335,7 @@ collections:
     label: About Expanded (RU)
     type: files
     format: frontmatter
-    file: C:/PersonalProjects/website-v3/website/apps/website/src/content/aboutPage/ru/about-expanded.md
+    file: apps/website/src/content/aboutPage/ru/about-expanded.md
     create: false
     delete: false
     fields:
