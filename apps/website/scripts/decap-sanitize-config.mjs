@@ -20,8 +20,9 @@ const OPTIONAL_FIELD_NAMES = new Set([
 ]);
 
 // Fields that should remain required (hard fields) - only core document structure
+// NOTE: Removed most fields to make everything optional as per requirements
 const REQUIRED_FIELD_NAMES = new Set([
-  "title", "sections", "name", "file", "folder", "company", "school", "institution"
+  // Only keep absolutely essential infrastructure fields if any
 ]);
 
 // Candidates to sanitize, in this order:
@@ -32,115 +33,22 @@ const CANDIDATES = [
   path.resolve(__dirname, '../public/website-admin/config.prod.yml')
 ];
 
-// MD files to check for skills key determination
-const MD_CANDIDATES = [
-  path.resolve(__dirname, '../src/content/aboutPage/en/about-expanded.md'),
-  path.resolve(__dirname, '../src/content/aboutPage/ru/about-expanded.md')
-];
+// No longer need MD file analysis since we're not doing schema rebuilding
 
-function determineMDListKey() {
-  let skillsCount = 0;
-  let itemsCount = 0;
-  
-  for (const mdPath of MD_CANDIDATES) {
-    if (!existsSync(mdPath)) continue;
-    
-    try {
-      const content = readFileSync(mdPath, 'utf8');
-      const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-      if (!frontmatterMatch) continue;
-      
-      const frontmatter = frontmatterMatch[1];
-      
-      // Look for skills sections with categories
-      const skillsSections = frontmatter.match(/type:\s*skills[\s\S]*?categories:[\s\S]*?(?=type:|$)/g) || [];
-      
-      for (const section of skillsSections) {
-        // Count occurrences of "skills:" vs "items:"
-        const skillsMatches = (section.match(/skills:/g) || []).length;
-        const itemsMatches = (section.match(/items:/g) || []).length;
-        
-        skillsCount += skillsMatches;
-        itemsCount += itemsMatches;
-      }
-    } catch (error) {
-      console.warn(`[sanitize] Warning: Could not parse ${mdPath}:`, error.message);
-    }
+// Icon validation function for skills.data.groups[].items[].icon
+function addIconValidation(field) {
+  if (field.name === 'icon' && field.widget === 'string') {
+    return {
+      ...field,
+      required: false,
+      hint: "Iconify token (e.g., simple-icons:aws) or /logos/foo.svg",
+      pattern: [
+        "^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\\s]+\\.(?:svg|png|jpg|jpeg))$",
+        "Use Iconify token like set:name or a valid /logos/*.svg|png path"
+      ]
+    };
   }
-  
-  // Return majority, default to "skills" if equal
-  if (itemsCount > skillsCount) return 'items';
-  return 'skills';
-}
-
-function createSkillsSchema(mdListKey) {
-  return {
-    label: "Skills",
-    name: "skills",
-    widget: "object",
-    fields: [
-      {
-        label: "Categories",
-        name: "categories",
-        widget: "list",
-        fields: [
-          { label: "Title", name: "title", widget: "string" },
-          {
-            label: "Skills",
-            name: mdListKey, // "skills" or "items"
-            widget: "list",
-            fields: [
-              { label: "Name", name: "name", widget: "string" },
-              { 
-                label: "Level", 
-                name: "level", 
-                widget: "select", 
-                options: ["beginner", "intermediate", "advanced", "expert"] 
-              },
-              { label: "Icon", name: "icon", widget: "string", required: false },
-              { label: "Color", name: "color", widget: "string", required: false },
-              { label: "Description", name: "description", widget: "text", required: false }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-}
-
-function createSkillsSchemaRU(mdListKey) {
-  return {
-    label: "Навыки",
-    name: "skills",
-    widget: "object",
-    fields: [
-      {
-        label: "Категории",
-        name: "categories",
-        widget: "list",
-        fields: [
-          { label: "Заголовок", name: "title", widget: "string" },
-          {
-            label: "Навыки",
-            name: mdListKey, // "skills" or "items"
-            widget: "list",
-            fields: [
-              { label: "Название", name: "name", widget: "string" },
-              { 
-                label: "Уровень", 
-                name: "level", 
-                widget: "select", 
-                options: ["beginner", "intermediate", "advanced", "expert"] 
-              },
-              { label: "Иконка", name: "icon", widget: "string", required: false },
-              { label: "Цвет", name: "color", widget: "string", required: false },
-              { label: "Описание", name: "description", widget: "text", required: false }
-            ]
-          }
-        ]
-      }
-    ]
-  };
+  return field;
 }
 
 function makeFieldsOptional(field) {
@@ -154,46 +62,26 @@ function makeFieldsOptional(field) {
   return newField;
 }
 
-function sanitizeSkillsInCollection(collection, mdListKey, isRU = false) {
-  if (!collection.files && !collection.folder) return collection;
-  
-  const files = collection.files || [];
-  const newFiles = files.map(file => {
-    if (!file.fields) return file;
+// No longer doing schema rebuilding - just adding icon validation
+function addIconValidationToFields(fields, path = '') {
+  return fields.map(field => {
+    const newField = addIconValidation(field);
     
-    const newFields = file.fields.map(field => {
-      if (field.name === 'sections' && field.widget === 'list' && field.types) {
-        const newTypes = field.types.map(type => {
-          if (type.name === 'skills') {
-            // Check if it's the new structure (data -> groups -> items)
-            if (type.fields && type.fields.some(f => f.name === 'data' && f.fields && f.fields.some(df => df.name === 'groups'))) {
-              // It's already the new structure, just make sure all fields are optional
-              return makeFieldsOptional(type);
-            } else {
-              // It's the old structure, replace with canonicalized version
-              return isRU ? createSkillsSchemaRU(mdListKey) : createSkillsSchema(mdListKey);
-            }
-          }
-          if (type.name === 'education') {
-            // Check if it's the new structure (data -> items -> degrees)
-            if (type.fields && type.fields.some(f => f.name === 'data' && f.fields && f.fields.some(df => df.name === 'items'))) {
-              // It's already the new structure, just make sure all fields are optional
-              return makeFieldsOptional(type);
-            }
-            // If it's the old structure, leave it as is (don't auto-convert education)
-          }
-          return type;
-        });
-        
-        return { ...field, types: newTypes };
-      }
-      return field;
-    });
+    // Recursively process nested fields
+    if (newField.fields) {
+      newField.fields = addIconValidationToFields(newField.fields, `${path}.${field.name}.fields`);
+    }
+    if (newField.types) {
+      newField.types = newField.types.map(type => {
+        if (type.fields) {
+          type.fields = addIconValidationToFields(type.fields, `${path}.${field.name}.types.${type.name}.fields`);
+        }
+        return type;
+      });
+    }
     
-    return { ...file, fields: newFields };
+    return newField;
   });
-  
-  return { ...collection, files: newFiles };
 }
 
 function optionalizeFields(fields, path = '') {
@@ -323,7 +211,7 @@ function validateCollection(collection) {
 }
 
 function sanitizeConfig(config, mdListKey) {
-  console.log(`[sanitize] Sanitizing config with MD_LIST_KEY: "${mdListKey}"`);
+  console.log(`[sanitize] Sanitizing config (no schema rewrites, only optionalize + icon validation)`);
   
   // Remove erroneous media_library blocks
   if (config.media_library && config.media_library.name === 'git') {
@@ -340,25 +228,20 @@ function sanitizeConfig(config, mdListKey) {
   for (const collection of config.collections || []) {
     validateCollection(collection);
     
-    // Sanitize skills in about collections
-    if (collection.name === 'about_en' || collection.name === 'about_ru') {
-      const isRU = collection.name === 'about_ru';
-      const sanitized = sanitizeSkillsInCollection(collection, mdListKey, isRU);
-      Object.assign(collection, sanitized);
-    }
-    
-    // Optionalize and dedupe fields in all collections
+    // Optionalize, add icon validation, and dedupe fields in all collections
     const files = collection.files || [];
     for (const file of files) {
       if (file.fields) {
         file.fields = optionalizeFields(file.fields, `collections.${collection.name}.files.${file.name}.fields`);
+        file.fields = addIconValidationToFields(file.fields, `collections.${collection.name}.files.${file.name}.fields`);
         file.fields = dedupeFields(file.fields, `collections.${collection.name}.files.${file.name}.fields`);
       }
     }
     
-    // Also optionalize and dedupe folder collections
+    // Also optionalize, add icon validation, and dedupe folder collections
     if (collection.fields) {
       collection.fields = optionalizeFields(collection.fields, `collections.${collection.name}.fields`);
+      collection.fields = addIconValidationToFields(collection.fields, `collections.${collection.name}.fields`);
       collection.fields = dedupeFields(collection.fields, `collections.${collection.name}.fields`);
     }
   }
@@ -367,11 +250,7 @@ function sanitizeConfig(config, mdListKey) {
 }
 
 async function main() {
-  console.log('[sanitize] Starting Decap config sanitization...');
-  
-  // Determine MD_LIST_KEY
-  const mdListKey = determineMDListKey();
-  console.log(`[sanitize] Determined MD_LIST_KEY: "${mdListKey}"`);
+  console.log('[sanitize] Starting Decap config sanitization (no schema rewrites)...');
   
   let sanitizedCount = 0;
   
@@ -392,7 +271,7 @@ async function main() {
       
       // Parse and sanitize
       const config = jsyaml.load(content);
-      const sanitized = sanitizeConfig(config, mdListKey);
+      const sanitized = sanitizeConfig(config, null); // No longer using mdListKey
       
       // Write back
       const yamlOutput = jsyaml.dump(sanitized, { 

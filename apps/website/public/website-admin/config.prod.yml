@@ -2,7 +2,7 @@ backend:
   name: github
   repo: dmitrybond-tech/personal-website-pre-prod
   branch: main
-  base_url: https://1d20fa08d740b9.lhr.life/
+  base_url: https://b44bfb8e017e3c.lhr.life
   auth_endpoint: /oauth
 publish_mode: editorial_workflow
 media_folder: apps/website/public/uploads
@@ -20,6 +20,8 @@ collections:
           - label: Title
             name: title
             widget: string
+            required: false
+            default: ''
           - label: Slug
             name: slug
             widget: string
@@ -94,6 +96,8 @@ collections:
                       - label: Name
                         name: name
                         widget: string
+                        required: false
+                        default: ''
                     required: false
                   - label: Action (CV button)
                     name: action
@@ -136,6 +140,10 @@ collections:
                         widget: string
                         required: false
                         default: ''
+                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                        pattern:
+                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
                       - label: Color
                         name: color
                         widget: string
@@ -156,7 +164,7 @@ collections:
                         name: title
                         widget: string
                         required: false
-                        default: "Skills"
+                        default: ''
                       - label: Groups
                         name: groups
                         widget: list
@@ -166,6 +174,7 @@ collections:
                             name: title
                             widget: string
                             required: false
+                            default: ''
                           - label: Items
                             name: items
                             widget: list
@@ -175,11 +184,16 @@ collections:
                                 name: name
                                 widget: string
                                 required: false
+                                default: ''
                               - label: Icon (path or token)
                                 name: icon
                                 widget: string
                                 required: false
-                                hint: "e.g. /logos/aws.svg or iconify token"
+                                hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                                default: ''
+                                pattern:
+                                  - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                                  - Use Iconify token like set:name or a valid /logos/*.svg|png path
                               - label: Level (1-5)
                                 name: level
                                 widget: number
@@ -262,6 +276,8 @@ collections:
                           - label: Title
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Period
                             name: period
                             widget: string
@@ -307,6 +323,10 @@ collections:
                                 widget: string
                                 required: false
                                 default: ''
+                                hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                                pattern:
+                                  - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                                  - Use Iconify token like set:name or a valid /logos/*.svg|png path
               - label: Education
                 name: education
                 widget: object
@@ -321,7 +341,7 @@ collections:
                         name: title
                         widget: string
                         required: false
-                        default: "Education"
+                        default: ''
                       - label: Items
                         name: items
                         widget: list
@@ -335,15 +355,18 @@ collections:
                             name: location
                             widget: string
                             required: false
+                            default: ''
                           - label: Website
                             name: url
                             widget: string
                             required: false
+                            default: ''
                           - label: Logo (path)
                             name: logo
                             widget: string
                             required: false
-                            hint: "e.g. /logos/sibsutis_logo.svg"
+                            hint: e.g. /logos/sibsutis_logo.svg
+                            default: ''
                           - label: Degrees
                             name: degrees
                             widget: list
@@ -353,18 +376,22 @@ collections:
                                 name: degree
                                 widget: string
                                 required: false
+                                default: ''
                               - label: Program
                                 name: program
                                 widget: string
                                 required: false
+                                default: ''
                               - label: Faculty
                                 name: faculty
                                 widget: string
                                 required: false
+                                default: ''
                               - label: Period
                                 name: period
                                 widget: string
                                 required: false
+                                default: ''
                               - label: Bullets
                                 name: bullets
                                 widget: list
@@ -429,6 +456,8 @@ collections:
                       - label: Title
                         name: title
                         widget: string
+                        required: false
+                        default: ''
                       - label: Type
                         name: type
                         widget: select
@@ -455,6 +484,8 @@ collections:
                           - label: Title
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Subtitle
                             name: subtitle
                             widget: string
@@ -474,6 +505,10 @@ collections:
                             widget: string
                             required: false
                             default: ''
+                            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                            pattern:
+                              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                              - Use Iconify token like set:name or a valid /logos/*.svg|png path
                           - label: Author
                             name: author
                             widget: string
@@ -508,6 +543,8 @@ collections:
           - label: Заголовок
             name: title
             widget: string
+            required: false
+            default: ''
           - label: URL-адрес
             name: slug
             widget: string
@@ -582,6 +619,8 @@ collections:
                       - label: Название
                         name: name
                         widget: string
+                        required: false
+                        default: ''
                     required: false
                   - label: Действие (кнопка CV)
                     name: action
@@ -624,6 +663,10 @@ collections:
                         widget: string
                         required: false
                         default: ''
+                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                        pattern:
+                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
                       - label: Цвет
                         name: color
                         widget: string
@@ -644,7 +687,7 @@ collections:
                         name: title
                         widget: string
                         required: false
-                        default: "Навыки"
+                        default: ''
                       - label: Группы
                         name: groups
                         widget: list
@@ -654,6 +697,7 @@ collections:
                             name: title
                             widget: string
                             required: false
+                            default: ''
                           - label: Элементы
                             name: items
                             widget: list
@@ -663,11 +707,16 @@ collections:
                                 name: name
                                 widget: string
                                 required: false
+                                default: ''
                               - label: Иконка (путь или токен)
                                 name: icon
                                 widget: string
                                 required: false
-                                hint: "Например: /logos/aws.svg или токен iconify"
+                                hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                                default: ''
+                                pattern:
+                                  - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                                  - Use Iconify token like set:name or a valid /logos/*.svg|png path
                               - label: Уровень (1–5)
                                 name: level
                                 widget: number
@@ -750,6 +799,8 @@ collections:
                           - label: Должность
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Период
                             name: period
                             widget: string
@@ -795,6 +846,10 @@ collections:
                                 widget: string
                                 required: false
                                 default: ''
+                                hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                                pattern:
+                                  - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                                  - Use Iconify token like set:name or a valid /logos/*.svg|png path
               - label: Образование
                 name: education
                 widget: object
@@ -809,7 +864,7 @@ collections:
                         name: title
                         widget: string
                         required: false
-                        default: "Образование"
+                        default: ''
                       - label: Элементы
                         name: items
                         widget: list
@@ -823,15 +878,18 @@ collections:
                             name: location
                             widget: string
                             required: false
+                            default: ''
                           - label: Сайт
                             name: url
                             widget: string
                             required: false
+                            default: ''
                           - label: Логотип (путь)
                             name: logo
                             widget: string
                             required: false
-                            hint: "например /logos/sibsutis_logo.svg"
+                            hint: например /logos/sibsutis_logo.svg
+                            default: ''
                           - label: Степени
                             name: degrees
                             widget: list
@@ -841,18 +899,22 @@ collections:
                                 name: degree
                                 widget: string
                                 required: false
+                                default: ''
                               - label: Программа
                                 name: program
                                 widget: string
                                 required: false
+                                default: ''
                               - label: Факультет
                                 name: faculty
                                 widget: string
                                 required: false
+                                default: ''
                               - label: Период
                                 name: period
                                 widget: string
                                 required: false
+                                default: ''
                               - label: Пункты
                                 name: bullets
                                 widget: list
@@ -917,6 +979,8 @@ collections:
                       - label: Заголовок
                         name: title
                         widget: string
+                        required: false
+                        default: ''
                       - label: Тип
                         name: type
                         widget: select
@@ -943,6 +1007,8 @@ collections:
                           - label: Заголовок
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Подзаголовок
                             name: subtitle
                             widget: string
@@ -962,6 +1028,10 @@ collections:
                             widget: string
                             required: false
                             default: ''
+                            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                            pattern:
+                              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                              - Use Iconify token like set:name or a valid /logos/*.svg|png path
                           - label: Автор
                             name: author
                             widget: string
