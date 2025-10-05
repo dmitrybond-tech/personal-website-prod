@@ -3,7 +3,7 @@
 import AppShell from '../../app/layouts/AppShell.astro';
 import { getEntry, getCollection } from 'astro:content';
 import { registry } from '../../features/about/registry';
-import { debug } from '../../app/shared/lib/debug';
+import { debug } from '../../app/shared/lib/conditional-debug';
 import seed from '../../content/blocks/skills.seed.json';
 
 const { lang } = Astro.params as { lang: 'en' | 'ru' };
@@ -162,9 +162,9 @@ if (sections.length) debug('[about] first section sample=%o', sections[0]);
     <script is:inline>
       (function(){
         const c=document.getElementById('site-container');
-        if(!c){ console.warn('[about] #site-container missing'); return; }
+        if(!c){ if(import.meta.env.DEV) console.warn('[about] #site-container missing'); return; }
         const cs=getComputedStyle(c);
-        console.debug('[about] container width=%s padX=%s/%s', c.offsetWidth, cs.paddingLeft, cs.paddingRight);
+        if(import.meta.env.DEV) console.debug('[about] container width=%s padX=%s/%s', c.offsetWidth, cs.paddingLeft, cs.paddingRight);
       })();
     </script>
   </div>

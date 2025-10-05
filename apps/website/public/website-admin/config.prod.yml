@@ -66,6 +66,7 @@ collections:
                     name: image
                     widget: image
                     required: false
+                    hint: Upload to /uploads/about/main/
                   - label: Description
                     name: description
                     widget: markdown
@@ -140,10 +141,10 @@ collections:
                         widget: string
                         required: false
                         default: ''
-                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                        hint: Iconify token (e.g., simple-icons:aws)
                         pattern:
-                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
-                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
+                          - ^[a-z0-9-]+:[a-z0-9-]+$
+                          - Use Iconify token format: prefix:name
                       - label: Color
                         name: color
                         widget: string
@@ -266,6 +267,7 @@ collections:
                         name: logo
                         widget: image
                         required: false
+                        hint: Upload to /uploads/logos/
                       - label: Website
                         name: website
                         widget: string
@@ -364,12 +366,11 @@ collections:
                             widget: string
                             required: false
                             default: ''
-                          - label: Logo (path)
+                          - label: Logo
                             name: logo
-                            widget: string
+                            widget: image
                             required: false
-                            hint: e.g. /logos/sibsutis_logo.svg
-                            default: ''
+                            hint: Upload to /uploads/logos/
                           - label: Degrees
                             name: degrees
                             widget: list
@@ -504,6 +505,7 @@ collections:
                             name: image
                             widget: image
                             required: false
+                            hint: Upload to /uploads/about/favorites/
                           - label: Icon
                             name: icon
                             widget: string
@@ -593,6 +595,7 @@ collections:
                     name: image
                     widget: image
                     required: false
+                    hint: Загрузить в /uploads/about/main/
                   - label: Описание
                     name: description
                     widget: markdown
@@ -667,10 +670,10 @@ collections:
                         widget: string
                         required: false
                         default: ''
-                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                        hint: Iconify token (e.g., simple-icons:aws)
                         pattern:
-                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
-                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
+                          - ^[a-z0-9-]+:[a-z0-9-]+$
+                          - Use Iconify token format: prefix:name
                       - label: Цвет
                         name: color
                         widget: string
@@ -791,6 +794,7 @@ collections:
                         name: logo
                         widget: image
                         required: false
+                        hint: Загрузить в /uploads/logos/
                       - label: Веб-сайт
                         name: website
                         widget: string
@@ -888,12 +892,11 @@ collections:
                             widget: string
                             required: false
                             default: ''
-                          - label: Логотип (путь)
+                          - label: Логотип
                             name: logo
-                            widget: string
+                            widget: image
                             required: false
-                            hint: например /logos/sibsutis_logo.svg
-                            default: ''
+                            hint: Загрузить в /uploads/logos/
                           - label: Степени
                             name: degrees
                             widget: list
@@ -1028,6 +1031,7 @@ collections:
                             name: image
                             widget: image
                             required: false
+                            hint: Загрузить в /uploads/about/favorites/
                           - label: Иконка
                             name: icon
                             widget: string

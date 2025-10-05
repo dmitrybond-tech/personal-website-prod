@@ -10,8 +10,7 @@ sections:
       visible: true
       fullName: Dmitry Bondarenko
       role: Technical Project Manager
-      image: >-
-        https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=160&h=240&fit=crop&crop=face
+      image: /uploads/placeholders/avatar.svg
       description: >
         You've landed on my page for a reason, I believe. If you already know
         what you're looking for, feel free to jump straight to my BookMe page
@@ -131,7 +130,7 @@ sections:
       items:
         - company: CloudBlue
           location: Enschede, the Netherlands
-          logo: /logos/cloudblue.svg
+          logo: /uploads/logos/cloudblue.svg
           website: https://www.cloudblue.com
           roles:
             - title: Delivery Manager
@@ -166,7 +165,7 @@ sections:
                   url: https://www.cloudblue.com
         - company: Datacom
           location: Kuala Lumpur, Malaysia
-          logo: /logos/datacom.svg
+          logo: /uploads/logos/datacom.svg
           website: https://datacom.com
           roles:
             - title: Business Consultant
@@ -232,7 +231,7 @@ sections:
                   url: https://datacom.com
         - company: CloudBlue
           location: Novosibirsk, Russia
-          logo: /logos/cloudblue.svg
+          logo: /uploads/logos/cloudblue.svg
           website: https://www.cloudblue.com
           roles:
             - title: Technical Account Manager
@@ -264,7 +263,7 @@ sections:
                   url: https://www.cloudblue.com
         - company: Diasoft
           location: Novosibirsk, Russia
-          logo: /logos/banking.svg
+          logo: /uploads/logos/banking.svg
           roles:
             - title: Implementation Engineer
               period: Sep 2016 – Jun 2018
@@ -301,7 +300,7 @@ sections:
             Sciences (SibSUTIS)
           location: Novosibirsk, Russia
           url: https://www.sibsutis.ru
-          logo: /logos/sibsutis_logo.png
+          logo: /uploads/logos/sibsutis_logo.png
           degrees:
             - degree: BSc
               program: Information and Computing Technology
@@ -355,23 +354,23 @@ sections:
             - title: Joe Rogan
               name: Joe Rogan
               url: https://www.youtube.com/@joerogan
-              image: /devscard/favorites/people/joerogan.jpg
+              image: /uploads/about/favorites/joerogan.jpg
             - title: Seth Rogen
               name: Seth Rogen
               url: https://www.instagram.com/sethrogen
-              image: /devscard/favorites/people/sethrogen.jpg
+              image: /uploads/about/favorites/sethrogen.jpg
             - title: Mark Manson
               name: Mark Manson
               url: https://markmanson.net
-              image: /devscard/favorites/people/markmanson.jpg
+              image: /uploads/about/favorites/markmanson.jpg
             - title: Travis Rice
               name: Travis Rice
               url: https://www.instagram.com/travisrice
-              image: /devscard/favorites/people/travisrice.jpg
+              image: /uploads/about/favorites/travisrice.jpg
             - title: Andrew Huberman
               name: Andrew Huberman
               url: https://www.youtube.com/@hubermanlab
-              image: /devscard/favorites/people/andrewberman.jpg
+              image: /uploads/about/favorites/andrewberman.jpg
         - title: Media I Follow
           type: medias
           style:
@@ -380,23 +379,23 @@ sections:
             - title: BBC
               type: News
               url: https://www.bbc.com
-              image: /devscard/favorites/media/bbc.jpeg
+              image: /uploads/about/favorites/bbc.jpeg
             - title: Y Combinator
               type: Accelerator
               url: https://www.ycombinator.com
-              image: /devscard/favorites/media/ycombinator.jpeg
+              image: /uploads/about/favorites/ycombinator.jpeg
             - title: Red Bull Media House
               type: Sports Media
               url: https://www.redbull.com
-              image: /devscard/favorites/media/redbull.png
+              image: /uploads/about/favorites/redbull.png
             - title: Artsy
               type: Art Platform
               url: https://www.artsy.net
-              image: /devscard/favorites/media/artsy.png
+              image: /uploads/about/favorites/artsy.png
             - title: Inked Magazine
               type: Tattoo Magazine
               url: https://www.inkedmag.com
-              image: /devscard/favorites/media/inked.jpeg
+              image: /uploads/about/favorites/inked.jpeg
         - title: Books
           type: books
           style:
@@ -406,23 +405,23 @@ sections:
               author: Scott H.
               url: >-
                 https://www.goodreads.com/book/show/18043039-how-to-create-tech-products-customers-love
-              image: /devscard/favorites/books/tech-products.jpeg
+              image: /uploads/about/favorites/tech-products.jpeg
             - title: Shantaram
               author: Gregory David Roberts
               url: https://www.goodreads.com/book/show/33600.Shantaram
-              image: /devscard/favorites/books/shantaram.jpg
+              image: /uploads/about/favorites/shantaram.jpg
             - title: The Subtle Art of Not Giving a Fuck
               author: Mark Manson
               url: https://markmanson.net/books/the-subtle-art-of-not-giving-a-f
-              image: /devscard/favorites/books/subtle-art.jpeg
+              image: /uploads/about/favorites/subtle-art.jpeg
             - title: Idiot
               author: Fyodor Dostoevsky
               url: https://www.goodreads.com/book/show/12600.The_Idiot
-              image: /devscard/favorites/books/idiot.jpeg
+              image: /uploads/about/favorites/idiot.jpeg
             - title: Crime and Punishment
               author: Fyodor Dostoevsky
               url: https://www.goodreads.com/book/show/7144.Crime_and_Punishment
-              image: /devscard/favorites/books/crime-punishment.jpeg
+              image: /uploads/about/favorites/crime-punishment.jpeg
         - title: Movies
           type: movies
           style:
@@ -430,18 +429,18 @@ sections:
           items:
             - title: Pulp Fiction
               url: https://www.imdb.com/title/tt0110912
-              image: /devscard/favorites/movies/pulp-fiction.jpeg
+              image: /uploads/about/favorites/pulp-fiction.jpeg
             - title: Spirited Away
               url: https://www.imdb.com/title/tt0245429
-              image: /devscard/favorites/movies/spirited-away.jpeg
+              image: /uploads/about/favorites/spirited-away.jpeg
             - title: The Big Lebowski
               url: https://www.imdb.com/title/tt0118715
-              image: /devscard/favorites/movies/big-lebowski.jpeg
+              image: /uploads/about/favorites/big-lebowski.jpeg
             - title: Snatch
               url: https://www.imdb.com/title/tt0208092
-              image: /devscard/favorites/movies/snatch.jpeg
+              image: /uploads/about/favorites/snatch.jpeg
             - title: Fight Club
               url: https://www.imdb.com/title/tt0137523
-              image: /devscard/favorites/movies/fight-club.jpeg
+              image: /uploads/about/favorites/fight-club.jpeg
 lineWidth: 0
 ---
