@@ -62,110 +62,66 @@ sections:
   - type: skills
     data:
       title: Навыки
-      slug: skills
-      icon: 'fa6-solid:bars-progress'
-      visible: true
-      categories:
-        - title: Общие
-          skills:
-            - name: React.js
-              level: advanced
-              icon: 'logos:react'
-              color: '#61dafb'
-              description: >-
-                Современная разработка на React с хуками и функциональными
-                компонентами
-            - name: TypeScript
-              level: advanced
-              icon: 'logos:typescript-icon'
-              color: '#3178c6'
-              description: Разработка на типизированном JavaScript
-            - name: SASS
-              level: intermediate
-              icon: 'logos:sass'
-              color: '#cf649a'
-              description: CSS препроцессинг и стилизация
+      groups:
+        - title: Общее
+          items:
+            - name: Discovery
+              icon: "/logos/discovery-icon-png.svg"
+              level: 4
+            - name: Delivery
+              icon: "/logos/delivery-icon-png.svg"
+              level: 5
+            - name: Analytics
+              icon: "/logos/analytics-icon-png.svg"
+              level: 3
         - title: Фреймворки
-          skills:
-            - name: NestJS
-              level: intermediate
-              icon: 'logos:nestjs'
-              color: '#e0234e'
-              description: Backend фреймворк для Node.js
-            - name: Tailwind CSS
-              level: advanced
-              icon: 'logos:tailwindcss-icon'
-              color: '#06b6d4'
-              description: Utility-first CSS фреймворк
-            - name: Astro
-              level: intermediate
-              icon: 'logos:astro-icon'
-              color: '#ff5d01'
-              description: Генерация статических сайтов
-            - name: Next.js
-              level: intermediate
-              icon: 'logos:nextjs-icon'
-              color: '#000000'
-              description: Full-stack React фреймворк
-            - name: Cypress
-              level: intermediate
-              icon: 'logos:cypress'
-              color: '#17202c'
-              description: End-to-end тестирование
-            - name: ESLint
-              level: advanced
-              icon: 'logos:eslint'
-              color: '#4b32c3'
-              description: Качество кода и линтинг
+          items:
+            - name: ITILv4
+              icon: "/logos/itil-pb-logo.svg"
+              level: 5
+            - name: PMBoK
+              icon: "/logos/pmi-logo-png.svg"
+              level: 4
+            - name: Agile
+              icon: "/logos/pmi-agile-certified-practitioner.svg"
+              level: 4
+            - name: DevOps
+              icon: "/logos/google-cloud-logo.svg"
+              level: 3
+            - name: TOGAF
+              icon: "/logos/Logo-ISO-27001.svg"
+              level: 3
+            - name: ISO 27001
+              icon: "/logos/eslint.svg"
+              level: 3
         - title: Технические
-          skills:
-            - name: PostgreSQL
-              level: intermediate
-              icon: 'logos:postgresql'
-              color: '#336791'
-              description: Управление реляционными базами данных
-            - name: MongoDB
-              level: intermediate
-              icon: 'logos:mongodb-icon'
-              color: '#47a248'
-              description: NoSQL документная база данных
-            - name: Firebase
-              level: intermediate
-              icon: 'logos:firebase'
-              color: '#ffca28'
-              description: Backend-as-a-Service платформа
-            - name: GraphQL
-              level: intermediate
-              icon: 'logos:graphql'
-              color: '#e10098'
-              description: Язык запросов для API
-            - name: pnpm
-              level: intermediate
-              icon: 'logos:pnpm'
-              color: '#f69220'
-              description: Быстрый и эффективный менеджер пакетов
-            - name: Supabase
-              level: intermediate
-              icon: 'logos:supabase-icon'
-              color: '#3ecf8e'
-              description: Open source альтернатива Firebase
+          items:
+            - name: Cloud / IaaS
+              icon: "/logos/Amazon_Web_Services_Logo.svg"
+              level: 4
+            - name: Linux
+              icon: "/logos/linux-logo.svg"
+              level: 4
+            - name: WebDev
+              icon: "/logos/webdev-logo.svg"
+              level: 3
+            - name: Python
+              icon: "/logos/python-logo.svg"
+              level: 3
+            - name: SQL
+              icon: "/logos/SQL-logo.svg"
+              level: 3
+            - name: ML&AI
+              icon: "/logos/ml-ai-logo.svg"
+              level: 3
         - title: Языки
-          skills:
-            - name: English - C1
-              level: expert
-              icon: 'twemoji:flag-united-kingdom'
-              color: '#012169'
-              description: Продвинутый уровень английского языка
-            - name: Polish - native
-              level: expert
-              icon: 'twemoji:flag-poland'
-              color: '#dc143c'
-              description: Родной польский язык
-            - name: Spanish - B1
-              level: beginner
-              icon: 'twemoji:flag-spain'
-              color: '#c60b1e'
-              description: Средний уровень испанского языка
+          items:
+            - name: Английский — C1
+              icon: "/logos/flag-united-kingdom.svg"
+            - name: Русский — родной
+              icon: "/logos/flag-russia.svg"
+            - name: Нидерландский — A1
+              icon: "/logos/flag-netherlands.svg"
   - type: experience
     data:
       title: Опыт
@@ -328,30 +284,19 @@ sections:
   - type: education
     data:
       title: Образование
-      slug: education
-      icon: 'fa6-solid:graduation-cap'
-      visible: true
       items:
-        - institution: Вроцлавский технологический университет
-          location: 'Вроцлав, Польша'
-          url: 'https://pwr.edu.pl'
-          logo: /devscard/logos/wroclaw-university-of-technology.jpg
+        - school: "Сибирский государственный университет телекоммуникаций и информатики (СибГУТИ)"
+          location: "Новосибирск, Россия"
+          url: "https://www.sibsutis.ru"
+          logo: "/logos/sibsutis_logo.svg"
           degrees:
-            - degree: Магистр наук
-              program: Информационные технологии
-              faculty: Факультет компьютерных наук и менеджмента
-              period: 2014 – 2016
+            - degree: "Бакалавр (BSc)"
+              program: "Информационные и вычислительные технологии"
+              faculty: "Факультет компьютерных наук и инженерии"
+              period: "Сент 2012 — Сент 2016"
               bullets:
-                - Специализация в области разработки программного обеспечения
-                - Продвинутое программирование и проектирование систем
-            - degree: Бакалавр наук
-              program: Информационные технологии
-              faculty: Факультет компьютерных наук и менеджмента
-              period: 2011 – 2014
-              bullets:
-                - Специализация в области разработки приложений
-                - Основы информатики и математики
-    items: []
+                - "Упор на программную инженерию, алгоритмы и структуры данных"
+                - "Участвовал в хакатонах и научных конференциях, совмещая с частичной занятостью"
   - type: favorites
     data:
       title: Избранное

@@ -1,12 +1,12 @@
 backend:
   name: github
-  repo: dmitrybond-tech/personal-website-pre-prod 
+  repo: dmitrybond-tech/personal-website-pre-prod
   branch: main
-  base_url: https://b5b1814eec25ae.lhr.life
+  base_url: https://1d20fa08d740b9.lhr.life/
   auth_endpoint: /oauth
 publish_mode: editorial_workflow
-media_folder: "public/uploads"
-public_folder: "/uploads"
+media_folder: apps/website/public/uploads
+public_folder: /uploads
 collections:
   - name: about_en
     label: About (EN)
@@ -23,6 +23,8 @@ collections:
           - label: Slug
             name: slug
             widget: string
+            required: false
+            default: ''
           - label: Sections
             name: sections
             widget: list
@@ -32,12 +34,32 @@ collections:
                 name: main
                 widget: object
                 fields:
+                  - label: Style (optional)
+                    name: style
+                    widget: object
+                    required: false
+                    collapsed: true
+                    fields:
+                      - label: Variant
+                        name: variant
+                        widget: select
+                        required: false
+                        options:
+                          - list
+                          - grid
+                          - timeline
+                        default: list
+                        hint: Вариант рендера секции
                   - label: Full name
                     name: fullName
                     widget: string
+                    required: false
+                    default: ''
                   - label: Role
                     name: role
                     widget: string
+                    required: false
+                    default: ''
                   - label: Image
                     name: image
                     widget: image
@@ -53,13 +75,18 @@ collections:
                       - label: Label
                         name: label
                         widget: string
+                        required: false
+                        default: ''
                       - label: Value
                         name: value
                         widget: string
+                        required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
                         required: false
+                        default: ''
                   - label: Tags
                     name: tags
                     widget: list
@@ -67,6 +94,7 @@ collections:
                       - label: Name
                         name: name
                         widget: string
+                    required: false
                   - label: Action (CV button)
                     name: action
                     widget: object
@@ -75,13 +103,19 @@ collections:
                       - label: Label
                         name: label
                         widget: string
+                        required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
+                        required: false
+                        default: ''
                       - label: Downloaded File Name
                         name: downloadedFileName
                         widget: string
                         required: false
+                        default: ''
+                    collapsed: true
                   - label: Links
                     name: links
                     widget: list
@@ -91,59 +125,115 @@ collections:
                         name: label
                         widget: string
                         required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
+                        required: false
+                        default: ''
                       - label: Icon
                         name: icon
                         widget: string
                         required: false
+                        default: ''
                       - label: Color
                         name: color
                         widget: string
                         required: false
+                        default: ''
               - label: Skills
                 name: skills
                 widget: object
+                required: false
+                collapsed: false
                 fields:
-                  - label: Categories
-                    name: categories
-                    widget: list
+                  - label: Data
+                    name: data
+                    widget: object
+                    required: false
                     fields:
                       - label: Title
                         name: title
                         widget: string
-                      - label: Skills
-                        name: skills
+                        required: false
+                        default: "Skills"
+                      - label: Groups
+                        name: groups
                         widget: list
+                        required: false
                         fields:
-                          - label: Name
-                            name: name
-                            widget: string
-                          - label: Level
-                            name: level
-                            widget: select
-                            options:
-                              - beginner
-                              - intermediate
-                              - advanced
-                              - expert
-                          - label: Icon
-                            name: icon
+                          - label: Group Title
+                            name: title
                             widget: string
                             required: false
-                          - label: Color
-                            name: color
-                            widget: string
+                          - label: Items
+                            name: items
+                            widget: list
                             required: false
-                          - label: Description
-                            name: description
-                            widget: text
-                            required: false
+                            fields:
+                              - label: Name
+                                name: name
+                                widget: string
+                                required: false
+                              - label: Icon (path or token)
+                                name: icon
+                                widget: string
+                                required: false
+                                hint: "e.g. /logos/aws.svg or iconify token"
+                              - label: Level (1-5)
+                                name: level
+                                widget: number
+                                required: false
+                                min: 1
+                                max: 5
               - label: Experience
                 name: experience
                 widget: object
                 fields:
+                  - label: Style (optional)
+                    name: style
+                    widget: object
+                    required: false
+                    collapsed: true
+                    fields:
+                      - label: Variant
+                        name: variant
+                        widget: select
+                        required: false
+                        options:
+                          - list
+                          - grid
+                          - timeline
+                        default: timeline
+                        hint: Вариант рендера секции
+                      - label: Cols
+                        name: cols
+                        widget: object
+                        required: false
+                        collapsed: true
+                        fields:
+                          - label: Base
+                            name: base
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 1
+                          - label: SM
+                            name: sm
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 1
+                          - label: LG
+                            name: lg
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 2
+                        hint: Кол-во колонок на брейкпоинтах; пусто = дефолты темы
                   - label: Items
                     name: items
                     widget: list
@@ -155,6 +245,7 @@ collections:
                         name: location
                         widget: string
                         required: false
+                        default: ''
                       - label: Logo
                         name: logo
                         widget: image
@@ -163,6 +254,7 @@ collections:
                         name: website
                         widget: string
                         required: false
+                        default: ''
                       - label: Roles
                         name: roles
                         widget: list
@@ -173,6 +265,8 @@ collections:
                           - label: Period
                             name: period
                             widget: string
+                            required: false
+                            default: ''
                           - label: Description
                             name: description
                             widget: markdown
@@ -202,61 +296,132 @@ collections:
                                 name: label
                                 widget: string
                                 required: false
+                                default: ''
                               - label: URL
                                 name: url
                                 widget: string
+                                required: false
+                                default: ''
                               - label: Icon
                                 name: icon
                                 widget: string
                                 required: false
+                                default: ''
               - label: Education
                 name: education
                 widget: object
+                required: false
                 fields:
-                  - label: Items
-                    name: items
-                    widget: list
+                  - label: Data
+                    name: data
+                    widget: object
+                    required: false
                     fields:
-                      - label: Institution
-                        name: institution
-                        widget: string
-                      - label: Degree
-                        name: degree
+                      - label: Title
+                        name: title
                         widget: string
                         required: false
-                      - label: Location
-                        name: location
-                        widget: string
-                        required: false
-                      - label: Period
-                        name: period
-                        widget: string
-                        required: false
-                      - label: Notes
-                        name: notes
+                        default: "Education"
+                      - label: Items
+                        name: items
                         widget: list
-                        field:
-                          label: Note
-                          name: note
-                          widget: string
                         required: false
+                        fields:
+                          - label: School
+                            name: school
+                            widget: string
+                            required: false
+                          - label: City/Country
+                            name: location
+                            widget: string
+                            required: false
+                          - label: Website
+                            name: url
+                            widget: string
+                            required: false
+                          - label: Logo (path)
+                            name: logo
+                            widget: string
+                            required: false
+                            hint: "e.g. /logos/sibsutis_logo.svg"
+                          - label: Degrees
+                            name: degrees
+                            widget: list
+                            required: false
+                            fields:
+                              - label: Degree
+                                name: degree
+                                widget: string
+                                required: false
+                              - label: Program
+                                name: program
+                                widget: string
+                                required: false
+                              - label: Faculty
+                                name: faculty
+                                widget: string
+                                required: false
+                              - label: Period
+                                name: period
+                                widget: string
+                                required: false
+                              - label: Bullets
+                                name: bullets
+                                widget: list
+                                required: false
+                                field:
+                                  label: Bullet
+                                  name: text
+                                  widget: string
+                                  required: false
               - label: Favorites
                 name: favorites
                 widget: object
                 fields:
-                  - label: Style
+                  - label: Style (optional)
                     name: style
                     widget: object
                     required: false
+                    collapsed: true
                     fields:
                       - label: Variant
                         name: variant
-                        widget: string
+                        widget: select
                         required: false
+                        options:
+                          - list
+                          - grid
+                          - timeline
+                        default: grid
+                        hint: Вариант рендера секции
                       - label: Cols
                         name: cols
-                        widget: number
+                        widget: object
                         required: false
+                        collapsed: true
+                        fields:
+                          - label: Base
+                            name: base
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 1
+                          - label: SM
+                            name: sm
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 2
+                          - label: LG
+                            name: lg
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 3
+                        hint: Кол-во колонок на брейкпоинтах; пусто = дефолты темы
                   - label: Groups
                     name: groups
                     widget: list
@@ -282,6 +447,7 @@ collections:
                             name: limit
                             widget: number
                             required: false
+                        collapsed: true
                       - label: Items
                         name: items
                         widget: list
@@ -293,10 +459,12 @@ collections:
                             name: subtitle
                             widget: string
                             required: false
+                            default: ''
                           - label: URL
                             name: url
                             widget: string
                             required: false
+                            default: ''
                           - label: Image
                             name: image
                             widget: image
@@ -305,10 +473,12 @@ collections:
                             name: icon
                             widget: string
                             required: false
+                            default: ''
                           - label: Author
                             name: author
                             widget: string
                             required: false
+                            default: ''
                           - label: Year
                             name: year
                             widget: number
@@ -317,6 +487,7 @@ collections:
                             name: timeframe
                             widget: string
                             required: false
+                            default: ''
                           - label: Tags
                             name: tags
                             widget: list
@@ -340,6 +511,8 @@ collections:
           - label: URL-адрес
             name: slug
             widget: string
+            required: false
+            default: ''
           - label: Секции
             name: sections
             widget: list
@@ -349,12 +522,32 @@ collections:
                 name: main
                 widget: object
                 fields:
+                  - label: Стиль (опционально)
+                    name: style
+                    widget: object
+                    required: false
+                    collapsed: true
+                    fields:
+                      - label: Вариант
+                        name: variant
+                        widget: select
+                        required: false
+                        options:
+                          - list
+                          - grid
+                          - timeline
+                        default: list
+                        hint: Вариант рендера секции
                   - label: Полное имя
                     name: fullName
                     widget: string
+                    required: false
+                    default: ''
                   - label: Должность
                     name: role
                     widget: string
+                    required: false
+                    default: ''
                   - label: Изображение
                     name: image
                     widget: image
@@ -370,13 +563,18 @@ collections:
                       - label: Метка
                         name: label
                         widget: string
+                        required: false
+                        default: ''
                       - label: Значение
                         name: value
                         widget: string
+                        required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
                         required: false
+                        default: ''
                   - label: Теги
                     name: tags
                     widget: list
@@ -384,6 +582,7 @@ collections:
                       - label: Название
                         name: name
                         widget: string
+                    required: false
                   - label: Действие (кнопка CV)
                     name: action
                     widget: object
@@ -392,13 +591,19 @@ collections:
                       - label: Метка
                         name: label
                         widget: string
+                        required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
+                        required: false
+                        default: ''
                       - label: Имя скачиваемого файла
                         name: downloadedFileName
                         widget: string
                         required: false
+                        default: ''
+                    collapsed: true
                   - label: Ссылки
                     name: links
                     widget: list
@@ -408,59 +613,115 @@ collections:
                         name: label
                         widget: string
                         required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
+                        required: false
+                        default: ''
                       - label: Иконка
                         name: icon
                         widget: string
                         required: false
+                        default: ''
                       - label: Цвет
                         name: color
                         widget: string
                         required: false
+                        default: ''
               - label: Навыки
                 name: skills
                 widget: object
+                required: false
+                collapsed: false
                 fields:
-                  - label: Категории
-                    name: categories
-                    widget: list
+                  - label: Данные
+                    name: data
+                    widget: object
+                    required: false
                     fields:
                       - label: Заголовок
                         name: title
                         widget: string
-                      - label: Навыки
-                        name: skills
+                        required: false
+                        default: "Навыки"
+                      - label: Группы
+                        name: groups
                         widget: list
+                        required: false
                         fields:
-                          - label: Название
-                            name: name
-                            widget: string
-                          - label: Уровень
-                            name: level
-                            widget: select
-                            options:
-                              - beginner
-                              - intermediate
-                              - advanced
-                              - expert
-                          - label: Иконка
-                            name: icon
+                          - label: Заголовок группы
+                            name: title
                             widget: string
                             required: false
-                          - label: Цвет
-                            name: color
-                            widget: string
+                          - label: Элементы
+                            name: items
+                            widget: list
                             required: false
-                          - label: Описание
-                            name: description
-                            widget: text
-                            required: false
+                            fields:
+                              - label: Название
+                                name: name
+                                widget: string
+                                required: false
+                              - label: Иконка (путь или токен)
+                                name: icon
+                                widget: string
+                                required: false
+                                hint: "Например: /logos/aws.svg или токен iconify"
+                              - label: Уровень (1–5)
+                                name: level
+                                widget: number
+                                required: false
+                                min: 1
+                                max: 5
               - label: Опыт работы
                 name: experience
                 widget: object
                 fields:
+                  - label: Стиль (опционально)
+                    name: style
+                    widget: object
+                    required: false
+                    collapsed: true
+                    fields:
+                      - label: Вариант
+                        name: variant
+                        widget: select
+                        required: false
+                        options:
+                          - list
+                          - grid
+                          - timeline
+                        default: timeline
+                        hint: Вариант рендера секции
+                      - label: Колонки
+                        name: cols
+                        widget: object
+                        required: false
+                        collapsed: true
+                        fields:
+                          - label: Базовая
+                            name: base
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 1
+                          - label: SM
+                            name: sm
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 1
+                          - label: LG
+                            name: lg
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 2
+                        hint: Кол-во колонок на брейкпоинтах; пусто = дефолты темы
                   - label: Элементы
                     name: items
                     widget: list
@@ -472,6 +733,7 @@ collections:
                         name: location
                         widget: string
                         required: false
+                        default: ''
                       - label: Логотип
                         name: logo
                         widget: image
@@ -480,6 +742,7 @@ collections:
                         name: website
                         widget: string
                         required: false
+                        default: ''
                       - label: Роли
                         name: roles
                         widget: list
@@ -490,6 +753,8 @@ collections:
                           - label: Период
                             name: period
                             widget: string
+                            required: false
+                            default: ''
                           - label: Описание
                             name: description
                             widget: markdown
@@ -519,61 +784,132 @@ collections:
                                 name: label
                                 widget: string
                                 required: false
+                                default: ''
                               - label: URL
                                 name: url
                                 widget: string
+                                required: false
+                                default: ''
                               - label: Иконка
                                 name: icon
                                 widget: string
                                 required: false
+                                default: ''
               - label: Образование
                 name: education
                 widget: object
+                required: false
                 fields:
-                  - label: Элементы
-                    name: items
-                    widget: list
+                  - label: Данные
+                    name: data
+                    widget: object
+                    required: false
                     fields:
-                      - label: Учебное заведение
-                        name: institution
-                        widget: string
-                      - label: Степень
-                        name: degree
+                      - label: Заголовок
+                        name: title
                         widget: string
                         required: false
-                      - label: Местоположение
-                        name: location
-                        widget: string
-                        required: false
-                      - label: Период
-                        name: period
-                        widget: string
-                        required: false
-                      - label: Заметки
-                        name: notes
+                        default: "Образование"
+                      - label: Элементы
+                        name: items
                         widget: list
-                        field:
-                          label: Заметка
-                          name: note
-                          widget: string
                         required: false
+                        fields:
+                          - label: ВУЗ
+                            name: school
+                            widget: string
+                            required: false
+                          - label: Город/страна
+                            name: location
+                            widget: string
+                            required: false
+                          - label: Сайт
+                            name: url
+                            widget: string
+                            required: false
+                          - label: Логотип (путь)
+                            name: logo
+                            widget: string
+                            required: false
+                            hint: "например /logos/sibsutis_logo.svg"
+                          - label: Степени
+                            name: degrees
+                            widget: list
+                            required: false
+                            fields:
+                              - label: Степень
+                                name: degree
+                                widget: string
+                                required: false
+                              - label: Программа
+                                name: program
+                                widget: string
+                                required: false
+                              - label: Факультет
+                                name: faculty
+                                widget: string
+                                required: false
+                              - label: Период
+                                name: period
+                                widget: string
+                                required: false
+                              - label: Пункты
+                                name: bullets
+                                widget: list
+                                required: false
+                                field:
+                                  label: Пункт
+                                  name: text
+                                  widget: string
+                                  required: false
               - label: Избранное
                 name: favorites
                 widget: object
                 fields:
-                  - label: Стиль
+                  - label: Стиль (опционально)
                     name: style
                     widget: object
                     required: false
+                    collapsed: true
                     fields:
                       - label: Вариант
                         name: variant
-                        widget: string
+                        widget: select
                         required: false
+                        options:
+                          - list
+                          - grid
+                          - timeline
+                        default: grid
+                        hint: Вариант рендера секции
                       - label: Колонки
                         name: cols
-                        widget: number
+                        widget: object
                         required: false
+                        collapsed: true
+                        fields:
+                          - label: Базовая
+                            name: base
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 1
+                          - label: SM
+                            name: sm
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 2
+                          - label: LG
+                            name: lg
+                            widget: number
+                            required: false
+                            min: 1
+                            max: 6
+                            default: 3
+                        hint: Кол-во колонок на брейкпоинтах; пусто = дефолты темы
                   - label: Группы
                     name: groups
                     widget: list
@@ -599,6 +935,7 @@ collections:
                             name: limit
                             widget: number
                             required: false
+                        collapsed: true
                       - label: Элементы
                         name: items
                         widget: list
@@ -610,10 +947,12 @@ collections:
                             name: subtitle
                             widget: string
                             required: false
+                            default: ''
                           - label: URL
                             name: url
                             widget: string
                             required: false
+                            default: ''
                           - label: Изображение
                             name: image
                             widget: image
@@ -622,10 +961,12 @@ collections:
                             name: icon
                             widget: string
                             required: false
+                            default: ''
                           - label: Автор
                             name: author
                             widget: string
                             required: false
+                            default: ''
                           - label: Год
                             name: year
                             widget: number
@@ -634,6 +975,7 @@ collections:
                             name: timeframe
                             widget: string
                             required: false
+                            default: ''
                           - label: Теги
                             name: tags
                             widget: list

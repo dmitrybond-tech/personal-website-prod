@@ -9,8 +9,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Candidates to inspect
 const CANDIDATES = [
+  path.resolve(__dirname, '../public/website-admin/config.yml'),
   path.resolve(__dirname, '../public/website-admin/config.generated.yml'),
-  path.resolve(__dirname, '../public/website-admin/config.yml')
+  path.resolve(__dirname, '../public/website-admin/config.dev.yml'),
+  path.resolve(__dirname, '../public/website-admin/config.prod.yml')
 ];
 
 function inspectFieldsForDuplicates(fields, path = '') {
