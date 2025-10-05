@@ -262,16 +262,17 @@ sections:
               links:
                 - label: Company Website
                   url: https://www.cloudblue.com
-        - company: Implementation Engineer — Banking Projects
+        - company: Diasoft
           location: Novosibirsk, Russia
           logo: /logos/banking.svg
           roles:
             - title: Implementation Engineer
               period: Sep 2016 – Jun 2018
               bullets:
-                - Delivered end-to-end implementation of core banking systems and satellite modules: >-
-                    deployment, configuration, SIT/UAT coordination, and
-                    post-launch support.
+                - >- 
+                  Delivered end-to-end implementation of core banking systems and satellite modules: >-
+                  deployment, configuration, SIT/UAT coordination, and
+                  post-launch support.
                 - >-
                   Translated business requirements into technical specifications
                   in collaboration with front office, IT, and compliance
@@ -444,4 +445,3 @@ sections:
               image: /devscard/favorites/movies/fight-club.jpeg
 lineWidth: 0
 ---
-
