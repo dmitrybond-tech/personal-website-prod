@@ -2,7 +2,7 @@ backend:
   name: github
   repo: dmitrybond-tech/personal-website-pre-prod
   branch: main
-  base_url: https://b44bfb8e017e3c.lhr.life
+  base_url: https://1c96e1e69880fe.lhr.life
   auth_endpoint: /oauth
 publish_mode: editorial_workflow
 media_folder: apps/website/public/uploads
@@ -13,7 +13,7 @@ collections:
     files:
       - name: about_en_file
         label: About (EN)
-        file: content/en/about-expanded.md
+        file: apps/website/src/content/aboutPage/en/about-expanded.md
         create: false
         delete: false
         fields:
@@ -255,6 +255,8 @@ collections:
                       - label: Company
                         name: company
                         widget: string
+                        required: false
+                        default: ''
                       - label: Location
                         name: location
                         widget: string
@@ -351,6 +353,7 @@ collections:
                             name: school
                             widget: string
                             required: false
+                            default: ''
                           - label: City/Country
                             name: location
                             widget: string
@@ -461,6 +464,7 @@ collections:
                       - label: Type
                         name: type
                         widget: select
+                        required: false
                         options:
                           - hobbies
                           - people
@@ -536,7 +540,7 @@ collections:
     files:
       - name: about_ru_file
         label: Обо мне (RU)
-        file: content/ru/about-expanded.md
+        file: apps/website/src/content/aboutPage/ru/about-expanded.md
         create: false
         delete: false
         fields:
@@ -984,6 +988,7 @@ collections:
                       - label: Тип
                         name: type
                         widget: select
+                        required: false
                         options:
                           - hobbies
                           - people

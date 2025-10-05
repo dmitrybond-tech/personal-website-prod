@@ -2,7 +2,7 @@ backend:
   name: github
   repo: dmitrybond-tech/personal-website-pre-prod
   branch: main
-  base_url: https://1d20fa08d740b9.lhr.life/
+  base_url: https://1c96e1e69880fe.lhr.life
   auth_endpoint: /oauth
 publish_mode: editorial_workflow
 media_folder: apps/website/public/uploads
