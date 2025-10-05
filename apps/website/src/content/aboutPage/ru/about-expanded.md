@@ -253,9 +253,10 @@ sections:
               links:
                 - label: Сайт компании
                   url: 'https://www.cloudblue.com'
-        - company: Implementation Engineer — банковские проекты
+        - company: Diasoft
           location: 'Новосибирск, Россия'
           logo: /uploads/logos/banking.svg
+          website: ''
           roles:
             - title: Implementation Engineer
               period: сен 2016 – июн 2018

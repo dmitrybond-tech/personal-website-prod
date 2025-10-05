@@ -4,6 +4,7 @@ import AppShell from '../../app/layouts/AppShell.astro';
 import { getEntry, getCollection } from 'astro:content';
 import { registry } from '../../features/about/registry';
 import { debug } from '../../app/shared/lib/conditional-debug';
+import { fromMarkdownSections } from '../../features/about/lib/markdownMapper';
 import seed from '../../content/blocks/skills.seed.json';
 
 const { lang } = Astro.params as { lang: 'en' | 'ru' };
@@ -77,9 +78,12 @@ rawSections.forEach((s:any, i:number) => {
   debug('[about] s[%d] keys=%o', i, keys(s));
   debug('[about] s[%d] typeGuess=%s dataKeys=%o', i, getType(s), keys(s?.data));
 });
-const sections = rawSections.map(normalize);
+
+// Use the new mapper to transform sections with fallbacks
+const mappedSections = fromMarkdownSections(rawSections);
+const sections = Object.values(mappedSections);
 const types = sections.map(s=>s.type);
-debug('[about] normalized types=%o', types);
+debug('[about] mapped types=%o', types);
 const unknown = sections.filter(s=>!registry[s.type]);
 if (unknown.length) debug('[about] UNKNOWN types=%o', unknown.map(u=>u.type));
 
