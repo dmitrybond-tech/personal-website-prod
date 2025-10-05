@@ -94,6 +94,32 @@ const bodyClasses = [
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     
+    <!-- Iconify for about pages -->
+    {isAbout && (
+      <>
+        <script type="module" src="https://cdn.skypack.dev/iconify-icon@3"></script>
+        <script is:inline>
+          // Load Iconify bundle for offline icons
+          (async function() {
+            try {
+              const response = await fetch('/iconify-bundle.json');
+              if (response.ok) {
+                const bundle = await response.json();
+                if (window.Iconify && window.Iconify.addCollection) {
+                  Object.values(bundle).forEach(collection => {
+                    window.Iconify.addCollection(collection);
+                  });
+                  console.debug('[Iconify] Bundle loaded successfully');
+                }
+              }
+            } catch (error) {
+              console.warn('[Iconify] Failed to load bundle:', error);
+            }
+          })();
+        </script>
+      </>
+    )}
+    
     <!-- Unified NavIsland styles -->
     <style is:global>
       :root {

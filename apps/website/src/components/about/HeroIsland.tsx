@@ -1,5 +1,4 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
 
 export type HeroLink = {
   label: string;
@@ -88,7 +87,7 @@ export default function HeroIsland({
             style={{ background: 'var(--cv-accent)', color: 'white' }}
             title={lang === 'ru' ? 'Скачать резюме (PDF)' : 'Download CV (PDF)'}
           >
-            <Icon icon="mdi:download" aria-hidden />
+            <iconify-icon icon="mdi:download" aria-hidden />
             <span>{lang === 'ru' ? 'Резюме' : 'Download CV'}</span>
           </a>
         )}
@@ -152,7 +151,7 @@ export default function HeroIsland({
                 className="inline-flex h-12 w-12 items-center justify-center rounded-xl border cv-chip cv-ring" 
                 aria-label="Telegram"
               >
-                <Icon icon="mdi:telegram" className="text-[24px] cv-muted" aria-hidden />
+                <iconify-icon icon="mdi:telegram" className="text-[24px] cv-muted" aria-hidden />
               </a>
             )}
             {linkedinLink && (
@@ -163,7 +162,7 @@ export default function HeroIsland({
                 className="inline-flex h-12 w-12 items-center justify-center rounded-xl border cv-chip cv-ring" 
                 aria-label="LinkedIn"
               >
-                <Icon icon="mdi:linkedin" className="text-[24px] cv-muted" aria-hidden />
+                <iconify-icon icon="mdi:linkedin" className="text-[24px] cv-muted" aria-hidden />
               </a>
             )}
             {portfolioLink && (
@@ -174,7 +173,7 @@ export default function HeroIsland({
                 className="inline-flex h-12 w-12 items-center justify-center rounded-xl border cv-chip cv-ring" 
                 aria-label="Portfolio"
               >
-                <Icon icon="mdi:link-variant" className="text-[24px] cv-muted" aria-hidden />
+                <iconify-icon icon="mdi:link-variant" className="text-[24px] cv-muted" aria-hidden />
               </a>
             )}
           </div>

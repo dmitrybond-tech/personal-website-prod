@@ -46,7 +46,10 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
     '/assets',
     '/fonts',
     '/images',
-    '/public'
+    '/public',
+    '/uploads',
+    '/logos',
+    '/devscard'
   ];
 
   // Check if path should bypass i18n redirect

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
 
 export default function SkillChip({
   name, icon, url, level, description,
@@ -16,7 +15,7 @@ export default function SkillChip({
       <div className={inner}>
         {icon && (
           isToken ? (
-            <Icon icon={icon} className={iconCls} aria-hidden />
+            <iconify-icon icon={icon} className={iconCls} aria-hidden />
           ) : (
             <img src={icon} alt="" className={iconCls} loading="lazy" decoding="async" />
           )

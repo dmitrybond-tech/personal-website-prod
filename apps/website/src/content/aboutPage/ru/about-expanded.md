@@ -10,8 +10,7 @@ sections:
       visible: true
       fullName: Дмитрий Бондаренко
       role: Технический менеджер проектов
-      image: >-
-        https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=160&h=240&fit=crop&crop=face
+      image: /uploads/placeholders/avatar.svg
       description: >
         Вы попали на мою страницу не случайно, я уверен. Если вы уже знаете, что
         ищете, смело переходите на мою страницу BookMe и проверьте мою
@@ -66,62 +65,62 @@ sections:
         - title: Общее
           items:
             - name: Discovery
-              icon: "/logos/discovery-icon-png.svg"
+              icon: simple-icons:discovery
               level: 4
             - name: Delivery
-              icon: "/logos/delivery-icon-png.svg"
+              icon: simple-icons:delivery
               level: 5
             - name: Analytics
-              icon: "/logos/analytics-icon-png.svg"
+              icon: simple-icons:googleanalytics
               level: 3
         - title: Фреймворки
           items:
             - name: ITILv4
-              icon: "/logos/itil-pb-logo.svg"
+              icon: simple-icons:itil
               level: 5
             - name: PMBoK
-              icon: "/logos/pmi-logo-png.svg"
+              icon: simple-icons:projectmanagementinstitute
               level: 4
             - name: Agile
-              icon: "/logos/pmi-agile-certified-practitioner.svg"
+              icon: simple-icons:agile
               level: 4
             - name: DevOps
-              icon: "/logos/google-cloud-logo.svg"
+              icon: simple-icons:googlecloud
               level: 3
             - name: TOGAF
-              icon: "/logos/Logo-ISO-27001.svg"
+              icon: simple-icons:iso
               level: 3
             - name: ISO 27001
-              icon: "/logos/eslint.svg"
+              icon: simple-icons:eslint
               level: 3
         - title: Технические
           items:
             - name: Cloud / IaaS
-              icon: "/logos/Amazon_Web_Services_Logo.svg"
+              icon: simple-icons:amazonaws
               level: 4
             - name: Linux
-              icon: "/logos/linux-logo.svg"
+              icon: simple-icons:linux
               level: 4
             - name: WebDev
-              icon: "/logos/webdev-logo.svg"
+              icon: simple-icons:webcomponents
               level: 3
             - name: Python
-              icon: "/logos/python-logo.svg"
+              icon: simple-icons:python
               level: 3
             - name: SQL
-              icon: "/logos/SQL-logo.svg"
+              icon: simple-icons:postgresql
               level: 3
             - name: ML&AI
-              icon: "/logos/ml-ai-logo.svg"
+              icon: simple-icons:tensorflow
               level: 3
         - title: Языки
           items:
             - name: Английский — C1
-              icon: "/logos/flag-united-kingdom.svg"
+              icon: twemoji:flag-united-kingdom
             - name: Русский — родной
-              icon: "/logos/flag-russia.svg"
+              icon: twemoji:flag-russia
             - name: Нидерландский — A1
-              icon: "/logos/flag-netherlands.svg"
+              icon: twemoji:flag-netherlands
   - type: experience
     data:
       title: Опыт
@@ -131,7 +130,7 @@ sections:
       items:
         - company: CloudBlue
           location: 'Энсхеде, Нидерланды'
-          logo: /logos/cloudblue.svg
+          logo: /uploads/logos/cloudblue.svg
           website: 'https://www.cloudblue.com'
           roles:
             - title: Delivery Manager
@@ -165,7 +164,7 @@ sections:
                   url: 'https://www.cloudblue.com'
         - company: Datacom
           location: 'Куала-Лумпур, Малайзия'
-          logo: /logos/datacom.svg
+          logo: /uploads/logos/datacom.svg
           website: 'https://datacom.com'
           roles:
             - title: Business Consultant
@@ -226,7 +225,7 @@ sections:
                   url: 'https://datacom.com'
         - company: CloudBlue
           location: 'Новосибирск, Россия'
-          logo: /logos/cloudblue.svg
+          logo: /uploads/logos/cloudblue.svg
           website: 'https://www.cloudblue.com'
           roles:
             - title: Technical Account Manager
@@ -256,7 +255,7 @@ sections:
                   url: 'https://www.cloudblue.com'
         - company: Implementation Engineer — банковские проекты
           location: 'Новосибирск, Россия'
-          logo: /logos/banking.svg
+          logo: /uploads/logos/banking.svg
           roles:
             - title: Implementation Engineer
               period: сен 2016 – июн 2018
@@ -288,7 +287,7 @@ sections:
         - school: "Сибирский государственный университет телекоммуникаций и информатики (СибГУТИ)"
           location: "Новосибирск, Россия"
           url: "https://www.sibsutis.ru"
-          logo: "/logos/sibsutis_logo.svg"
+          logo: "/uploads/logos/sibsutis_logo.svg"
           degrees:
             - degree: "Бакалавр (BSc)"
               program: "Информационные и вычислительные технологии"
@@ -338,23 +337,23 @@ sections:
             - title: Джо Роган
               name: Джо Роган
               url: 'https://www.youtube.com/@joerogan'
-              image: /devscard/favorites/people/joerogan.jpg
+              image: /uploads/about/favorites/joerogan.jpg
             - title: Сет Роген
               name: Сет Роген
               url: 'https://www.instagram.com/sethrogen'
-              image: /devscard/favorites/people/sethrogen.jpg
+              image: /uploads/about/favorites/sethrogen.jpg
             - title: Марк Мэнсон
               name: Марк Мэнсон
               url: 'https://markmanson.net'
-              image: /devscard/favorites/people/markmanson.jpg
+              image: /uploads/about/favorites/markmanson.jpg
             - title: Трэвис Райс
               name: Трэвис Райс
               url: 'https://www.instagram.com/travisrice'
-              image: /devscard/favorites/people/travisrice.jpg
+              image: /uploads/about/favorites/travisrice.jpg
             - title: Эндрю Хуберман
               name: Эндрю Хуберман
               url: 'https://www.youtube.com/@hubermanlab'
-              image: /devscard/favorites/people/andrewberman.jpg
+              image: /uploads/about/favorites/andrewberman.jpg
         - title: 'Медиа, за которыми я слежу'
           type: medias
           style:
@@ -363,23 +362,23 @@ sections:
             - title: BBC
               type: Новости
               url: 'https://www.bbc.com'
-              image: /devscard/favorites/media/bbc.jpeg
+              image: /uploads/about/favorites/bbc.jpeg
             - title: Y Combinator
               type: Акселератор
               url: 'https://www.ycombinator.com'
-              image: /devscard/favorites/media/ycombinator.jpeg
+              image: /uploads/about/favorites/ycombinator.jpeg
             - title: Red Bull Media House
               type: Спортивные медиа
               url: 'https://www.redbull.com'
-              image: /devscard/favorites/media/redbull.png
+              image: /uploads/about/favorites/redbull.png
             - title: Artsy
               type: Арт-платформа
               url: 'https://www.artsy.net'
-              image: /devscard/favorites/media/artsy.png
+              image: /uploads/about/favorites/artsy.png
             - title: Inked Magazine
               type: Тату-журнал
               url: 'https://www.inkedmag.com'
-              image: /devscard/favorites/media/inked.jpeg
+              image: /uploads/about/favorites/inked.jpeg
         - title: Книги
           type: books
           style:
@@ -389,23 +388,23 @@ sections:
               author: Скотт Х.
               url: >-
                 https://www.goodreads.com/book/show/18043039-how-to-create-tech-products-customers-love
-              image: /devscard/favorites/books/tech-products.jpeg
+              image: /uploads/about/favorites/tech-products.jpeg
             - title: Шантарам
               author: Грегори Дэвид Робертс
               url: 'https://www.goodreads.com/book/show/33600.Shantaram'
-              image: /devscard/favorites/books/shantaram.jpg
+              image: /uploads/about/favorites/shantaram.jpg
             - title: Тонкое искусство пофигизма
               author: Марк Мэнсон
               url: 'https://markmanson.net/books/the-subtle-art-of-not-giving-a-f'
-              image: /devscard/favorites/books/subtle-art.jpeg
+              image: /uploads/about/favorites/subtle-art.jpeg
             - title: Идиот
               author: Фёдор Достоевский
               url: 'https://www.goodreads.com/book/show/12600.The_Idiot'
-              image: /devscard/favorites/books/idiot.jpeg
+              image: /uploads/about/favorites/idiot.jpeg
             - title: Преступление и наказание
               author: Фёдор Достоевский
               url: 'https://www.goodreads.com/book/show/7144.Crime_and_Punishment'
-              image: /devscard/favorites/books/crime-punishment.jpeg
+              image: /uploads/about/favorites/crime-punishment.jpeg
         - title: Фильмы
           type: movies
           style:
@@ -413,19 +412,19 @@ sections:
           items:
             - title: Криминальное чтиво
               url: 'https://www.imdb.com/title/tt0110912'
-              image: /devscard/favorites/movies/pulp-fiction.jpeg
+              image: /uploads/about/favorites/pulp-fiction.jpeg
             - title: Унесённые призраками
               url: 'https://www.imdb.com/title/tt0245429'
-              image: /devscard/favorites/movies/spirited-away.jpeg
+              image: /uploads/about/favorites/spirited-away.jpeg
             - title: Большой Лебовски
               url: 'https://www.imdb.com/title/tt0118715'
-              image: /devscard/favorites/movies/big-lebowski.jpeg
+              image: /uploads/about/favorites/big-lebowski.jpeg
             - title: Большой куш
               url: 'https://www.imdb.com/title/tt0208092'
-              image: /devscard/favorites/movies/snatch.jpeg
+              image: /uploads/about/favorites/snatch.jpeg
             - title: Бойцовский клуб
               url: 'https://www.imdb.com/title/tt0137523'
-              image: /devscard/favorites/movies/fight-club.jpeg
+              image: /uploads/about/favorites/fight-club.jpeg
 lineWidth: 0
 ---
 
