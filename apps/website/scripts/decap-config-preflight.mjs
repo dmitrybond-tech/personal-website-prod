@@ -280,6 +280,58 @@ function validateRequiredFields(fields, path = '') {
   return hasErrors;
 }
 
+function validateIconField(field, path = '') {
+  let hasErrors = false;
+  
+  if (field.name === 'icon' && field.widget === 'string') {
+    const fullPath = path ? `${path}.${field.name}` : field.name;
+    
+    // Check if it has the required validation
+    if (!field.hint || !field.pattern) {
+      console.error(`[preflight] FAIL: Icon field missing hint and pattern validation at ${fullPath}`);
+      hasErrors = true;
+    } else {
+      // Check hint content
+      if (!field.hint.includes('Iconify token') || !field.hint.includes('/logos/')) {
+        console.error(`[preflight] FAIL: Icon field hint should mention Iconify tokens and /logos/ paths at ${fullPath}`);
+        hasErrors = true;
+      }
+      
+      // Check pattern content
+      if (!Array.isArray(field.pattern) || field.pattern.length !== 2) {
+        console.error(`[preflight] FAIL: Icon field pattern should be array with 2 elements at ${fullPath}`);
+        hasErrors = true;
+      } else {
+        const [regex, message] = field.pattern;
+        if (!regex.includes('a-z0-9-]+:[a-z0-9-]+') || !regex.includes('/[^\\s]+\\.(?:svg|png|jpg|jpeg)')) {
+          console.error(`[preflight] FAIL: Icon field pattern regex should match Iconify tokens and file paths at ${fullPath}`);
+          hasErrors = true;
+        }
+        if (!message.includes('Iconify token') || !message.includes('/logos/')) {
+          console.error(`[preflight] FAIL: Icon field pattern message should mention Iconify tokens and /logos/ paths at ${fullPath}`);
+          hasErrors = true;
+        }
+      }
+    }
+  }
+  
+  // Recursively check nested fields
+  if (field.fields) {
+    const nestedErrors = validateIconField(field.fields, `${path}.${field.name}.fields`);
+    hasErrors = hasErrors || nestedErrors;
+  }
+  if (field.types) {
+    for (const type of field.types) {
+      if (type.fields) {
+        const typeErrors = validateIconField(type.fields, `${path}.${field.name}.types.${type.name}.fields`);
+        hasErrors = hasErrors || typeErrors;
+      }
+    }
+  }
+  
+  return hasErrors;
+}
+
 function validateActionFields(fields, path = '') {
   let hasErrors = false;
   
@@ -343,7 +395,7 @@ function validateConfig(config, configPath) {
     const collectionErrors = validateCollection(collection);
     hasErrors = hasErrors || collectionErrors;
     
-    // Validate action fields and skills/education structure in collections
+    // Validate action fields, skills/education structure, and icon validation in collections
     const files = collection.files || [];
     for (const file of files) {
       if (file.fields) {
@@ -352,6 +404,9 @@ function validateConfig(config, configPath) {
         
         const skillsEducationErrors = validateSkillsEducationStructure(file.fields, `collections.${collection.name}.files.${file.name}.fields`);
         hasErrors = hasErrors || skillsEducationErrors;
+        
+        const iconErrors = validateIconField(file.fields, `collections.${collection.name}.files.${file.name}.fields`);
+        hasErrors = hasErrors || iconErrors;
       }
     }
     
@@ -361,6 +416,9 @@ function validateConfig(config, configPath) {
       
       const skillsEducationErrors = validateSkillsEducationStructure(collection.fields, `collections.${collection.name}.fields`);
       hasErrors = hasErrors || skillsEducationErrors;
+      
+      const iconErrors = validateIconField(collection.fields, `collections.${collection.name}.fields`);
+      hasErrors = hasErrors || iconErrors;
     }
   }
   

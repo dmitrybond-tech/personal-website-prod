@@ -8,10 +8,19 @@ export default function SkillChip({
   const inner = "px-4 py-3 flex items-center gap-2";
   const iconCls = "text-[18px] cv-muted";
 
+  // Check if icon is an Iconify token (contains ':') or a file path
+  const isToken = typeof icon === 'string' && icon.includes(':');
+
   const body = (
     <div className={chip}>
       <div className={inner}>
-        {icon && <Icon icon={icon} className={iconCls} aria-hidden />}
+        {icon && (
+          isToken ? (
+            <Icon icon={icon} className={iconCls} aria-hidden />
+          ) : (
+            <img src={icon} alt="" className={iconCls} loading="lazy" decoding="async" />
+          )
+        )}
         <span className="text-sm font-medium truncate">{name}</span>
       </div>
 

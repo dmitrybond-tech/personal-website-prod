@@ -26,6 +26,8 @@ collections:
         name: title
         widget: string
         i18n: translate
+        required: false
+        default: ''
       - label: Date
         name: date
         widget: datetime
@@ -59,6 +61,8 @@ collections:
           - label: Title
             name: title
             widget: string
+            required: false
+            default: ''
           - label: Slug
             name: slug
             widget: string
@@ -87,6 +91,7 @@ collections:
                     name: title
                     widget: string
                     required: false
+                    default: ''
                   - label: Slug
                     name: slug
                     widget: string
@@ -97,6 +102,10 @@ collections:
                     widget: string
                     required: false
                     default: ''
+                    hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                    pattern:
+                      - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                      - Use Iconify token like set:name or a valid /logos/*.svg|png path
                   - label: Visible
                     name: visible
                     widget: boolean
@@ -149,6 +158,8 @@ collections:
                       - label: Name
                         name: name
                         widget: string
+                        required: false
+                        default: ''
                   - label: Action
                     name: action
                     widget: object
@@ -190,6 +201,10 @@ collections:
                         widget: string
                         required: false
                         default: ''
+                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                        pattern:
+                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
                       - label: Color
                         name: color
                         widget: string
@@ -203,6 +218,8 @@ collections:
                       - label: Title
                         name: title
                         widget: string
+                        required: false
+                        default: ''
                       - label: Skills
                         name: skills
                         widget: list
@@ -210,6 +227,8 @@ collections:
                           - label: Name
                             name: name
                             widget: string
+                            required: false
+                            default: ''
                           - label: Level
                             name: level
                             widget: select
@@ -224,6 +243,10 @@ collections:
                             widget: string
                             required: false
                             default: ''
+                            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                            pattern:
+                              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                              - Use Iconify token like set:name or a valid /logos/*.svg|png path
                           - label: Color
                             name: color
                             widget: string
@@ -263,6 +286,8 @@ collections:
                           - label: Title
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Period
                             name: period
                             widget: string
@@ -400,6 +425,8 @@ collections:
                       - label: Title
                         name: title
                         widget: string
+                        required: false
+                        default: ''
                       - label: Type
                         name: type
                         widget: select
@@ -427,10 +454,13 @@ collections:
                           - label: Title
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Name
                             name: name
                             widget: string
                             required: false
+                            default: ''
                           - label: Author
                             name: author
                             widget: string
@@ -455,6 +485,10 @@ collections:
                             widget: string
                             required: false
                             default: ''
+                            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                            pattern:
+                              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                              - Use Iconify token like set:name or a valid /logos/*.svg|png path
   - name: en_about
     label: About Page (EN) - Legacy
     folder: apps/website/src/content/aboutPage/en
@@ -468,6 +502,8 @@ collections:
       - label: Title
         name: title
         widget: string
+        required: false
+        default: ''
       - label: CV PDF
         name: cv_pdf
         widget: string
@@ -495,6 +531,7 @@ collections:
                 name: name
                 widget: string
                 required: false
+                default: ''
               - label: Role
                 name: role
                 widget: string
@@ -549,6 +586,10 @@ collections:
                     widget: string
                     required: false
                     default: ''
+                    hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                    pattern:
+                      - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                      - Use Iconify token like set:name or a valid /logos/*.svg|png path
               - label: Tags
                 name: tags
                 widget: list
@@ -564,6 +605,8 @@ collections:
                   - label: Title
                     name: title
                     widget: string
+                    required: false
+                    default: ''
                   - label: Items
                     name: items
                     widget: list
@@ -571,11 +614,17 @@ collections:
                       - label: Name
                         name: name
                         widget: string
+                        required: false
+                        default: ''
                       - label: Icon
                         name: icon
                         widget: string
                         required: false
                         default: ''
+                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                        pattern:
+                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
                       - label: URL
                         name: url
                         widget: string
@@ -617,6 +666,8 @@ collections:
                       - label: Title
                         name: title
                         widget: string
+                        required: false
+                        default: ''
                       - label: Period
                         name: period
                         widget: string
@@ -642,6 +693,8 @@ collections:
           - label: Title
             name: title
             widget: string
+            required: false
+            default: ''
           - label: Slug
             name: slug
             widget: string
@@ -670,6 +723,7 @@ collections:
                     name: title
                     widget: string
                     required: false
+                    default: ''
                   - label: Slug
                     name: slug
                     widget: string
@@ -680,6 +734,10 @@ collections:
                     widget: string
                     required: false
                     default: ''
+                    hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                    pattern:
+                      - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                      - Use Iconify token like set:name or a valid /logos/*.svg|png path
                   - label: Visible
                     name: visible
                     widget: boolean
@@ -732,6 +790,8 @@ collections:
                       - label: Name
                         name: name
                         widget: string
+                        required: false
+                        default: ''
                   - label: Action
                     name: action
                     widget: object
@@ -773,6 +833,10 @@ collections:
                         widget: string
                         required: false
                         default: ''
+                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                        pattern:
+                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
                       - label: Color
                         name: color
                         widget: string
@@ -786,6 +850,8 @@ collections:
                       - label: Title
                         name: title
                         widget: string
+                        required: false
+                        default: ''
                       - label: Skills
                         name: skills
                         widget: list
@@ -793,6 +859,8 @@ collections:
                           - label: Name
                             name: name
                             widget: string
+                            required: false
+                            default: ''
                           - label: Level
                             name: level
                             widget: select
@@ -807,6 +875,10 @@ collections:
                             widget: string
                             required: false
                             default: ''
+                            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                            pattern:
+                              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                              - Use Iconify token like set:name or a valid /logos/*.svg|png path
                           - label: Color
                             name: color
                             widget: string
@@ -846,6 +918,8 @@ collections:
                           - label: Title
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Period
                             name: period
                             widget: string
@@ -983,6 +1057,8 @@ collections:
                       - label: Title
                         name: title
                         widget: string
+                        required: false
+                        default: ''
                       - label: Type
                         name: type
                         widget: select
@@ -1010,10 +1086,13 @@ collections:
                           - label: Title
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Name
                             name: name
                             widget: string
                             required: false
+                            default: ''
                           - label: Author
                             name: author
                             widget: string
@@ -1038,6 +1117,10 @@ collections:
                             widget: string
                             required: false
                             default: ''
+                            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                            pattern:
+                              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                              - Use Iconify token like set:name or a valid /logos/*.svg|png path
   - name: ru_about
     label: About Page (RU) - Legacy
     folder: apps/website/src/content/aboutPage/ru
@@ -1051,6 +1134,8 @@ collections:
       - label: Title
         name: title
         widget: string
+        required: false
+        default: ''
       - label: CV PDF
         name: cv_pdf
         widget: string
@@ -1078,6 +1163,7 @@ collections:
                 name: name
                 widget: string
                 required: false
+                default: ''
               - label: Role
                 name: role
                 widget: string
@@ -1132,6 +1218,10 @@ collections:
                     widget: string
                     required: false
                     default: ''
+                    hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                    pattern:
+                      - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                      - Use Iconify token like set:name or a valid /logos/*.svg|png path
               - label: Tags
                 name: tags
                 widget: list
@@ -1147,6 +1237,8 @@ collections:
                   - label: Title
                     name: title
                     widget: string
+                    required: false
+                    default: ''
                   - label: Items
                     name: items
                     widget: list
@@ -1154,11 +1246,17 @@ collections:
                       - label: Name
                         name: name
                         widget: string
+                        required: false
+                        default: ''
                       - label: Icon
                         name: icon
                         widget: string
                         required: false
                         default: ''
+                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                        pattern:
+                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
                       - label: URL
                         name: url
                         widget: string
@@ -1200,6 +1298,8 @@ collections:
                       - label: Title
                         name: title
                         widget: string
+                        required: false
+                        default: ''
                       - label: Period
                         name: period
                         widget: string
@@ -1262,6 +1362,8 @@ collections:
           - label: Title
             name: title
             widget: string
+            required: false
+            default: ''
           - label: Description
             name: description
             widget: text
@@ -1304,6 +1406,10 @@ collections:
             widget: string
             required: false
             default: ''
+            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+            pattern:
+              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+              - Use Iconify token like set:name or a valid /logos/*.svg|png path
       - label: Footer Note
         name: footer_note
         widget: text
@@ -1357,6 +1463,8 @@ collections:
           - label: Title
             name: title
             widget: string
+            required: false
+            default: ''
           - label: Description
             name: description
             widget: text
@@ -1399,6 +1507,10 @@ collections:
             widget: string
             required: false
             default: ''
+            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+            pattern:
+              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+              - Use Iconify token like set:name or a valid /logos/*.svg|png path
       - label: Footer Note
         name: footer_note
         widget: text
@@ -1415,6 +1527,8 @@ collections:
       - label: Title
         name: title
         widget: string
+        required: false
+        default: ''
       - label: Subtitle
         name: subtitle
         widget: string
@@ -1456,6 +1570,10 @@ collections:
             widget: string
             required: false
             default: ''
+            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+            pattern:
+              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+              - Use Iconify token like set:name or a valid /logos/*.svg|png path
       - label: Body
         name: body
         widget: markdown
@@ -1472,6 +1590,8 @@ collections:
       - label: Title
         name: title
         widget: string
+        required: false
+        default: ''
       - label: Subtitle
         name: subtitle
         widget: string
@@ -1513,6 +1633,10 @@ collections:
             widget: string
             required: false
             default: ''
+            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+            pattern:
+              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+              - Use Iconify token like set:name or a valid /logos/*.svg|png path
       - label: Body
         name: body
         widget: markdown

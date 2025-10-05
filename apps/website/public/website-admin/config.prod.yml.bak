@@ -2,7 +2,7 @@ backend:
   name: github
   repo: dmitrybond-tech/personal-website-pre-prod
   branch: main
-  base_url: https://1d20fa08d740b9.lhr.life
+  base_url: https://1d20fa08d740b9.lhr.life/
   auth_endpoint: /oauth
 publish_mode: editorial_workflow
 media_folder: apps/website/public/uploads
@@ -20,6 +20,8 @@ collections:
           - label: Title
             name: title
             widget: string
+            required: false
+            default: ''
           - label: Slug
             name: slug
             widget: string
@@ -94,6 +96,8 @@ collections:
                       - label: Name
                         name: name
                         widget: string
+                        required: false
+                        default: ''
                     required: false
                   - label: Action (CV button)
                     name: action
@@ -136,6 +140,10 @@ collections:
                         widget: string
                         required: false
                         default: ''
+                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                        pattern:
+                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
                       - label: Color
                         name: color
                         widget: string
@@ -144,44 +152,54 @@ collections:
               - label: Skills
                 name: skills
                 widget: object
+                required: false
+                collapsed: false
                 fields:
-                  - label: Categories
-                    name: categories
-                    widget: list
+                  - label: Data
+                    name: data
+                    widget: object
+                    required: false
                     fields:
                       - label: Title
                         name: title
                         widget: string
-                      - label: Skills
-                        name: skills
+                        required: false
+                        default: ''
+                      - label: Groups
+                        name: groups
                         widget: list
+                        required: false
                         fields:
-                          - label: Name
-                            name: name
-                            widget: string
-                          - label: Level
-                            name: level
-                            widget: select
-                            options:
-                              - beginner
-                              - intermediate
-                              - advanced
-                              - expert
-                            required: false
-                          - label: Icon
-                            name: icon
+                          - label: Group Title
+                            name: title
                             widget: string
                             required: false
                             default: ''
-                          - label: Color
-                            name: color
-                            widget: string
+                          - label: Items
+                            name: items
+                            widget: list
                             required: false
-                            default: ''
-                          - label: Description
-                            name: description
-                            widget: text
-                            required: false
+                            fields:
+                              - label: Name
+                                name: name
+                                widget: string
+                                required: false
+                                default: ''
+                              - label: Icon (path or token)
+                                name: icon
+                                widget: string
+                                required: false
+                                hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                                default: ''
+                                pattern:
+                                  - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                                  - Use Iconify token like set:name or a valid /logos/*.svg|png path
+                              - label: Level (1-5)
+                                name: level
+                                widget: number
+                                required: false
+                                min: 1
+                                max: 5
               - label: Experience
                 name: experience
                 widget: object
@@ -258,6 +276,8 @@ collections:
                           - label: Title
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Period
                             name: period
                             widget: string
@@ -303,84 +323,84 @@ collections:
                                 widget: string
                                 required: false
                                 default: ''
+                                hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                                pattern:
+                                  - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                                  - Use Iconify token like set:name or a valid /logos/*.svg|png path
               - label: Education
                 name: education
                 widget: object
+                required: false
                 fields:
-                  - label: Style (optional)
-                    name: style
+                  - label: Data
+                    name: data
                     widget: object
                     required: false
-                    collapsed: true
                     fields:
-                      - label: Variant
-                        name: variant
-                        widget: select
-                        required: false
-                        options:
-                          - list
-                          - grid
-                          - timeline
-                        default: timeline
-                        hint: Вариант рендера секции
-                      - label: Cols
-                        name: cols
-                        widget: object
-                        required: false
-                        collapsed: true
-                        fields:
-                          - label: Base
-                            name: base
-                            widget: number
-                            required: false
-                            min: 1
-                            max: 6
-                            default: 1
-                          - label: SM
-                            name: sm
-                            widget: number
-                            required: false
-                            min: 1
-                            max: 6
-                            default: 1
-                          - label: LG
-                            name: lg
-                            widget: number
-                            required: false
-                            min: 1
-                            max: 6
-                            default: 2
-                        hint: Кол-во колонок на брейкпоинтах; пусто = дефолты темы
-                  - label: Items
-                    name: items
-                    widget: list
-                    fields:
-                      - label: Institution
-                        name: institution
-                        widget: string
-                      - label: Degree
-                        name: degree
+                      - label: Title
+                        name: title
                         widget: string
                         required: false
                         default: ''
-                      - label: Location
-                        name: location
-                        widget: string
-                        required: false
-                        default: ''
-                      - label: Period
-                        name: period
-                        widget: string
-                        required: false
-                        default: ''
-                      - label: Notes
-                        name: notes
+                      - label: Items
+                        name: items
                         widget: list
-                        field:
-                          label: Note
-                          name: note
-                          widget: string
                         required: false
+                        fields:
+                          - label: School
+                            name: school
+                            widget: string
+                            required: false
+                          - label: City/Country
+                            name: location
+                            widget: string
+                            required: false
+                            default: ''
+                          - label: Website
+                            name: url
+                            widget: string
+                            required: false
+                            default: ''
+                          - label: Logo (path)
+                            name: logo
+                            widget: string
+                            required: false
+                            hint: e.g. /logos/sibsutis_logo.svg
+                            default: ''
+                          - label: Degrees
+                            name: degrees
+                            widget: list
+                            required: false
+                            fields:
+                              - label: Degree
+                                name: degree
+                                widget: string
+                                required: false
+                                default: ''
+                              - label: Program
+                                name: program
+                                widget: string
+                                required: false
+                                default: ''
+                              - label: Faculty
+                                name: faculty
+                                widget: string
+                                required: false
+                                default: ''
+                              - label: Period
+                                name: period
+                                widget: string
+                                required: false
+                                default: ''
+                              - label: Bullets
+                                name: bullets
+                                widget: list
+                                required: false
+                                field:
+                                  label: Bullet
+                                  name: text
+                                  widget: string
+                                  required: false
               - label: Favorites
                 name: favorites
                 widget: object
@@ -436,6 +456,8 @@ collections:
                       - label: Title
                         name: title
                         widget: string
+                        required: false
+                        default: ''
                       - label: Type
                         name: type
                         widget: select
@@ -462,6 +484,8 @@ collections:
                           - label: Title
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Subtitle
                             name: subtitle
                             widget: string
@@ -481,6 +505,10 @@ collections:
                             widget: string
                             required: false
                             default: ''
+                            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                            pattern:
+                              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                              - Use Iconify token like set:name or a valid /logos/*.svg|png path
                           - label: Author
                             name: author
                             widget: string
@@ -515,6 +543,8 @@ collections:
           - label: Заголовок
             name: title
             widget: string
+            required: false
+            default: ''
           - label: URL-адрес
             name: slug
             widget: string
@@ -589,6 +619,8 @@ collections:
                       - label: Название
                         name: name
                         widget: string
+                        required: false
+                        default: ''
                     required: false
                   - label: Действие (кнопка CV)
                     name: action
@@ -631,6 +663,10 @@ collections:
                         widget: string
                         required: false
                         default: ''
+                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                        pattern:
+                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
                       - label: Цвет
                         name: color
                         widget: string
@@ -639,44 +675,54 @@ collections:
               - label: Навыки
                 name: skills
                 widget: object
+                required: false
+                collapsed: false
                 fields:
-                  - label: Категории
-                    name: categories
-                    widget: list
+                  - label: Данные
+                    name: data
+                    widget: object
+                    required: false
                     fields:
                       - label: Заголовок
                         name: title
                         widget: string
-                      - label: Навыки
-                        name: skills
+                        required: false
+                        default: ''
+                      - label: Группы
+                        name: groups
                         widget: list
+                        required: false
                         fields:
-                          - label: Название
-                            name: name
-                            widget: string
-                          - label: Уровень
-                            name: level
-                            widget: select
-                            options:
-                              - beginner
-                              - intermediate
-                              - advanced
-                              - expert
-                            required: false
-                          - label: Иконка
-                            name: icon
+                          - label: Заголовок группы
+                            name: title
                             widget: string
                             required: false
                             default: ''
-                          - label: Цвет
-                            name: color
-                            widget: string
+                          - label: Элементы
+                            name: items
+                            widget: list
                             required: false
-                            default: ''
-                          - label: Описание
-                            name: description
-                            widget: text
-                            required: false
+                            fields:
+                              - label: Название
+                                name: name
+                                widget: string
+                                required: false
+                                default: ''
+                              - label: Иконка (путь или токен)
+                                name: icon
+                                widget: string
+                                required: false
+                                hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                                default: ''
+                                pattern:
+                                  - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                                  - Use Iconify token like set:name or a valid /logos/*.svg|png path
+                              - label: Уровень (1–5)
+                                name: level
+                                widget: number
+                                required: false
+                                min: 1
+                                max: 5
               - label: Опыт работы
                 name: experience
                 widget: object
@@ -753,6 +799,8 @@ collections:
                           - label: Должность
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Период
                             name: period
                             widget: string
@@ -798,84 +846,84 @@ collections:
                                 widget: string
                                 required: false
                                 default: ''
+                                hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                                pattern:
+                                  - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                                  - Use Iconify token like set:name or a valid /logos/*.svg|png path
               - label: Образование
                 name: education
                 widget: object
+                required: false
                 fields:
-                  - label: Стиль (опционально)
-                    name: style
+                  - label: Данные
+                    name: data
                     widget: object
                     required: false
-                    collapsed: true
                     fields:
-                      - label: Вариант
-                        name: variant
-                        widget: select
-                        required: false
-                        options:
-                          - list
-                          - grid
-                          - timeline
-                        default: timeline
-                        hint: Вариант рендера секции
-                      - label: Колонки
-                        name: cols
-                        widget: object
-                        required: false
-                        collapsed: true
-                        fields:
-                          - label: Базовая
-                            name: base
-                            widget: number
-                            required: false
-                            min: 1
-                            max: 6
-                            default: 1
-                          - label: SM
-                            name: sm
-                            widget: number
-                            required: false
-                            min: 1
-                            max: 6
-                            default: 1
-                          - label: LG
-                            name: lg
-                            widget: number
-                            required: false
-                            min: 1
-                            max: 6
-                            default: 2
-                        hint: Кол-во колонок на брейкпоинтах; пусто = дефолты темы
-                  - label: Элементы
-                    name: items
-                    widget: list
-                    fields:
-                      - label: Учебное заведение
-                        name: institution
-                        widget: string
-                      - label: Степень
-                        name: degree
+                      - label: Заголовок
+                        name: title
                         widget: string
                         required: false
                         default: ''
-                      - label: Местоположение
-                        name: location
-                        widget: string
-                        required: false
-                        default: ''
-                      - label: Период
-                        name: period
-                        widget: string
-                        required: false
-                        default: ''
-                      - label: Заметки
-                        name: notes
+                      - label: Элементы
+                        name: items
                         widget: list
-                        field:
-                          label: Заметка
-                          name: note
-                          widget: string
                         required: false
+                        fields:
+                          - label: ВУЗ
+                            name: school
+                            widget: string
+                            required: false
+                          - label: Город/страна
+                            name: location
+                            widget: string
+                            required: false
+                            default: ''
+                          - label: Сайт
+                            name: url
+                            widget: string
+                            required: false
+                            default: ''
+                          - label: Логотип (путь)
+                            name: logo
+                            widget: string
+                            required: false
+                            hint: например /logos/sibsutis_logo.svg
+                            default: ''
+                          - label: Степени
+                            name: degrees
+                            widget: list
+                            required: false
+                            fields:
+                              - label: Степень
+                                name: degree
+                                widget: string
+                                required: false
+                                default: ''
+                              - label: Программа
+                                name: program
+                                widget: string
+                                required: false
+                                default: ''
+                              - label: Факультет
+                                name: faculty
+                                widget: string
+                                required: false
+                                default: ''
+                              - label: Период
+                                name: period
+                                widget: string
+                                required: false
+                                default: ''
+                              - label: Пункты
+                                name: bullets
+                                widget: list
+                                required: false
+                                field:
+                                  label: Пункт
+                                  name: text
+                                  widget: string
+                                  required: false
               - label: Избранное
                 name: favorites
                 widget: object
@@ -931,6 +979,8 @@ collections:
                       - label: Заголовок
                         name: title
                         widget: string
+                        required: false
+                        default: ''
                       - label: Тип
                         name: type
                         widget: select
@@ -957,6 +1007,8 @@ collections:
                           - label: Заголовок
                             name: title
                             widget: string
+                            required: false
+                            default: ''
                           - label: Подзаголовок
                             name: subtitle
                             widget: string
@@ -976,6 +1028,10 @@ collections:
                             widget: string
                             required: false
                             default: ''
+                            hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
+                            pattern:
+                              - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                              - Use Iconify token like set:name or a valid /logos/*.svg|png path
                           - label: Автор
                             name: author
                             widget: string
