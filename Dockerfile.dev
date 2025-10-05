@@ -1,0 +1,26 @@
+# Development Dockerfile for apps/website
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies for development
+RUN apk add --no-cache git
+
+# Copy package files first for better caching
+COPY apps/website/package*.json ./
+COPY apps/website/.npmrc* .npmrc 2>/dev/null || true
+
+# Install all dependencies (including dev dependencies)
+RUN npm ci
+
+# Copy source code
+COPY apps/website/ ./
+
+# Run CMS config swap for development
+RUN node scripts/cms-config-swap.mjs dev || true
+
+# Expose development port
+EXPOSE 4321
+
+# Start development server with hot reload
+CMD ["npm", "run", "dev:local"]

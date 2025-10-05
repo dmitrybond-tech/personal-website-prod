@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  website-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "127.0.0.1:3001:4321"
+    volumes:
+      # Монтируем исходники для hot reload
+      - ./apps/website/src:/app/src:ro
+      - ./apps/website/public:/app/public:ro
+      - ./apps/website/scripts:/app/scripts:ro
+      # Исключаем node_modules из монтирования
+      - /app/node_modules
+      - /app/dist
+    environment:
+      - NODE_ENV=development
+      - HOST=0.0.0.0
+      - PORT=4321
+    restart: unless-stopped
+
+  # CMS для разработки (если используется)
+  # cms-dev:
+  #   image: decapcms/decapcms:latest
+  #   ports:
+  #     - "127.0.0.1:8081:8080"
+  #   environment:
+  #     - NODE_ENV=development
+  #   depends_on:
+  #     - website-dev

@@ -29,7 +29,19 @@
     "cms:prodcfg": "node apps/website/scripts/cms-config-swap.mjs prod",
     "dev": "npm run cms:devcfg && astro dev --host --port 4321 --strictPort",
     "build": "astro build",
-    "build:prod": "npm run cms:prodcfg && npm --workspace apps/website run build"
+    "build:prod": "npm run cms:prodcfg && npm --workspace apps/website run build",
+    
+    // Docker deployment scripts for CI/CD runner
+    "deploy:prod": "docker compose -f compose.prod.yml up -d --build",
+    "deploy:dev": "docker compose -f compose.dev.yml up -d --build", 
+    "deploy:stop": "docker compose -f compose.prod.yml down && docker compose -f compose.dev.yml down",
+    "deploy:stop:prod": "docker compose -f compose.prod.yml down",
+    "deploy:stop:dev": "docker compose -f compose.dev.yml down",
+    "deploy:logs:prod": "docker compose -f compose.prod.yml logs -f",
+    "deploy:logs:dev": "docker compose -f compose.dev.yml logs -f",
+    "deploy:restart:prod": "docker compose -f compose.prod.yml restart",
+    "deploy:restart:dev": "docker compose -f compose.dev.yml restart",
+    "deploy:status": "docker compose -f compose.prod.yml ps && docker compose -f compose.dev.yml ps"
   },
   "engines": {
     "node": ">=18",
