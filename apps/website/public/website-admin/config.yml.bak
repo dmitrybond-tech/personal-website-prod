@@ -1,12 +1,10 @@
 backend:
   name: github
-  repo: dmitrybond-tech/personal-website-dev
+  repo: dmitrybond-tech/personal-website-pre-prod
   branch: main
-  base_url: http://localhost:4321
-  auth_endpoint: oauth
 publish_mode: simple
-media_folder: apps/website/src/content/en/assets
-public_folder: /media/en
+media_folder: apps/website/public/uploads
+public_folder: /uploads
 i18n:
   structure: multiple_folders
   locales:
@@ -57,8 +55,6 @@ collections:
         file: apps/website/src/content/aboutPage/en/about-expanded.md
         format: frontmatter
         extension: md
-        media_folder: apps/website/public/uploads
-        public_folder: /uploads
         fields:
           - label: Title
             name: title
@@ -66,6 +62,8 @@ collections:
           - label: Slug
             name: slug
             widget: string
+            required: false
+            default: ''
           - label: Sections
             name: sections
             widget: list
@@ -93,26 +91,32 @@ collections:
                     name: slug
                     widget: string
                     required: false
+                    default: ''
                   - label: Icon
                     name: icon
                     widget: string
                     required: false
+                    default: ''
                   - label: Visible
                     name: visible
                     widget: boolean
                     default: true
+                    required: false
                   - label: Full Name
                     name: fullName
                     widget: string
                     required: false
+                    default: ''
                   - label: Role
                     name: role
                     widget: string
                     required: false
+                    default: ''
                   - label: Image
                     name: image
                     widget: string
                     required: false
+                    default: ''
                   - label: Description
                     name: description
                     widget: text
@@ -125,13 +129,18 @@ collections:
                       - label: Label
                         name: label
                         widget: string
+                        required: false
+                        default: ''
                       - label: Value
                         name: value
                         widget: string
+                        required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
                         required: false
+                        default: ''
                   - label: Tags
                     name: tags
                     widget: list
@@ -148,12 +157,19 @@ collections:
                       - label: Label
                         name: label
                         widget: string
+                        required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
+                        required: false
+                        default: ''
                       - label: Downloaded File Name
                         name: downloadedFileName
                         widget: string
+                        required: false
+                        default: ''
+                    collapsed: true
                   - label: Links
                     name: links
                     widget: list
@@ -162,17 +178,23 @@ collections:
                       - label: Label
                         name: label
                         widget: string
+                        required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
+                        required: false
+                        default: ''
                       - label: Icon
                         name: icon
                         widget: string
                         required: false
+                        default: ''
                       - label: Color
                         name: color
                         widget: string
                         required: false
+                        default: ''
                   - label: Categories
                     name: categories
                     widget: list
@@ -196,14 +218,17 @@ collections:
                               - intermediate
                               - advanced
                               - expert
+                            required: false
                           - label: Icon
                             name: icon
                             widget: string
                             required: false
+                            default: ''
                           - label: Color
                             name: color
                             widget: string
                             required: false
+                            default: ''
                           - label: Description
                             name: description
                             widget: text
@@ -220,14 +245,17 @@ collections:
                         name: location
                         widget: string
                         required: false
+                        default: ''
                       - label: Logo
                         name: logo
                         widget: string
                         required: false
+                        default: ''
                       - label: Website
                         name: website
                         widget: string
                         required: false
+                        default: ''
                       - label: Roles
                         name: roles
                         widget: list
@@ -238,6 +266,8 @@ collections:
                           - label: Period
                             name: period
                             widget: string
+                            required: false
+                            default: ''
                           - label: Bullets
                             name: bullets
                             widget: list
@@ -245,6 +275,7 @@ collections:
                               label: Bullet
                               name: bullet
                               widget: string
+                            required: false
                           - label: Description
                             name: description
                             widget: text
@@ -256,6 +287,7 @@ collections:
                               label: Technology
                               name: technology
                               widget: string
+                            required: false
                           - label: Links
                             name: links
                             widget: list
@@ -263,9 +295,14 @@ collections:
                               - label: Label
                                 name: label
                                 widget: string
+                                required: false
+                                default: ''
                               - label: URL
                                 name: url
                                 widget: string
+                                required: false
+                                default: ''
+                            required: false
                   - label: Items
                     name: educationItems
                     widget: list
@@ -278,14 +315,17 @@ collections:
                         name: location
                         widget: string
                         required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
                         required: false
+                        default: ''
                       - label: Logo
                         name: logo
                         widget: string
                         required: false
+                        default: ''
                       - label: Degrees
                         name: degrees
                         widget: list
@@ -293,16 +333,23 @@ collections:
                           - label: Degree
                             name: degree
                             widget: string
+                            required: false
+                            default: ''
                           - label: Program
                             name: program
                             widget: string
+                            required: false
+                            default: ''
                           - label: Faculty
                             name: faculty
                             widget: string
                             required: false
+                            default: ''
                           - label: Period
                             name: period
                             widget: string
+                            required: false
+                            default: ''
                           - label: Bullets
                             name: bullets
                             widget: list
@@ -310,6 +357,7 @@ collections:
                               label: Bullet
                               name: bullet
                               widget: string
+                            required: false
                   - label: Style
                     name: style
                     widget: object
@@ -322,6 +370,7 @@ collections:
                           - tile
                           - list
                         default: tile
+                        required: false
                       - label: Cols
                         name: cols
                         widget: object
@@ -330,14 +379,19 @@ collections:
                             name: base
                             widget: number
                             default: 2
+                            required: false
                           - label: SM
                             name: sm
                             widget: number
                             default: 3
+                            required: false
                           - label: LG
                             name: lg
                             widget: number
                             default: 6
+                            required: false
+                        required: false
+                    collapsed: true
                   - label: Groups
                     name: groups
                     widget: list
@@ -363,6 +417,9 @@ collections:
                             name: limit
                             widget: number
                             default: 5
+                            required: false
+                        required: false
+                        collapsed: true
                       - label: Items
                         name: items
                         widget: list
@@ -378,6 +435,7 @@ collections:
                             name: author
                             widget: string
                             required: false
+                            default: ''
                           - label: Type
                             name: type
                             widget: string
@@ -386,14 +444,17 @@ collections:
                             name: url
                             widget: string
                             required: false
+                            default: ''
                           - label: Image
                             name: image
                             widget: string
                             required: false
+                            default: ''
                           - label: Icon
                             name: icon
                             widget: string
                             required: false
+                            default: ''
   - name: en_about
     label: About Page (EN) - Legacy
     folder: apps/website/src/content/aboutPage/en
@@ -438,14 +499,17 @@ collections:
                 name: role
                 widget: string
                 required: false
+                default: ''
               - label: Avatar
                 name: avatar
                 widget: string
                 required: false
+                default: ''
               - label: Location
                 name: location
                 widget: string
                 required: false
+                default: ''
               - label: Bio
                 name: bio
                 widget: text
@@ -459,10 +523,12 @@ collections:
                     name: email
                     widget: string
                     required: false
+                    default: ''
                   - label: Phone
                     name: phone
                     widget: string
                     required: false
+                    default: ''
               - label: Links
                 name: links
                 widget: list
@@ -471,13 +537,18 @@ collections:
                   - label: Label
                     name: label
                     widget: string
+                    required: false
+                    default: ''
                   - label: URL
                     name: url
                     widget: string
+                    required: false
+                    default: ''
                   - label: Icon
                     name: icon
                     widget: string
                     required: false
+                    default: ''
               - label: Tags
                 name: tags
                 widget: list
@@ -485,6 +556,7 @@ collections:
                   label: Tag
                   name: tag
                   widget: string
+                required: false
               - label: Groups
                 name: groups
                 widget: list
@@ -503,10 +575,12 @@ collections:
                         name: icon
                         widget: string
                         required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
                         required: false
+                        default: ''
                       - label: Level
                         name: level
                         widget: number
@@ -525,14 +599,17 @@ collections:
                     name: location
                     widget: string
                     required: false
+                    default: ''
                   - label: URL
                     name: url
                     widget: string
                     required: false
+                    default: ''
                   - label: Logo
                     name: logo
                     widget: string
                     required: false
+                    default: ''
                   - label: Roles
                     name: roles
                     widget: list
@@ -543,6 +620,8 @@ collections:
                       - label: Period
                         name: period
                         widget: string
+                        required: false
+                        default: ''
                       - label: Bullets
                         name: bullets
                         widget: list
@@ -550,6 +629,7 @@ collections:
                           label: Bullet
                           name: bullet
                           widget: string
+                        required: false
   - name: ru_about_expanded
     label: About Page (RU) - Expanded
     files:
@@ -558,8 +638,6 @@ collections:
         file: apps/website/src/content/aboutPage/ru/about-expanded.md
         format: frontmatter
         extension: md
-        media_folder: apps/website/public/uploads
-        public_folder: /uploads
         fields:
           - label: Title
             name: title
@@ -567,6 +645,8 @@ collections:
           - label: Slug
             name: slug
             widget: string
+            required: false
+            default: ''
           - label: Sections
             name: sections
             widget: list
@@ -594,26 +674,32 @@ collections:
                     name: slug
                     widget: string
                     required: false
+                    default: ''
                   - label: Icon
                     name: icon
                     widget: string
                     required: false
+                    default: ''
                   - label: Visible
                     name: visible
                     widget: boolean
                     default: true
+                    required: false
                   - label: Full Name
                     name: fullName
                     widget: string
                     required: false
+                    default: ''
                   - label: Role
                     name: role
                     widget: string
                     required: false
+                    default: ''
                   - label: Image
                     name: image
                     widget: string
                     required: false
+                    default: ''
                   - label: Description
                     name: description
                     widget: text
@@ -626,13 +712,18 @@ collections:
                       - label: Label
                         name: label
                         widget: string
+                        required: false
+                        default: ''
                       - label: Value
                         name: value
                         widget: string
+                        required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
                         required: false
+                        default: ''
                   - label: Tags
                     name: tags
                     widget: list
@@ -649,12 +740,19 @@ collections:
                       - label: Label
                         name: label
                         widget: string
+                        required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
+                        required: false
+                        default: ''
                       - label: Downloaded File Name
                         name: downloadedFileName
                         widget: string
+                        required: false
+                        default: ''
+                    collapsed: true
                   - label: Links
                     name: links
                     widget: list
@@ -663,17 +761,23 @@ collections:
                       - label: Label
                         name: label
                         widget: string
+                        required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
+                        required: false
+                        default: ''
                       - label: Icon
                         name: icon
                         widget: string
                         required: false
+                        default: ''
                       - label: Color
                         name: color
                         widget: string
                         required: false
+                        default: ''
                   - label: Categories
                     name: categories
                     widget: list
@@ -697,14 +801,17 @@ collections:
                               - intermediate
                               - advanced
                               - expert
+                            required: false
                           - label: Icon
                             name: icon
                             widget: string
                             required: false
+                            default: ''
                           - label: Color
                             name: color
                             widget: string
                             required: false
+                            default: ''
                           - label: Description
                             name: description
                             widget: text
@@ -721,14 +828,17 @@ collections:
                         name: location
                         widget: string
                         required: false
+                        default: ''
                       - label: Logo
                         name: logo
                         widget: string
                         required: false
+                        default: ''
                       - label: Website
                         name: website
                         widget: string
                         required: false
+                        default: ''
                       - label: Roles
                         name: roles
                         widget: list
@@ -739,6 +849,8 @@ collections:
                           - label: Period
                             name: period
                             widget: string
+                            required: false
+                            default: ''
                           - label: Bullets
                             name: bullets
                             widget: list
@@ -746,6 +858,7 @@ collections:
                               label: Bullet
                               name: bullet
                               widget: string
+                            required: false
                           - label: Description
                             name: description
                             widget: text
@@ -757,6 +870,7 @@ collections:
                               label: Technology
                               name: technology
                               widget: string
+                            required: false
                           - label: Links
                             name: links
                             widget: list
@@ -764,9 +878,14 @@ collections:
                               - label: Label
                                 name: label
                                 widget: string
+                                required: false
+                                default: ''
                               - label: URL
                                 name: url
                                 widget: string
+                                required: false
+                                default: ''
+                            required: false
                   - label: Items
                     name: educationItems
                     widget: list
@@ -779,14 +898,17 @@ collections:
                         name: location
                         widget: string
                         required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
                         required: false
+                        default: ''
                       - label: Logo
                         name: logo
                         widget: string
                         required: false
+                        default: ''
                       - label: Degrees
                         name: degrees
                         widget: list
@@ -794,16 +916,23 @@ collections:
                           - label: Degree
                             name: degree
                             widget: string
+                            required: false
+                            default: ''
                           - label: Program
                             name: program
                             widget: string
+                            required: false
+                            default: ''
                           - label: Faculty
                             name: faculty
                             widget: string
                             required: false
+                            default: ''
                           - label: Period
                             name: period
                             widget: string
+                            required: false
+                            default: ''
                           - label: Bullets
                             name: bullets
                             widget: list
@@ -811,6 +940,7 @@ collections:
                               label: Bullet
                               name: bullet
                               widget: string
+                            required: false
                   - label: Style
                     name: style
                     widget: object
@@ -823,6 +953,7 @@ collections:
                           - tile
                           - list
                         default: tile
+                        required: false
                       - label: Cols
                         name: cols
                         widget: object
@@ -831,14 +962,19 @@ collections:
                             name: base
                             widget: number
                             default: 2
+                            required: false
                           - label: SM
                             name: sm
                             widget: number
                             default: 3
+                            required: false
                           - label: LG
                             name: lg
                             widget: number
                             default: 6
+                            required: false
+                        required: false
+                    collapsed: true
                   - label: Groups
                     name: groups
                     widget: list
@@ -864,6 +1000,9 @@ collections:
                             name: limit
                             widget: number
                             default: 5
+                            required: false
+                        required: false
+                        collapsed: true
                       - label: Items
                         name: items
                         widget: list
@@ -879,6 +1018,7 @@ collections:
                             name: author
                             widget: string
                             required: false
+                            default: ''
                           - label: Type
                             name: type
                             widget: string
@@ -887,14 +1027,17 @@ collections:
                             name: url
                             widget: string
                             required: false
+                            default: ''
                           - label: Image
                             name: image
                             widget: string
                             required: false
+                            default: ''
                           - label: Icon
                             name: icon
                             widget: string
                             required: false
+                            default: ''
   - name: ru_about
     label: About Page (RU) - Legacy
     folder: apps/website/src/content/aboutPage/ru
@@ -939,14 +1082,17 @@ collections:
                 name: role
                 widget: string
                 required: false
+                default: ''
               - label: Avatar
                 name: avatar
                 widget: string
                 required: false
+                default: ''
               - label: Location
                 name: location
                 widget: string
                 required: false
+                default: ''
               - label: Bio
                 name: bio
                 widget: text
@@ -960,10 +1106,12 @@ collections:
                     name: email
                     widget: string
                     required: false
+                    default: ''
                   - label: Phone
                     name: phone
                     widget: string
                     required: false
+                    default: ''
               - label: Links
                 name: links
                 widget: list
@@ -972,13 +1120,18 @@ collections:
                   - label: Label
                     name: label
                     widget: string
+                    required: false
+                    default: ''
                   - label: URL
                     name: url
                     widget: string
+                    required: false
+                    default: ''
                   - label: Icon
                     name: icon
                     widget: string
                     required: false
+                    default: ''
               - label: Tags
                 name: tags
                 widget: list
@@ -986,6 +1139,7 @@ collections:
                   label: Tag
                   name: tag
                   widget: string
+                required: false
               - label: Groups
                 name: groups
                 widget: list
@@ -1004,10 +1158,12 @@ collections:
                         name: icon
                         widget: string
                         required: false
+                        default: ''
                       - label: URL
                         name: url
                         widget: string
                         required: false
+                        default: ''
                       - label: Level
                         name: level
                         widget: number
@@ -1026,14 +1182,17 @@ collections:
                     name: location
                     widget: string
                     required: false
+                    default: ''
                   - label: URL
                     name: url
                     widget: string
                     required: false
+                    default: ''
                   - label: Logo
                     name: logo
                     widget: string
                     required: false
+                    default: ''
                   - label: Roles
                     name: roles
                     widget: list
@@ -1044,6 +1203,8 @@ collections:
                       - label: Period
                         name: period
                         widget: string
+                        required: false
+                        default: ''
                       - label: Bullets
                         name: bullets
                         widget: list
@@ -1051,6 +1212,7 @@ collections:
                           label: Bullet
                           name: bullet
                           widget: string
+                        required: false
   - name: en_bookme
     label: Book.me Config (EN)
     folder: apps/website/src/content/bookmeConfig/en
@@ -1063,6 +1225,7 @@ collections:
         name: page_title
         widget: string
         required: false
+        default: ''
       - label: Page Subtitle
         name: page_subtitle
         widget: text
@@ -1078,6 +1241,7 @@ collections:
             name: eventType
             widget: string
             required: false
+            default: ''
           - label: Attributes
             name: attrs
             widget: object
@@ -1087,6 +1251,7 @@ collections:
                 name: hideEventTypeDetails
                 widget: string
                 required: false
+                default: ''
       - label: Booking Tiles
         name: tiles
         widget: list
@@ -1105,9 +1270,12 @@ collections:
             name: image
             widget: string
             required: false
+            default: ''
           - label: CTA Text
             name: cta_text
             widget: string
+            required: false
+            default: ''
           - label: CTA Kind
             name: cta_kind
             widget: select
@@ -1116,21 +1284,26 @@ collections:
               - link
               - mailto
               - download
+            required: false
           - label: Cal Preset
             name: cal_preset
             widget: string
             required: false
+            default: ''
           - label: Href
             name: href
             widget: string
             required: false
+            default: ''
           - label: Visible
             name: visible
             widget: boolean
+            required: false
           - label: Icon
             name: icon
             widget: string
             required: false
+            default: ''
       - label: Footer Note
         name: footer_note
         widget: text
@@ -1147,6 +1320,7 @@ collections:
         name: page_title
         widget: string
         required: false
+        default: ''
       - label: Page Subtitle
         name: page_subtitle
         widget: text
@@ -1162,6 +1336,7 @@ collections:
             name: eventType
             widget: string
             required: false
+            default: ''
           - label: Attributes
             name: attrs
             widget: object
@@ -1171,6 +1346,7 @@ collections:
                 name: hideEventTypeDetails
                 widget: string
                 required: false
+                default: ''
       - label: Booking Tiles
         name: tiles
         widget: list
@@ -1189,9 +1365,12 @@ collections:
             name: image
             widget: string
             required: false
+            default: ''
           - label: CTA Text
             name: cta_text
             widget: string
+            required: false
+            default: ''
           - label: CTA Kind
             name: cta_kind
             widget: select
@@ -1200,21 +1379,26 @@ collections:
               - link
               - mailto
               - download
+            required: false
           - label: Cal Preset
             name: cal_preset
             widget: string
             required: false
+            default: ''
           - label: Href
             name: href
             widget: string
             required: false
+            default: ''
           - label: Visible
             name: visible
             widget: boolean
+            required: false
           - label: Icon
             name: icon
             widget: string
             required: false
+            default: ''
       - label: Footer Note
         name: footer_note
         widget: text
@@ -1234,15 +1418,20 @@ collections:
       - label: Subtitle
         name: subtitle
         widget: string
+        required: false
+        default: ''
       - label: Description
         name: description
         widget: text
+        required: false
       - label: CTA
         name: cta
         widget: string
       - label: Default Tile Slug
         name: defaultTileSlug
         widget: string
+        required: false
+        default: ''
       - label: Tiles
         name: tiles
         widget: list
@@ -1250,18 +1439,23 @@ collections:
           - label: Slug
             name: slug
             widget: string
+            required: false
+            default: ''
           - label: Label
             name: label
             widget: string
             required: false
+            default: ''
           - label: Caption
             name: caption
             widget: string
             required: false
+            default: ''
           - label: Icon
             name: icon
             widget: string
             required: false
+            default: ''
       - label: Body
         name: body
         widget: markdown
@@ -1281,15 +1475,20 @@ collections:
       - label: Subtitle
         name: subtitle
         widget: string
+        required: false
+        default: ''
       - label: Description
         name: description
         widget: text
+        required: false
       - label: CTA
         name: cta
         widget: string
       - label: Default Tile Slug
         name: defaultTileSlug
         widget: string
+        required: false
+        default: ''
       - label: Tiles
         name: tiles
         widget: list
@@ -1297,18 +1496,23 @@ collections:
           - label: Slug
             name: slug
             widget: string
+            required: false
+            default: ''
           - label: Label
             name: label
             widget: string
             required: false
+            default: ''
           - label: Caption
             name: caption
             widget: string
             required: false
+            default: ''
           - label: Icon
             name: icon
             widget: string
             required: false
+            default: ''
       - label: Body
         name: body
         widget: markdown

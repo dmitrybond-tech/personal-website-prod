@@ -62,108 +62,66 @@ sections:
   - type: skills
     data:
       title: Skills
-      slug: skills
-      icon: 'fa6-solid:bars-progress'
-      visible: true
-      categories:
+      groups:
         - title: General
-          skills:
-            - name: React.js
-              level: advanced
-              icon: 'logos:react'
-              color: '#61dafb'
-              description: Modern React development with hooks and functional components
-            - name: TypeScript
-              level: advanced
-              icon: 'logos:typescript-icon'
-              color: '#3178c6'
-              description: Type-safe JavaScript development
-            - name: SASS
-              level: intermediate
-              icon: 'logos:sass'
-              color: '#cf649a'
-              description: CSS preprocessing and styling
+          items:
+            - name: Discovery
+              icon: "/logos/discovery-icon-png.svg"
+              level: 4
+            - name: Delivery
+              icon: "/logos/delivery-icon-png.svg"
+              level: 5
+            - name: Analytics
+              icon: "/logos/analytics-icon-png.svg"
+              level: 3
         - title: Frameworks
-          skills:
-            - name: NestJS
-              level: intermediate
-              icon: 'logos:nestjs'
-              color: '#e0234e'
-              description: Node.js backend framework
-            - name: Tailwind CSS
-              level: advanced
-              icon: 'logos:tailwindcss-icon'
-              color: '#06b6d4'
-              description: Utility-first CSS framework
-            - name: Astro
-              level: intermediate
-              icon: 'logos:astro-icon'
-              color: '#ff5d01'
-              description: Static site generation
-            - name: Next.js
-              level: intermediate
-              icon: 'logos:nextjs-icon'
-              color: '#000000'
-              description: React full-stack framework
-            - name: Cypress
-              level: intermediate
-              icon: 'logos:cypress'
-              color: '#17202c'
-              description: End-to-end testing
-            - name: ESLint
-              level: advanced
-              icon: 'logos:eslint'
-              color: '#4b32c3'
-              description: Code quality and linting
+          items:
+            - name: ITILv4
+              icon: "/logos/itil-pb-logo.svg"
+              level: 5
+            - name: PMBoK
+              icon: "/logos/pmi-logo-png.svg"
+              level: 4
+            - name: Agile
+              icon: "/logos/pmi-agile-certified-practitioner.svg"
+              level: 4
+            - name: DevOps
+              icon: "/logos/google-cloud-logo.svg"
+              level: 3
+            - name: TOGAF
+              icon: "/logos/Logo-ISO-27001.svg"
+              level: 3
+            - name: ISO 27001
+              icon: "/logos/eslint.svg"
+              level: 3
         - title: Technical
-          skills:
-            - name: PostgreSQL
-              level: intermediate
-              icon: 'logos:postgresql'
-              color: '#336791'
-              description: Relational database management
-            - name: MongoDB
-              level: intermediate
-              icon: 'logos:mongodb-icon'
-              color: '#47a248'
-              description: NoSQL document database
-            - name: Firebase
-              level: intermediate
-              icon: 'logos:firebase'
-              color: '#ffca28'
-              description: Backend-as-a-Service platform
-            - name: GraphQL
-              level: intermediate
-              icon: 'logos:graphql'
-              color: '#e10098'
-              description: Query language for APIs
-            - name: pnpm
-              level: intermediate
-              icon: 'logos:pnpm'
-              color: '#f69220'
-              description: 'Fast, disk space efficient package manager'
-            - name: Supabase
-              level: intermediate
-              icon: 'logos:supabase-icon'
-              color: '#3ecf8e'
-              description: Open source Firebase alternative
+          items:
+            - name: Cloud / IaaS
+              icon: "/logos/Amazon_Web_Services_Logo.svg"
+              level: 4
+            - name: Linux
+              icon: "/logos/linux-logo.svg"
+              level: 4
+            - name: WebDev
+              icon: "/logos/webdev-logo.svg"
+              level: 3
+            - name: Python
+              icon: "/logos/python-logo.svg"
+              level: 3
+            - name: SQL
+              icon: "/logos/SQL-logo.svg"
+              level: 3
+            - name: ML&AI
+              icon: "/logos/ml-ai-logo.svg"
+              level: 3
         - title: Languages
-          skills:
-            - name: English - C1
-              level: expert
-              icon: 'twemoji:flag-united-kingdom'
-              color: '#012169'
-              description: Advanced English proficiency
-            - name: Polish - native
-              level: expert
-              icon: 'twemoji:flag-poland'
-              color: '#dc143c'
-              description: Native Polish speaker
-            - name: Spanish - B1
-              level: beginner
-              icon: 'twemoji:flag-spain'
-              color: '#c60b1e'
-              description: Intermediate Spanish
+          items:
+            - name: English — C1
+              icon: "/logos/flag-united-kingdom.svg"
+            - name: Russian — native
+              icon: "/logos/flag-russia.svg"
+            - name: Dutch — A1
+              icon: "/logos/flag-netherlands.svg"
   - type: experience
     data:
       title: Experience
@@ -336,30 +294,23 @@ sections:
   - type: education
     data:
       title: Education
-      slug: education
-      icon: 'fa6-solid:graduation-cap'
-      visible: true
       items:
-        - institution: Wrocław University of Science and Technology
-          location: 'Wrocław, Poland'
-          url: 'https://pwr.edu.pl'
-          logo: /devscard/logos/wroclaw-university-of-technology.jpg
+        - school: >-
+            Siberian State University of Telecommunications and Information
+            Sciences (SibSUTIS)
+          location: 'Novosibirsk, Russia'
+          url: 'https://www.sibsutis.ru'
+          logo: /logos/sibsutis_logo.png
           degrees:
-            - degree: Master of Science
-              program: Information Technology
-              faculty: Faculty of Computer Science and Management
-              period: 2014 – 2016
+            - degree: BSc
+              program: Information and Computing Technology
+              faculty: Faculty of Computer Science and Engineering
+              period: Sep 2012 – Sep 2016
               bullets:
-                - Specialization in software development
-                - Advanced programming and system design
-            - degree: Bachelor of Science
-              program: Information Technology
-              faculty: Faculty of Computer Science and Management
-              period: 2011 – 2014
-              bullets:
-                - Specialization in application development
-                - Foundation in computer science and mathematics
-    items: []
+                - >-
+                  Focused on software engineering, algorithms, and data
+                  structures
+                - Participated in multiple hackathons, computer science conferences while working part time along the way
   - type: favorites
     data:
       title: Favorites
