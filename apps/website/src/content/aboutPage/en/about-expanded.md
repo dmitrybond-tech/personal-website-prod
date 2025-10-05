@@ -6,7 +6,7 @@ sections:
     data:
       title: Profile
       slug: profile
-      icon: 'fa6-solid:user'
+      icon: fa6-solid:user
       visible: true
       fullName: Dmitry Bondarenko
       role: Technical Project Manager
@@ -27,13 +27,13 @@ sections:
         picture.
       details:
         - label: Phone
-          value: '+79137311003'
-          url: 'tel:+79137311003'
+          value: "+79137311003"
+          url: tel:+79137311003
         - label: Email
           value: dima@dmitrybond.tech
-          url: 'mailto:dima@dmitrybond.tech'
+          url: mailto:dima@dmitrybond.tech
         - label: Location
-          value: 'Siberia, Russia'
+          value: Siberia, Russia
         - label: Role
           value: Technical Project Manager
       tags:
@@ -44,21 +44,21 @@ sections:
         - name: Humble Guy
       action:
         label: Download CV
-        url: 'https://example.com/cv.pdf'
+        url: https://example.com/cv.pdf
         downloadedFileName: CV-Dmitry_Bondarenko.pdf
       links:
         - label: Telegram
-          url: 'https://t.me/d1mab0nd'
-          icon: 'simple-icons:telegram'
-          color: '#0088cc'
+          url: https://t.me/d1mab0nd
+          icon: simple-icons:telegram
+          color: "#0088cc"
         - label: LinkedIn
-          url: 'https://www.linkedin.com/in/dmitry-bond/'
-          icon: 'simple-icons:linkedin'
-          color: '#0077b5'
+          url: https://www.linkedin.com/in/dmitry-bond/
+          icon: simple-icons:linkedin
+          color: "#0077b5"
         - label: Portfolio
-          url: 'https://dmitrybond.tech/'
-          icon: 'simple-icons:portfolio'
-          color: '#333333'
+          url: https://dmitrybond.tech/
+          icon: simple-icons:portfolio
+          color: "#333333"
   - type: skills
     data:
       title: Skills
@@ -66,73 +66,73 @@ sections:
         - title: General
           items:
             - name: Discovery
-              icon: "/logos/discovery-icon-png.svg"
+              icon: simple-icons:discovery
               level: 4
             - name: Delivery
-              icon: "/logos/delivery-icon-png.svg"
+              icon: simple-icons:delivery
               level: 5
             - name: Analytics
-              icon: "/logos/analytics-icon-png.svg"
+              icon: simple-icons:googleanalytics
               level: 3
         - title: Frameworks
           items:
             - name: ITILv4
-              icon: "/logos/itil-pb-logo.svg"
+              icon: simple-icons:itil
               level: 5
             - name: PMBoK
-              icon: "/logos/pmi-logo-png.svg"
+              icon: simple-icons:projectmanagementinstitute
               level: 4
             - name: Agile
-              icon: "/logos/pmi-agile-certified-practitioner.svg"
+              icon: simple-icons:agile
               level: 4
             - name: DevOps
-              icon: "/logos/google-cloud-logo.svg"
+              icon: simple-icons:googlecloud
               level: 3
             - name: TOGAF
-              icon: "/logos/Logo-ISO-27001.svg"
+              icon: simple-icons:iso
               level: 3
             - name: ISO 27001
-              icon: "/logos/eslint.svg"
+              icon: simple-icons:eslint
               level: 3
         - title: Technical
           items:
             - name: Cloud / IaaS
-              icon: "/logos/Amazon_Web_Services_Logo.svg"
+              icon: simple-icons:amazonaws
               level: 4
             - name: Linux
-              icon: "/logos/linux-logo.svg"
+              icon: simple-icons:linux
               level: 4
             - name: WebDev
-              icon: "/logos/webdev-logo.svg"
+              icon: simple-icons:webcomponents
               level: 3
             - name: Python
-              icon: "/logos/python-logo.svg"
+              icon: simple-icons:python
               level: 3
             - name: SQL
-              icon: "/logos/SQL-logo.svg"
+              icon: simple-icons:postgresql
               level: 3
             - name: ML&AI
-              icon: "/logos/ml-ai-logo.svg"
+              icon: simple-icons:tensorflow
               level: 3
         - title: Languages
           items:
             - name: English — C1
-              icon: "/logos/flag-united-kingdom.svg"
+              icon: twemoji:flag-united-kingdom
             - name: Russian — native
-              icon: "/logos/flag-russia.svg"
+              icon: twemoji:flag-russia
             - name: Dutch — A1
-              icon: "/logos/flag-netherlands.svg"
+              icon: twemoji:flag-netherlands
   - type: experience
     data:
       title: Experience
       slug: experience
-      icon: 'fa6-solid:briefcase'
+      icon: fa6-solid:briefcase
       visible: true
       items:
         - company: CloudBlue
-          location: 'Enschede, the Netherlands'
+          location: Enschede, the Netherlands
           logo: /logos/cloudblue.svg
-          website: 'https://www.cloudblue.com'
+          website: https://www.cloudblue.com
           roles:
             - title: Delivery Manager
               period: Mar 2023 – Apr 2025
@@ -163,11 +163,11 @@ sections:
                 - AWS
               links:
                 - label: Company Website
-                  url: 'https://www.cloudblue.com'
+                  url: https://www.cloudblue.com
         - company: Datacom
-          location: 'Kuala Lumpur, Malaysia'
+          location: Kuala Lumpur, Malaysia
           logo: /logos/datacom.svg
-          website: 'https://datacom.com'
+          website: https://datacom.com
           roles:
             - title: Business Consultant
               period: Jun 2019 – Mar 2023
@@ -197,7 +197,7 @@ sections:
                 - Stakeholder Management
               links:
                 - label: Company Website
-                  url: 'https://datacom.com'
+                  url: https://datacom.com
             - title: Lead Technical Account Manager
               period: Jun 2019 – Mar 2023
               bullets:
@@ -229,11 +229,11 @@ sections:
                 - Technical Consulting
               links:
                 - label: Company Website
-                  url: 'https://datacom.com'
+                  url: https://datacom.com
         - company: CloudBlue
-          location: 'Novosibirsk, Russia'
+          location: Novosibirsk, Russia
           logo: /logos/cloudblue.svg
-          website: 'https://www.cloudblue.com'
+          website: https://www.cloudblue.com
           roles:
             - title: Technical Account Manager
               period: Jun 2018 – Jun 2019
@@ -261,9 +261,9 @@ sections:
                 - Technical Support
               links:
                 - label: Company Website
-                  url: 'https://www.cloudblue.com'
+                  url: https://www.cloudblue.com
         - company: Implementation Engineer — Banking Projects
-          location: 'Novosibirsk, Russia'
+          location: Novosibirsk, Russia
           logo: /logos/banking.svg
           roles:
             - title: Implementation Engineer
@@ -298,8 +298,8 @@ sections:
         - school: >-
             Siberian State University of Telecommunications and Information
             Sciences (SibSUTIS)
-          location: 'Novosibirsk, Russia'
-          url: 'https://www.sibsutis.ru'
+          location: Novosibirsk, Russia
+          url: https://www.sibsutis.ru
           logo: /logos/sibsutis_logo.png
           degrees:
             - degree: BSc
@@ -310,12 +310,14 @@ sections:
                 - >-
                   Focused on software engineering, algorithms, and data
                   structures
-                - Participated in multiple hackathons, computer science conferences while working part time along the way
+                - >-
+                  Participated in multiple hackathons, computer science
+                  conferences while working part time along the way
   - type: favorites
     data:
       title: Favorites
       slug: favorites
-      icon: 'fa6-solid:star'
+      icon: fa6-solid:star
       visible: true
       style:
         variant: tile
@@ -330,20 +332,20 @@ sections:
             limit: 5
           items:
             - title: Technologies
-              url: 'https://github.com/trending'
-              icon: 'simple-icons:github'
+              url: https://github.com/trending
+              icon: simple-icons:github
             - title: Snowboarding
-              url: 'https://www.redbull.com/us-en/snowboarding'
-              icon: 'simple-icons:snowboarding'
+              url: https://www.redbull.com/us-en/snowboarding
+              icon: simple-icons:snowboarding
             - title: Art
-              url: 'https://www.artsy.net'
-              icon: 'simple-icons:artstation'
+              url: https://www.artsy.net
+              icon: simple-icons:artstation
             - title: Stand-up Comedy
-              url: 'https://www.netflix.com/browse/genre/11559'
-              icon: 'simple-icons:netflix'
+              url: https://www.netflix.com/browse/genre/11559
+              icon: simple-icons:netflix
             - title: Cooking
-              url: 'https://www.bonappetit.com'
-              icon: 'simple-icons:chef'
+              url: https://www.bonappetit.com
+              icon: simple-icons:chef
         - title: People I Follow
           type: people
           style:
@@ -351,23 +353,23 @@ sections:
           items:
             - title: Joe Rogan
               name: Joe Rogan
-              url: 'https://www.youtube.com/@joerogan'
+              url: https://www.youtube.com/@joerogan
               image: /devscard/favorites/people/joerogan.jpg
             - title: Seth Rogen
               name: Seth Rogen
-              url: 'https://www.instagram.com/sethrogen'
+              url: https://www.instagram.com/sethrogen
               image: /devscard/favorites/people/sethrogen.jpg
             - title: Mark Manson
               name: Mark Manson
-              url: 'https://markmanson.net'
+              url: https://markmanson.net
               image: /devscard/favorites/people/markmanson.jpg
             - title: Travis Rice
               name: Travis Rice
-              url: 'https://www.instagram.com/travisrice'
+              url: https://www.instagram.com/travisrice
               image: /devscard/favorites/people/travisrice.jpg
             - title: Andrew Huberman
               name: Andrew Huberman
-              url: 'https://www.youtube.com/@hubermanlab'
+              url: https://www.youtube.com/@hubermanlab
               image: /devscard/favorites/people/andrewberman.jpg
         - title: Media I Follow
           type: medias
@@ -376,23 +378,23 @@ sections:
           items:
             - title: BBC
               type: News
-              url: 'https://www.bbc.com'
+              url: https://www.bbc.com
               image: /devscard/favorites/media/bbc.jpeg
             - title: Y Combinator
               type: Accelerator
-              url: 'https://www.ycombinator.com'
+              url: https://www.ycombinator.com
               image: /devscard/favorites/media/ycombinator.jpeg
             - title: Red Bull Media House
               type: Sports Media
-              url: 'https://www.redbull.com'
+              url: https://www.redbull.com
               image: /devscard/favorites/media/redbull.png
             - title: Artsy
               type: Art Platform
-              url: 'https://www.artsy.net'
+              url: https://www.artsy.net
               image: /devscard/favorites/media/artsy.png
             - title: Inked Magazine
               type: Tattoo Magazine
-              url: 'https://www.inkedmag.com'
+              url: https://www.inkedmag.com
               image: /devscard/favorites/media/inked.jpeg
         - title: Books
           type: books
@@ -406,19 +408,19 @@ sections:
               image: /devscard/favorites/books/tech-products.jpeg
             - title: Shantaram
               author: Gregory David Roberts
-              url: 'https://www.goodreads.com/book/show/33600.Shantaram'
+              url: https://www.goodreads.com/book/show/33600.Shantaram
               image: /devscard/favorites/books/shantaram.jpg
             - title: The Subtle Art of Not Giving a Fuck
               author: Mark Manson
-              url: 'https://markmanson.net/books/the-subtle-art-of-not-giving-a-f'
+              url: https://markmanson.net/books/the-subtle-art-of-not-giving-a-f
               image: /devscard/favorites/books/subtle-art.jpeg
             - title: Idiot
               author: Fyodor Dostoevsky
-              url: 'https://www.goodreads.com/book/show/12600.The_Idiot'
+              url: https://www.goodreads.com/book/show/12600.The_Idiot
               image: /devscard/favorites/books/idiot.jpeg
             - title: Crime and Punishment
               author: Fyodor Dostoevsky
-              url: 'https://www.goodreads.com/book/show/7144.Crime_and_Punishment'
+              url: https://www.goodreads.com/book/show/7144.Crime_and_Punishment
               image: /devscard/favorites/books/crime-punishment.jpeg
         - title: Movies
           type: movies
@@ -426,19 +428,19 @@ sections:
             limit: 5
           items:
             - title: Pulp Fiction
-              url: 'https://www.imdb.com/title/tt0110912'
+              url: https://www.imdb.com/title/tt0110912
               image: /devscard/favorites/movies/pulp-fiction.jpeg
             - title: Spirited Away
-              url: 'https://www.imdb.com/title/tt0245429'
+              url: https://www.imdb.com/title/tt0245429
               image: /devscard/favorites/movies/spirited-away.jpeg
             - title: The Big Lebowski
-              url: 'https://www.imdb.com/title/tt0118715'
+              url: https://www.imdb.com/title/tt0118715
               image: /devscard/favorites/movies/big-lebowski.jpeg
             - title: Snatch
-              url: 'https://www.imdb.com/title/tt0208092'
+              url: https://www.imdb.com/title/tt0208092
               image: /devscard/favorites/movies/snatch.jpeg
             - title: Fight Club
-              url: 'https://www.imdb.com/title/tt0137523'
+              url: https://www.imdb.com/title/tt0137523
               image: /devscard/favorites/movies/fight-club.jpeg
 lineWidth: 0
 ---
