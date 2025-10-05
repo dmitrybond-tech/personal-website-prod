@@ -4,6 +4,7 @@ import Navbar from '@/app/widgets/navbar/ui/Navbar.astro';
 import NavFloat from '@/app/widgets/navfloat/NavFloat.astro';
 import Footer from '@/app/widgets/footer/ui/Footer.astro';
 import { getLocaleFromPath, switchLocale } from '@/app/shared/lib/locale';
+import 'iconify-icon'; // local from node_modules; will be bundled
 
 interface Props {
   title?: string;
@@ -97,7 +98,6 @@ const bodyClasses = [
     <!-- Iconify for about pages -->
     {isAbout && (
       <>
-        <script type="module" src="https://cdn.skypack.dev/iconify-icon@3"></script>
         <script is:inline>
           // Load Iconify bundle for offline icons
           (async function() {
