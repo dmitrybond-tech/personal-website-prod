@@ -29,9 +29,15 @@ ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL \
 COPY apps/website/package*.json ./
 RUN npm config set registry https://registry.npmjs.org
 
+# Optional sanity check: verify Iconify package version exists
+RUN npm view @iconify-json/mdi version || echo "Warning: Could not verify @iconify-json/mdi version"
+
 # Install dependencies with cache mount and fallback
 RUN --mount=type=cache,target=/root/.npm \
     (npm ci --no-audit --no-fund --legacy-peer-deps || npm i --no-audit --no-fund --legacy-peer-deps)
+
+# Optional sanity check: verify Iconify package can be resolved
+RUN node -e "console.log('@iconify-json/mdi version:', require('@iconify-json/mdi/package.json').version)" || echo "Warning: Could not resolve @iconify-json/mdi"
 
 # Optional: Support for private npm registry via secret (commented for public builds)
 # RUN --mount=type=secret,id=npmrc,dst=/root/.npmrc \
