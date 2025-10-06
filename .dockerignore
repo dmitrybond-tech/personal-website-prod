@@ -5,3 +5,5 @@ dist
 .env.*
 apps/*/node_modules
 apps/*/dist
+
+# Keep apps/website/** included
