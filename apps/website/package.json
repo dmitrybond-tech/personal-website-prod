@@ -51,6 +51,7 @@
     "icons:collect": "node ./scripts/icons/collect-icons.mjs",
     "icons:bundle": "node ./scripts/icons/build-bundle.mjs",
     "icons:rebuild": "npm run icons:collect && npm run icons:bundle",
+    "icons:resolve:stock": "node ./scripts/icons/resolve-stock-skill-icons.mjs",
     "dev:cms:about": "concurrently -k -n astro,proxy \"npm run dev -- --host --port 4321\" \"npm run cms:proxy\"",
     "dev": "astro dev --host --port 4321",
     "cms:dev": "decap-server --port 4322",

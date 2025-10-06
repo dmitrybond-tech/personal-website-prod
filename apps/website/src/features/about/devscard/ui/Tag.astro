@@ -7,7 +7,30 @@ export interface Props extends Tag {}
 
 const { name, description, icon, iconColor, url } = Astro.props;
 
+// Inline icon resolver - uses CDN cached stock icons
+const iconMapping: Record<string, string> = {
+  "discovery": "simple-icons:discovery",
+  "analytics": "simple-icons:googleanalytics",
+  "itilv4": "simple-icons:itil",
+  "pmbok": "simple-icons:projectmanagementinstitute",
+  "agile": "simple-icons:agile",
+  "togaf": "simple-icons:iso",
+  "iso27001": "simple-icons:eslint",
+  "cloudiaas": "simple-icons:amazonaws",
+  "linux": "simple-icons:linux",
+  "python": "simple-icons:python",
+  "sql": "simple-icons:postgresql",
+  "mlai": "simple-icons:tensorflow"
+};
+
+const normalize = (s: string) => String(s || '').toLowerCase()
+  .replace(/[\s_+.-]/g, '')
+  .replace(/[^a-z0-9]/g, '');
+
+const resolvedIcon = icon || (name ? iconMapping[normalize(name)] || 'mdi:help-circle' : 'mdi:help-circle');
+
 const className = /* tw */ 'flex h-6 w-fit items-center gap-x-1.5 rounded bg-gray-100 px-2.5 dark:bg-gray-700 text-muted';
+const shadowStyle = 'box-shadow: var(--cv-shadow);';
 const customProps = url
   ? ({
       href: url,
@@ -15,13 +38,15 @@ const customProps = url
       target: '_blank',
       rel: 'noopener noreferrer',
       class: `${className} hover:bg-gray-200 dark:hover:bg-gray-600`,
+      style: shadowStyle,
     } as const)
   : {
       class: className,
+      style: shadowStyle,
     };
 ---
 
 <Typography variant="tag" data-tooltip={description} {...customProps}>
-  {icon && <Icon name={icon} color={iconColor} size={16} />}
+  {resolvedIcon && <Icon name={resolvedIcon} color={iconColor} size={16} />}
   {name}
 </Typography>

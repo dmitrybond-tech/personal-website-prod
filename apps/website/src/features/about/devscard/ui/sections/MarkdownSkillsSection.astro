@@ -1,0 +1,40 @@
+---
+import type { SkillsSection } from '../../types/sections/skills-section.types';
+import SectionCard from '../SectionCard.astro';
+import SkillSet from './SkillSet.astro';
+import { resolveSkillIcon } from '@/shared/iconify/resolveIcon';
+
+export interface Props {
+  config: SkillsSection['config'];
+  skillSets: Array<{
+    title: string;
+    items: Array<{
+      name: string;
+      icon?: string;
+      level?: number;
+      description?: string;
+    }>;
+  }>;
+}
+
+const { config, skillSets } = Astro.props;
+
+// Transform markdown skill items to the expected format
+const transformedSkillSets = skillSets.map(skillSet => ({
+  title: skillSet.title,
+  skills: skillSet.items.map(item => ({
+    name: item.name,
+    icon: resolveSkillIcon(item.name, item.icon),
+    level: item.level,
+    description: item.description,
+    url: undefined, // No URLs in markdown content
+    iconColor: undefined, // Will use default color
+  }))
+}));
+---
+
+<SectionCard {...config}>
+  <div class="flex flex-col gap-10">
+    {transformedSkillSets.map((skillSet) => <SkillSet {...skillSet} />)}
+  </div>
+</SectionCard>

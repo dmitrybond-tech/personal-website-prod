@@ -99,7 +99,7 @@ function FavoriteTile({
 }) {
   const body = (
     <div className="group text-center">
-      <div className="mx-auto relative aspect-square size-[160px] rounded-xl overflow-hidden border bg-[var(--cv-surface-2)]">
+      <div className="mx-auto relative aspect-square size-[160px] rounded-xl overflow-hidden bg-[var(--cv-surface-2)]">
         {item.image ? (
           <img 
             src={item.image} 

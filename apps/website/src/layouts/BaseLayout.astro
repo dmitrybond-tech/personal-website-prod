@@ -72,6 +72,9 @@ const bodyClasses = [
     <link rel="alternate" hrefLang="ru" href={`${site}${altRu}`} />
     <link rel="alternate" hrefLang="x-default" href={`${site}${altEn}`} />
 
+    <!-- Iconify CDN optimization -->
+    <link rel="preconnect" href="https://api.iconify.design" crossorigin />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
@@ -96,6 +99,9 @@ const bodyClasses = [
     
     <!-- <ThemeToggle client:load /> -->
     <Footer />
+    
+    <!-- Iconify web component -->
+    <script defer src="https://cdn.jsdelivr.net/npm/iconify-icon@3.0.1/dist/iconify-icon.min.js"></script>
     
     <!-- Script for locale switching -->
     <script is:inline>

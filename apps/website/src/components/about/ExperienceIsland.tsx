@@ -35,7 +35,7 @@ export default function ExperienceIsland({ companies = [] }: { companies?: Exper
         const href = company.url;
 
         const LogoBox = (
-          <div className="size-12 rounded-xl overflow-hidden border bg-[var(--cv-surface-2)]">
+          <div className="size-12 rounded-xl overflow-hidden bg-[var(--cv-surface-2)]">
             {company.logo ? (
               <img 
                 src={company.logo} 

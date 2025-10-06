@@ -6,13 +6,15 @@ interface Props {
   src?: PhotoType;
   alt: string;
   size: 'large' | 'small';
+  fitToWidth?: boolean;
+  noBorder?: boolean;
 }
 
-const { src, alt, size } = Astro.props;
+const { src, alt, size, fitToWidth = false, noBorder = false } = Astro.props;
 
 const sizeToClass = /* tw */ {
-  large: 'h-18 w-18',
-  small: 'h-12 w-12',
+  large: fitToWidth ? 'h-18 w-18 object-contain' : 'h-18 w-18',
+  small: fitToWidth ? 'h-12 w-12 object-contain' : 'h-12 w-12',
 };
 ---
 
@@ -21,7 +23,8 @@ const sizeToClass = /* tw */ {
     <Photo
       src={src}
       alt={alt}
-      class:list={['hidden rounded-md sm:block', sizeToClass[size]]}
+      class:list={['hidden sm:block', noBorder ? '' : 'rounded-md', sizeToClass[size]]}
+      style={noBorder ? 'border: none !important;' : ''}
       width={104}
       height={104}
     />

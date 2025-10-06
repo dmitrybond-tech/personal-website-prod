@@ -1,0 +1,14 @@
+{
+  "discovery": "simple-icons:discovery",
+  "analytics": "simple-icons:googleanalytics",
+  "itilv4": "simple-icons:itil",
+  "pmbok": "simple-icons:projectmanagementinstitute",
+  "agile": "simple-icons:agile",
+  "togaf": "simple-icons:iso",
+  "iso27001": "simple-icons:eslint",
+  "cloudiaas": "simple-icons:amazonaws",
+  "linux": "simple-icons:linux",
+  "python": "simple-icons:python",
+  "sql": "simple-icons:postgresql",
+  "mlai": "simple-icons:tensorflow"
+}

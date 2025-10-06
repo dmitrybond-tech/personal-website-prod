@@ -8,13 +8,35 @@ export interface Props extends LevelledSkill {}
 
 const { url, icon, iconColor, name, level, description } = Astro.props;
 
+// Inline icon resolver - uses CDN cached stock icons
+const iconMapping: Record<string, string> = {
+  "discovery": "simple-icons:discovery",
+  "analytics": "simple-icons:googleanalytics",
+  "itilv4": "simple-icons:itil",
+  "pmbok": "simple-icons:projectmanagementinstitute",
+  "agile": "simple-icons:agile",
+  "togaf": "simple-icons:iso",
+  "iso27001": "simple-icons:eslint",
+  "cloudiaas": "simple-icons:amazonaws",
+  "linux": "simple-icons:linux",
+  "python": "simple-icons:python",
+  "sql": "simple-icons:postgresql",
+  "mlai": "simple-icons:tensorflow"
+};
+
+const normalize = (s: string) => String(s || '').toLowerCase()
+  .replace(/[\s_+.-]/g, '')
+  .replace(/[^a-z0-9]/g, '');
+
+const resolvedIcon = icon || (name ? iconMapping[normalize(name)] || 'mdi:help-circle' : 'mdi:help-circle');
+
 const IconWrapper = url ? 'a' : 'div';
 ---
 
 <div class="flex flex-col gap-2">
   <div class="flex h-5 items-center justify-between">
     <IconWrapper class="flex h-5 gap-2" {...url && { href: url, target: '_blank', rel: 'noopener noreferrer' }}>
-      {icon && <Icon name={icon} color={iconColor} size={20} />}
+      {resolvedIcon && <Icon name={resolvedIcon} color={iconColor} size={20} />}
       <Typography variant="skill">{name}</Typography>
     </IconWrapper>
     {

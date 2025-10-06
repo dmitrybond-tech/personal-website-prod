@@ -15,5 +15,5 @@ const { name, size, color = 'var(--cv-muted)', ...props } = Astro.props;
   icon={name}
   width={size}
   height={size}
-  style={{ color, width: `${size}px`, height: `${size}px` }}
+  style={{ color, width: `${size}px`, height: `${size}px`, boxShadow: 'var(--cv-shadow)' }}
   {...props}></iconify-icon>

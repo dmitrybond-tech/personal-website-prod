@@ -69,13 +69,18 @@ jobs:
       contents: read
     steps:
       - name: Login to GHCR (runner)
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u dmitrybond-tech --password-stdin
+
+      - name: Debug compose file
+        run: |
+          echo "=== First 20 lines of /opt/preprod/compose.yml ==="
+          head -20 /opt/preprod/compose.yml || echo "Compose file not found"
 
       - name: Pull & restart
         working-directory: /opt/preprod
         run: |
-          docker compose pull
-          docker compose up -d
+          docker compose -f /opt/preprod/compose.yml pull
+          docker compose -f /opt/preprod/compose.yml up -d --no-deps --force-recreate
           docker image prune -f
 
       - name: Show running containers

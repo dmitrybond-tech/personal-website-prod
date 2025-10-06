@@ -1,0 +1,37 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import MarkdownSkillsSection from '@/features/about/devscard/ui/sections/MarkdownSkillsSection.astro';
+import { getMarkdownSkillsData } from '@/features/about/devscard/lib/getMarkdownData';
+
+// Get skills data from markdown
+const enSkillsData = getMarkdownSkillsData('en');
+const ruSkillsData = getMarkdownSkillsData('ru');
+---
+
+<BaseLayout title="Icon Resolver Test" variant="about">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Icon Resolver Test</h1>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">English Skills (from Markdown)</h2>
+        <MarkdownSkillsSection {...enSkillsData} />
+      </div>
+      
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">Russian Skills (from Markdown)</h2>
+        <MarkdownSkillsSection {...ruSkillsData} />
+      </div>
+    </div>
+    
+    <div class="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <h3 class="text-lg font-semibold mb-2">Generated Icon Mapping</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Check the generated mapping at: <code>src/shared/iconify/skill-icons.resolved.json</code>
+      </p>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+        Icons are now resolved using the stock icon resolver with priority: logos → simple-icons → devicon → skill-icons → mdi fallback
+      </p>
+    </div>
+  </div>
+</BaseLayout>

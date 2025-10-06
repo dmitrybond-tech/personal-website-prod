@@ -20,7 +20,7 @@ export default function EducationIsland({ institutions = [] }: { institutions: a
         const href = inst.url;
 
         const LogoBox = (
-          <div className="size-12 rounded-xl overflow-hidden border bg-[var(--cv-surface-2)]">
+          <div className="size-12 rounded-xl overflow-hidden bg-[var(--cv-surface-2)]">
             {inst.logo ? <img src={inst.logo} alt="" className="size-full object-cover" loading="lazy" /> : null}
           </div>
         );

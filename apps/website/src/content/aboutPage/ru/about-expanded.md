@@ -54,10 +54,10 @@ sections:
         - title: Общее
           items:
             - name: Discovery
-              icon: simple-icons:discovery
+              icon: mdi:magnify
               level: 4
             - name: Delivery
-              icon: simple-icons:delivery
+              icon: mdi:truck-delivery
               level: 5
             - name: Analytics
               icon: simple-icons:googleanalytics
@@ -65,19 +65,19 @@ sections:
         - title: Фреймворки
           items:
             - name: ITILv4
-              icon: simple-icons:itil
+              icon: mdi:book-open-variant
               level: 5
             - name: PMBoK
-              icon: simple-icons:projectmanagementinstitute
+              icon: mdi:book-account
               level: 4
             - name: Agile
-              icon: simple-icons:agile
+              icon: mdi:rocket-launch
               level: 4
             - name: DevOps
               icon: simple-icons:googlecloud
               level: 3
             - name: TOGAF
-              icon: simple-icons:iso
+              icon: mdi:certificate
               level: 3
             - name: ISO 27001
               icon: simple-icons:eslint
@@ -85,22 +85,22 @@ sections:
         - title: Технические
           items:
             - name: Cloud / IaaS
-              icon: simple-icons:amazonaws
+              icon: mdi:cloud
               level: 4
             - name: Linux
-              icon: simple-icons:linux
+              icon: mdi:linux
               level: 4
             - name: WebDev
-              icon: simple-icons:webcomponents
+              icon: mdi:web
               level: 3
             - name: Python
-              icon: simple-icons:python
+              icon: mdi:language-python
               level: 3
             - name: SQL
-              icon: simple-icons:postgresql
+              icon: mdi:database
               level: 3
             - name: ML&AI
-              icon: simple-icons:tensorflow
+              icon: mdi:brain
               level: 3
         - title: Языки
           items:
@@ -119,7 +119,7 @@ sections:
       items:
         - company: CloudBlue
           location: Энсхеде, Нидерланды
-          logo: /uploads/logos/cloudblue.svg
+          logo: /uploads/logos/cloudblue-logo.png
           website: https://www.cloudblue.com
           roles:
             - title: Delivery Manager
@@ -142,7 +142,7 @@ sections:
                   url: https://www.cloudblue.com
         - company: Datacom
           location: Куала-Лумпур, Малайзия
-          logo: /uploads/logos/datacom.svg
+          logo: /uploads/logos/datacom-group-ltd-logo.png
           website: https://datacom.com
           roles:
             - title: Business Consultant
@@ -180,7 +180,7 @@ sections:
                   url: https://datacom.com
         - company: CloudBlue
           location: Новосибирск, Россия
-          logo: /uploads/logos/cloudblue.svg
+          logo: /uploads/logos/cloudblue-logo.png
           website: https://www.cloudblue.com
           roles:
             - title: Technical Account Manager
@@ -201,7 +201,7 @@ sections:
                   url: https://www.cloudblue.com
         - company: Diasoft
           location: Новосибирск, Россия
-          logo: /uploads/logos/banking.svg
+          logo: /uploads/logos/diasoft-logo.png
           website: ''
           roles:
             - title: Implementation Engineer
