@@ -1,36 +1,29 @@
-# Multi-stage build for apps/website
-# Build stage
+# syntax=docker/dockerfile:1.5
 FROM node:20-alpine AS build
-
 WORKDIR /app
 
-# Copy package files first for better caching
+ARG PUBLIC_SITE_URL
+ARG PUBLIC_ENV
+ARG PUBLIC_CAL_USERNAME
+ARG PUBLIC_CAL_EMBED_LINK
+ARG PUBLIC_CAL_EVENTS
+ARG PUBLIC_DECAP_CMS_VERSION
+
+ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL \
+    PUBLIC_ENV=$PUBLIC_ENV \
+    PUBLIC_CAL_USERNAME=$PUBLIC_CAL_USERNAME \
+    PUBLIC_CAL_EMBED_LINK=$PUBLIC_CAL_EMBED_LINK \
+    PUBLIC_CAL_EVENTS=$PUBLIC_CAL_EVENTS \
+    PUBLIC_DECAP_CMS_VERSION=$PUBLIC_DECAP_CMS_VERSION
+
+# deps cache warm-up
 COPY apps/website/package*.json ./
-COPY apps/website/.npmrc* .npmrc 2>/dev/null || true
+# Optional .npmrc (copied only if exists)
+RUN --mount=type=bind,source=apps/website/.npmrc,target=/tmp/.npmrc,ro=true \
+    [ -f /tmp/.npmrc ] && cp /tmp/.npmrc .npmrc || true
+RUN npm i --no-audit --no-fund --legacy-peer-deps
 
-# Install dependencies
-RUN npm ci --only=production=false
-
-# Copy source code
+# source and build
 COPY apps/website/ ./
-
-# Run CMS config swap for production (ignore errors)
 RUN node scripts/cms-config-swap.mjs prod || true
-
-# Build the application
 RUN npm run build
-
-# Runtime stage
-FROM caddy:2.8-alpine AS runtime
-
-# Copy built application from build stage
-COPY --from=build /app/dist /srv
-
-# Copy Caddyfile
-COPY Caddyfile.app /etc/caddy/Caddyfile
-
-# Expose port 80
-EXPOSE 80
-
-# Start Caddy server
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
