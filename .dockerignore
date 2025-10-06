@@ -5,4 +5,3 @@ dist
 .env.*
 apps/*/node_modules
 apps/*/dist
-!apps/website/**        # единственное, что нужно тащить целиком

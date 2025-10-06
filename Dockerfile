@@ -18,12 +18,15 @@ ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL \
     PUBLIC_CAL_EVENTS=$PUBLIC_CAL_EVENTS \
     PUBLIC_DECAP_CMS_VERSION=$PUBLIC_DECAP_CMS_VERSION
 
-# deps cache warm-up
-COPY apps/website/package*.json ./
+# Monorepo-friendly deps install
+COPY package*.json ./
+COPY apps/website/package*.json apps/website/
 RUN npm config set registry https://registry.npmjs.org
-RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund --legacy-peer-deps || npm i --no-audit --no-fund --legacy-peer-deps
+RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund --legacy-peer-deps --verbose \
+ || npm i --no-audit --no-fund --legacy-peer-deps --verbose
 
-# source and build
-COPY apps/website/ ./
+# Copy sources and build website only
+COPY . .
+WORKDIR /app/apps/website
 RUN node scripts/cms-config-swap.mjs prod || true
 RUN npm run build
