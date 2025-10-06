@@ -1,0 +1,37 @@
+{
+  "fa6-solid": [
+    "bars-progress",
+    "briefcase",
+    "star",
+    "user"
+  ],
+  "fa6-brands": [
+    "astro",
+    "css3-alt",
+    "cypress",
+    "eslint",
+    "facebook",
+    "firebase",
+    "github",
+    "graphql",
+    "linkedin",
+    "mongodb",
+    "node-js",
+    "postgresql",
+    "prettier",
+    "react",
+    "sass",
+    "twitter",
+    "typescript"
+  ],
+  "simple-icons": [
+    "chakraui",
+    "pnpm",
+    "supabase"
+  ],
+  "circle-flags": [
+    "es-variant",
+    "pl",
+    "us"
+  ]
+}

@@ -2,9 +2,10 @@ backend:
   name: github
   repo: dmitrybond-tech/personal-website-pre-prod
   branch: main
-  base_url: https://1c96e1e69880fe.lhr.life
-  auth_endpoint: /oauth
-publish_mode: editorial_workflow
+local_backend:
+  url: http://localhost:8081
+  allowed_hosts:
+    - localhost:4321
 media_folder: apps/website/public/uploads
 public_folder: /uploads
 collections:
@@ -13,7 +14,7 @@ collections:
     files:
       - name: about_en_file
         label: About (EN)
-        file: apps/website/src/content/aboutPage/en/about-expanded.md
+        file: content/en/about-expanded.md
         create: false
         delete: false
         fields:
@@ -66,7 +67,6 @@ collections:
                     name: image
                     widget: image
                     required: false
-                    hint: Upload to /uploads/about/main/
                   - label: Description
                     name: description
                     widget: markdown
@@ -141,10 +141,10 @@ collections:
                         widget: string
                         required: false
                         default: ''
-                        hint: Iconify token (e.g., simple-icons:aws)
+                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
                         pattern:
-                          - ^[a-z0-9-]+:[a-z0-9-]+$
-                          - Use Iconify token format: prefix:name
+                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
                       - label: Color
                         name: color
                         widget: string
@@ -256,8 +256,6 @@ collections:
                       - label: Company
                         name: company
                         widget: string
-                        required: false
-                        default: ''
                       - label: Location
                         name: location
                         widget: string
@@ -267,7 +265,6 @@ collections:
                         name: logo
                         widget: image
                         required: false
-                        hint: Upload to /uploads/logos/
                       - label: Website
                         name: website
                         widget: string
@@ -355,7 +352,6 @@ collections:
                             name: school
                             widget: string
                             required: false
-                            default: ''
                           - label: City/Country
                             name: location
                             widget: string
@@ -366,11 +362,12 @@ collections:
                             widget: string
                             required: false
                             default: ''
-                          - label: Logo
+                          - label: Logo (path)
                             name: logo
-                            widget: image
+                            widget: string
                             required: false
-                            hint: Upload to /uploads/logos/
+                            hint: e.g. /logos/sibsutis_logo.svg
+                            default: ''
                           - label: Degrees
                             name: degrees
                             widget: list
@@ -465,7 +462,6 @@ collections:
                       - label: Type
                         name: type
                         widget: select
-                        required: false
                         options:
                           - hobbies
                           - people
@@ -505,7 +501,6 @@ collections:
                             name: image
                             widget: image
                             required: false
-                            hint: Upload to /uploads/about/favorites/
                           - label: Icon
                             name: icon
                             widget: string
@@ -542,7 +537,7 @@ collections:
     files:
       - name: about_ru_file
         label: Обо мне (RU)
-        file: apps/website/src/content/aboutPage/ru/about-expanded.md
+        file: content/ru/about-expanded.md
         create: false
         delete: false
         fields:
@@ -595,7 +590,6 @@ collections:
                     name: image
                     widget: image
                     required: false
-                    hint: Загрузить в /uploads/about/main/
                   - label: Описание
                     name: description
                     widget: markdown
@@ -670,10 +664,10 @@ collections:
                         widget: string
                         required: false
                         default: ''
-                        hint: Iconify token (e.g., simple-icons:aws)
+                        hint: Iconify token (e.g., simple-icons:aws) or /logos/foo.svg
                         pattern:
-                          - ^[a-z0-9-]+:[a-z0-9-]+$
-                          - Use Iconify token format: prefix:name
+                          - ^(?:[a-z0-9-]+:[a-z0-9-]+|/[^\s]+\.(?:svg|png|jpg|jpeg))$
+                          - Use Iconify token like set:name or a valid /logos/*.svg|png path
                       - label: Цвет
                         name: color
                         widget: string
@@ -794,7 +788,6 @@ collections:
                         name: logo
                         widget: image
                         required: false
-                        hint: Загрузить в /uploads/logos/
                       - label: Веб-сайт
                         name: website
                         widget: string
@@ -892,11 +885,12 @@ collections:
                             widget: string
                             required: false
                             default: ''
-                          - label: Логотип
+                          - label: Логотип (путь)
                             name: logo
-                            widget: image
+                            widget: string
                             required: false
-                            hint: Загрузить в /uploads/logos/
+                            hint: например /logos/sibsutis_logo.svg
+                            default: ''
                           - label: Степени
                             name: degrees
                             widget: list
@@ -991,7 +985,6 @@ collections:
                       - label: Тип
                         name: type
                         widget: select
-                        required: false
                         options:
                           - hobbies
                           - people
@@ -1031,7 +1024,6 @@ collections:
                             name: image
                             widget: image
                             required: false
-                            hint: Загрузить в /uploads/about/favorites/
                           - label: Иконка
                             name: icon
                             widget: string

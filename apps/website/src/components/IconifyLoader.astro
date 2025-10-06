@@ -1,0 +1,29 @@
+---
+/* No server-only imports */
+---
+<script type="module">
+  // Try to import iconify-icon with explicit path
+  try {
+    await import('/node_modules/iconify-icon/dist/iconify-icon.min.js');
+    console.info('[Iconify] Loaded from node_modules');
+  } catch (error) {
+    console.warn('[Iconify] Node modules import failed, trying CDN:', error);
+    // Fallback to CDN
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = 'https://cdn.jsdelivr.net/npm/iconify-icon@3.0.1/dist/iconify-icon.min.js';
+    script.onload = () => console.info('[Iconify] Loaded from CDN');
+    document.head.appendChild(script);
+  }
+  
+  // Load bundle after a short delay
+  setTimeout(async () => {
+    try {
+      const { registerIconifyCollections, __META__ } = await import('../shared/iconify/bundle.generated.ts');
+      registerIconifyCollections();
+      console.info('[Iconify] Bundle registered', __META__);
+    } catch (error) {
+      console.error('[Iconify] Failed to load bundle:', error);
+    }
+  }, 100);
+</script>

@@ -29,23 +29,15 @@ const buildSkillsFromSeed = (seed: any, lang: 'en' | 'ru') => ({
   }
 });
 
-// Try to read about-expanded.md first
+// Load the canonical about-expanded.md file
 let entry = await getEntry({ collection: 'aboutPage', slug: `${lang}/about-expanded` });
 
-// Fallback to about.md if about-expanded.md doesn't exist
+// No fallback - fail fast if the canonical file doesn't exist
 if (!entry) {
-  debug('[about] about-expanded.md not found, trying about.md');
-  entry = await getEntry({ collection: 'aboutPage', slug });
+  throw new Error(`About page content not found for language: ${lang}. Expected file: ${lang}/about-expanded.md`);
 }
 
-// Final fallback - search through all entries
-if (!entry) {
-  const all = await getCollection('aboutPage');
-  debug('[about] NOT FOUND slug=%s. Available slugs:', slug, all.map(e => e.slug));
-  entry = all.find(e => e.slug === slug || (e.slug.startsWith(`${lang}/`) && e.slug.endsWith('/about')));
-}
-
-debug('[about] lang=%s slug=%s found=%s', lang, slug, !!entry);
+debug('[about] lang=%s slug=%s found=%s', lang, `${lang}/about-expanded`, !!entry);
 
 // Section normalization functions
 const keys = (o:any) => o ? Object.keys(o) : [];
@@ -56,7 +48,8 @@ const mapType = (t:string) => {
   const k = (t||'').toLowerCase();
   const m: Record<string, string> = {
     skills: 'skills', skill: 'skills',
-    grid: 'cards', list: 'cards'
+    grid: 'cards', list: 'cards',
+    media: 'media', medias: 'media'
     // keep others as-is or add more mappings if needed
   };
   return m[k] ?? k;
@@ -82,10 +75,61 @@ rawSections.forEach((s:any, i:number) => {
 // Use the new mapper to transform sections with fallbacks
 const mappedSections = fromMarkdownSections(rawSections);
 const sections = Object.values(mappedSections);
+
+// Safe media section mapping - handle both 'media' and 'medias' keys with tolerant mapping
+const mediaSections = sections.filter(s => s.type === 'media' || s.type === 'medias');
+const mediaItems = mediaSections.flatMap(s => (s.data?.items ?? s.data?.list ?? s.data?.data ?? []));
+
+// Log media items for debugging
+if (mediaItems.length > 0) {
+  debug('[about] found %d media items', mediaItems.length);
+}
+
 const types = sections.map(s=>s.type);
 debug('[about] mapped types=%o', types);
+debug('[about] mapped sections keys=%o', Object.keys(mappedSections));
+debug('[about] main section exists=%s', !!mappedSections.main);
+if (mappedSections.main) {
+  debug('[about] main section data keys=%o', Object.keys(mappedSections.main.data || {}));
+}
 const unknown = sections.filter(s=>!registry[s.type]);
 if (unknown.length) debug('[about] UNKNOWN types=%o', unknown.map(u=>u.type));
+
+// Locale parity guard: ensure RU sections match EN order/types
+if (lang === 'ru' && import.meta.env.DEV) {
+  const enEntry = await getEntry({ collection: 'aboutPage', slug: 'en/about-expanded' });
+  if (enEntry?.data?.sections) {
+    const enMappedSections = fromMarkdownSections(enEntry.data.sections);
+    const enSections = Object.values(enMappedSections);
+    const enTypes = enSections.map(s => s.type);
+    
+    if (JSON.stringify(enTypes) !== JSON.stringify(types)) {
+      console.warn('[about] Locale parity mismatch detected:');
+      console.warn('[about] EN section order:', enTypes);
+      console.warn('[about] RU section order:', types);
+      
+      // Reorder RU sections to match EN order
+      const reorderedSections: any[] = [];
+      enTypes.forEach(enType => {
+        const ruSection = sections.find(s => s.type === enType);
+        if (ruSection) {
+          reorderedSections.push(ruSection);
+        }
+      });
+      
+      // Add any RU sections not in EN (shouldn't happen after sync)
+      sections.forEach(ruSection => {
+        if (!enTypes.includes(ruSection.type)) {
+          reorderedSections.push(ruSection);
+        }
+      });
+      
+      // Replace the sections array with reordered version
+      sections.splice(0, sections.length, ...reorderedSections);
+      console.warn('[about] RU sections reordered to match EN order:', sections.map(s => s.type));
+    }
+  }
+}
 
 // Section hygiene: filter out empty sections
 const isEmpty = (section: any) => {
@@ -100,6 +144,19 @@ const isEmpty = (section: any) => {
   
   // Check section-specific emptiness
   switch (type) {
+    case 'main':
+      // Main section should always be shown if visible is not explicitly false
+      if (data.visible === false) {
+        debug('[about] skip %s (reason: visible=false)', type);
+        return true;
+      }
+      // Additional checks for main section completeness
+      if (!data.fullName || !data.role) {
+        debug('[about] skip %s (reason: missing required fields)', type);
+        return true;
+      }
+      break;
+      
     case 'skills':
       const groups = data.groups || [];
       const hasItems = groups.some((g: any) => (g.items || []).length > 0);
@@ -134,6 +191,11 @@ const isEmpty = (section: any) => {
 const filteredSections = sections.filter(section => !isEmpty(section));
 debug('[about] filtered sections: %d -> %d', sections.length, filteredSections.length);
 
+// Log each section that passes filtering
+filteredSections.forEach((section, i) => {
+  debug('[about] filtered section[%d]: type=%s, visible=%s', i, section.type, section.data?.visible);
+});
+
 // Enhanced logging for skills sections
 sections.forEach((section: any, i: number) => {
   if (section.type === 'skills' && section.data?.groups) {
@@ -160,15 +222,15 @@ if (sections.length) debug('[about] first section sample=%o', sections[0]);
               Unknown section: <b>{section?.type ?? 'undefined'}</b>
             </div>;
           }
-          return <Comp section={section} lang={lang} frontmatter={entry?.data} />;
+          return <Comp section={section} lang={lang} frontmatter={entry?.data} mediaItems={mediaItems} />;
         })}
     
-    <script is:inline>
+    <script>
       (function(){
         const c=document.getElementById('site-container');
-        if(!c){ if(import.meta.env.DEV) console.warn('[about] #site-container missing'); return; }
+        if(!c){ console.warn('[about] #site-container missing'); return; }
         const cs=getComputedStyle(c);
-        if(import.meta.env.DEV) console.debug('[about] container width=%s padX=%s/%s', c.offsetWidth, cs.paddingLeft, cs.paddingRight);
+        console.debug('[about] container width=%s padX=%s/%s', c.offsetWidth, cs.paddingLeft, cs.paddingRight);
       })();
     </script>
   </div>

@@ -1,6 +1,5 @@
----
-title: About
-slug: en/about
+---title: About
+slug: en/about-expanded
 sections:
   - type: main
     data:
@@ -11,22 +10,11 @@ sections:
       fullName: Dmitry Bondarenko
       role: Technical Project Manager
       image: /uploads/placeholders/avatar.svg
-      description: >
-        You've landed on my page for a reason, I believe. If you already know
-        what you're looking for, feel free to jump straight to my BookMe page
-        and check my availability. Otherwise, take a moment to browse my blog
-        where I share reflections on tech, life, and everything in between.
-
-
-        But if we haven't met yet, let me introduce myself. I'm a seasoned IT
-        enthusiast and Technical Project Manager with more than eight years of
-        experience working with large enterprises and navigating complex
-        software products. Here you'll find a snapshot of my skills, some of my
-        favorite things, and even a tailored CV you can download just below my
-        picture.
+      description: |
+        You've landed on my page for a reason, I believe. If you already know what you're looking for, feel free to jump straight to my BookMe page and check my availability. Otherwise, take a moment to browse my blog where I share reflections on tech, life, and everything in between. But if we haven't met yet, let me introduce myself. I'm a seasoned IT enthusiast and Technical Project Manager with more than eight years of experience working with large enterprises and navigating complex software products. Here you'll find a snapshot of my skills, some of my favorite things, and even a tailored CV you can download just below my picture.
       details:
         - label: Phone
-          value: "+79137311003"
+          value: '+79137311003'
           url: tel:+79137311003
         - label: Email
           value: dima@dmitrybond.tech
@@ -49,15 +37,15 @@ sections:
         - label: Telegram
           url: https://t.me/d1mab0nd
           icon: simple-icons:telegram
-          color: "#0088cc"
+          color: '#0088cc'
         - label: LinkedIn
           url: https://www.linkedin.com/in/dmitry-bond/
           icon: simple-icons:linkedin
-          color: "#0077b5"
+          color: '#0077b5'
         - label: Portfolio
           url: https://dmitrybond.tech/
           icon: simple-icons:portfolio
-          color: "#333333"
+          color: '#333333'
   - type: skills
     data:
       title: Skills
@@ -136,25 +124,13 @@ sections:
             - title: Delivery Manager
               period: Mar 2023 – Apr 2025
               bullets:
-                - >-
-                  Led partner enablement and post-launch support across a
-                  cloud-based commerce platform.
-                - >-
-                  Managed delivery of integration projects, advised on product
-                  configuration and SaaS monetization strategies.
-                - >-
-                  Coordinated cross-functional teams to drive scalable solution
-                  adoption and improve partner experience.
-                - >-
-                  Contributed to platform transformation initiatives, including
-                  migration, new microservices adoption and e-Commerce platform
-                  development.
-              description: >
-                Led partner enablement and post-launch support across a
-                cloud-based commerce platform. 
-
-                Managed delivery of integration projects, advised on product
-                configuration and SaaS monetization strategies.
+                - Led partner enablement and post-launch support across a cloud-based commerce platform.
+                - Managed delivery of integration projects, advised on product configuration and SaaS monetization strategies.
+                - Coordinated cross-functional teams to drive scalable solution adoption and improve partner experience.
+                - Contributed to platform transformation initiatives, including migration, new microservices adoption and e-Commerce platform development.
+              description: |
+                Led partner enablement and post-launch support across a cloud-based commerce platform. 
+                Managed delivery of integration projects, advised on product configuration and SaaS monetization strategies.
               technologies:
                 - React
                 - TypeScript
@@ -171,25 +147,12 @@ sections:
             - title: Business Consultant
               period: Jun 2019 – Mar 2023
               bullets:
-                - >-
-                  Provided strategic and operational support across managed
-                  services operations, acting as a subject matter expert on
-                  platform processes and best practices.
-                - >-
-                  Led internal knowledge transfer and enablement initiatives,
-                  supporting global teams in adopting productized workflows and
-                  ITIL-based operations (Problem & Change Management).
-                - >-
-                  Drove process improvements with key partners to improve
-                  incident handling, reduce backlog, and strengthen SLA
-                  adherence.
-                - >-
-                  Played a central role in platform enablement, bridging product
-                  knowledge and day-to-day operational excellence.
-              description: >
-                Provided strategic and operational support across managed
-                services operations, acting as a subject matter expert on
-                platform processes and best practices.
+                - Provided strategic and operational support across managed services operations, acting as a subject matter expert on platform processes and best practices.
+                - Led internal knowledge transfer and enablement initiatives, supporting global teams in adopting productized workflows and ITIL-based operations (Problem & Change Management).
+                - Drove process improvements with key partners to improve incident handling, reduce backlog, and strengthen SLA adherence.
+                - Played a central role in platform enablement, bridging product knowledge and day-to-day operational excellence.
+              description: |
+                Provided strategic and operational support across managed services operations, acting as a subject matter expert on platform processes and best practices.
               technologies:
                 - ITIL
                 - Process Management
@@ -200,28 +163,13 @@ sections:
             - title: Lead Technical Account Manager
               period: Jun 2019 – Mar 2023
               bullets:
-                - >-
-                  Acted as strategic liaison between enterprise clients and
-                  internal teams, supporting cloud platform optimization,
-                  managed services delivery, and partner success initiatives.
-                - >-
-                  Led technical account operations, coordinated escalations, and
-                  enabled cross-functional collaboration across support,
-                  product, and delivery teams.
-                - >-
-                  Drove process improvements, change management, and contract
-                  optimization across multiple regions.
-                - >-
-                  Advised clients on platform usage, roadmaps, and upgrade
-                  planning; conducted stakeholder reviews and supported product
-                  adoption.
-                - >-
-                  Contributed to retention and recovery of at-risk accounts
-                  through on-site consulting and tailored solution design.
-              description: >
-                Acted as strategic liaison between enterprise clients and
-                internal teams, supporting cloud platform optimization, managed
-                services delivery, and partner success initiatives.
+                - Acted as strategic liaison between enterprise clients and internal teams, supporting cloud platform optimization, managed services delivery, and partner success initiatives.
+                - Led technical account operations, coordinated escalations, and enabled cross-functional collaboration across support, product, and delivery teams.
+                - Drove process improvements, change management, and contract optimization across multiple regions.
+                - Advised clients on platform usage, roadmaps, and upgrade planning; conducted stakeholder reviews and supported product adoption.
+                - Contributed to retention and recovery of at-risk accounts through on-site consulting and tailored solution design.
+              description: |
+                Acted as strategic liaison between enterprise clients and internal teams, supporting cloud platform optimization, managed services delivery, and partner success initiatives.
               technologies:
                 - Cloud Platforms
                 - Account Management
@@ -237,23 +185,12 @@ sections:
             - title: Technical Account Manager
               period: Jun 2018 – Jun 2019
               bullets:
-                - >-
-                  Supported telecom and hosting providers in operating and
-                  scaling cloud business through XaaS platform solutions.
-                - >-
-                  Coordinated upgrade and migration projects, provided technical
-                  account oversight, and facilitated incident resolution with
-                  cross-regional support.
-                - >-
-                  Improved internal workflows, knowledge management, and
-                  customer success initiatives.
-                - >-
-                  Assisted revenue recovery/remediation by re-engaging dormant
-                  enterprise clients via technical enablement and platform
-                  upgrades.
-              description: >
-                Supported telecom and hosting providers in operating and scaling
-                cloud business through XaaS platform solutions.
+                - Supported telecom and hosting providers in operating and scaling cloud business through XaaS platform solutions.
+                - Coordinated upgrade and migration projects, provided technical account oversight, and facilitated incident resolution with cross-regional support.
+                - Improved internal workflows, knowledge management, and customer success initiatives.
+                - Assisted revenue recovery/remediation by re-engaging dormant enterprise clients via technical enablement and platform upgrades.
+              description: |
+                Supported telecom and hosting providers in operating and scaling cloud business through XaaS platform solutions.
               technologies:
                 - XaaS Platforms
                 - Cloud Solutions
@@ -268,24 +205,12 @@ sections:
             - title: Implementation Engineer
               period: Sep 2016 – Jun 2018
               bullets:
-                - >- 
-                  Delivered end-to-end implementation of core banking systems and satellite modules: >-
-                  deployment, configuration, SIT/UAT coordination, and
-                  post-launch support.
-                - >-
-                  Translated business requirements into technical specifications
-                  in collaboration with front office, IT, and compliance
-                  stakeholders.
-                - >-
-                  Prepared SRS and localized technical materials; contributed to
-                  international rollout across Southeast Asia.
-                - >-
-                  Acted as QA lead during acceptance and mentored junior
-                  engineers within the implementation team.
-              description: >
-                Delivered end-to-end implementation of core banking systems and
-                satellite modules: deployment, configuration, SIT/UAT
-                coordination, and post-launch support.
+                - 'Delivered end-to-end implementation of core banking systems and satellite modules: >- deployment, configuration, SIT/UAT coordination, and post-launch support.'
+                - Translated business requirements into technical specifications in collaboration with front office, IT, and compliance stakeholders.
+                - Prepared SRS and localized technical materials; contributed to international rollout across Southeast Asia.
+                - Acted as QA lead during acceptance and mentored junior engineers within the implementation team.
+              description: |
+                Delivered end-to-end implementation of core banking systems and satellite modules: deployment, configuration, SIT/UAT coordination, and post-launch support.
               technologies:
                 - Banking Systems
                 - Implementation
@@ -295,9 +220,7 @@ sections:
     data:
       title: Education
       items:
-        - school: >-
-            Siberian State University of Telecommunications and Information
-            Sciences (SibSUTIS)
+        - school: Siberian State University of Telecommunications and Information Sciences (SibSUTIS)
           location: Novosibirsk, Russia
           url: https://www.sibsutis.ru
           logo: /uploads/logos/sibsutis_logo.png
@@ -307,12 +230,8 @@ sections:
               faculty: Faculty of Computer Science and Engineering
               period: Sep 2012 – Sep 2016
               bullets:
-                - >-
-                  Focused on software engineering, algorithms, and data
-                  structures
-                - >-
-                  Participated in multiple hackathons, computer science
-                  conferences while working part time along the way
+                - Focused on software engineering, algorithms, and data structures
+                - Participated in multiple hackathons, computer science conferences while working part time along the way
   - type: favorites
     data:
       title: Favorites
@@ -403,8 +322,7 @@ sections:
           items:
             - title: How to Create Tech Products Customers Love
               author: Scott H.
-              url: >-
-                https://www.goodreads.com/book/show/18043039-how-to-create-tech-products-customers-love
+              url: https://www.goodreads.com/book/show/18043039-how-to-create-tech-products-customers-love
               image: /uploads/about/favorites/tech-products.jpeg
             - title: Shantaram
               author: Gregory David Roberts

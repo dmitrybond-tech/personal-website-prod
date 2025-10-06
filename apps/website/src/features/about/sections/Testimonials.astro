@@ -15,7 +15,9 @@ const { items } = data;
   {section.heading && (
     <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
       {section.icon && (
-        <span class="text-blue-500" set:html={resolveIcon(section.icon)}></span>
+        <span class="text-blue-500">
+          <iconify-icon icon={section.icon}></iconify-icon>
+        </span>
       )}
       {section.heading}
     </h2>

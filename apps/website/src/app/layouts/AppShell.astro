@@ -3,8 +3,8 @@ import "@/styles/main.css";
 import Navbar from '@/app/widgets/navbar/ui/Navbar.astro';
 import NavFloat from '@/app/widgets/navfloat/NavFloat.astro';
 import Footer from '@/app/widgets/footer/ui/Footer.astro';
+import IconifyLoader from '@/components/IconifyLoader.astro';
 import { getLocaleFromPath, switchLocale } from '@/app/shared/lib/locale';
-import 'iconify-icon'; // local from node_modules; will be bundled
 
 interface Props {
   title?: string;
@@ -92,33 +92,8 @@ const bodyClasses = [
       <meta name={key} content={value} />
     ))}
 
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Font Awesome for icons - using local Iconify instead -->
     
-    <!-- Iconify for about pages -->
-    {isAbout && (
-      <>
-        <script is:inline>
-          // Load Iconify bundle for offline icons
-          (async function() {
-            try {
-              const response = await fetch('/iconify-bundle.json');
-              if (response.ok) {
-                const bundle = await response.json();
-                if (window.Iconify && window.Iconify.addCollection) {
-                  Object.values(bundle).forEach(collection => {
-                    window.Iconify.addCollection(collection);
-                  });
-                  console.debug('[Iconify] Bundle loaded successfully');
-                }
-              }
-            } catch (error) {
-              console.warn('[Iconify] Failed to load bundle:', error);
-            }
-          })();
-        </script>
-      </>
-    )}
     
     <!-- Unified NavIsland styles -->
     <style is:global>
@@ -152,6 +127,7 @@ const bodyClasses = [
     </style>
   </head>
   <body class={bodyClasses}>
+    <IconifyLoader />
     <header data-app-navbar style="--navbar-h:44px">
       <div 
         class="nav-float-wrap"

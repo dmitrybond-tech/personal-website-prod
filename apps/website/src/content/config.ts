@@ -1,27 +1,17 @@
 import { defineCollection, z } from 'astro:content';
 
+const sectionBase = z.object({
+  type: z.string(),
+  data: z.record(z.any()).passthrough()
+});
+
 const aboutPage = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string().optional(),
-    profile: z.object({
-      fullName: z.string().optional(),
-      title: z.string().optional(),
-      avatar: z.string().optional(),
-    }).optional(),
-    sections: z.array(z.object({
-      type: z.string(),            // hero | projects | experience | education | testimonials | favorites | skills ...
-      heading: z.string().optional(),
-      icon: z.string().optional(),
-      data: z.any().optional(),
-    })).default([]),
-    links: z.array(z.object({
-      label: z.string(),
-      url: z.string(),
-      icon: z.string().optional(),
-    })).optional(),
-    cv_pdf: z.string().optional(),
-  }),
+    slug: z.string().optional(),
+    sections: z.array(sectionBase).default([]),
+  }).passthrough(),
 });
 
 const bookmePage = defineCollection({

@@ -31,6 +31,19 @@ declare global {
     ns?: Record<string, any>;
     loaded?: boolean;
   };
+
+  // Iconify-icon JSX declaration
+  namespace JSX {
+    interface IntrinsicElements {
+      'iconify-icon': {
+        icon?: string;
+        class?: string;
+        className?: string;
+        'aria-hidden'?: boolean;
+        [key: string]: any;
+      };
+    }
+  }
 }
 
 export {};

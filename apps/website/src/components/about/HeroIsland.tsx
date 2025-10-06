@@ -67,7 +67,8 @@ export default function HeroIsland({
               src={avatar}
               alt={name ? `${name} profile picture` : 'Profile picture'}
               className="w-full h-full object-cover"
-              loading="lazy"
+              loading="eager"
+              decoding="sync"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';

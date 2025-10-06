@@ -18,7 +18,10 @@
     "cv:publish:all": "npm run cv:en:publish && npm run cv:ru:publish",
     "website:install": "cd apps/website && npm install",
     "website:dev": "cd apps/website && npm run dev",
-    "website:build": "cd apps/website && npm run build",
+    "website:build": "cd apps/website && npm run icons:rebuild && npm run build",
+    "icons:collect": "cd apps/website && npm run icons:collect",
+    "icons:bundle": "cd apps/website && npm run icons:bundle",
+    "icons:rebuild": "cd apps/website && npm run icons:rebuild",
     "dev:all": "concurrently \"npm run cv:en:dev\" \"npm run cv:ru:dev\" \"npm run website:dev\"",
     "cv:en:dev": "cd apps/CV/devscard_en && npm run dev",
     "cv:ru:dev": "cd apps/CV/devscard_ru && npm run dev",
@@ -30,8 +33,6 @@
     "dev": "npm run cms:devcfg && astro dev --host --port 4321 --strictPort",
     "build": "astro build",
     "build:prod": "npm run cms:prodcfg && npm --workspace apps/website run build",
-    
-    // Docker deployment scripts for CI/CD runner
     "deploy:prod": "docker compose -f compose.prod.yml up -d --build",
     "deploy:dev": "docker compose -f compose.dev.yml up -d --build", 
     "deploy:stop": "docker compose -f compose.prod.yml down && docker compose -f compose.dev.yml down",

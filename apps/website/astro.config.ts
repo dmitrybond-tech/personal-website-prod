@@ -73,6 +73,12 @@ export default defineConfig({
         '@ref': path.resolve(__dirname, '../website-vanilla_ref'),
       },
     },
+    optimizeDeps: {
+      include: ['iconify-icon']
+    },
+    ssr: {
+      noExternal: ['iconify-icon']
+    },
     server: {
       host: true,
       strictPort: true,
