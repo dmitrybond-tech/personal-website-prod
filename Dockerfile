@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1.5
 FROM node:20-alpine AS build
 WORKDIR /app
+RUN apk add --no-cache --virtual .build-deps python3 make g++ \
+    && apk add --no-cache libc6-compat
 
 ARG PUBLIC_SITE_URL
 ARG PUBLIC_ENV
@@ -18,10 +20,8 @@ ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL \
 
 # deps cache warm-up
 COPY apps/website/package*.json ./
-# Optional .npmrc (copied only if exists)
-RUN --mount=type=bind,source=apps/website/.npmrc,target=/tmp/.npmrc,ro=true \
-    [ -f /tmp/.npmrc ] && cp /tmp/.npmrc .npmrc || true
-RUN npm i --no-audit --no-fund --legacy-peer-deps
+RUN npm config set registry https://registry.npmjs.org
+RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund --legacy-peer-deps || npm i --no-audit --no-fund --legacy-peer-deps
 
 # source and build
 COPY apps/website/ ./
