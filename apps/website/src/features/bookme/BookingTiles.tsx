@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { CAL_ENV } from '@/shared/lib/cal/env';
-import CalInline from '@/components/CalInline';
 
 type Tile = { slug: string; label: string; caption?: string; icon?: string };
 
@@ -32,6 +31,59 @@ export default function BookingTiles({ tiles, initialSlug }: Props) {
 
     return () => observer.disconnect();
   }, []);
+
+  // Initialize Cal.com embed when component mounts or active changes
+  useEffect(() => {
+    if (!active || !tiles?.length) return;
+
+    const initializeCal = async () => {
+      // Wait for Cal to be available
+      const waitForCal = () => {
+        return new Promise<void>((resolve) => {
+          const check = () => {
+            if (window.Cal && typeof window.Cal === 'function') {
+              resolve();
+            } else {
+              setTimeout(check, 50);
+            }
+          };
+          check();
+        });
+      };
+
+      try {
+        await waitForCal();
+        
+        // Initialize Cal if not already done
+        if (window.Cal) {
+          window.Cal('init', { origin: 'https://cal.com' });
+          
+          // Update theme
+          window.Cal('ui', { theme });
+          
+          // Clear existing embed
+          const container = document.getElementById('cal-inline');
+          if (container) {
+            container.innerHTML = '';
+            
+            // Render new embed
+            window.Cal('inline', {
+              elementOrSelector: container,
+              calLink: `${CAL_ENV.USERNAME}/${active}`,
+              config: {
+                layout: 'month_view',
+                hideEventTypeDetails: false
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('[cal] Failed to initialize embed:', error);
+      }
+    };
+
+    initializeCal();
+  }, [active, theme]);
 
   const onSelect = (slug: string) => {
     setActive(slug);
@@ -71,15 +123,12 @@ export default function BookingTiles({ tiles, initialSlug }: Props) {
         ))}
       </div>
 
-      {/* Cal.com Embed */}
-      {active && (
-        <CalInline
-          username={CAL_ENV.USERNAME}
-          slug={active}
-          theme={theme}
-          className="mt-6"
-        />
-      )}
+      {/* Cal.com Embed Container */}
+      <div 
+        id="cal-inline"
+        className="cal-inline-wrapper min-h-[540px] rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800"
+        data-cal-link={`${CAL_ENV.USERNAME}/${active}`}
+      />
     </div>
   );
 }
