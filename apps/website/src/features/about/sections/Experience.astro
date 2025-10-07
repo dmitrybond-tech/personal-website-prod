@@ -24,7 +24,7 @@ if (Array.isArray(experienceData.items)) {
   companies = experienceData.items.map((company: any) => ({
     company: t(company.company, lang),
     location: t(company.location, lang),
-    url: company.url,
+    url: company.website || company.url,
     logo: company.logo,
     roles: Array.isArray(company.roles) ? company.roles.map((role: any) => ({
       title: t(role.title, lang),

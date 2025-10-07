@@ -32,8 +32,8 @@ sections:
         - name: Humble Guy
       action:
         label: Скачать резюме
-        url: https://example.com/cv.pdf
-        downloadedFileName: CV-Дмитрий_Бондаренко.pdf
+        url: /cv_ru/BondarenkoDmitry_TPM_CV_ru-2.pdf
+        downloadedFileName: BondarenkoDmitry_TPM_CV_ru-2.pdf
       links:
         - label: Telegram
           url: https://t.me/d1mab0nd
@@ -119,7 +119,7 @@ sections:
       items:
         - company: CloudBlue
           location: Энсхеде, Нидерланды
-          logo: /uploads/logos/cloudblue-logo.png
+          logo: /uploads/logos/cloudblue-logo.jpg
           website: https://www.cloudblue.com
           roles:
             - title: Delivery Manager
@@ -180,7 +180,7 @@ sections:
                   url: https://datacom.com
         - company: CloudBlue
           location: Новосибирск, Россия
-          logo: /uploads/logos/cloudblue-logo.png
+          logo: /uploads/logos/cloudblue-logo.jpg
           website: https://www.cloudblue.com
           roles:
             - title: Technical Account Manager
@@ -202,7 +202,7 @@ sections:
         - company: Diasoft
           location: Новосибирск, Россия
           logo: /uploads/logos/diasoft-logo.png
-          website: ''
+          website: https://www.diasoft.ru
           roles:
             - title: Implementation Engineer
               period: сен 2016 – июн 2018
@@ -217,7 +217,9 @@ sections:
                 - Banking Systems
                 - Implementation
                 - QA Leadership
-              links: []
+              links: 
+                - label: Company Website
+                  url: https://www.diasoft.ru
   - type: education
     data:
       title: Образование
@@ -225,7 +227,7 @@ sections:
         - school: Сибирский государственный университет телекоммуникаций и информатики (СибГУТИ)
           location: Новосибирск, Россия
           url: https://www.sibsutis.ru
-          logo: /uploads/logos/sibsutis_logo.svg
+          logo: /uploads/logos/sibsutis_logo.png
           degrees:
             - degree: Бакалавр (BSc)
               program: Информационные и вычислительные технологии
@@ -255,68 +257,48 @@ sections:
             - title: Технологии
               url: https://github.com/trending
               icon: simple-icons:github
+              image: /uploads/about/favorites/technologies-thumbnail (Custom).jpg
             - title: Сноуборд
               url: https://www.redbull.com/us-en/snowboarding
               icon: simple-icons:snowboarding
+              image: /uploads/about/favorites/snowboarding-thumbnail (Custom).jpeg
             - title: Искусство
               url: https://www.artsy.net
               icon: simple-icons:artstation
+              image: /uploads/about/favorites/art-pb-thumbnail (Custom).jpg
             - title: Стендап
               url: https://www.netflix.com/browse/genre/11559
               icon: simple-icons:netflix
+              image: /uploads/about/favorites/stand-up-thumbnail (Custom).jpg
             - title: Кулинария
               url: https://www.bonappetit.com
               icon: simple-icons:chef
-        - title: Люди, за которыми я слежу
-          type: people
-          style:
-            limit: 5
-          items:
-            - title: Джо Роган
-              name: Джо Роган
-              url: https://www.youtube.com/@joerogan
-              image: /uploads/about/favorites/joerogan.jpg
-            - title: Сет Роген
-              name: Сет Роген
-              url: https://www.instagram.com/sethrogen
-              image: /uploads/about/favorites/sethrogen.jpg
-            - title: Марк Мэнсон
-              name: Марк Мэнсон
-              url: https://markmanson.net
-              image: /uploads/about/favorites/markmanson.jpg
-            - title: Трэвис Райс
-              name: Трэвис Райс
-              url: https://www.instagram.com/travisrice
-              image: /uploads/about/favorites/travisrice.jpg
-            - title: Эндрю Хуберман
-              name: Эндрю Хуберман
-              url: https://www.youtube.com/@hubermanlab
-              image: /uploads/about/favorites/andrewberman.jpg
+              image: /uploads/about/favorites/cooking-thumbnail (Custom).jpg
         - title: Медиа, за которыми я слежу
           type: medias
           style:
             limit: 5
           items:
-            - title: BBC
-              type: Новости
-              url: https://www.bbc.com
-              image: /uploads/about/favorites/bbc.jpeg
+            - title: Huberman Lab
+              type: Научно-обоснованные инструменты оптимизации
+              url: https://www.hubermanlab.com/
+              image: /uploads/about/favorites/people-andrew-huberman (Custom).jpg
             - title: Y Combinator
               type: Акселератор
               url: https://www.ycombinator.com
-              image: /uploads/about/favorites/ycombinator.jpeg
-            - title: Red Bull Media House
-              type: Спортивные медиа
-              url: https://www.redbull.com
-              image: /uploads/about/favorites/redbull.png
-            - title: Artsy
-              type: Арт-платформа
-              url: https://www.artsy.net
-              image: /uploads/about/favorites/artsy.png
-            - title: Inked Magazine
-              type: Тату-журнал
-              url: https://www.inkedmag.com
-              image: /uploads/about/favorites/inked.jpeg
+              image: /uploads/about/favorites/y-combinator-thumbnail.jpg
+            - title: Mark Manson
+              type: Рассылка и подкаст
+              url: https://www.youtube.com/playlist?list=PLkkA1LPpvlkjbuctKTaViIeIiZljzbqxW
+              image: /uploads/about/favorites/people-mark-manson (Custom).jpg
+            - title: ByteMonk
+              type: Технологии и системный дизайн
+              url: https://www.youtube.com/c/bytemonk
+              image: /uploads/about/favorites/media-byte-monk.jpg
+            - title: BBC
+              type: Новости
+              url: https://www.bbc.com
+              image: /uploads/about/favorites/bbc.jpg
         - title: Книги
           type: books
           style:
@@ -325,43 +307,23 @@ sections:
             - title: Как создавать технологические продукты, которые любят клиенты
               author: Скотт Х.
               url: https://www.goodreads.com/book/show/18043039-how-to-create-tech-products-customers-love
-              image: /uploads/about/favorites/tech-products.jpeg
-            - title: Шантарам
-              author: Грегори Дэвид Робертс
-              url: https://www.goodreads.com/book/show/33600.Shantaram
-              image: /uploads/about/favorites/shantaram.jpg
+              image: /uploads/about/favorites/book-how-to-create-tech-products-customers-love (Custom).jpg
+            - title: PMBoK
+              author: Институт управления проектами
+              url: https://www.goodreads.com/book/show/58682340-pmbok-guide
+              image: /uploads/about/favorites/book-pmbok-guide-hero (Custom).jpg
             - title: Тонкое искусство пофигизма
               author: Марк Мэнсон
               url: https://markmanson.net/books/the-subtle-art-of-not-giving-a-f
-              image: /uploads/about/favorites/subtle-art.jpeg
-            - title: Идиот
-              author: Фёдор Достоевский
-              url: https://www.goodreads.com/book/show/12600.The_Idiot
-              image: /uploads/about/favorites/idiot.jpeg
-            - title: Преступление и наказание
-              author: Фёдор Достоевский
-              url: https://www.goodreads.com/book/show/7144.Crime_and_Punishment
-              image: /uploads/about/favorites/crime-punishment.jpeg
-        - title: Фильмы
-          type: movies
-          style:
-            limit: 5
-          items:
-            - title: Криминальное чтиво
-              url: https://www.imdb.com/title/tt0110912
-              image: /uploads/about/favorites/pulp-fiction.jpeg
-            - title: Унесённые призраками
-              url: https://www.imdb.com/title/tt0245429
-              image: /uploads/about/favorites/spirited-away.jpeg
-            - title: Большой Лебовски
-              url: https://www.imdb.com/title/tt0118715
-              image: /uploads/about/favorites/big-lebowski.jpeg
-            - title: Большой куш
-              url: https://www.imdb.com/title/tt0208092
-              image: /uploads/about/favorites/snatch.jpeg
-            - title: Бойцовский клуб
-              url: https://www.imdb.com/title/tt0137523
-              image: /uploads/about/favorites/fight-club.jpeg
+              image: /uploads/about/favorites/mark-manson-the-subtle-art-of-not-giving-a-f-ck (Custom).jpg
+            - title: Производственная система Toyota
+              author: Тайити Оно
+              url: https://www.goodreads.com/book/show/376237.Toyota_Production_System
+              image: /uploads/about/favorites/book-toyota-tps (Custom).jpg
+            - title: Карта культур
+              author: Эрин Мейер
+              url: https://www.goodreads.com/book/show/22085568-the-culture-map
+              image: /uploads/about/favorites/book-the culture-map (Custom).jpg
 lineWidth: 0
 ---
 

@@ -31,8 +31,8 @@ sections:
         - name: Humble Guy
       action:
         label: Download CV
-        url: https://example.com/cv.pdf
-        downloadedFileName: CV-Dmitry_Bondarenko.pdf
+        url: /cv_en/BondarenkoDmitry_TPM_CV_en-2.pdf
+        downloadedFileName: BondarenkoDmitry_TPM_CV_en-2.pdf
       links:
         - label: Telegram
           url: https://t.me/d1mab0nd
@@ -118,7 +118,7 @@ sections:
       items:
         - company: CloudBlue
           location: Enschede, the Netherlands
-          logo: /uploads/logos/cloudblue-logo.webp
+          logo: /uploads/logos/cloudblue-logo.jpg
           website: https://www.cloudblue.com
           roles:
             - title: Delivery Manager
@@ -179,7 +179,7 @@ sections:
                   url: https://datacom.com
         - company: CloudBlue
           location: Novosibirsk, Russia
-          logo: /uploads/logos/cloudblue-logo.webp
+          logo: /uploads/logos/cloudblue-logo.jpg
           website: https://www.cloudblue.com
           roles:
             - title: Technical Account Manager
@@ -201,6 +201,7 @@ sections:
         - company: Diasoft
           location: Novosibirsk, Russia
           logo: /uploads/logos/diasoft-logo.png
+          website: https://www.diasoft.ru
           roles:
             - title: Implementation Engineer
               period: Sep 2016 – Jun 2018
@@ -215,7 +216,9 @@ sections:
                 - Banking Systems
                 - Implementation
                 - QA Leadership
-              links: []
+              links: 
+                - label: Company Website
+                  url: https://www.diasoft.ru
   - type: education
     data:
       title: Education
@@ -253,68 +256,48 @@ sections:
             - title: Technologies
               url: https://github.com/trending
               icon: simple-icons:github
+              image: /uploads/about/favorites/technologies-thumbnail (Custom).jpg
             - title: Snowboarding
               url: https://www.redbull.com/us-en/snowboarding
               icon: simple-icons:snowboarding
+              image: /uploads/about/favorites/snowboarding-thumbnail (Custom).jpeg
             - title: Art
               url: https://www.artsy.net
               icon: simple-icons:artstation
+              image: /uploads/about/favorites/art-pb-thumbnail (Custom).jpg
             - title: Stand-up Comedy
               url: https://www.netflix.com/browse/genre/11559
               icon: simple-icons:netflix
+              image: /uploads/about/favorites/stand-up-thumbnail (Custom).jpg
             - title: Cooking
               url: https://www.bonappetit.com
               icon: simple-icons:chef
-        - title: People I Follow
-          type: people
-          style:
-            limit: 5
-          items:
-            - title: Joe Rogan
-              name: Joe Rogan
-              url: https://www.youtube.com/@joerogan
-              image: /uploads/about/favorites/joerogan.jpg
-            - title: Seth Rogen
-              name: Seth Rogen
-              url: https://www.instagram.com/sethrogen
-              image: /uploads/about/favorites/sethrogen.jpg
-            - title: Mark Manson
-              name: Mark Manson
-              url: https://markmanson.net
-              image: /uploads/about/favorites/markmanson.jpg
-            - title: Travis Rice
-              name: Travis Rice
-              url: https://www.instagram.com/travisrice
-              image: /uploads/about/favorites/travisrice.jpg
-            - title: Andrew Huberman
-              name: Andrew Huberman
-              url: https://www.youtube.com/@hubermanlab
-              image: /uploads/about/favorites/andrewberman.jpg
+              image: /uploads/about/favorites/cooking-thumbnail (Custom).jpg
         - title: Media I Follow
           type: medias
           style:
             limit: 5
           items:
-            - title: BBC
-              type: News
-              url: https://www.bbc.com
-              image: /uploads/about/favorites/bbc.jpeg
+            - title: Huberman Lab
+              type: Science-based optimization tools
+              url: https://www.hubermanlab.com/
+              image: /uploads/about/favorites/people-andrew-huberman (Custom).jpg
             - title: Y Combinator
               type: Accelerator
               url: https://www.ycombinator.com
-              image: /uploads/about/favorites/ycombinator.jpeg
-            - title: Red Bull Media House
-              type: Sports Media
-              url: https://www.redbull.com
-              image: /uploads/about/favorites/redbull.png
-            - title: Artsy
-              type: Art Platform
-              url: https://www.artsy.net
-              image: /uploads/about/favorites/artsy.png
-            - title: Inked Magazine
-              type: Tattoo Magazine
-              url: https://www.inkedmag.com
-              image: /uploads/about/favorites/inked.jpeg
+              image: /uploads/about/favorites/y-combinator-thumbnail.jpg
+            - title: Mark Manson
+              type: Newsletter & Podcast
+              url: https://www.youtube.com/playlist?list=PLkkA1LPpvlkjbuctKTaViIeIiZljzbqxW
+              image: /uploads/about/favorites/people-mark-manson (Custom).jpg
+            - title: ByteMonk
+              type: Tech and System Design
+              url: https://www.youtube.com/c/bytemonk
+              image: /uploads/about/favorites/media-byte-monk.jpg
+            - title: BBC
+              type: News
+              url: https://www.bbc.com
+              image: /uploads/about/favorites/bbc.jpg
         - title: Books
           type: books
           style:
@@ -323,42 +306,22 @@ sections:
             - title: How to Create Tech Products Customers Love
               author: Scott H.
               url: https://www.goodreads.com/book/show/18043039-how-to-create-tech-products-customers-love
-              image: /uploads/about/favorites/tech-products.jpeg
-            - title: Shantaram
-              author: Gregory David Roberts
-              url: https://www.goodreads.com/book/show/33600.Shantaram
-              image: /uploads/about/favorites/shantaram.jpg
+              image: /uploads/about/favorites/book-how-to-create-tech-products-customers-love (Custom).jpg
+            - title: PMBoK
+              author: Project Management Institute
+              url: https://www.goodreads.com/book/show/58682340-pmbok-guide
+              image: /uploads/about/favorites/book-pmbok-guide-hero (Custom).jpg
             - title: The Subtle Art of Not Giving a Fuck
               author: Mark Manson
               url: https://markmanson.net/books/the-subtle-art-of-not-giving-a-f
-              image: /uploads/about/favorites/subtle-art.jpeg
-            - title: Idiot
-              author: Fyodor Dostoevsky
-              url: https://www.goodreads.com/book/show/12600.The_Idiot
-              image: /uploads/about/favorites/idiot.jpeg
-            - title: Crime and Punishment
-              author: Fyodor Dostoevsky
-              url: https://www.goodreads.com/book/show/7144.Crime_and_Punishment
-              image: /uploads/about/favorites/crime-punishment.jpeg
-        - title: Movies
-          type: movies
-          style:
-            limit: 5
-          items:
-            - title: Pulp Fiction
-              url: https://www.imdb.com/title/tt0110912
-              image: /uploads/about/favorites/pulp-fiction.jpeg
-            - title: Spirited Away
-              url: https://www.imdb.com/title/tt0245429
-              image: /uploads/about/favorites/spirited-away.jpeg
-            - title: The Big Lebowski
-              url: https://www.imdb.com/title/tt0118715
-              image: /uploads/about/favorites/big-lebowski.jpeg
-            - title: Snatch
-              url: https://www.imdb.com/title/tt0208092
-              image: /uploads/about/favorites/snatch.jpeg
-            - title: Fight Club
-              url: https://www.imdb.com/title/tt0137523
-              image: /uploads/about/favorites/fight-club.jpeg
+              image: /uploads/about/favorites/mark-manson-the-subtle-art-of-not-giving-a-f-ck (Custom).jpg
+            - title: Toyota Production System
+              author: Taiichi Ohno
+              url: https://www.goodreads.com/book/show/376237.Toyota_Production_System
+              image: /uploads/about/favorites/book-toyota-tps (Custom).jpg
+            - title: The Culture Map
+              author: Erin Meyer
+              url: https://www.goodreads.com/book/show/22085568-the-culture-map
+              image: /uploads/about/favorites/book-the culture-map (Custom).jpg
 lineWidth: 0
 ---

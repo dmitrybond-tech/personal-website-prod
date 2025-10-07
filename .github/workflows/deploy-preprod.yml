@@ -71,3 +71,79 @@ jobs:
 
       - name: Show running containers
         run: docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
+
+      # Деплой на удаленную VPS через SSH
+      - name: Setup SSH for VPS deployment
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/vps_key
+          chmod 600 ~/.ssh/vps_key
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Deploying to VPS: ${{ secrets.VPS_HOST }}"
+          
+          # SSH команды для деплоя на VPS
+          ssh -i ~/.ssh/vps_key -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            set -euo pipefail
+            
+            # Переходим в директорию с compose файлом
+            cd /opt/preprod
+            
+            # Проверяем, что compose файл существует
+            if [ ! -f compose.yml ]; then
+              echo "ERROR: compose.yml not found in /opt/preprod"
+              exit 1
+            fi
+            
+            echo "=== Current compose.yml ==="
+            head -20 compose.yml
+            
+            # Логинимся в GHCR на VPS
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+            
+            # Пуллим новый образ
+            echo "Pulling latest image..."
+            docker compose pull
+            
+            # Перезапускаем сервис
+            echo "Restarting service..."
+            docker compose up -d --no-deps --force-recreate
+            
+            # Очищаем старые образы
+            docker image prune -f
+            
+            # Показываем статус
+            echo "=== Running containers ==="
+            docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
+            
+            # Проверяем здоровье сервиса
+            echo "=== Health check ==="
+            sleep 10
+            if docker ps --filter "name=preprod-website" --filter "status=running" | grep -q preprod-website; then
+              echo "✅ Service is running"
+            else
+              echo "❌ Service failed to start"
+              docker logs preprod-website || echo "No logs available"
+              exit 1
+            fi
+          EOF
+
+      - name: Verify VPS deployment
+        shell: bash
+        run: |
+          echo "Verifying deployment on VPS..."
+          ssh -i ~/.ssh/vps_key -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            # Проверяем, что сервис отвечает
+            if curl -f http://localhost:3000/ >/dev/null 2>&1; then
+              echo "✅ Website is responding on VPS"
+            else
+              echo "❌ Website is not responding"
+              exit 1
+            fi
+          EOF

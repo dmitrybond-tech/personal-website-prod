@@ -5,7 +5,7 @@ version: '3.8'
 
 services:
   website:
-    image: ghcr.io/dmitrybond-tech/personal-website-pre-prod:main
+    image: ghcr.io/dmitrybond-tech/website:main
     pull_policy: always
     container_name: preprod-website
     restart: unless-stopped
