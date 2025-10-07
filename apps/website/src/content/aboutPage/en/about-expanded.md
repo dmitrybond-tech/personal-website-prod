@@ -235,6 +235,40 @@ sections:
               bullets:
                 - Focused on software engineering, algorithms, and data structures
                 - Participated in multiple hackathons, computer science conferences while working part time along the way
+  - type: brands
+    data:
+      title: Brands & Projects
+      slug: brands
+      icon: fa6-solid:building
+      visible: true
+      items:
+        - name: CloudBlue
+          img: /uploads/logos/brand-cloudblue Custom).png
+          url: https://www.cloudblue.com
+        - name: Datacom
+          img: /uploads/logos/datacom-group-ltd-logo-vector (Custom).png
+          url: https://datacom.com
+        - name: Ingram Micro
+          img: /uploads/logos/brand-ingram-micro (Custom).png
+          url: https://www.ingrammicro.com
+        - name: Telefónica
+          img: /uploads/logos/brand-telefonica (Custom).png
+          url: https://www.telefonica.com
+        - name: Intel
+          img: /uploads/logos/brand-Intel (Custom).png
+          url: https://www.intel.com
+        - name: Microsoft
+          img: /uploads/logos/brand-Microsoft_logo_(2012) (Custom).png
+          url: https://www.microsoft.com
+        - name: Adobe
+          img: /uploads/logos/brand-Adobe_Corporate_logo (Custom).png
+          url: https://www.adobe.com
+        - name: Ricoh
+          img: /uploads/logos/brand-Ricoh (Custom).png
+          url: https://www.ricoh.com
+        - name: CDW
+          img: /uploads/logos/brand-CDW_Logo (Custom).png
+          url: https://www.cdw.com
   - type: favorites
     data:
       title: Favorites

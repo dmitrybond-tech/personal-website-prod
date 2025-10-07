@@ -6,6 +6,7 @@ import SkillsSection from './sections/SkillsSection.astro';
 import ExperienceSection from './sections/ExperienceSection.astro';
 import PortfolioSection from './sections/PortfolioSection.astro';
 import EducationSection from './sections/EducationSection.astro';
+import BrandsSection from './sections/BrandsSection.astro';
 import TestimonialsSection from './sections/TestimonialsSection.astro';
 import FavoritesSection from './sections/FavoritesSection.astro';
 
@@ -29,6 +30,7 @@ const { config, sections } = data;
         <ExperienceSection {...sections.experience} client:visible />
         <PortfolioSection {...sections.portfolio} client:visible />
         <EducationSection {...sections.education} client:visible />
+        <BrandsSection {...sections.brands} client:visible />
         <TestimonialsSection {...sections.testimonials} client:visible />
         <FavoritesSection {...sections.favorites} client:visible />
       </div>

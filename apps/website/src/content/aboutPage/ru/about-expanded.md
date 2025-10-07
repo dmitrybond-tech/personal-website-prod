@@ -236,6 +236,40 @@ sections:
               bullets:
                 - Упор на программную инженерию, алгоритмы и структуры данных
                 - Участвовал в хакатонах и научных конференциях, совмещая с частичной занятостью
+  - type: brands
+    data:
+      title: Бренды и проекты
+      slug: brands
+      icon: fa6-solid:building
+      visible: true
+      items:
+        - name: CloudBlue
+          img: /uploads/logos/brand-cloudblue Custom).png
+          url: https://www.cloudblue.com
+        - name: Datacom
+          img: /uploads/logos/datacom-group-ltd-logo-vector (Custom).png
+          url: https://datacom.com
+        - name: Ingram Micro
+          img: /uploads/logos/brand-ingram-micro (Custom).png
+          url: https://www.ingrammicro.com
+        - name: Telefónica
+          img: /uploads/logos/brand-telefonica (Custom).png
+          url: https://www.telefonica.com
+        - name: Intel
+          img: /uploads/logos/brand-Intel (Custom).png
+          url: https://www.intel.com
+        - name: Microsoft
+          img: /uploads/logos/brand-Microsoft_logo_(2012) (Custom).png
+          url: https://www.microsoft.com
+        - name: Adobe
+          img: /uploads/logos/brand-Adobe_Corporate_logo (Custom).png
+          url: https://www.adobe.com
+        - name: Ricoh
+          img: /uploads/logos/brand-Ricoh (Custom).png
+          url: https://www.ricoh.com
+        - name: CDW
+          img: /uploads/logos/brand-CDW_Logo (Custom).png
+          url: https://www.cdw.com
   - type: favorites
     data:
       title: Избранное

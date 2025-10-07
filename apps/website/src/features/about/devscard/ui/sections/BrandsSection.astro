@@ -1,0 +1,59 @@
+---
+import type { BrandsSection } from '../../types/sections/brands-section.types';
+import SectionCard from '../SectionCard.astro';
+import Photo from '../Photo.astro';
+
+export interface Props extends BrandsSection {}
+
+const { config, items } = Astro.props;
+---
+
+<SectionCard {...config}>
+  <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+    <div class="flex gap-6 pb-4">
+      {items.map((brand) => {
+        const BrandWrapper = brand.url ? 'a' : 'div';
+        const wrapperProps = brand.url ? {
+          href: brand.url,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          class: 'flex-shrink-0 transition-transform hover:scale-105'
+        } : {
+          class: 'flex-shrink-0'
+        };
+        
+        return (
+          <BrandWrapper {...wrapperProps}>
+            <div class="flex items-center justify-center h-[120px] w-auto px-4 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-md">
+              <Photo
+                src={brand.img}
+                alt={brand.name}
+                class="h-full w-auto object-contain"
+              />
+            </div>
+          </BrandWrapper>
+        );
+      })}
+    </div>
+  </div>
+</SectionCard>
+
+<style>
+  /* Custom scrollbar styles */
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600;
+    border-radius: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-500;
+  }
+</style>

@@ -8,6 +8,7 @@ import type { MainSection } from './sections/main-section.types';
 import type { PortfolioSection } from './sections/portfolio-section.types';
 import type { SkillsSection } from './sections/skills-section.types';
 import type { TestimonialsSection } from './sections/testimonials-section.types';
+import type { BrandsSection } from './sections/brands-section.types';
 
 export type Config = {
   /**
@@ -51,6 +52,11 @@ export type Sections = {
    * Your education degrees and certifications.
    */
   education: EducationSection;
+
+  /**
+   * [WEB] Brands and projects you worked with.
+   */
+  brands: BrandsSection;
 
   /**
    * [WEB] Recommendations from your previous employers and people you worked with.

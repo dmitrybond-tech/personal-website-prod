@@ -1,0 +1,135 @@
+---
+import SectionCard from '../../../components/sections/SectionCard.astro';
+import type { BrandsMarkdownSection } from '../types/markdown.types';
+
+export interface Props {
+  section: any;
+  lang: 'en' | 'ru';
+  frontmatter?: any;
+  mediaItems?: any[];
+}
+
+const { section, lang } = Astro.props;
+
+// Helper function for i18n
+const t = (obj: any, lang: 'en' | 'ru') => (typeof obj === 'object' && obj ? obj[lang] ?? obj.en ?? '' : obj ?? '');
+
+// Process the brands data
+const brandsData = section.data || {};
+const title = t(brandsData.title, lang) || 'Brands & Projects';
+const items = Array.isArray(brandsData.items) ? brandsData.items : [];
+---
+
+<SectionCard 
+  title={title}
+  hasHeaderMedia={false}
+  class="mt-6 mb-10"
+>
+  <div class="brands-container">
+    <div class="brands-scroll">
+      {items.map((brand: any) => {
+        const BrandWrapper = brand.url ? 'a' : 'div';
+        const wrapperProps = brand.url ? {
+          href: brand.url,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          class: 'brand-item brand-item--clickable'
+        } : {
+          class: 'brand-item'
+        };
+        
+        return (
+          <BrandWrapper {...wrapperProps}>
+            <div class="brand-logo">
+              <img 
+                src={brand.img} 
+                alt={brand.name}
+                class="brand-image"
+              />
+            </div>
+          </BrandWrapper>
+        );
+      })}
+    </div>
+  </div>
+</SectionCard>
+
+<style>
+  .brands-container {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+
+  .brands-scroll {
+    display: flex;
+    gap: 1.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .brand-item {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .brand-item--clickable:hover {
+    transform: scale(1.05);
+  }
+
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+    width: auto;
+    padding: 0 1rem;
+    background: transparent;
+    transition: transform 0.2s ease;
+  }
+
+  .brand-item--clickable:hover .brand-logo {
+    transform: scale(1.02);
+  }
+
+  .brand-image {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+  }
+
+  /* Custom scrollbar - matching the existing design system */
+  .brands-container::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .brands-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .brands-container::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+  }
+
+  .brands-container::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+
+  /* Dark mode - using existing design tokens */
+  @media (prefers-color-scheme: dark) {
+    .brand-logo {
+      background: transparent;
+    }
+
+    .brand-item--clickable:hover .brand-logo {
+      transform: scale(1.02);
+    }
+
+    .brands-container::-webkit-scrollbar-thumb {
+      background: #6b7280;
+    }
+
+    .brands-container::-webkit-scrollbar-thumb:hover {
+      background: #9ca3af;
+    }
+  }
+</style>

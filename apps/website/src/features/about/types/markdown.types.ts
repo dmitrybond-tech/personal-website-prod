@@ -12,7 +12,8 @@ export type MarkdownSection =
   | SkillsMarkdownSection
   | ExperienceMarkdownSection
   | EducationMarkdownSection
-  | FavoritesMarkdownSection;
+  | FavoritesMarkdownSection
+  | BrandsMarkdownSection;
 
 // Base section interface
 export interface BaseMarkdownSection {
@@ -150,6 +151,22 @@ export interface FavoritesMarkdownSection extends BaseMarkdownSection {
         icon?: string;
         image?: string;
       }>;
+    }>;
+  };
+}
+
+// Brands section
+export interface BrandsMarkdownSection extends BaseMarkdownSection {
+  type: 'brands';
+  data: {
+    title: string;
+    slug: string;
+    icon: string;
+    visible: boolean;
+    items: Array<{
+      name: string;
+      img: string;
+      url?: string;
     }>;
   };
 }

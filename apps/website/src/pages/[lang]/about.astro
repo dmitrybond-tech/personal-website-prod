@@ -175,6 +175,14 @@ const isEmpty = (section: any) => {
       }
       break;
       
+    case 'brands':
+      const brandItems = data.items || [];
+      if (brandItems.length === 0) {
+        debug('[about] skip %s (reason: empty)', type);
+        return true;
+      }
+      break;
+      
     case 'favorites':
       const favGroups = data.groups || [];
       const hasFavItems = favGroups.some((g: any) => (g.items || []).length > 0);

@@ -1,4 +1,4 @@
-import type { MarkdownSection, MainMarkdownSection, SkillsMarkdownSection, ExperienceMarkdownSection, EducationMarkdownSection, FavoritesMarkdownSection } from '../types/markdown.types';
+import type { MarkdownSection, MainMarkdownSection, SkillsMarkdownSection, ExperienceMarkdownSection, EducationMarkdownSection, FavoritesMarkdownSection, BrandsMarkdownSection } from '../types/markdown.types';
 
 // Stock image fallback URLs
 const FALLBACK_IMAGES = {
@@ -64,6 +64,9 @@ export function fromMarkdownSections(sections: unknown[]): { [key: string]: any 
           break;
         case 'favorites':
           result.favorites = mapFavoritesSection(section as FavoritesMarkdownSection);
+          break;
+        case 'brands':
+          result.brands = mapBrandsSection(section as BrandsMarkdownSection);
           break;
         default:
           console.warn(`[markdownMapper] Unknown section type: ${type}`);
@@ -232,4 +235,23 @@ function getFavoritesFallbackImage(providedImage: string | undefined, groupType:
     default:
       return fallbacks.medias; // Generic fallback
   }
+}
+
+function mapBrandsSection(section: BrandsMarkdownSection) {
+  const data = section.data;
+  
+  return {
+    type: 'brands',
+    data: {
+      title: data.title || 'Brands & Projects',
+      slug: data.slug || 'brands',
+      icon: data.icon || 'fa6-solid:building',
+      visible: data.visible !== false,
+      items: Array.isArray(data.items) ? data.items.map(item => ({
+        name: item.name || '',
+        img: item.img || '',
+        url: item.url || ''
+      })) : []
+    }
+  };
 }
