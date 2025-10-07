@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.5
 # -------- build stage --------
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
 # Install toolchain for native modules and common libs for canvas/sharp
 RUN apk add --no-cache --virtual .build-deps python3 make g++ libc6-compat \
@@ -55,7 +55,7 @@ RUN node -v && npm -v && pwd && ls -la
 RUN npm run build
     
 # -------- runtime stage (Node SSR) --------
-FROM node:20-alpine AS runtime
+FROM node:22-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3000
