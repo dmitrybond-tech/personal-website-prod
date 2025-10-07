@@ -1,0 +1,107 @@
+---
+import { createPublicUrlsDiagnosticPage } from '../../lib/cal-diagnostics';
+
+const diagnosticData = createPublicUrlsDiagnosticPage();
+
+// Only render if DEBUG_CAL is enabled
+if (!diagnosticData) {
+  return Astro.redirect('/404');
+}
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public URLs Diagnostics</title>
+  <style>
+    body { font-family: monospace; margin: 20px; background: #f5f5f5; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+    .section { margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+    .url-test { margin: 10px 0; padding: 10px; background: #f9f9f9; border-left: 3px solid #007acc; }
+    .url { color: #0066cc; word-break: break-all; }
+    .status { font-weight: bold; }
+    .success { color: #006600; }
+    .error { color: #cc0000; }
+    .pending { color: #666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔗 Public URLs Diagnostics</h1>
+    
+    <div class="section">
+      <h2>Static Asset Tests</h2>
+      <p>Testing URLs that should resolve to files in <code>public/</code> directory:</p>
+      
+      {diagnosticData.testUrls.map(url => (
+        <div class="url-test">
+          <p><strong>URL:</strong> <span class="url">{url}</span></p>
+          <p><strong>Status:</strong> <span class="status pending" id="status-{url.replace(/[^a-zA-Z0-9]/g, '_')}">Testing...</span></p>
+          <p><strong>Expected:</strong> File should exist in <code>public{url}</code></p>
+        </div>
+      ))}
+    </div>
+
+    <div class="section">
+      <h2>Test Results</h2>
+      <p id="summary">Running tests...</p>
+    </div>
+  </div>
+
+  <script>
+    // Test each URL
+    const testUrls = {diagnosticData.testUrls.map(url => `"${url}"`).join(', ')};
+    let passed = 0;
+    let failed = 0;
+
+    async function testUrl(url) {
+      const statusId = `status-${url.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const statusEl = document.getElementById(statusId);
+      
+      try {
+        const response = await fetch(url, { method: 'HEAD' });
+        if (response.ok) {
+          statusEl.textContent = '✅ 200 OK';
+          statusEl.className = 'status success';
+          passed++;
+        } else {
+          statusEl.textContent = `❌ ${response.status} ${response.statusText}`;
+          statusEl.className = 'status error';
+          failed++;
+        }
+      } catch (error) {
+        statusEl.textContent = `❌ Network Error`;
+        statusEl.className = 'status error';
+        failed++;
+      }
+      
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const total = passed + failed;
+      const summaryEl = document.getElementById('summary');
+      
+      if (total === testUrls.length) {
+        summaryEl.innerHTML = `
+          <strong>Tests Complete:</strong> 
+          <span class="success">${passed} passed</span>, 
+          <span class="error">${failed} failed</span> 
+          out of ${total} total
+        `;
+      } else {
+        summaryEl.innerHTML = `
+          <strong>Tests Running:</strong> 
+          <span class="success">${passed} passed</span>, 
+          <span class="error">${failed} failed</span>, 
+          <span class="pending">${testUrls.length - total} pending</span>
+        `;
+      }
+    }
+
+    // Start tests
+    testUrls.forEach(testUrl);
+  </script>
+</body>
+</html>

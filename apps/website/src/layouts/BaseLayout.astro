@@ -4,6 +4,7 @@ import { getLocaleFromPath, switchLocale } from '../app/shared/lib/locale';
 import { getInitialTheme, applyTheme } from '@shared/lib/theme';
 // import ThemeToggle from '@app/features/theme-toggle/ui/ThemeToggle.astro';
 import Footer from '../app/widgets/footer/ui/Footer.astro';
+import { injectCalDiagnostics } from '../lib/cal-diagnostics';
 
 interface Props {
   title?: string;
@@ -91,6 +92,20 @@ const bodyClasses = [
     {Object.entries(meta).map(([key, value]) => (
       <meta name={key} content={value} />
     ))}
+
+    <!-- Cal.com diagnostics (DEBUG_CAL mode only) -->
+    {import.meta.env.DEBUG_CAL === '1' && (
+      <script is:inline>
+        window.__APP_PUBLIC = {{
+          CAL_USERNAME: '{import.meta.env.PUBLIC_CAL_USERNAME || ''}',
+          CAL_EMBED_LINK: '{import.meta.env.PUBLIC_CAL_EMBED_LINK || ''}',
+          CAL_EVENTS: '{import.meta.env.PUBLIC_CAL_EVENTS || ''}',
+          SITE_URL: '{import.meta.env.PUBLIC_SITE_URL || ''}',
+          ENV: '{import.meta.env.PUBLIC_ENV || ''}'
+        }};
+        console.log('🔍 Cal.com Debug Info:', window.__APP_PUBLIC);
+      </script>
+    )}
 
     <!-- Font Awesome for icons - using local Iconify instead -->
   </head>

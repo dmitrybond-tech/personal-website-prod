@@ -1,5 +1,6 @@
 ---
 // apps/website/src/widgets/cal/CalBooking.astro
+import { parseCalEvents, makeCalDataLink, buildCalOverlayUrl } from '../../lib/cal';
 
 interface Props {
   locale?: 'en' | 'ru';
@@ -14,10 +15,7 @@ const baseCalLink = import.meta.env.PUBLIC_CAL_EMBED_LINK;
 const eventsString = import.meta.env.PUBLIC_CAL_EVENTS;
 
 // Парсим события из строки формата "slug|label,slug|label"
-const events = eventsString ? eventsString.split(',').map(event => {
-  const [slug, label] = event.trim().split('|');
-  return { slug: slug?.trim(), label: label?.trim() };
-}).filter(event => event.slug && event.label) : [];
+const events = parseCalEvents(eventsString || '');
 
 // Локализованные тексты
 const texts = {
@@ -60,7 +58,7 @@ const t = texts[locale];
       <div 
         id="cal-embed" 
         class="cal w-[1040px] h-[490px] max-w-full rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800"
-        data-cal-link={baseCalLink}
+        data-cal-link={events.length > 0 ? makeCalDataLink(baseCalLink, events[0].slug) : ''}
       ></div>
     </>
   ) : (
@@ -291,14 +289,18 @@ const t = texts[locale];
     }
 
     function loadEventEmbed(event) {
-      const link = `https://cal.com/${username}/${event.slug}?overlayCalendar=true&layout=month_view`;
+      // Build proper data-cal-link format: username/slug
+      const dataCalLink = `${username}/${event.slug}`;
+      
+      // Build full URL for overlay calendar
+      const overlayUrl = `https://cal.com/${username}/${event.slug}?overlayCalendar=true&layout=month_view`;
       
       // Обновляем data-cal-link атрибут
-      calEmbed.setAttribute('data-cal-link', link);
+      calEmbed.setAttribute('data-cal-link', dataCalLink);
       
       // Переключаем Cal.com embed
       if (window.Cal) {
-        window.Cal('ui', { calLink: link });
+        window.Cal('ui', { calLink: overlayUrl });
       }
     }
 

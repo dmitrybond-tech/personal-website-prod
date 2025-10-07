@@ -5,7 +5,7 @@ export const mainData = {
     slug: 'profile',
     visible: true,
   },
-  image: '/assets/my-image.jpeg',
+  image: '/my-image.jpeg',
   fullName: 'Дмитрий Б.',
   role: 'Senior Full-Stack разработчик',
   details: [
