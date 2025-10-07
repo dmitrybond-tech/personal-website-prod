@@ -14,7 +14,7 @@ export const GET: APIRoute = async () => {
           name: 'github',
           repo: 'dmitrybond-tech/personal-website-dev',          // ← впиши свой owner/repo
           branch: 'main',
-          base_url: 'http://localhost:4321'
+          base_url: process.env.PUBLIC_SITE_URL || 'http://localhost:4321'
         },
     publish_mode: 'simple',
     media_folder: `${REPO_PREFIX}public/uploads`,

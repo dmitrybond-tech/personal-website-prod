@@ -25,7 +25,7 @@ const {
 
 const url = Astro.url;
 const locale = getLocaleFromPath(url.pathname);
-const site = 'https://example.com'; // TODO: заменить на реальный домен
+const site = import.meta.env.PUBLIC_SITE_URL || 'https://example.com';
 const altEn = switchLocale(url, 'en');
 const altRu = switchLocale(url, 'ru');
 const canonical = locale === 'en' ? `${site}${altEn}` : `${site}${altRu}`;
