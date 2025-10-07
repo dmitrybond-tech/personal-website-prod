@@ -24,14 +24,25 @@ jobs:
         run: |
           echo "IMAGE_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
+      - name: Load defaults from .env.build (optional)
+        shell: bash
+        run: |
+          if [ -f .env.build ]; then
+            set -a; . ./.env.build; set +a
+            echo "PUBLIC_CAL_USERNAME=${PUBLIC_CAL_USERNAME}" >> $GITHUB_ENV || true
+            echo "PUBLIC_CAL_EMBED_LINK=${PUBLIC_CAL_EMBED_LINK}" >> $GITHUB_ENV || true
+            echo "PUBLIC_CAL_EVENTS=${PUBLIC_CAL_EVENTS}" >> $GITHUB_ENV || true
+            echo "PUBLIC_SITE_URL=${PUBLIC_SITE_URL}" >> $GITHUB_ENV || true
+            echo "PUBLIC_ENV=${PUBLIC_ENV}" >> $GITHUB_ENV || true
+            echo "PUBLIC_DECAP_CMS_VERSION=${PUBLIC_DECAP_CMS_VERSION}" >> $GITHUB_ENV || true
+          fi
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.repository_owner }}
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          # For self-hosted runners, keep login between jobs/runs:
-          logout: false
 
       - name: Docker meta
         id: meta
@@ -41,9 +52,8 @@ jobs:
           tags: |
             type=sha,prefix=sha-
             type=ref,event=branch
+            type=raw,value=main,enable={{is_default_branch}}
             type=raw,value=latest,enable={{is_default_branch}}
-          labels: |
-            org.opencontainers.image.revision=${{ github.sha }}
 
       - name: Build & Push
         uses: docker/build-push-action@v6
@@ -54,3 +64,13 @@ jobs:
           labels: |
             ${{ steps.meta.outputs.labels }}
             org.opencontainers.image.revision=${{ github.sha }}
+          build-args: |
+            PUBLIC_CAL_USERNAME=${{ vars.PUBLIC_CAL_USERNAME || env.PUBLIC_CAL_USERNAME }}
+            PUBLIC_CAL_EMBED_LINK=${{ vars.PUBLIC_CAL_EMBED_LINK || env.PUBLIC_CAL_EMBED_LINK }}
+            PUBLIC_CAL_EVENTS=${{ vars.PUBLIC_CAL_EVENTS || env.PUBLIC_CAL_EVENTS }}
+            PUBLIC_SITE_URL=${{ vars.PUBLIC_SITE_URL || env.PUBLIC_SITE_URL }}
+            PUBLIC_ENV=${{ vars.PUBLIC_ENV || env.PUBLIC_ENV }}
+            PUBLIC_DECAP_CMS_VERSION=${{ vars.PUBLIC_DECAP_CMS_VERSION || env.PUBLIC_DECAP_CMS_VERSION }}
+            GIT_SHA=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
