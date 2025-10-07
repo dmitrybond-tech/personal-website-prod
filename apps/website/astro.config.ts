@@ -34,7 +34,7 @@ const eff = process.env.GITHUB_CLIENT_ID || '';
 console.log('[DECAP EFFECTIVE OAuthApp client_id]', eff ? eff.slice(0,8) + '…' : '[missing]');
 
 export default defineConfig({
-  site: 'http://localhost:4321',
+  site: process.env.PUBLIC_SITE_URL || 'http://localhost:4321',
   output: 'server',
   adapter: node({ mode: 'standalone' }),
   devToolbar: { enabled: false },

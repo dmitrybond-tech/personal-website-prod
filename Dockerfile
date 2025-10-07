@@ -69,6 +69,7 @@ ENV APP_BUILD_SHA=$GIT_SHA
 COPY --from=build /app/apps/website/package*.json ./ 
 COPY --from=build /app/apps/website/node_modules ./node_modules
 COPY --from=build /app/apps/website/dist ./dist
+COPY --from=build /app/apps/website/public ./public
     
 EXPOSE 3000
 CMD ["node","dist/server/entry.mjs"]
