@@ -60,7 +60,7 @@ export function createPublicUrlsDiagnosticPage() {
       '/my-image.jpeg',
       '/devscard/my-image.jpeg',
       '/uploads/logos/datacom-group-ltd-logo.png',
-      '/uploads/placeholders/avatar.svg',
+      '/uploads/placeholders/avatar.png',
       '/favorites/books/book-1.jpeg',
       '/logos/amazon-web-services-logo.svg.png'
     ]

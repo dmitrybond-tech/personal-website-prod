@@ -9,7 +9,7 @@ sections:
       visible: true
       fullName: Дмитрий Бондаренко
       role: Технический менеджер проектов
-      image: /uploads/placeholders/avatar.svg
+      image: /uploads/placeholders/avatar.png
       description: |
         Вы попали на мою страницу не случайно, я уверен. Если вы уже знаете, что ищете, смело переходите на мою страницу BookMe и проверьте мою доступность. В противном случае, уделите немного времени моему блогу, где я делюсь размышлениями о технологиях, жизни и всем остальном.
         Но если мы еще не знакомы, позвольте представиться. Я опытный IT-энтузиаст и технический менеджер проектов с более чем восьмилетним опытом работы с крупными предприятиями и управления сложными программными продуктами. Здесь вы найдете краткий обзор моих навыков, некоторые из моих любимых вещей и даже адаптированное резюме, которое можно скачать прямо под моей фотографией.
@@ -247,7 +247,7 @@ sections:
           img: /uploads/logos/brand-cloudblue Custom).png
           url: https://www.cloudblue.com
         - name: Datacom
-          img: /uploads/logos/datacom-group-ltd-logo-vector (Custom).png
+          img: /uploads/logos/brand-datacom-logo (Custom).png
           url: https://datacom.com
         - name: Ingram Micro
           img: /uploads/logos/brand-ingram-micro (Custom).png

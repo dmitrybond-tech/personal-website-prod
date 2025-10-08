@@ -22,6 +22,8 @@ const { title, data } = Astro.props;
           src={item.image}
           alt={item.title || item.name}
           class="w-full h-24 object-cover rounded"
+          width={96}
+          height={96}
         />
         <div class="text-center">
           <Typography variant="tile-title" class="text-xs leading-tight">

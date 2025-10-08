@@ -11,6 +11,7 @@
     "port:kill:8081": "powershell -NoProfile -Command \"$p=(Get-NetTCPConnection -LocalPort 8081 -ErrorAction SilentlyContinue).OwningProcess; if($p){Stop-Process -Id $p -Force}\"",
     "clean:cache": "powershell -NoProfile -Command \"Remove-Item -Recurse -Force .astro, node_modules\\.vite -ErrorAction SilentlyContinue\"",
     "del:cache": "npm run port:kill:4321 && npm run port:kill:8081 && npm run clean:cache",
+    "prebuild": "node scripts/build-iconify-bundle.mjs",
     "build": "astro build",
     "preview": "astro preview --host --port 4321",
     "check": "tsc -p . --noEmit",

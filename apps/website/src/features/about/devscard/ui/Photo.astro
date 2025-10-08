@@ -16,8 +16,8 @@ const isRemoteImage = typeof src === 'string';
 
 {
   isRemoteImage ? (
-    <img src={src} {...props} />
+    <img src={src} loading="lazy" decoding="async" {...props} />
   ) : (
-    <img src={src} {...props} />
+    <img src={src} loading="lazy" decoding="async" {...props} />
   )
 }

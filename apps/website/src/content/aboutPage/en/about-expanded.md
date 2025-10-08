@@ -9,7 +9,7 @@ sections:
       visible: true
       fullName: Dmitry Bondarenko
       role: Technical Project Manager
-      image: /uploads/placeholders/avatar.svg
+      image: /uploads/placeholders/avatar.png
       description: |
         You've landed on my page for a reason, I believe. If you already know what you're looking for, feel free to jump straight to my BookMe page and check my availability. Otherwise, take a moment to browse my blog where I share reflections on tech, life, and everything in between. But if we haven't met yet, let me introduce myself. I'm a seasoned IT enthusiast and Technical Project Manager with more than eight years of experience working with large enterprises and navigating complex software products. Here you'll find a snapshot of my skills, some of my favorite things, and even a tailored CV you can download just below my picture.
       details:
@@ -246,7 +246,7 @@ sections:
           img: /uploads/logos/brand-cloudblue Custom).png
           url: https://www.cloudblue.com
         - name: Datacom
-          img: /uploads/logos/datacom-group-ltd-logo-vector (Custom).png
+          img: /uploads/logos/brand-datacom-logo (Custom).png
           url: https://datacom.com
         - name: Ingram Micro
           img: /uploads/logos/brand-ingram-micro (Custom).png

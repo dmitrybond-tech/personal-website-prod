@@ -59,7 +59,7 @@ export default function HeroIsland({
       {/* Avatar with Download CV button */}
       <div className="flex-shrink-0 flex flex-col items-center">
         <div
-          className="relative rounded-2xl overflow-hidden border"
+          className="relative rounded-2xl overflow-hidden"
           style={{ width: `${avatarWidth}px`, height: `${avatarHeight}px` }}
         >
           {avatar ? (
