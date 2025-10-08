@@ -1,13 +1,13 @@
 // /public/website-admin/config-loader.js
 
-// Block static config.yml to prevent duplicate collections
+// Block all static config.yml files to prevent duplicate collections
 (function hardBlockDefaultConfig() {
   const orig = window.fetch;
   window.fetch = function(url, opts) {
     try {
       const str = typeof url === 'string' ? url : (url?.url || '');
-      // Блокируем статический config.yml, но разрешаем API endpoint
-      if (str.includes('/website-admin/config.yml') && !str.includes('/api/')) {
+      // Блокируем все статические config.yml файлы, но разрешаем API endpoint
+      if (str.includes('config.yml') && !str.includes('/api/')) {
         console.warn('[cms] Blocked fetch to static config.yml:', str);
         return Promise.resolve(new Response('', { status: 404 }));
       }
