@@ -67,14 +67,14 @@ For local development, add additional callback URLs:
 
 ### Decap CMS Config
 
-The main configuration is in `apps/website/public/website-admin/config.yml`:
+The configuration is dynamically generated via API endpoint `/api/website-admin/config.yml` which reads from environment variables:
 
 ```yaml
 backend:
   name: github
   repo: dmitrybond-tech/personal-website-pre-prod
   branch: main
-  base_url: ${PUBLIC_SITE_URL}
+  base_url: https://pre-prod.dmitrybond.tech  # From PUBLIC_SITE_URL
   auth_endpoint: /api/decap/oauth
 ```
 

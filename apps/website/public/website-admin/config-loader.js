@@ -19,8 +19,8 @@
 const qs = new URLSearchParams(location.search);
 const param = qs.get('config');
 
-// Force load only generated config
-const FORCE_CONFIG_PATH = '/website-admin/config.generated.yml';
+// Force load only generated config via API
+const FORCE_CONFIG_PATH = '/api/website-admin/config.yml';
 
 async function fileExists(url) {
   try {
@@ -33,10 +33,8 @@ async function resolvePath() {
   // If param is explicitly set, use it (but still block if it's config.yml)
   if (param && param !== '/website-admin/config.yml') return param;
   
-  // Always prefer generated config
-  if (await fileExists(FORCE_CONFIG_PATH)) return FORCE_CONFIG_PATH;
-  
-  console.warn('[cms] Generated config not found, falling back to force path');
+  // Always use API-generated config
+  console.info('[cms] Using API-generated config from', FORCE_CONFIG_PATH);
   return FORCE_CONFIG_PATH;
 }
 

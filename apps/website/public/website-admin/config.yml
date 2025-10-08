@@ -2,8 +2,7 @@ backend:
   name: github
   repo: dmitrybond-tech/personal-website-pre-prod
   branch: main
-  base_url: ${PUBLIC_SITE_URL}
-  auth_endpoint: /api/decap/oauth
+  # base_url and auth_endpoint are now dynamically generated via API
 publish_mode: simple
 media_folder: apps/website/public/uploads
 public_folder: /uploads

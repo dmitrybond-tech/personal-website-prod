@@ -23,18 +23,18 @@ Successfully implemented self-hosted GitHub OAuth authentication for Decap CMS, 
 
 ### 2. Updated Decap CMS Configuration
 
-**File**: `apps/website/public/website-admin/config.yml`
-```yaml
-backend:
-  name: github
-  repo: dmitrybond-tech/personal-website-pre-prod
-  branch: main
-  base_url: ${PUBLIC_SITE_URL}
-  auth_endpoint: /api/decap/oauth  # ← New self-hosted OAuth endpoint
-```
+**File**: `apps/website/src/pages/api/website-admin/config.yml.ts`
+- Enhanced to dynamically generate configuration from environment variables
+- Reads `PUBLIC_SITE_URL`, `DECAP_GITHUB_REPO`, `DECAP_GITHUB_BRANCH`
+- Automatically sets `base_url` and `auth_endpoint` based on environment
 
-**File**: `apps/website/public/website-admin/config.generated.yml`
-- Updated with same OAuth configuration
+**File**: `apps/website/public/website-admin/config-loader.js`
+- Updated to use API-generated configuration instead of static files
+- Now loads config from `/api/website-admin/config.yml` endpoint
+- Eliminates variable interpolation issues in static YAML files
+
+**Files**: `config.yml` and `config.generated.yml`
+- Removed variable placeholders (now handled by API)
 - Maintains development mode with `local_backend` for decap-server proxy
 
 ### 3. Enhanced Environment Configuration

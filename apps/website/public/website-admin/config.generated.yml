@@ -2,8 +2,7 @@ backend:
   name: github
   repo: dmitrybond-tech/personal-website-pre-prod
   branch: main
-  base_url: ${PUBLIC_SITE_URL}
-  auth_endpoint: /api/decap/oauth
+  # base_url and auth_endpoint are now dynamically generated via API
 local_backend:
   url: http://localhost:8081
   allowed_hosts:

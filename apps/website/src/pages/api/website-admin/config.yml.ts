@@ -5,6 +5,9 @@ export const prerender = false;
 export const GET: APIRoute = async () => {
   const IS_LOCAL = process.env.DECAP_LOCAL_BACKEND === 'true';
   const REPO_PREFIX = IS_LOCAL ? '' : 'apps/website/';
+  const siteUrl = process.env.PUBLIC_SITE_URL || 'http://localhost:4321';
+  const repo = process.env.DECAP_GITHUB_REPO || 'dmitrybond-tech/personal-website-pre-prod';
+  const branch = process.env.DECAP_GITHUB_BRANCH || 'main';
 
   const config = {
     ...(IS_LOCAL ? { local_backend: true } : {}),
@@ -12,9 +15,10 @@ export const GET: APIRoute = async () => {
       ? { name: 'test-repo' } // локалка пишет через decap-server в ФС
       : {
           name: 'github',
-          repo: 'dmitrybond-tech/personal-website-dev',          // ← впиши свой owner/repo
-          branch: 'main',
-          base_url: process.env.PUBLIC_SITE_URL || 'http://localhost:4321'
+          repo: repo,
+          branch: branch,
+          base_url: siteUrl,
+          auth_endpoint: '/api/decap/oauth'
         },
     publish_mode: 'simple',
     media_folder: `${REPO_PREFIX}public/uploads`,
