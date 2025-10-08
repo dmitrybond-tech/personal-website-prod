@@ -1,222 +1,119 @@
-# Decap CMS GitHub OAuth Authentication
-
-This document describes the self-hosted GitHub OAuth authentication setup for Decap CMS on the personal website.
+# Decap CMS OAuth Authentication Setup
 
 ## Overview
 
-The Decap CMS admin interface at `/website-admin` uses self-hosted GitHub OAuth endpoints instead of Netlify's git-gateway. This provides full control over the authentication flow and eliminates dependencies on external services.
+This project uses **separate GitHub OAuth Apps** for different authentication purposes:
 
-## Architecture
+1. **Auth.js OAuth App**: For site user authentication
+2. **Decap CMS OAuth App**: For content management authentication
 
-### OAuth Flow
+## Required Environment Variables
 
-1. **Authorization**: User clicks "Login with GitHub" → redirects to `/api/decap/oauth/authorize`
-2. **GitHub OAuth**: Server redirects to GitHub OAuth with proper scopes and state
-3. **Callback**: GitHub redirects back to `/api/decap/oauth/callback` with authorization code
-4. **Token Exchange**: Server exchanges code for access token and returns it to Decap CMS
-5. **Authentication**: Decap CMS receives token and authenticates with GitHub API
-
-### Security Features
-
-- **CSRF Protection**: Signed state parameter with HMAC-SHA256
-- **Secure Cookies**: HttpOnly, Secure (in production), SameSite=Lax
-- **Short-lived State**: 5-minute expiry for OAuth state cookies
-- **Timing-safe Comparison**: Prevents timing attacks on state validation
-
-## Environment Variables
-
-### Required Variables
-
+### Auth.js Configuration
 ```bash
-# GitHub OAuth App credentials
-DECAP_GITHUB_CLIENT_ID=your_github_oauth_app_client_id
-DECAP_GITHUB_CLIENT_SECRET=your_github_oauth_app_client_secret
+# Auth.js OAuth App credentials
+AUTHJS_GITHUB_CLIENT_ID=your_authjs_client_id
+AUTHJS_GITHUB_CLIENT_SECRET=your_authjs_client_secret
 
-# Site configuration
-PUBLIC_SITE_URL=https://pre-prod.dmitrybond.tech
-DECAP_GITHUB_REPO=dmitrybond-tech/personal-website-pre-prod
-DECAP_GITHUB_BRANCH=main
+# Auth.js settings
+AUTH_URL=http://localhost:4321
+AUTH_TRUST_HOST=true
+AUTH_SECRET=your-random-32-plus-character-secret-here
 ```
 
-### Optional Variables
-
+### Decap CMS Configuration
 ```bash
-# OAuth state signing secret (for CSRF protection)
+# Decap CMS OAuth App credentials
+DECAP_GITHUB_CLIENT_ID=your_decap_client_id
+DECAP_GITHUB_CLIENT_SECRET=your_decap_client_secret
+
+# Decap CMS settings
+DECAP_GITHUB_REPO=dmitrybond-tech/personal-website-pre-prod
+DECAP_GITHUB_BRANCH=main
+PUBLIC_SITE_URL=https://pre-prod.dmitrybond.tech
+
+# Optional: OAuth state signing secret (for CSRF protection)
 DECAP_OAUTH_STATE_SECRET=change_me_long_random
 ```
 
-## GitHub OAuth App Configuration
+## GitHub OAuth App Setup
 
-### Required Settings
+### 1. Auth.js OAuth App (Site Login)
+- **Name**: "Auth.js Site Login"
+- **Homepage URL**: `https://pre-prod.dmitrybond.tech`
+- **Authorization callback URL**: `https://pre-prod.dmitrybond.tech/api/auth/callback/github`
+- **Scopes**: `user:email` (minimal for site login)
 
-1. **Application Name**: `Personal Website CMS`
-2. **Homepage URL**: `https://pre-prod.dmitrybond.tech`
-3. **Authorization Callback URL**: `https://pre-prod.dmitrybond.tech/api/decap/oauth/callback`
+### 2. Decap CMS OAuth App (Content Management)
+- **Name**: "Decap CMS Admin"
+- **Homepage URL**: `https://pre-prod.dmitrybond.tech`
+- **Authorization callback URL**: `https://pre-prod.dmitrybond.tech/api/decap/oauth/callback`
+- **Scopes**: `repo` (full repository access for content management)
 
-### Required Scopes
+## OAuth Flow
 
-- `repo` - Full access to repositories (required for Decap CMS to read/write content)
+### Auth.js Flow
+1. User clicks "Login" on site
+2. Redirects to `/api/auth/callback/github`
+3. Auth.js handles the OAuth flow
+4. User is authenticated for site features
 
-### Development Setup
+### Decap CMS Flow
+1. User opens `/website-admin`
+2. Clicks "Login with GitHub"
+3. Redirects to `/api/decap/oauth/authorize`
+4. Our custom endpoint redirects to GitHub OAuth
+5. GitHub redirects to `/api/decap/oauth/callback`
+6. Our custom endpoint exchanges code for token
+7. Token is sent to Decap CMS for content management
 
-For local development, add additional callback URLs:
-- `http://localhost:4321/api/decap/oauth/callback`
-- `https://your-tunnel-url.ngrok.io/api/decap/oauth/callback`
+## Security Features
 
-## Configuration Files
-
-### Decap CMS Config
-
-The configuration is dynamically generated via API endpoint `/api/website-admin/config.yml` which reads from environment variables:
-
-```yaml
-backend:
-  name: github
-  repo: dmitrybond-tech/personal-website-pre-prod
-  branch: main
-  base_url: https://pre-prod.dmitrybond.tech  # From PUBLIC_SITE_URL
-  auth_endpoint: /api/decap/oauth
-```
-
-### Development vs Production
-
-- **Development**: Uses `local_backend: true` with decap-server proxy on port 8081
-- **Production**: Uses `local_backend: false` with self-hosted OAuth endpoints
-
-## API Endpoints
-
-### `/api/decap/oauth/authorize`
-
-**Method**: GET  
-**Purpose**: Initiates GitHub OAuth flow
-
-**Response**: 302 redirect to GitHub OAuth with:
-- `client_id`: GitHub OAuth App client ID
-- `redirect_uri`: Callback URL
-- `state`: Signed state parameter for CSRF protection
-- `scope`: `repo` (required for repository access)
-
-### `/api/decap/oauth/callback`
-
-**Method**: GET  
-**Purpose**: Handles GitHub OAuth callback
-
-**Parameters**:
-- `code`: Authorization code from GitHub
-- `state`: State parameter for validation
-
-**Response**: HTML page that posts token back to Decap CMS opener window
-
-## Security Considerations
-
-### State Parameter Security
-
-The OAuth state parameter is protected against CSRF attacks:
-
-1. **Generation**: Random 32-character string using `nanoid`
-2. **Signing**: HMAC-SHA256 signature with server secret
-3. **Storage**: Signed state stored in httpOnly cookie
-4. **Validation**: Timing-safe comparison of signatures
-5. **Expiry**: 5-minute maximum lifetime
-
-### Cookie Security
-
-OAuth state cookies are configured with security best practices:
-
-```javascript
-{
-  httpOnly: true,           // Prevent XSS access
-  secure: production,       // HTTPS only in production
-  sameSite: 'lax',         // CSRF protection
-  maxAge: 5 * 60,          // 5 minutes expiry
-  path: '/'                // Site-wide scope
-}
-```
+- **CSRF Protection**: Signed state cookies with short expiration (5 minutes)
+- **Separate OAuth Apps**: No credential sharing between Auth.js and Decap CMS
+- **Secure Cookies**: `HttpOnly`, `Secure`, `SameSite=Lax`
+- **State Validation**: Server-side state verification
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **"OAuth configuration missing"**
-   - Ensure `DECAP_GITHUB_CLIENT_ID` and `DECAP_GITHUB_CLIENT_SECRET` are set
-   - Check environment variable loading
+1. **404 on OAuth endpoints**: Check that custom endpoints are deployed
+2. **Invalid callback URL**: Verify GitHub OAuth App callback URLs match exactly
+3. **State mismatch**: Check `DECAP_OAUTH_STATE_SECRET` is set and consistent
+4. **Collection conflicts**: Ensure only API-generated config is loaded
 
-2. **"State signature mismatch"**
-   - Verify `DECAP_OAUTH_STATE_SECRET` is consistent across requests
-   - Check for clock skew between client and server
+### Verification Checklist
 
-3. **"Token exchange failed"**
-   - Verify GitHub OAuth App configuration
-   - Check callback URL matches exactly
-   - Ensure OAuth App has correct scopes
+- [ ] Two separate GitHub OAuth Apps created
+- [ ] Callback URLs match exactly (including https/http)
+- [ ] Environment variables set correctly
+- [ ] OAuth endpoints return 302 redirects (not 404)
+- [ ] Decap CMS loads without collection conflicts
+- [ ] Both Auth.js and Decap CMS can authenticate independently
 
-4. **"No access token"**
-   - Check GitHub OAuth App is not rate-limited
-   - Verify client credentials are correct
+## Development vs Production
 
-### Debug Endpoints
+### Development
+- Uses `local_backend: true` for Decap CMS
+- OAuth endpoints still work for testing
+- Auth.js uses localhost URLs
 
-- `/api/oauth/health` - Check OAuth configuration status
-- `/api/oauth/whoami` - Verify token and user information
+### Production
+- Uses GitHub backend for Decap CMS
+- Full OAuth flow with production URLs
+- Both authentication systems work independently
 
-### Logs
+## Rotating Secrets
 
-OAuth errors are logged to the server console with the prefix `[decap-oauth]`.
+1. **Update GitHub OAuth App secrets** in GitHub settings
+2. **Update environment variables** with new secrets
+3. **Restart application** to pick up new credentials
+4. **Test both authentication flows** to ensure they work
 
-## Migration from Netlify
+## API Endpoints
 
-This setup replaces any Netlify git-gateway configuration:
-
-### Removed
-- `site_id` configuration
-- `git-gateway` backend
-- Netlify Identity scripts
-- External OAuth dependencies
-
-### Added
-- Self-hosted OAuth endpoints
-- CSRF protection
-- Secure state management
-- Full control over authentication flow
-
-## Dependencies
-
-### Required Packages
-
-```json
-{
-  "cookie": "0.6.0",
-  "nanoid": "5.0.7"
-}
-```
-
-### Built-in Dependencies
-
-- `node:crypto` - HMAC-SHA256 signing
-- `fetch` - HTTP requests to GitHub API
-
-## Maintenance
-
-### Secret Rotation
-
-To rotate the OAuth state secret:
-
-1. Update `DECAP_OAUTH_STATE_SECRET` environment variable
-2. Restart the application
-3. Existing OAuth sessions will be invalidated (expected behavior)
-
-### GitHub OAuth App Updates
-
-When updating GitHub OAuth App settings:
-
-1. Update callback URLs if domain changes
-2. Verify required scopes are maintained
-3. Test authentication flow after changes
-
-### Monitoring
-
-Monitor for:
-- OAuth error rates
-- Failed authentication attempts
-- Token exchange failures
-- State validation errors
+- `GET /api/decap/oauth/authorize` - Initiates Decap CMS OAuth flow
+- `GET /api/decap/oauth/callback` - Handles GitHub OAuth callback
+- `GET /api/website-admin/config.yml` - Dynamic Decap CMS configuration
+- `GET /api/auth/callback/github` - Auth.js OAuth callback (handled by Auth.js)

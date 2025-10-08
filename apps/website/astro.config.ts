@@ -22,16 +22,13 @@ if (DEV) {
 }
 
 const HAS_DECAP = !!(process.env.DECAP_GITHUB_CLIENT_ID && process.env.DECAP_GITHUB_CLIENT_SECRET);
+const HAS_AUTHJS = !!(process.env.AUTHJS_GITHUB_CLIENT_ID && process.env.AUTHJS_GITHUB_CLIENT_SECRET);
 
-// Force Decap → OAuth App
-if (process.env.DECAP_GITHUB_CLIENT_ID && process.env.DECAP_GITHUB_CLIENT_SECRET) {
-  process.env.GITHUB_CLIENT_ID = process.env.DECAP_GITHUB_CLIENT_ID;
-  process.env.GITHUB_CLIENT_SECRET = process.env.DECAP_GITHUB_CLIENT_SECRET;
+// Log OAuth App configurations for debugging
+if (DEV) {
+  console.log('[AUTHJS] client_id:', process.env.AUTHJS_GITHUB_CLIENT_ID ? process.env.AUTHJS_GITHUB_CLIENT_ID.slice(0,8) + '…' : '[missing]');
+  console.log('[DECAP ] client_id:', process.env.DECAP_GITHUB_CLIENT_ID ? process.env.DECAP_GITHUB_CLIENT_ID.slice(0,8) + '…' : '[missing]');
 }
-
-// Dev log for OAuth App client_id verification
-const eff = process.env.GITHUB_CLIENT_ID || '';
-console.log('[DECAP EFFECTIVE OAuthApp client_id]', eff ? eff.slice(0,8) + '…' : '[missing]');
 
 export default defineConfig({
   site: process.env.PUBLIC_SITE_URL || 'http://localhost:4321',
@@ -53,13 +50,14 @@ export default defineConfig({
   integrations: [
     react(),
     auth(),
-    decapCmsOAuth({
-      adminRoute: '/website-admin',
-      oauthLoginRoute: '/oauth',
-      oauthCallbackRoute: '/oauth/callback',
-      oauthDisabled: !HAS_DECAP, // ← disable gracefully if creds missing
-      adminDisabled: false,
-    }),
+    // decapCmsOAuth disabled - using custom OAuth endpoints instead
+    // decapCmsOAuth({
+    //   adminRoute: '/website-admin',
+    //   oauthLoginRoute: '/oauth',
+    //   oauthCallbackRoute: '/oauth/callback',
+    //   oauthDisabled: !HAS_DECAP,
+    //   adminDisabled: false,
+    // }),
   ],
   vite: {
     plugins: [
