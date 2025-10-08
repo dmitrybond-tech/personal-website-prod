@@ -1,20 +1,6 @@
 // /public/website-admin/config-loader.js
 
-// Hard block any attempts to fetch default config.yml
-(function hardBlockDefaultConfig() {
-  const orig = window.fetch;
-  window.fetch = function(url, opts) {
-    try {
-      const str = typeof url === 'string' ? url : (url?.url || '');
-      // блокируем любые попытки трогать default config.yml
-      if (str.includes('/website-admin/config.yml') || str.includes('/api/website-admin/config.yml')) {
-        console.warn('[cms] Blocked fetch to default config.yml:', str);
-        return Promise.resolve(new Response('', { status: 404 }));
-      }
-    } catch {}
-    return orig.apply(this, arguments);
-  };
-})();
+// Allow all config files to work - no blocking
 
 const qs = new URLSearchParams(location.search);
 const param = qs.get('config');

@@ -34,8 +34,14 @@ Successfully implemented self-hosted GitHub OAuth authentication for Decap CMS, 
 - Eliminates variable interpolation issues in static YAML files
 
 **Files**: `config.yml` and `config.generated.yml`
+- Simplified to blog-only configuration
 - Removed variable placeholders (now handled by API)
 - Maintains development mode with `local_backend` for decap-server proxy
+
+**File**: `config-loader.js`
+- Removed blocking of static config files
+- Now allows both API and static config files to work
+- Uses API endpoint for dynamic configuration generation
 
 ### 3. Enhanced Environment Configuration
 

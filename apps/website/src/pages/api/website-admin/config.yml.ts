@@ -23,45 +23,25 @@ export const GET: APIRoute = async () => {
     publish_mode: 'simple',
     media_folder: `${REPO_PREFIX}public/uploads`,
     public_folder: '/uploads',
-    // ВЫРОВНЯЙ ПУТИ ПОД ФАКТ — см. шаг 4
     collections: [
       {
-        name: 'posts_en',
-        label: 'Blog Posts (EN)',
-        folder: `${REPO_PREFIX}src/content/posts/en`,
+        name: 'posts',
+        label: 'Blog posts',
+        folder: `${REPO_PREFIX}src/content/posts`,
         create: true,
+        format: 'frontmatter',
         extension: 'md',
+        slug: '{{slug}}',
+        path: '{{locale}}/{{slug}}',
+        i18n: true,
         fields: [
-          { label: 'Title', name: 'title', widget: 'string' },
-          { label: 'Date',  name: 'date',  widget: 'datetime' },
-          { label: 'Body',  name: 'body',  widget: 'markdown' }
-        ]
-      },
-      {
-        name: 'posts_ru',
-        label: 'Блог посты (RU)',
-        folder: `${REPO_PREFIX}src/content/posts/ru`,
-        create: true,
-        extension: 'md',
-        fields: [
-          { label: 'Заголовок', name: 'title', widget: 'string' },
-          { label: 'Дата', name: 'date', widget: 'datetime' },
-          { label: 'Текст', name: 'body', widget: 'markdown' }
-        ]
-      },
-      {
-        name: 'blog_en',
-        label: 'Blog (EN) - New Structure',
-        folder: `${REPO_PREFIX}src/content/en/blog`,
-        create: true,
-        extension: 'md',
-        fields: [
-          { label: 'Title', name: 'title', widget: 'string' },
-          { label: 'Date',  name: 'date',  widget: 'datetime' },
-          { label: 'Body',  name: 'body',  widget: 'markdown' }
+          { label: 'Title', name: 'title', widget: 'string', i18n: 'translate', required: false, default: '' },
+          { label: 'Date', name: 'date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: false, default: '{{now}}', i18n: false },
+          { label: 'Draft', name: 'draft', widget: 'boolean', default: false, i18n: false },
+          { label: 'Description', name: 'description', widget: 'text', required: false, i18n: 'translate' },
+          { label: 'Body', name: 'body', widget: 'markdown', i18n: 'translate' }
         ]
       }
-      // добавишь остальные коллекции аналогично
     ]
   };
 
