@@ -39,9 +39,10 @@ Successfully implemented self-hosted GitHub OAuth authentication for Decap CMS, 
 - Maintains development mode with `local_backend` for decap-server proxy
 
 **File**: `config-loader.js`
-- Removed blocking of static config files
-- Now allows both API and static config files to work
+- Added selective blocking of static config files to prevent duplicate collections
+- Blocks `/website-admin/config.yml` but allows `/api/website-admin/config.yml`
 - Uses API endpoint for dynamic configuration generation
+- Prevents "collections names must be unique" error
 
 ### 3. Enhanced Environment Configuration
 
