@@ -206,7 +206,7 @@ sections:
             - title: Implementation Engineer
               period: Sep 2016 – Jun 2018
               bullets:
-                - 'Delivered end-to-end implementation of core banking systems and satellite modules: >- deployment, configuration, SIT/UAT coordination, and post-launch support.'
+                - 'Delivered end-to-end implementation of core banking systems and satellite modules: deployment, configuration, SIT/UAT coordination, and post-launch support.'
                 - Translated business requirements into technical specifications in collaboration with front office, IT, and compliance stakeholders.
                 - Prepared SRS and localized technical materials; contributed to international rollout across Southeast Asia.
                 - Acted as QA lead during acceptance and mentored junior engineers within the implementation team.
@@ -246,7 +246,7 @@ sections:
           img: /uploads/logos/brand-cloudblue Custom).png
           url: https://www.cloudblue.com
         - name: Datacom
-          img: /uploads/logos/brand-datacom-logo (Custom).png
+          img: /uploads/logos/brand-datacom-logo-edited (Custom).png
           url: https://datacom.com
         - name: Ingram Micro
           img: /uploads/logos/brand-ingram-micro (Custom).png
@@ -255,13 +255,13 @@ sections:
           img: /uploads/logos/brand-telefonica (Custom).png
           url: https://www.telefonica.com
         - name: Intel
-          img: /uploads/logos/brand-Intel (Custom).png
+          img: /uploads/logos/brand-Intel-copy-edited (Custom).png
           url: https://www.intel.com
         - name: Microsoft
-          img: /uploads/logos/brand-Microsoft_logo_(2012) (Custom).png
+          img: /uploads/logos/brand-Microsoft_logo_(2012)-edited (Custom).png
           url: https://www.microsoft.com
         - name: Adobe
-          img: /uploads/logos/brand-Adobe_Corporate_logo (Custom).png
+          img: /uploads/logos/brand-Adobe_Corporate_logo-edited (Custom).png
           url: https://www.adobe.com
         - name: Ricoh
           img: /uploads/logos/brand-Ricoh (Custom).png

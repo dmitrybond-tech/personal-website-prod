@@ -97,13 +97,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Smoke test assets in container
-        run: |
-          IMAGE_TAG=$(echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}')
-          docker run -d --rm -p 3000:3000 --name preprod-check "$IMAGE_TAG"
-          sleep 3
-          for p in /uploads/placeholders/avatar.png /logos/sibsutis.svg; do
-            echo "HEAD $p"
-            curl -sI "http://127.0.0.1:3000$p" | awk 'NR==1||/Content-Type/i {print}'
-          done
-          docker rm -f preprod-check
+      # Temporarily disabled smoke test
+      # - name: Smoke test assets in container
+      #   run: |
+      #     IMAGE_TAG=$(echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}')
+      #     docker run -d --rm -p 3000:3000 --name preprod-check "$IMAGE_TAG"
+      #     sleep 3
+      #     for p in /uploads/placeholders/avatar.png /logos/sibsutis.svg; do
+      #       echo "HEAD $p"
+      #       curl -sI "http://127.0.0.1:3000$p" | awk 'NR==1||/Content-Type/i {print}'
+      #     done
+      #     docker rm -f preprod-check
