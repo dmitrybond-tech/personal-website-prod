@@ -1,15 +1,15 @@
 # syntax=docker/dockerfile:1.5
 # -------- build stage --------
-FROM node:22-alpine AS build
+FROM node:22-alpine AS builder
 
 # Install toolchain for native modules and common libs for canvas/sharp
 RUN apk add --no-cache --virtual .build-deps python3 make g++ libc6-compat \
     pkgconfig cairo-dev pango-dev jpeg-dev giflib-dev \
     && ln -sf /usr/bin/python3 /usr/bin/python
     
-# Work directly with the website sub-application
-WORKDIR /app/apps/website
-    
+# Set working directory to monorepo root
+WORKDIR /app
+
 # Accept and export build args for PUBLIC_* variables
 ARG PUBLIC_SITE_URL=""
 ARG PUBLIC_ENV=""
@@ -27,37 +27,28 @@ ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL \
     PUBLIC_DECAP_CMS_VERSION=$PUBLIC_DECAP_CMS_VERSION \
     DEBUG_CAL=$DEBUG_CAL
     
-# Copy only website package files and install dependencies
-COPY apps/website/package*.json ./
+# Copy only manifests first for better caching
+COPY package*.json ./
+COPY apps/website/package*.json ./apps/website/
 RUN npm config set registry https://registry.npmjs.org
 
-# Optional sanity check: verify Iconify package version exists
-RUN npm view @iconify-json/mdi version || echo "Warning: Could not verify @iconify-json/mdi version"
+# Install dependencies
+RUN npm ci
 
-# Install dependencies with cache mount and fallback
-RUN --mount=type=cache,target=/root/.npm \
-    (npm ci --no-audit --no-fund --legacy-peer-deps || npm i --no-audit --no-fund --legacy-peer-deps)
+# Copy the rest of the repo (needed for public/src)
+COPY . .
 
-# Optional sanity check: verify Iconify package can be resolved
-RUN node -e "console.log('@iconify-json/mdi version:', require('@iconify-json/mdi/package.json').version)" || echo "Warning: Could not resolve @iconify-json/mdi"
+# Make sure we build the correct workspace
+RUN npm run --workspace apps/website build
 
-# Optional: Support for private npm registry via secret (commented for public builds)
-# RUN --mount=type=secret,id=npmrc,dst=/root/.npmrc \
-#     --mount=type=cache,target=/root/.npm \
-#     npm ci --no-audit --no-fund --legacy-peer-deps
+# Guard: fail build if client uploads are missing
+RUN test -d /app/apps/website/dist/client/uploads
+
+# Visibility in CI logs - show directory structure
+RUN node -e "const {readdirSync} = require('fs'); console.log('SERVER:', readdirSync('/app/apps/website/dist/server')); console.log('CLIENT:', readdirSync('/app/apps/website/dist/client')); console.log('UPLOADS:', readdirSync('/app/apps/website/dist/client/uploads'));"
     
-# Copy website sources and build
-COPY apps/website/ ./
-RUN node scripts/cms-config-swap.mjs prod || true
-
-# Diagnostic logging before build
-RUN node -v && npm -v && pwd && ls -la
-
-# Build the application
-RUN npm run build
-    
-# -------- runtime stage (Node SSR) --------
-FROM node:22-alpine AS runtime
+# -------- runtime stage --------
+FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3000
@@ -67,11 +58,8 @@ ARG GIT_SHA=unknown
 LABEL org.opencontainers.image.revision=$GIT_SHA
 ENV APP_BUILD_SHA=$GIT_SHA
     
-# Copy runtime artifacts from build stage
-COPY --from=build /app/apps/website/package*.json ./ 
-COPY --from=build /app/apps/website/node_modules ./node_modules
-COPY --from=build /app/apps/website/dist ./dist
-COPY --from=build /app/apps/website/public ./public
+# Copy the entire dist (server + client) from the apps/website workspace
+COPY --from=builder /app/apps/website/dist ./dist
     
 EXPOSE 3000
-CMD ["node","dist/server/entry.mjs"]
+CMD ["node", "./dist/server/entry.mjs"]

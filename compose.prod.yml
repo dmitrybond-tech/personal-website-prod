@@ -4,16 +4,16 @@ services:
   website:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: apps/website/Dockerfile
     ports:
-      - "127.0.0.1:3000:80"
+      - "127.0.0.1:3000:3000"
     restart: unless-stopped
     environment:
       - NODE_ENV=production
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.website.rule=Host(`yourdomain.com`)"
-      - "traefik.http.services.website.loadbalancer.server.port=80"
+      - "traefik.http.services.website.loadbalancer.server.port=3000"
 
   # Дополнительные сервисы для продакшна (если нужны)
   # nginx:

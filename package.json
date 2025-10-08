@@ -2,6 +2,9 @@
   "name": "personal-website-monorepo",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "apps/website"
+  ],
   "scripts": {
     "cv:build": "cd apps/CV/devscard && npm ci && npm run build",
     "cv:sync": "node scripts/sync-cv-to-website.cjs",
@@ -19,6 +22,7 @@
     "website:install": "cd apps/website && npm install",
     "website:dev": "cd apps/website && npm run dev",
     "website:build": "cd apps/website && npm run icons:rebuild && npm run build",
+    "build:website": "npm run --workspace apps/website build",
     "icons:collect": "cd apps/website && npm run icons:collect",
     "icons:bundle": "cd apps/website && npm run icons:bundle",
     "icons:rebuild": "cd apps/website && npm run icons:rebuild",
