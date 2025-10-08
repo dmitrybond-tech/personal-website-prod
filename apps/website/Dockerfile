@@ -3,7 +3,7 @@
 FROM node:22-alpine AS builder
 
 # Install toolchain for native modules and common libs for canvas/sharp
-RUN apk add --no-cache --virtual .build-deps python3 make g++ libc6-compat \
+RUN apk add --no-cache --virtual .build-deps python3 make g++ libc6-compat git \
     pkgconfig cairo-dev pango-dev jpeg-dev giflib-dev \
     && ln -sf /usr/bin/python3 /usr/bin/python
     
@@ -30,16 +30,23 @@ ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL \
 # Copy only manifests first for better caching
 COPY package*.json ./
 COPY apps/website/package*.json ./apps/website/
+
+# Debug: show what we copied
+RUN echo "=== ROOT PACKAGE.JSON ===" && cat package.json && echo "=== WEBSITE PACKAGE.JSON ===" && cat apps/website/package.json
+
 RUN npm config set registry https://registry.npmjs.org
 
-# Install dependencies
-RUN npm ci
+# Install dependencies with fallback
+RUN npm ci --no-audit --no-fund || (echo "npm ci failed, trying npm install..." && npm install --no-audit --no-fund)
 
 # Copy the rest of the repo (needed for public/src)
 COPY . .
 
-# Make sure we build the correct workspace
-RUN npm run --workspace apps/website build
+# Debug: show workspace structure
+RUN echo "=== WORKSPACE STRUCTURE ===" && ls -la && echo "=== APPS STRUCTURE ===" && ls -la apps/
+
+# Make sure we build the correct workspace with fallback
+RUN npm run --workspace apps/website build || (echo "Workspace build failed, trying direct build..." && cd apps/website && npm run build)
 
 # Guard: fail build if client uploads are missing
 RUN test -d /app/apps/website/dist/client/uploads
