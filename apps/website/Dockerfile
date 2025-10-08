@@ -10,6 +10,9 @@ RUN apk add --no-cache --virtual .build-deps python3 make g++ libc6-compat git \
 # Set working directory to monorepo root
 WORKDIR /app
 
+# Guarantee correct environment for iconify script in monorepo
+ENV NODE_PATH=/app/node_modules
+
 # Accept and export build args for PUBLIC_* variables
 ARG PUBLIC_SITE_URL=""
 ARG PUBLIC_ENV=""
@@ -48,8 +51,15 @@ RUN echo "=== WORKSPACE STRUCTURE ===" && ls -la && echo "=== APPS STRUCTURE ===
 # Make sure we build the correct workspace with fallback
 RUN npm run --workspace apps/website build || (echo "Workspace build failed, trying direct build..." && cd apps/website && npm run build)
 
-# Guard: fail build if client uploads are missing
+# 1) uploads действительно собраны
 RUN test -d /app/apps/website/dist/client/uploads
+
+# 2) в dist не осталось LFS-пойнтеров (если осталось — роняем билд)
+RUN ! grep -R "git-lfs.github.com/spec/v1" -n /app/apps/website/dist/client/uploads || (echo "LFS pointers found in dist"; exit 1)
+
+# 3) (диагностично) показать типы файлов в логах CI
+RUN apk add --no-cache file >/dev/null 2>&1 || true; \
+    find /app/apps/website/dist/client/uploads -type f | head -n 12 | xargs -I{} file -b {}
 
 # Visibility in CI logs - show directory structure
 RUN node -e "const {readdirSync} = require('fs'); console.log('SERVER:', readdirSync('/app/apps/website/dist/server')); console.log('CLIENT:', readdirSync('/app/apps/website/dist/client')); console.log('UPLOADS:', readdirSync('/app/apps/website/dist/client/uploads'));"
