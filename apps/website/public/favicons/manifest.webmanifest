@@ -1,9 +1,9 @@
 {
-  "name": "Марк Фриман - Старший React Разработчик",
-  "short_name": "Марк Фриман - Старший React Разработчик",
-  "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales ac dui at vestibulum. In condimentum metus id dui tincidunt, in blandit mi vehicula.",
+  "name": "Dmitry Bondarenko",
+  "short_name": "Dmitry Bondarenko",
+  "description": "Kinda generalist, I would say",
   "dir": "auto",
-  "lang": "ru",
+  "lang": "en-US",
   "display": "standalone",
   "orientation": "any",
   "start_url": ".",
