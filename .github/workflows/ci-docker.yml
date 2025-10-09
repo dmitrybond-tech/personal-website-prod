@@ -28,6 +28,16 @@ jobs:
           git lfs pull
           git lfs ls-files
 
+      - name: Git LFS sanity
+        shell: bash
+        run: |
+          set -euo pipefail
+          git lfs install
+          git lfs fetch --all || true
+          git lfs checkout || true
+          echo "[tree] apps/website/public/uploads (top 20)"
+          (test -d apps/website/public/uploads && ls -lah apps/website/public/uploads | head -n 20) || echo "no uploads dir"
+
       # fail fast: никакие LFS-пойнтеры не должны остаться в публичных ассетах
       - name: Assert no LFS pointers in public assets
         run: |

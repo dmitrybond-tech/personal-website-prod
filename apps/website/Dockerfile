@@ -51,8 +51,13 @@ RUN echo "=== WORKSPACE STRUCTURE ===" && ls -la && echo "=== APPS STRUCTURE ===
 # Make sure we build the correct workspace with fallback
 RUN npm run --workspace apps/website build || (echo "Workspace build failed, trying direct build..." && cd apps/website && npm run build)
 
-# 1) uploads действительно собраны (создаём пустую директорию если её нет)
-RUN [ -d /app/apps/website/dist/client/uploads ] || (echo "[build] no uploads found; creating empty dir" && mkdir -p /app/apps/website/dist/client/uploads)
+# 1) uploads действительно собраны (fail-fast если отсутствует)
+RUN set -e; \
+    echo "[sanity] dist/client listing:" && ls -lah /app/apps/website/dist/client | head -n 200; \
+    if [ ! -d "/app/apps/website/dist/client/uploads" ]; then \
+      echo "ERROR: dist/client/uploads is missing. Check .dockerignore / LFS / public/"; \
+      exit 1; \
+    fi
 
 # 2) в dist не осталось LFS-пойнтеров (если осталось — роняем билд)
 RUN ! grep -R "git-lfs.github.com/spec/v1" -n /app/apps/website/dist/client/uploads || (echo "LFS pointers found in dist"; exit 1)

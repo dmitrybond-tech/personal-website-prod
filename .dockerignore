@@ -7,3 +7,8 @@ apps/*/node_modules
 apps/*/dist
 
 # Keep apps/website/** included
+
+# --- Allow public assets for website build ---
+!apps/website/public/**
+!apps/website/public/uploads/**
+!apps/website/public/logos/**

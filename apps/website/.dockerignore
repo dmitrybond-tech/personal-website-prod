@@ -26,3 +26,8 @@ coverage
 *.swp
 *.swo
 *~
+
+# --- Allow public assets for website build ---
+!public/**
+!public/uploads/**
+!public/logos/**
