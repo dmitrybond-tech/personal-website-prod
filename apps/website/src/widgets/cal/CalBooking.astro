@@ -1,6 +1,7 @@
 ---
 // apps/website/src/widgets/cal/CalBooking.astro
 import { parseCalEvents, makeCalDataLink, buildCalOverlayUrl } from '../../lib/cal';
+import { makeCalInlineUrl, getCalConfig } from '../../lib/cal-inline';
 
 interface Props {
   locale?: 'en' | 'ru';
@@ -10,9 +11,10 @@ interface Props {
 const { locale = 'en', className = '' } = Astro.props;
 
 // Получаем конфигурацию из env
-const username = import.meta.env.PUBLIC_CAL_USERNAME;
-const baseCalLink = import.meta.env.PUBLIC_CAL_EMBED_LINK;
-const eventsString = import.meta.env.PUBLIC_CAL_EVENTS;
+const calConfig = getCalConfig();
+const username = calConfig.username;
+const baseCalLink = calConfig.embedLink;
+const eventsString = calConfig.events;
 
 // Парсим события из строки формата "slug|label,slug|label"
 const events = parseCalEvents(eventsString || '');
@@ -292,15 +294,15 @@ const t = texts[locale];
       // Build proper data-cal-link format: username/slug
       const dataCalLink = `${username}/${event.slug}`;
       
-      // Build full URL for overlay calendar
-      const overlayUrl = `https://cal.com/${username}/${event.slug}?overlayCalendar=true&layout=month_view`;
+      // Build full URL for inline embed with proper parameters
+      const inlineUrl = `https://cal.com/${username}/${event.slug}?embedType=inline&layout=month_view&hideEventTypeDetails=false`;
       
       // Обновляем data-cal-link атрибут
       calEmbed.setAttribute('data-cal-link', dataCalLink);
       
       // Переключаем Cal.com embed
       if (window.Cal) {
-        window.Cal('ui', { calLink: overlayUrl });
+        window.Cal('ui', { calLink: inlineUrl });
       }
     }
 

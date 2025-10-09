@@ -10,7 +10,18 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     // Get OAuth configuration from environment
     const clientId = process.env.DECAP_GITHUB_CLIENT_ID;
     const clientSecret = process.env.DECAP_GITHUB_CLIENT_SECRET;
-    const siteUrl = process.env.PUBLIC_SITE_URL || 'http://localhost:4321';
+    
+    // Get origin from request headers (proxy-aware)
+    const getRequestOrigin = (req: Request) => {
+      const url = new URL(req.url);
+      const xfProto = req.headers.get('x-forwarded-proto');
+      const xfHost = req.headers.get('x-forwarded-host') ?? req.headers.get('host');
+      const proto = (xfProto ?? url.protocol.replace(':', '')) || 'https';
+      const host = xfHost ?? url.host;
+      return `${proto}://${host}`;
+    };
+    
+    const siteUrl = getRequestOrigin(request) || process.env.PUBLIC_SITE_URL || 'http://localhost:4321';
     const stateSecret = process.env.DECAP_OAUTH_STATE_SECRET || 'change_me_long_random';
 
     if (!clientId || !clientSecret) {
