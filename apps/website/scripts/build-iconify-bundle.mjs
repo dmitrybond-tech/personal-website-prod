@@ -7,6 +7,45 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Функция для устойчивого резолва пакетов в монорепо с hoisting
+function resolveFromWorkspaces(spec) {
+  const candidates = [
+    // локальный node_modules внутри пакета
+    join(__dirname, '../node_modules'),
+    // корень монорепо (на два уровня выше)
+    join(__dirname, '../../../node_modules'),
+    // корень монорепо (на три уровня выше) - альтернативный путь
+    join(__dirname, '../../../../node_modules'),
+    // сам __dirname как fallback
+    __dirname,
+  ];
+  
+  // Извлекаем имя пакета из spec (например, @iconify-json/fa6-solid/icons.json)
+  const packageName = spec.split('/')[0] + '/' + spec.split('/')[1];
+  const fileName = spec.split('/').slice(2).join('/');
+  
+  for (const p of candidates) {
+    try {
+      const fullPath = join(p, packageName, fileName);
+      if (statSync(fullPath).isFile()) {
+        console.log(`[iconify] resolved ${spec} from ${fullPath}`);
+        return fullPath;
+      }
+    } catch {}
+  }
+  return null;
+}
+
+function resolveIconifyIconsJson(collection) {
+  const spec = `@iconify-json/${collection}/icons.json`;
+  const found = resolveFromWorkspaces(spec);
+  if (!found) {
+    console.warn(`[iconify] collection not found (skipping): ${spec}`);
+    return null;
+  }
+  return found;
+}
+
 // Static list of additional icons that might be missing from content
 const ADDITIONAL_ICONS = [
   // Font Awesome 6 Solid
@@ -133,7 +172,11 @@ function collectIconTokens() {
 // Функция для загрузки коллекции иконок
 function loadIconCollection(prefix) {
   try {
-    const collectionPath = join(__dirname, '../node_modules/@iconify-json', prefix, 'icons.json');
+    const collectionPath = resolveIconifyIconsJson(prefix);
+    if (!collectionPath) {
+      console.warn(`[iconify] Failed to resolve collection: ${prefix}`);
+      return null;
+    }
     const collectionData = JSON.parse(readFileSync(collectionPath, 'utf8'));
     return collectionData;
   } catch (error) {
@@ -213,6 +256,14 @@ function buildIconifyBundle() {
   
   // Log collected tokens for debugging
   console.log(`🔍 Collected tokens: ${iconTokens.join(', ')}`);
+  
+  // Проверка на пустой бандл
+  if (totalIcons === 0) {
+    console.error('[iconify] bundle is empty — check collections or tokens');
+    console.error('[iconify] This may indicate missing @iconify-json packages or hoisting issues');
+    // Не валим билд жестко, но подсвечиваем ошибку возвратным кодом
+    process.exitCode = 1;
+  }
 }
 
 // Запускаем сборку
