@@ -125,11 +125,14 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     // Log success (diagnostic)
     console.log('[decap-oauth] delivered via postMessage + close');
 
-    // Build Decap-formatted payload (canonical format)
+    // Build Decap-formatted payload (canonical format: exact match for bundled handler)
     const payload = {
       token: accessToken,
       provider: 'github'
     };
+
+    // Mask token in logs (security: never log raw tokens)
+    console.log('[decap-oauth] token exchange successful, token: ***');
 
     // Return HTML with postMessage script (popup flow)
     const html = `<!DOCTYPE html>
@@ -141,39 +144,60 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 <body>
   <script>
     (function() {
-      // Decap expects: 'authorization:github:success:' + JSON.stringify({ token, provider })
+      // Decap expects exact format: 'authorization:github:success:' + JSON.stringify({ token, provider })
       var payload = 'authorization:github:success:' + JSON.stringify(${JSON.stringify(payload)});
       
-      // Send to opener with permissive target (Decap's handler validates)
+      // 1. Send postMessage to opener (primary delivery method)
       try {
-        if (window.opener) {
+        if (window.opener && !window.opener.closed) {
           window.opener.postMessage(payload, '*');
-          console.log('[decap-oauth] posted message to opener');
+          console.log('[decap-oauth] postMessage delivered (wildcard)');
+          
+          // Send again with explicit origin as backup
+          try {
+            window.opener.postMessage(payload, window.location.origin);
+            console.log('[decap-oauth] postMessage delivered (origin)');
+          } catch(e) {
+            console.warn('[decap-oauth] origin-specific postMessage failed:', e);
+          }
         }
       } catch(e) {
         console.error('[decap-oauth] postMessage failed:', e);
       }
       
-      // Optional: Send with explicit origin as backup
+      // 2. Rehydrate opener's localStorage (fallback for next render tick)
+      // This ensures login works even if postMessage is missed
       try {
-        if (window.opener) {
-          window.opener.postMessage(payload, window.location.origin);
+        if (window.opener && !window.opener.closed) {
+          // Standard Decap CMS localStorage keys (try both for compatibility)
+          window.opener.localStorage.setItem('netlify-cms-user', JSON.stringify({
+            token: ${JSON.stringify(accessToken)},
+            backendName: 'github'
+          }));
+          // Also try newer Decap naming convention
+          window.opener.localStorage.setItem('decap-cms.user', JSON.stringify({
+            token: ${JSON.stringify(accessToken)},
+            backendName: 'github'
+          }));
+          console.log('[decap-oauth] localStorage rehydrated in opener');
         }
-      } catch(e) {}
+      } catch(e) {
+        console.warn('[decap-oauth] localStorage rehydration failed:', e);
+      }
       
-      // Optional: Mirror to localStorage as harmless backup
+      // 3. Mirror to popup's own localStorage (harmless diagnostic backup)
       try {
         localStorage.setItem('decap_oauth_message', payload);
       } catch(e) {}
       
-      // Close popup
+      // 4. Close popup after brief delay
       setTimeout(function() {
         try {
           window.close();
         } catch(e) {
           document.body.innerHTML = '<p>Authentication complete. You may close this window.</p>';
         }
-      }, 100);
+      }, 150);
     })();
   </script>
 </body>

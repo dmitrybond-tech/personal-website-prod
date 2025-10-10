@@ -48,17 +48,10 @@ export const GET: APIRoute = async ({ request }) => {
         label: 'Blog posts',
         folder: `${REPO_PREFIX}src/content/posts`,
         create: true,
-        format: 'frontmatter',
-        extension: 'md',
         slug: '{{slug}}',
-        path: '{{locale}}/{{slug}}',
-        i18n: true,
         fields: [
-          { label: 'Title', name: 'title', widget: 'string', i18n: 'translate', required: false, default: '' },
-          { label: 'Date', name: 'date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: false, default: '{{now}}', i18n: false },
-          { label: 'Draft', name: 'draft', widget: 'boolean', default: false, i18n: false },
-          { label: 'Description', name: 'description', widget: 'text', required: false, i18n: 'translate' },
-          { label: 'Body', name: 'body', widget: 'markdown', i18n: 'translate' }
+          { label: 'Title', name: 'title', widget: 'string' },
+          { label: 'Body', name: 'body', widget: 'markdown' }
         ]
       }
     ]
