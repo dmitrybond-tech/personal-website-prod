@@ -2,10 +2,26 @@ import type { APIRoute } from 'astro';
 import { stringify } from 'yaml';
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ request }) => {
   const IS_LOCAL = process.env.DECAP_LOCAL_BACKEND === 'true';
   const REPO_PREFIX = IS_LOCAL ? '' : 'apps/website/';
-  const siteUrl = process.env.PUBLIC_SITE_URL || 'http://localhost:4321';
+  
+  // Get origin from request headers (proxy-aware) with fallback
+  const getRequestOrigin = (req: Request) => {
+    const url = new URL(req.url);
+    const xfProto = req.headers.get('x-forwarded-proto');
+    const xfHost = req.headers.get('x-forwarded-host') ?? req.headers.get('host');
+    const proto = (xfProto ?? url.protocol.replace(':', '')) || 'https';
+    const host = xfHost ?? url.host;
+    return `${proto}://${host}`;
+  };
+  
+  const siteUrl = getRequestOrigin(request) || process.env.PUBLIC_SITE_URL || 'http://localhost:4321';
+  // Prevent localhost fallback in production
+  const baseUrl = process.env.NODE_ENV === 'production' && siteUrl.includes('localhost') 
+    ? process.env.PUBLIC_SITE_URL || 'https://dmitrybond.tech'
+    : siteUrl;
+    
   const repo = process.env.DECAP_GITHUB_REPO || 'dmitrybond-tech/personal-website-pre-prod';
   const branch = process.env.DECAP_GITHUB_BRANCH || 'main';
 
@@ -17,8 +33,8 @@ export const GET: APIRoute = async () => {
           name: 'github',
           repo: repo,
           branch: branch,
-          base_url: siteUrl,
-          auth_endpoint: '/api/decap/oauth'
+          base_url: baseUrl,
+          auth_endpoint: '/api/decap/oauth/authorize'
         },
     publish_mode: 'simple',
     media_folder: `${REPO_PREFIX}public/uploads`,
@@ -46,6 +62,9 @@ export const GET: APIRoute = async () => {
   };
 
   const yaml = stringify(config);
+  // Log config values for debugging (base_url and auth_endpoint)
+  console.log(`[config.yml] Generated config: base_url=${baseUrl}, auth_endpoint=/api/decap/oauth/authorize`);
+  
   return new Response(yaml, {
     headers: {
       'Content-Type': 'text/yaml; charset=utf-8',
