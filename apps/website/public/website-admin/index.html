@@ -6,19 +6,10 @@
   <meta name="robots" content="noindex" />
   <title>Content Manager</title>
 
-  <!-- 1) disable auto init -->
-  <script>window.CMS_MANUAL_INIT = true;</script>
-
-  <!-- 2) load latest stable Decap CMS from official CDN -->
+  <!-- Decap CMS - automatic initialization from config.yml -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-  <!-- 3) js-yaml for config parsing -->
-  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
-
-  <!-- 4) our simple config loader -->
-  <script type="module" src="/website-admin/config-loader.js"></script>
-
-  <!-- 5) auth monitoring -->
+  <!-- OAuth monitoring - ensures login completes properly -->
   <script src="/website-admin/override-login.client.js"></script>
 
   <noscript>Enable JavaScript to use the CMS.</noscript>
