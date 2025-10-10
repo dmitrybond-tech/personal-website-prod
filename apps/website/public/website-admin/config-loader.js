@@ -82,7 +82,7 @@ function waitForStore(timeoutMs = 5000) {
 }
 
 // ============================================================================
-// PART 4: Load config from API (YAML string + parsed for logging)
+// PART 4: Load config from API
 // ============================================================================
 async function loadConfig() {
   const configUrl = '/api/website-admin/config.yml';
@@ -93,25 +93,35 @@ async function loadConfig() {
       throw new Error(`Config fetch failed: ${response.status}`);
     }
     
-    // Keep exact YAML text for init (no trimming, no modification)
-    const rawYaml = await response.text();
+    const yamlText = await response.text();
     
-    // Parse YAML to object for validation and logging only
-    const cfg = window.jsyaml ? window.jsyaml.load(rawYaml) : null;
-    
-    if (!cfg) {
-      throw new Error('js-yaml not available or config is empty');
+    if (!window.jsyaml) {
+      throw new Error('js-yaml not available');
     }
     
-    const collections = cfg.collections?.length || 0;
+    const config = window.jsyaml.load(yamlText);
+    
+    if (!config) {
+      throw new Error('Config is empty');
+    }
+    
+    // Validate required fields
+    const required = ['backend', 'media_folder', 'collections'];
+    for (const field of required) {
+      if (!config[field]) {
+        throw new Error(`Config missing required field: ${field}`);
+      }
+    }
+    
+    const collections = config.collections?.length || 0;
     console.log('[cms] Loaded config from /api/website-admin/config.yml');
-    console.log('[cms] Config: backend=' + cfg.backend?.name + ' collections=' + collections);
+    console.log('[cms] Config: backend=' + config.backend?.name + ' collections=' + collections);
     
     if (collections === 0) {
       console.warn('[cms] WARNING: No collections in config');
     }
     
-    return { rawYaml, cfg };
+    return config;
   } catch (error) {
     console.error('[cms] Failed to load config:', error);
     throw error;
@@ -119,20 +129,25 @@ async function loadConfig() {
 }
 
 // ============================================================================
-// PART 5: Initialize CMS (YAML string primary, object fallback)
+// PART 5: Initialize CMS (simple object config)
 // ============================================================================
-async function initCMS(rawYaml, cfg) {
-  console.log('[cms-init] calling CMS.init (yaml)');
+async function initCMS(config) {
+  console.log('[cms-init] Calling CMS.init...');
   
   try {
-    // PRIMARY PATH: Initialize with YAML string
-    window.CMS.init({ config: rawYaml });
+    // Initialize with config object and explicitly disable config file loading
+    window.CMS.init({
+      load_config_file: false,
+      config: config
+    });
+    
+    console.log('[cms-init] CMS.init called, waiting for store...');
     
     // Wait for store to be created
-    const storeReady = await waitForStore(3000);
+    const storeReady = await waitForStore(5000);
     
     if (storeReady) {
-      console.log('[cms-init] YAML config accepted');
+      console.log('[cms-init] ✅ Store ready');
       
       // Log collections from store
       setTimeout(() => {
@@ -152,39 +167,7 @@ async function initCMS(rawYaml, cfg) {
       
       return true;
     } else {
-      // FALLBACK PATH: Try object config if YAML didn't work
-      console.warn('[cms-init] YAML path failed, trying object config (fallback)');
-      
-      window.CMS.init({
-        load_config_file: false,
-        config: cfg
-      });
-      
-      const storeReadyFallback = await waitForStore(3000);
-      
-      if (storeReadyFallback) {
-        console.log('[cms-init] object config accepted (fallback)');
-        
-        // Log collections from store
-        setTimeout(() => {
-          try {
-            const state = window.CMS.store?.getState?.();
-            const collections = state?.config?.get?.('collections');
-            
-            if (collections) {
-              const count = collections.size || collections.length || 0;
-              const names = collections.toJS ? collections.toJS().map(c => c.name) : [];
-              console.log('[cms-init] collections(post)=' + count + ' collections: [' + names.join(', ') + ']');
-            }
-          } catch (e) {
-            console.warn('[cms] Could not read collections from store:', e.message);
-          }
-        }, 500);
-        
-        return true;
-      }
-      
-      console.error('[cms] ❌ Both YAML and object init failed');
+      console.error('[cms] ❌ Store initialization failed');
       return false;
     }
     
@@ -204,11 +187,11 @@ async function initCMS(rawYaml, cfg) {
     // Step 1: Wait for CMS core to load
     await waitForCMSCore();
     
-    // Step 2: Load config from API (YAML + parsed)
-    const { rawYaml, cfg } = await loadConfig();
+    // Step 2: Load config from API
+    const config = await loadConfig();
     
-    // Step 3: Initialize CMS (YAML primary, object fallback)
-    const success = await initCMS(rawYaml, cfg);
+    // Step 3: Initialize CMS with config object
+    const success = await initCMS(config);
     
     if (!success) {
       console.error('[cms] Initialization failed - check errors above');

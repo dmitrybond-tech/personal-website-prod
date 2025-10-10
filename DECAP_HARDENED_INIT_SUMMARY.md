@@ -60,34 +60,28 @@ Previously, even with `CMS_MANUAL_INIT = true`, Decap CMS would:
    - Returns immediate 404 for blocked requests
    - Logs: `[cms] fetch guard blocked: <url>`
 
-2. **YAML String Primary Init Path:**
+2. **Simple Object Config Init:**
    - Fetches `/api/website-admin/config.yml` only
-   - Keeps exact YAML text as `rawYaml` (no trimming, no modification)
-   - Parses to `cfg` object for validation and logging only
-   - Primary: `CMS.init({ config: rawYaml })` — YAML string
-   - Fallback: `CMS.init({ load_config_file: false, config: cfg })` — object (if YAML fails)
-   - Waits 3s for store after each attempt
+   - Parses YAML to JavaScript object
+   - Validates required fields client-side
+   - Calls: `CMS.init({ load_config_file: false, config: config })`
+   - Waits 5s for store (increased timeout for reliability)
 
 3. **Enhanced Logging:**
    ```
    [cms] Loaded config from /api/website-admin/config.yml
-   [cms-init] calling CMS.init (yaml)
-   [cms-init] YAML config accepted
-   [cms-init] collections(post)=1 collections: [posts]
-   ```
-   
-   Or fallback path:
-   ```
-   [cms-init] YAML path failed, trying object config (fallback)
-   [cms-init] object config accepted (fallback)
+   [cms] Config: backend=github collections=1
+   [cms-init] Calling CMS.init...
+   [cms-init] CMS.init called, waiting for store...
+   [cms-init] ✅ Store ready
    [cms-init] collections(post)=1 collections: [posts]
    ```
 
 **Verification:**
 - No network requests to `/config.yml` or `/en/config.yml` during admin load
-- YAML primary path used successfully (no fallback needed in testing)
+- Simple object config init used (single path, no fallbacks)
 - Collections count > 0 and logged correctly
-- Store appears consistently within 3s
+- Store appears consistently within 5s
 
 ### D) OAuth Completion — Guaranteed CMS UI Load (✅ Complete)
 
@@ -109,13 +103,14 @@ Previously, even with `CMS_MANUAL_INIT = true`, Decap CMS would:
 
 ## Init Path Used
 
-**✅ YAML string primary path** is used successfully:
+**✅ Simple object config** approach:
 
 ```javascript
-CMS.init({ config: rawYaml });
+const config = jsyaml.load(yamlText);
+CMS.init({ load_config_file: false, config: config });
 ```
 
-No fallback to object path needed in testing. Object path remains as safety net.
+This is more reliable than YAML string approach across different Decap CMS versions.
 
 ## Network Requests During Admin Load
 

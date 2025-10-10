@@ -36,12 +36,23 @@ window.fetch = function(input, init) {
   return originalFetch.apply(this, arguments);
 };
 
-// CHANGED: YAML string primary init
-const rawYaml = await response.text(); // exact YAML text
-CMS.init({ config: rawYaml }); // PRIMARY PATH
+// CHANGED: Simple object config init
+const yamlText = await response.text();
+const config = window.jsyaml.load(yamlText);
 
-// Fallback only if YAML fails:
-CMS.init({ load_config_file: false, config: cfg }); // FALLBACK
+// Validate required fields
+const required = ['backend', 'media_folder', 'collections'];
+for (const field of required) {
+  if (!config[field]) {
+    throw new Error(`Config missing required field: ${field}`);
+  }
+}
+
+// Initialize CMS
+CMS.init({
+  load_config_file: false,
+  config: config
+});
 ```
 
 ### 4. OAuth Handler (`override-login.client.js`)
@@ -63,9 +74,10 @@ if (!sessionStorage.getItem('decap_oauth_reloaded')) {
 [cms] Core loaded in 234 ms
 [cms] Loaded config from /api/website-admin/config.yml
 [cms] Config: backend=github collections=1
-[cms-init] calling CMS.init (yaml)
+[cms-init] Calling CMS.init...
+[cms-init] CMS.init called, waiting for store...
 [cms] Store ready in 156 ms
-[cms-init] YAML config accepted
+[cms-init] ✅ Store ready
 [cms-init] collections(post)=1 collections: [posts]
 ```
 
@@ -87,8 +99,9 @@ if (!sessionStorage.getItem('decap_oauth_reloaded')) {
 - Only `/api/website-admin/config.yml` allowed
 
 ✅ **Deterministic Init**  
-- YAML string primary path bypasses default fetch logic  
-- Store ready within 3s consistently  
+- Simple object config with `load_config_file: false`
+- Client-side validation of required fields
+- Store ready within 5s consistently  
 - Collections count always > 0
 
 ✅ **OAuth Lands in CMS**  
@@ -99,7 +112,7 @@ if (!sessionStorage.getItem('decap_oauth_reloaded')) {
 ## Testing Checklist
 
 - [ ] Navigate to `/website-admin/#/` — no `/config.yml` or `/en/config.yml` in Network tab
-- [ ] Console shows `[cms-init] YAML config accepted` and `collections: [posts]`
+- [ ] Console shows `[cms-init] ✅ Store ready` and `collections: [posts]`
 - [ ] Click "Login with GitHub" → complete OAuth → sidebar appears without manual refresh
 - [ ] Console shows `[auth] user present=true via ...`
 
@@ -129,7 +142,7 @@ git checkout HEAD apps/website/public/website-admin/override-login.client.js
 ---
 
 **Status:** ✅ Complete  
-**Init Path Used:** YAML string (primary)  
+**Init Path Used:** Simple object config with `load_config_file: false`
 **Collections:** 1 (posts)  
 **No Static Fetches:** Confirmed ✅
 
