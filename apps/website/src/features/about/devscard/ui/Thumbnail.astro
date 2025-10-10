@@ -13,20 +13,22 @@ interface Props {
 const { src, alt, size, fitToWidth = false, noBorder = false } = Astro.props;
 
 const sizeToClass = /* tw */ {
-  large: fitToWidth ? 'h-18 w-18 object-contain' : 'h-18 w-18',
-  small: fitToWidth ? 'h-12 w-12 object-contain' : 'h-12 w-12',
+  large: fitToWidth ? 'h-18 w-auto max-w-32 object-contain' : 'h-18 w-18',
+  small: fitToWidth ? 'h-12 w-auto max-w-20 object-contain' : 'h-12 w-12',
 };
 ---
 
 {
   src && (
-    <Photo
-      src={src}
-      alt={alt}
-      class:list={['hidden sm:block', noBorder ? '' : 'rounded-md', sizeToClass[size]]}
-      style={noBorder ? 'border: none !important;' : ''}
-      width={104}
-      height={104}
-    />
+    <div class="flex items-center">
+      <Photo
+        src={src}
+        alt={alt}
+        class:list={['hidden sm:block', noBorder ? '' : 'rounded-md', sizeToClass[size]]}
+        style={noBorder ? 'border: none !important;' : ''}
+        width={104}
+        height={104}
+      />
+    </div>
   )
 }

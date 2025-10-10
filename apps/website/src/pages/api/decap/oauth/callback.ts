@@ -44,10 +44,10 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       return new Response(`
         <script>
           (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: '${error}' });
-            try { window.opener.postMessage(payload, window.location.origin); }
-            catch(e) { window.opener.postMessage(payload, '*'); }
-            window.close();
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: '${error}', provider: 'github' });
+            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+            try { window.close(); } catch(e) {}
           })();
         </script>
       `, {
@@ -65,10 +65,10 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       return new Response(`
         <script>
           (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'missing_code_or_state' });
-            try { window.opener.postMessage(payload, window.location.origin); }
-            catch(e) { window.opener.postMessage(payload, '*'); }
-            window.close();
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'missing_code_or_state', provider: 'github' });
+            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+            try { window.close(); } catch(e) {}
           })();
         </script>
       `, {
@@ -87,10 +87,10 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       return new Response(`
         <script>
           (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'missing_state_cookie' });
-            try { window.opener.postMessage(payload, window.location.origin); }
-            catch(e) { window.opener.postMessage(payload, '*'); }
-            window.close();
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'missing_state_cookie', provider: 'github' });
+            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+            try { window.close(); } catch(e) {}
           })();
         </script>
       `, {
@@ -110,10 +110,10 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       return new Response(`
         <script>
           (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_cookie_not_found' });
-            try { window.opener.postMessage(payload, window.location.origin); }
-            catch(e) { window.opener.postMessage(payload, '*'); }
-            window.close();
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_cookie_not_found', provider: 'github' });
+            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+            try { window.close(); } catch(e) {}
           })();
         </script>
       `, {
@@ -132,10 +132,10 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       return new Response(`
         <script>
           (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'invalid_state_format' });
-            try { window.opener.postMessage(payload, window.location.origin); }
-            catch(e) { window.opener.postMessage(payload, '*'); }
-            window.close();
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'invalid_state_format', provider: 'github' });
+            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+            try { window.close(); } catch(e) {}
           })();
         </script>
       `, {
@@ -160,10 +160,10 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       return new Response(`
         <script>
           (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_signature_mismatch' });
-            try { window.opener.postMessage(payload, window.location.origin); }
-            catch(e) { window.opener.postMessage(payload, '*'); }
-            window.close();
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_signature_mismatch', provider: 'github' });
+            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+            try { window.close(); } catch(e) {}
           })();
         </script>
       `, {
@@ -181,10 +181,10 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       return new Response(`
         <script>
           (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_mismatch' });
-            try { window.opener.postMessage(payload, window.location.origin); }
-            catch(e) { window.opener.postMessage(payload, '*'); }
-            window.close();
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_mismatch', provider: 'github' });
+            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+            try { window.close(); } catch(e) {}
           })();
         </script>
       `, {
@@ -218,10 +218,10 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       return new Response(`
         <script>
           (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'token_exchange_failed' });
-            try { window.opener.postMessage(payload, window.location.origin); }
-            catch(e) { window.opener.postMessage(payload, '*'); }
-            window.close();
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'token_exchange_failed', provider: 'github' });
+            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+            try { window.close(); } catch(e) {}
           })();
         </script>
       `, {
@@ -238,13 +238,14 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     
     if (tokenData.error) {
       console.error('[decap-oauth] token error:', tokenData);
+      const errorMsg = JSON.stringify(tokenData.error_description || tokenData.error);
       return new Response(`
         <script>
           (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: tokenData.error_description || tokenData.error });
-            try { window.opener.postMessage(payload, window.location.origin); }
-            catch(e) { window.opener.postMessage(payload, '*'); }
-            window.close();
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: ${errorMsg}, provider: 'github' });
+            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+            try { window.close(); } catch(e) {}
           })();
         </script>
       `, {
@@ -263,10 +264,10 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       return new Response(`
         <script>
           (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'no_access_token' });
-            try { window.opener.postMessage(payload, window.location.origin); }
-            catch(e) { window.opener.postMessage(payload, '*'); }
-            window.close();
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'no_access_token', provider: 'github' });
+            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+            try { window.close(); } catch(e) {}
           })();
         </script>
       `, {
@@ -283,10 +284,10 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     return new Response(`
       <script>
         (function () {
-          var payload = 'authorization:github:success:' + JSON.stringify({ token: '${accessToken}' });
-          try { window.opener.postMessage(payload, window.location.origin); }
-          catch(e) { window.opener.postMessage(payload, '*'); }
-          window.close();
+          var payload = 'authorization:github:success:' + JSON.stringify({ token: '${accessToken}', provider: 'github' });
+          try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+          try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+          try { window.close(); } catch(e) {}
         })();
       </script>
     `, {
@@ -300,13 +301,14 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 
   } catch (error) {
     console.error('[decap-oauth] callback error:', error);
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
     return new Response(`
       <script>
         (function () {
-          var payload = 'authorization:github:error:' + JSON.stringify({ message: '${error instanceof Error ? error.message : 'Unknown error'}' });
-          try { window.opener.postMessage(payload, window.location.origin); }
-          catch(e) { window.opener.postMessage(payload, '*'); }
-          window.close();
+          var payload = 'authorization:github:error:' + JSON.stringify({ message: '${errorMsg}', provider: 'github' });
+          try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
+          try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+          try { window.close(); } catch(e) {}
         })();
       </script>
     `, {
