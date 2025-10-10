@@ -81,7 +81,7 @@ async function loadYaml(url) {
 // ============================================================================
 // PART 3: Robust readiness gate (wait for core boot complete)
 // ============================================================================
-function waitForCMSCore(timeoutMs = 10000, stepMs = 50) {
+function waitForCMSCore(timeoutMs = 20000, stepMs = 50) {
   return new Promise((resolve, reject) => {
     const t0 = Date.now();
     const id = setInterval(() => {
