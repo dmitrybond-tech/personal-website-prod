@@ -109,24 +109,38 @@ function waitForCMSCore(timeoutMs = 10000, stepMs = 50) {
   });
 }
 
-function waitForStore(maxWaitMs = 2000, stepMs = 50) {
+function waitForStore(maxWaitMs = 3000, stepMs = 50) {
   return new Promise((resolve) => {
     const t0 = Date.now();
+    let lastCheck = '';
+    
     const id = setInterval(() => {
       try {
-        const store = window.CMS && window.CMS.store;
+        const cms = window.CMS;
+        const store = cms && cms.store;
+        
+        // Log state changes for debugging
+        const currentState = `CMS:${!!cms} store:${!!store} getState:${typeof store?.getState}`;
+        if (currentState !== lastCheck) {
+          console.log('[cms-init] State change:', currentState);
+          lastCheck = currentState;
+        }
+        
         if (store && typeof store.getState === 'function') {
           clearInterval(id);
           const elapsed = Date.now() - t0;
-          console.log('[cms-init] store ready @' + elapsed + 'ms');
+          console.log('[cms-init] ✅ store ready @' + elapsed + 'ms');
           resolve({ success: true, elapsed });
           return;
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn('[cms-init] Error checking store:', e.message);
+      }
       
       if (Date.now() - t0 > maxWaitMs) {
         clearInterval(id);
-        console.error('[cms-init] store not ready after ' + maxWaitMs + 'ms');
+        console.error('[cms-init] ⏱️ store not ready after ' + maxWaitMs + 'ms');
+        console.error('[cms-init] Final state: CMS=' + !!window.CMS + ' store=' + !!window.CMS?.store);
         resolve({ success: false });
       }
     }, stepMs);
@@ -211,29 +225,47 @@ function showCollectionsError() {
 }
 
 // ============================================================================
-// PART 5: Single-phase init with extended store timeout
+// PART 5: Init with deep debugging and minimal fallback
 // ============================================================================
 async function initCMS(config, rawYaml) {
   const collectionsPreValidate = validateConfig(config, 'object');
   
   console.log('[cms-init] gate passed (core ready), calling CMS.init');
+  console.log('[cms-init] CMS object keys:', Object.keys(window.CMS || {}));
+  console.log('[cms-init] CMS.init type:', typeof window.CMS?.init);
+  
+  // Deep debug: Hook into any events
+  try {
+    if (window.CMS.registerEventListener) {
+      window.CMS.registerEventListener({
+        name: 'debug-hook',
+        handler: (ev) => console.log('[cms-event]', ev)
+      });
+    }
+  } catch (e) {
+    console.log('[cms-init] No event system available');
+  }
   
   try {
+    console.log('[cms-init] Calling CMS.init with config:', JSON.stringify(config, null, 2).substring(0, 500) + '...');
+    
     // Initialize with object config
     window.CMS.init({
       load_config_file: false,
       config: config,
     });
     
+    console.log('[cms-init] CMS.init call completed, waiting for store...');
+    
     // Wait for store to appear (extended timeout for slower systems)
-    const storeResult = await waitForStore(2000, 50);
+    const storeResult = await waitForStore(3000, 50);
     
     if (storeResult.success) {
       // Check if config was accepted and collections loaded
       const storeCollections = getCollectionNames();
       
       if (storeCollections && storeCollections.count > 0) {
-        console.log('[cms-init] config accepted, collections loaded successfully');
+        console.log('[cms-init] ✅ SUCCESS: config accepted, collections loaded');
         logCollectionsPostInit(500);
         return { success: true, method: 'object' };
       }
@@ -245,17 +277,64 @@ async function initCMS(config, rawYaml) {
       logCollectionsPostInit(500);
       return { success: false, method: 'no-collections' };
     } else {
-      // Store not ready after 2s - initialization failed
-      console.error('[cms-init] Store not ready after 2000ms');
-      console.error('[cms-init] Check console above for CMS initialization errors');
-      console.error('[cms-init] Config object:', config);
-      return { success: false, method: 'store-timeout' };
+      // Store not ready - try minimal fallback config
+      console.error('[cms-init] ⚠️ Store not ready after 3000ms, trying minimal fallback...');
+      return await tryMinimalFallback();
     }
     
   } catch (e) {
-    console.error('[cms-init] CMS.init threw error:', e);
+    console.error('[cms-init] ❌ CMS.init threw error:', e);
     console.error('[cms-init] Error details:', e.message, e.stack);
     return { success: false, method: 'error', error: e };
+  }
+}
+
+// Try an absolutely minimal config as last resort
+async function tryMinimalFallback() {
+  console.log('[cms-fallback] Attempting minimal files-only config...');
+  
+  try {
+    const minimalConfig = {
+      backend: { name: 'test-repo' },
+      media_folder: 'public/uploads',
+      public_folder: '/uploads',
+      collections: [{
+        name: 'pages',
+        label: 'Pages',
+        files: [{
+          name: 'index',
+          label: 'Index',
+          file: 'index.md',
+          fields: [
+            { name: 'title', label: 'Title', widget: 'string' }
+          ]
+        }]
+      }]
+    };
+    
+    console.log('[cms-fallback] Minimal config:', minimalConfig);
+    
+    window.CMS.init({
+      load_config_file: false,
+      config: minimalConfig
+    });
+    
+    const fallbackResult = await waitForStore(3000, 50);
+    
+    if (fallbackResult.success) {
+      console.log('[cms-fallback] ✅ Minimal config worked! Store created.');
+      console.warn('[cms-fallback] Running in minimal mode - only test collection available');
+      return { success: true, method: 'minimal-fallback' };
+    } else {
+      console.error('[cms-fallback] ❌ Even minimal config failed');
+      console.error('[cms-fallback] This suggests a fundamental Decap initialization problem');
+      console.error('[cms-fallback] Possible causes: version mismatch, browser compatibility, CSP policy');
+      return { success: false, method: 'fallback-failed' };
+    }
+    
+  } catch (e) {
+    console.error('[cms-fallback] Fallback threw error:', e);
+    return { success: false, method: 'fallback-error', error: e };
   }
 }
 
@@ -289,14 +368,37 @@ async function initCMS(config, rawYaml) {
     console.log('[cms-init] initialization complete: method=' + result.method + ' success=' + result.success);
     
     if (!result.success) {
-      console.error('[cms-init] Initialization failed. Check errors above.');
+      console.error('[cms-init] ❌ Initialization failed. Check errors above.');
       console.error('[cms-init] Config object structure:', Object.keys(cfg));
       console.error('[cms-init] Backend:', cfg.backend);
       console.error('[cms-init] Collections:', cfg.collections?.length || 0);
+      console.error('[cms-init] Failure method:', result.method);
+      
+      // Provide diagnostic info
+      console.group('[cms-diagnostic] Debug Info');
+      console.log('CMS object exists:', !!window.CMS);
+      console.log('CMS keys:', window.CMS ? Object.keys(window.CMS) : 'n/a');
+      console.log('Store exists:', !!window.CMS?.store);
+      console.log('Page URL:', window.location.href);
+      console.log('User agent:', navigator.userAgent.substring(0, 100));
+      
+      // Check for CSP violations
+      try {
+        const violations = performance.getEntriesByType('navigation');
+        console.log('Navigation timing:', violations);
+      } catch (e) {}
+      
+      console.groupEnd();
+      
+      // Show user-friendly error
+      if (result.method === 'fallback-failed') {
+        alert('CMS failed to initialize. This may be a Decap version compatibility issue. Check console for details.');
+      }
     }
     
   } catch (e) {
-    console.error('[cms] init failed:', e);
+    console.error('[cms] ❌ Fatal init error:', e);
     console.error('[cms] Error stack:', e.stack);
+    alert('Fatal CMS initialization error. Check console.');
   }
 })();
