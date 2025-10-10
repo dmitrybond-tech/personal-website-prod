@@ -46,7 +46,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     const stateCookie = serialize('decap_oauth_state', signedState, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 5 * 60, // 5 minutes
       path: '/'
     });

@@ -118,7 +118,7 @@ sections:
       items:
         - company: CloudBlue
           location: Enschede, the Netherlands
-          logo: /uploads/logos/brand-cloudblue Custom).png
+          logo: /uploads/logos/brand-cloudblue-small-logo.png
           website: https://www.cloudblue.com
           roles:
             - title: Delivery Manager
@@ -141,7 +141,7 @@ sections:
                   url: https://www.cloudblue.com
         - company: Datacom
           location: Kuala Lumpur, Malaysia
-          logo: /uploads/logos/brand-datacom-logo-edited (Custom).png
+          logo: /uploads/logos/brand-datacom-logo-edited-small-logo.png
           website: https://datacom.com
           roles:
             - title: Business Consultant
@@ -179,7 +179,7 @@ sections:
                   url: https://datacom.com
         - company: CloudBlue
           location: Novosibirsk, Russia
-          logo: /uploads/logos/brand-cloudblue Custom).png
+          logo: /uploads/logos/brand-cloudblue-small-logo.png
           website: https://www.cloudblue.com
           roles:
             - title: Technical Account Manager
