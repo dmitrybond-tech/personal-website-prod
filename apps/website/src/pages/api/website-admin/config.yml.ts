@@ -29,7 +29,6 @@ export const GET: APIRoute = async ({ request }) => {
         publish_mode: 'simple',
         media_folder: `${REPO_PREFIX}public/uploads`,
         public_folder: '/uploads',
-        media_library: { name: 'default' },
         collections: [
           {
             name: 'posts',
@@ -61,7 +60,6 @@ export const GET: APIRoute = async ({ request }) => {
         publish_mode: 'simple',
         media_folder: `${REPO_PREFIX}public/uploads`,
         public_folder: '/uploads',
-        media_library: { name: 'default' },
         collections: [
           {
             name: 'posts',

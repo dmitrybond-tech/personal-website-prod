@@ -13,12 +13,11 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 
 // ============================================================================
-// PART 1.5: Fetch guard - serve API config for any config.yml request
+// PART 1.5: Fetch guard - redirect ANY config.yml to our API
 // ============================================================================
 (function installFetchGuard() {
   const originalFetch = window.fetch;
-  const configYmlPattern = /(^|\/)([a-z]{2}\/)?config\.yml(\?.*)?$/i;
-  const allowedConfigUrl = '/api/website-admin/config.yml';
+  const configYmlPattern = /config\.yml(\?.*)?$/i;
   
   // Cache the config response to serve to internal Decap fetches
   let cachedConfigResponse = null;
@@ -26,26 +25,32 @@ window.addEventListener('unhandledrejection', (e) => {
   window.fetch = function(input, init) {
     const url = typeof input === 'string' ? input : input.url;
     
-    // If Decap tries to fetch config.yml (NOT our API), serve cached config
-    if (configYmlPattern.test(url) && !url.includes(allowedConfigUrl)) {
-      console.log('[cms] fetch guard intercepted:', url, '→ serving API config');
+    // Any config.yml request → redirect to our API
+    if (configYmlPattern.test(url)) {
+      console.log('[cms] fetch guard intercepted:', url, '→ using API config');
       
-      // If we have cached config, return it
+      // If we have cached config, return it immediately
       if (cachedConfigResponse) {
+        console.log('[cms] serving from cache');
         return Promise.resolve(new Response(cachedConfigResponse, {
           status: 200,
           headers: { 'Content-Type': 'text/yaml; charset=utf-8' }
         }));
       }
       
-      // Otherwise, proxy to our API endpoint
-      console.log('[cms] fetch guard: no cache, proxying to API');
-      return originalFetch(allowedConfigUrl + '?t=' + Date.now(), { cache: 'no-store' })
+      // Otherwise, fetch from API and cache
+      const apiUrl = window.location.origin + '/api/website-admin/config.yml';
+      console.log('[cms] fetching from API:', apiUrl);
+      return originalFetch(apiUrl + '?t=' + Date.now(), { cache: 'no-store' })
         .then(function(response) {
+          if (!response.ok) {
+            throw new Error('API config fetch failed: ' + response.status);
+          }
           return response.text();
         })
         .then(function(yaml) {
           cachedConfigResponse = yaml;
+          console.log('[cms] cached config from API');
           return new Response(yaml, {
             status: 200,
             headers: { 'Content-Type': 'text/yaml; charset=utf-8' }
@@ -53,22 +58,7 @@ window.addEventListener('unhandledrejection', (e) => {
         });
     }
     
-    // For our API endpoint, cache the response
-    if (url.includes(allowedConfigUrl)) {
-      return originalFetch.apply(this, arguments).then(function(response) {
-        return response.clone().text().then(function(yaml) {
-          cachedConfigResponse = yaml;
-          return response;
-        });
-      });
-    }
-    
     return originalFetch.apply(this, arguments);
-  };
-  
-  // Expose cache setter for manual config loading
-  window.__setCachedConfig = function(yamlText) {
-    cachedConfigResponse = yamlText;
   };
 })();
 
@@ -117,23 +107,19 @@ function waitForStore(timeoutMs = 5000) {
 }
 
 // ============================================================================
-// PART 4: Load config from API
+// PART 4: Pre-load and validate config (fetch guard will cache it)
 // ============================================================================
 async function loadConfig() {
-  const configUrl = '/api/website-admin/config.yml';
+  const configUrl = window.location.origin + '/api/website-admin/config.yml';
   
   try {
+    // This fetch will be intercepted by our guard and cached
     const response = await fetch(configUrl + '?t=' + Date.now(), { cache: 'no-store' });
     if (!response.ok) {
       throw new Error(`Config fetch failed: ${response.status}`);
     }
     
     const yamlText = await response.text();
-    
-    // Cache for fetch guard (so internal Decap fetches get the same config)
-    if (window.__setCachedConfig) {
-      window.__setCachedConfig(yamlText);
-    }
     
     if (!window.jsyaml) {
       throw new Error('js-yaml not available');
@@ -154,8 +140,7 @@ async function loadConfig() {
     }
     
     const collections = config.collections?.length || 0;
-    console.log('[cms] Loaded config from /api/website-admin/config.yml');
-    console.log('[cms] Config: backend=' + config.backend?.name + ' collections=' + collections);
+    console.log('[cms] Config validated: backend=' + config.backend?.name + ' collections=' + collections);
     
     if (collections === 0) {
       console.warn('[cms] WARNING: No collections in config');
@@ -172,16 +157,15 @@ async function loadConfig() {
 // PART 5: Initialize CMS (let Decap fetch from our guard)
 // ============================================================================
 async function initCMS(config) {
-  console.log('[cms-init] Calling CMS.init with load_config_file=true...');
+  console.log('[cms-init] Calling CMS.init (fetch guard will serve config)...');
   
   try {
-    // Explicitly tell Decap to load config file - our guard will serve it
-    // This prevents duplicate collections error (only one source of config)
+    // Tell Decap to load config file - our guard will intercept and serve cached config
     window.CMS.init({
       load_config_file: true
     });
     
-    console.log('[cms-init] CMS.init called, Decap will fetch config via guard...');
+    console.log('[cms-init] CMS.init called, waiting for store...');
     
     // Wait for store to be created
     const storeReady = await waitForStore(5000);
