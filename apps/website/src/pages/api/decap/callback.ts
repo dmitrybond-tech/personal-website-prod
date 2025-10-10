@@ -27,8 +27,8 @@ export const GET: APIRoute = async ({ url }) => {
         'User-Agent': 'DecapCMS-OAuth/1.0',
       },
       body: JSON.stringify({
-        client_id: import.meta.env.DECAP_GITHUB_CLIENT_ID,
-        client_secret: import.meta.env.DECAP_GITHUB_CLIENT_SECRET,
+        client_id: process.env.DECAP_GITHUB_CLIENT_ID,
+        client_secret: process.env.DECAP_GITHUB_CLIENT_SECRET,
         code: code,
       }),
     });
