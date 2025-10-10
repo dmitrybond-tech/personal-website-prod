@@ -1,0 +1,621 @@
+diff --git a/apps/website/public/website-admin/config-loader.js b/apps/website/public/website-admin/config-loader.js
+index old..new 100644
+--- a/apps/website/public/website-admin/config-loader.js
++++ b/apps/website/public/website-admin/config-loader.js
+@@ -1,115 +1,230 @@
+ // /public/website-admin/config-loader.js
++// Robust Decap CMS initialization with race condition elimination and config validation
++
++// ============================================================================
++// PART 0: Global error handlers for visibility
++// ============================================================================
++window.addEventListener('error', function(e) {
++  console.error('[cms] onerror:', e.error || e.message);
++});
++
++window.addEventListener('unhandledrejection', function(e) {
++  console.error('[cms] unhandledrejection:', e.reason);
++});
+ 
++// ============================================================================
++// PART 1: Block static config.yml files (prevent duplicates)
++// ============================================================================
+ (function hardBlockDefaultConfig() {
+   const orig = window.fetch;
+   window.fetch = function(url, opts) {
+     try {
+       const str = typeof url === 'string' ? url : (url?.url || '');
+-      // Блокируем все статические config.yml файлы, но разрешаем API endpoint
++      // Block all static config.yml files, but allow API endpoint
+       if (str.includes('config.yml') && !str.includes('/api/')) {
+         console.warn('[cms] Blocked fetch to static config.yml:', str);
+         return Promise.resolve(new Response('', { status: 404 }));
+       }
+     } catch {}
+     return orig.apply(this, arguments);
+   };
+ })();
+ 
++// ============================================================================
++// PART 2: Configuration resolution
++// ============================================================================
+ const qs = new URLSearchParams(location.search);
+ const param = qs.get('config');
+ 
++// Force load only generated config via API
+ const FORCE_CONFIG_PATH = '/api/website-admin/config.yml';
+ 
+ async function fileExists(url) {
+   try {
+     const r = await fetch(url + (url.includes('?') ? '&' : '?') + 'ping=' + Date.now(), { cache: 'no-store' });
+     return r.ok;
+   } catch { return false; }
+ }
+ 
+ async function resolvePath() {
+-  // If param is explicitly set, use it (but still block if it's config.yml)
+   if (param && param !== '/website-admin/config.yml') return param;
+   
+-  // Always use API-generated config
+   console.info('[cms] Using API-generated config from', FORCE_CONFIG_PATH);
+   return FORCE_CONFIG_PATH;
+ }
+ 
+ async function loadYaml(url) {
+   const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
+   if (!res.ok) throw new Error('Config fetch failed: ' + url);
+   const text = await res.text();
+-  return window.jsyaml.load(text);
++  return { config: window.jsyaml.load(text), rawText: text };
+ }
+ 
+-function waitForCMS(timeoutMs = 10000, stepMs = 50) {
++function ensureLocalBackend(cfg) {
++  const forceLocal = qs.get('local_backend') === 'true';
++  if (forceLocal) {
++    const def = { url: 'http://localhost:8081', allowed_hosts: ['localhost:4321'] };
++    if (cfg.local_backend === true) cfg.local_backend = def;
++    else if (!cfg.local_backend) cfg.local_backend = def;
++  } else {
++    delete cfg.local_backend;
++  }
++  return cfg;
++}
++
++// ============================================================================
++// PART 3: Robust readiness gate (wait for core boot complete)
++// ============================================================================
++function waitForCMSCore(timeoutMs = 10000, stepMs = 50) {
+   return new Promise((resolve, reject) => {
+     const t0 = Date.now();
+     const id = setInterval(() => {
+       if (window.CMS && typeof window.CMS.init === 'function') {
+-        clearInterval(id); resolve();
++        // Basic CMS available, but check for additional readiness signals
++        const ncRoot = document.querySelector('#nc-root');
++        const hasPreviewTemplate = typeof window.CMS.registerPreviewTemplate === 'function';
++        
++        // Core is ready if any of these are true:
++        const elapsed = Date.now() - t0;
++        const coreReady = ncRoot || hasPreviewTemplate || elapsed > 200;
++        
++        if (coreReady) {
++          clearInterval(id);
++          resolve();
++        }
+       } else if (Date.now() - t0 > timeoutMs) {
+-        clearInterval(id); reject(new Error('CMS not loaded in time'));
++        clearInterval(id);
++        reject(new Error('CMS core not loaded in time'));
+       }
+     }, stepMs);
+   });
+ }
+ 
+-function ensureLocalBackend(cfg) {
+-  const qs = new URLSearchParams(location.search);
+-  const forceLocal = qs.get('local_backend') === 'true'; // включаем ТОЛЬКО по параметру
+-  if (forceLocal) {
+-    const def = { url: 'http://localhost:8081', allowed_hosts: ['localhost:4321'] };
+-    if (cfg.local_backend === true) cfg.local_backend = def;
+-    else if (!cfg.local_backend) cfg.local_backend = def;
+-  } else {
+-    delete cfg.local_backend; // прод-режим/туннель → без локального бэкенда
++function waitForStore(maxWaitMs = 3000, stepMs = 100) {
++  return new Promise((resolve) => {
++    const t0 = Date.now();
++    const id = setInterval(() => {
++      try {
++        const store = window.CMS && window.CMS.store;
++        if (store && typeof store.getState === 'function') {
++          clearInterval(id);
++          const elapsed = Date.now() - t0;
++          console.log('[cms-init] store ready @' + elapsed + 'ms');
++          resolve({ success: true, elapsed });
++          return;
++        }
++      } catch (e) {}
++      
++      if (Date.now() - t0 > maxWaitMs) {
++        clearInterval(id);
++        console.warn('[cms-init] store not ready after ' + maxWaitMs + 'ms');
++        resolve({ success: false });
++      }
++    }, stepMs);
++  });
++}
++
++// ============================================================================
++// PART 4: Config validation and collection count
++// ============================================================================
++function validateConfig(cfg, source) {
++  const collectionsCount = Array.isArray(cfg.collections) ? cfg.collections.length : 0;
++  const backend = cfg.backend || {};
++  const backendName = backend.name || 'unknown';
++  const repo = backend.repo || 'n/a';
++  const branch = backend.branch || 'n/a';
++  
++  console.log('[cms-init] ' + source + ' config: backend=' + backendName + 
++    ' repo=' + repo + ' branch=' + branch + ' collections(pre)=' + collectionsCount);
++  
++  if (collectionsCount === 0) {
++    console.warn('[cms-init] WARNING: collections(pre)=0 - CMS may fail to initialize');
+   }
+-  return cfg;
++  
++  return collectionsCount;
++}
++
++function getCollectionNames() {
++  try {
++    const store = window.CMS && window.CMS.store;
++    if (!store) return null;
++    
++    const state = store.getState();
++    const collections = state?.config?.get?.('collections') || state?.config?.collections;
++    
++    if (!collections) return null;
++    
++    const count = collections.size || collections.length || 0;
++    let names = [];
++    
++    try {
++      if (collections.toJS) {
++        names = collections.toJS().map(c => c.name);
++      } else if (Array.isArray(collections)) {
++        names = collections.map(c => c.name);
++      }
++    } catch (e) {}
++    
++    return { count, names };
++  } catch (e) {
++    return null;
++  }
++}
++
++function logCollectionsPostInit(delay = 500) {
++  setTimeout(() => {
++    const result = getCollectionNames();
++    if (result) {
++      console.log('[cms-init] collections(post)=' + result.count + ' collections: [' + result.names.join(', ') + ']');
++      
++      if (result.count === 0) {
++        console.error('[cms-init] collections(post)=0 - CMS failed to load collections');
++        showCollectionsError();
++      }
++    } else {
++      console.warn('[cms-init] Unable to read collections from store');
++    }
++  }, delay);
++}
++
++function showCollectionsError() {
++  // Non-blocking visual banner
++  const banner = document.createElement('div');
++  banner.id = 'cms-collections-error';
++  banner.innerHTML = `
++    <div style="position: fixed; top: 0; left: 0; right: 0; z-index: 99999; 
++                background: #dc2626; color: white; padding: 12px 16px; 
++                font-family: system-ui, sans-serif; font-size: 14px; text-align: center;">
++      ⚠️ CMS failed to load collections — check config.yml (paths/fields)
++    </div>
++  `;
++  document.body.appendChild(banner);
++}
++
++// ============================================================================
++// PART 5: Two-phase init with object → YAML fallback
++// ============================================================================
++async function initCMS(config, rawYaml) {
++  const collectionsPreValidate = validateConfig(config, 'object');
++  
++  console.log('[cms-init] gate passed (core ready), calling CMS.init');
++  
++  try {
++    // Phase A: Try object config first
++    window.CMS.init({
++      load_config_file: false,
++      config: config,
++    });
++    
++    // Wait for store to appear
++    const storeResult = await waitForStore(500, 50);
++    
++    if (storeResult.success) {
++      // Check if config was accepted
++      const storeCollections = getCollectionNames();
++      
++      if (storeCollections && storeCollections.count > 0) {
++        console.log('[cms-init] object config accepted');
++        logCollectionsPostInit(500);
++        return { success: true, method: 'object' };
++      }
++      
++      // Store exists but no collections - try YAML fallback
++      console.warn('[cms-init] object config failed validation, trying YAML fallback');
++    } else {
++      console.warn('[cms-init] store not ready after object config, trying YAML fallback');
++    }
++    
++    // Phase B: YAML fallback
++    if (rawYaml) {
++      console.log('[cms-init] retrying with YAML string config');
++      
++      // Re-init with YAML string (let Decap parse internally)
++      window.CMS.init({
++        config: rawYaml
++      });
++      
++      const yamlStoreResult = await waitForStore(500, 50);
++      
++      if (yamlStoreResult.success) {
++        const yamlCollections = getCollectionNames();
++        if (yamlCollections && yamlCollections.count > 0) {
++          console.log('[cms-init] YAML config accepted (fallback)');
++          logCollectionsPostInit(500);
++          return { success: true, method: 'yaml' };
++        }
++      }
++    }
++    
++    // Both paths failed
++    console.error('[cms-init] Both object and YAML config paths failed');
++    logCollectionsPostInit(500);
++    return { success: false, method: 'failed' };
++    
++  } catch (e) {
++    console.error('[cms-init] CMS.init threw error:', e);
++    return { success: false, method: 'error', error: e };
++  }
+ }
+ 
++// ============================================================================
++// PART 6: Main initialization flow
++// ============================================================================
+ (async () => {
+   try {
+     const path = await resolvePath();
+     if (!path) { 
+       console.error('[cms] No valid config path found'); 
+       return; 
+     }
+     
+-    const cfg = ensureLocalBackend(await loadYaml(path));
++    const { config: cfg, rawText: rawYaml } = await loadYaml(path);
++    const finalCfg = ensureLocalBackend(cfg);
++    
+     window.__CMS_CONFIG_PATH__ = path;
+-    window.__CMS_CONFIG__ = cfg;
+-    console.info('[cms] Loaded config from', path, cfg);
+-
+-    await waitForCMS();
++    window.__CMS_CONFIG__ = finalCfg;
++    window.__CMS_CONFIG_RAW_YAML__ = rawYaml;
+     
+-    // Initialize CMS without auto-loading default config file
+-    const collectionsPreValidate = Array.isArray(cfg.collections) ? cfg.collections.length : 'n/a';
+-    console.log('[decap-admin] CMS.init called (collections pre-validate:', collectionsPreValidate, ')');
++    console.info('[cms] Loaded config from', path);
++
++    // Wait for core to be truly ready
++    await waitForCMSCore();
+     
+-    window.CMS.init({
+-      load_config_file: false,
+-      config: cfg,
+-    });
+-
+-    // Post-init probe: check collections at multiple intervals
+-    [0, 250, 500].forEach(delay => {
+-      setTimeout(() => {
+-        try {
+-          const store = window.CMS && window.CMS.store;
+-          const state = store && store.getState && store.getState();
+-          const collections = state?.config?.get?.('collections');
+-          const collectionsCount = collections ? (collections.size || collections.length || 0) : 'n/a';
+-          console.log('[decap-admin] collections(post-validate)=' + collectionsCount + ' @' + delay + 'ms');
+-        } catch (e) {
+-          console.warn('[decap-admin] Unable to read collections @' + delay + 'ms:', e);
+-        }
+-      }, delay);
+-    });
++    // Initialize with two-phase fallback
++    const result = await initCMS(finalCfg, rawYaml);
++    
++    console.log('[cms-init] initialization complete: method=' + result.method + ' success=' + result.success);
++    
+   } catch (e) {
+     console.error('[cms] init failed:', e);
+   }
+-})();
+\ No newline at end of file
++})();
+diff --git a/apps/website/public/website-admin/override-login.client.js b/apps/website/public/website-admin/override-login.client.js
+index old..new 100644
+--- a/apps/website/public/website-admin/override-login.client.js
++++ b/apps/website/public/website-admin/override-login.client.js
+@@ -1,12 +1,12 @@
+ /**
+- * Decap CMS OAuth popup flow - deep debug instrumentation
+- * Does NOT intercept native popup behavior
+- * Logs auth messages, config, Redux store, and provides debug toolbox
++ * Decap CMS OAuth popup flow - enhanced auth state detection
++ * Integrates with robust config-loader.js initialization
++ * Provides deep debug instrumentation and reliable login completion
+  */
+ 
+ (function() {
+   'use strict';
+ 
+-  // Initialize debug flag from localStorage or server flag
++  // Initialize debug flag from localStorage
+   window.__DECAP_OAUTH_DEBUG__ = (localStorage.getItem('DECAP_OAUTH_DEBUG') === '1');
+   
+   var DEBUG = window.__DECAP_OAUTH_DEBUG__;
+   
+-  // Bootstrap & CMS init logging
++  // Bootstrap logging
+   if (DEBUG) {
+     console.log('[decap-admin] boot debug=' + DEBUG + ' CMS_MANUAL_INIT=' + !!window.CMS_MANUAL_INIT);
+   } else {
+@@ -35,8 +35,11 @@
+     })();
+   }
+ 
+-  // Passive message listener (diagnostic + Redux awareness)
+-  // Decap's own handler will consume the message; we just log it
++  // ============================================================================
++  // PART 4: Enhanced auth state detection and reload fallback
++  // ============================================================================
++  
++  // Passive message listener (diagnostic + trigger auth poll)
+   window.addEventListener('message', function(e) {
+     if (typeof e.data === 'string') {
+       var isAuthMsg = e.data.startsWith('authorization:github:');
+       if (DEBUG) {
+-        console.log('[decap-admin] message: origin=' + e.origin + ' startsWith=\'authorization:github:\'=' + isAuthMsg);
++        console.log('[decap-admin] message: origin=' + e.origin + ' isAuth=' + isAuthMsg);
+       } else if (isAuthMsg) {
+         console.log('[decap-oauth] received auth message');
+       }
+       
+       // Trigger post-auth polling when we receive auth message
+       if (isAuthMsg) {
+         scheduleAuthPoll();
+       }
+     }
+   }, { once: false });
+   
+   // Post-auth polling: check if Redux picked up the auth, reload if needed
+   function scheduleAuthPoll() {
+     var pollAttempts = 0;
+-    var maxAttempts = 12; // 12 * 100ms = 1.2s
++    var maxAttempts = 12;
+     var pollInterval = 100;
+     
+     var pollId = setInterval(function() {
+       pollAttempts++;
+       
+       try {
+         var store = window.CMS && window.CMS.store;
+         if (!store) {
+           if (pollAttempts >= maxAttempts) {
+             clearInterval(pollId);
+           }
+           return;
+         }
+         
+         var state = store.getState();
+         var authUser = state.auth?.get?.('user') || state.auth?.user;
+         var hasToken = false;
++        var lsKey = 'unknown';
+         
+         try {
+-          hasToken = !!(localStorage.getItem('netlify-cms-user') || localStorage.getItem('decap-cms.user'));
++          if (localStorage.getItem('netlify-cms-user')) {
++            hasToken = true;
++            lsKey = 'netlify-cms-user';
++          } else if (localStorage.getItem('decap-cms.user')) {
++            hasToken = true;
++            lsKey = 'decap-cms.user';
++          }
+         } catch(e) {}
+         
+         // If we have user in Redux, success - stop polling
+         if (authUser) {
+           clearInterval(pollId);
+           if (DEBUG) {
+-            console.log('[decap-admin] auth.user detected in Redux @' + (pollAttempts * pollInterval) + 'ms');
++            console.log('[decap-admin] auth.user detected in Redux @' + (pollAttempts * pollInterval) + 'ms via ' + lsKey);
++          } else {
++            console.log('[auth] user present=true via ' + lsKey);
+           }
+           return;
+         }
+         
+         // If max attempts reached and still no user but LS has token, reload once
+         if (pollAttempts >= maxAttempts && !authUser && hasToken) {
+           clearInterval(pollId);
+           
+           if (!sessionStorage.getItem('decap_oauth_reloaded')) {
+             sessionStorage.setItem('decap_oauth_reloaded', '1');
+             if (DEBUG) {
+               console.log('[decap-admin] Redux auth delayed, reloading once...');
+             } else {
+               console.log('[decap-oauth] Reloading to complete authentication...');
+             }
+             setTimeout(function() {
+               location.reload();
+             }, 100);
+           } else if (DEBUG) {
+             console.warn('[decap-admin] Already reloaded once, not reloading again');
+           }
+         }
+       } catch(e) {
+         // Silent failure
+       }
+     }, pollInterval);
+   }
+ 
++  // ============================================================================
++  // Config and Redux store monitoring
++  // ============================================================================
++  
+   // Hook into config parsing (from config-loader.js)
+-  // We'll check window.__CMS_CONFIG__ after it's loaded
+   function logConfigSummary() {
+     try {
+       var cfg = window.__CMS_CONFIG__;
+@@ -198,6 +213,40 @@
+     }
+   }
+ 
++  // Subscribe to auth slice once store appears
++  function subscribeToAuthOnce() {
++    var checkInterval = setInterval(function() {
++      var store = window.CMS && window.CMS.store;
++      if (store && typeof store.subscribe === 'function') {
++        clearInterval(checkInterval);
++        
++        // Single subscription to log auth state
++        var unsubscribe = store.subscribe(function() {
++          try {
++            var state = store.getState();
++            var authUser = state.auth?.get?.('user') || state.auth?.user;
++            
++            if (authUser) {
++              var lsKey = 'unknown';
++              try {
++                if (localStorage.getItem('netlify-cms-user')) lsKey = 'netlify-cms-user';
++                else if (localStorage.getItem('decap-cms.user')) lsKey = 'decap-cms.user';
++              } catch (e) {}
++              
++              console.log('[auth] user present=true via ' + lsKey);
++              
++              // Unsubscribe after first detection
++              if (unsubscribe) {
++                unsubscribe();
++              }
++            }
++          } catch (e) {}
++        });
++      }
++    }, 50);
++    
++    // Timeout after 5 seconds
++    setTimeout(function() {
++      clearInterval(checkInterval);
++    }, 5000);
++  }
++
++  // ============================================================================
++  // CMS init hook
++  // ============================================================================
++  
+   function hookCMSInit() {
+     // Wait for CMS to be available
+     var checkInterval = setInterval(function() {
+       if (window.CMS && typeof window.CMS.init === 'function') {
+@@ -213,6 +262,7 @@
+         // Setup store subscription after CMS init (config-loader.js already calls CMS.init)
+         setTimeout(function() {
+           setupStoreSubscription();
++          subscribeToAuthOnce();
+           
+           // Log config validation outcome
+           setTimeout(function() {
+@@ -241,6 +291,10 @@
+     }, 10000);
+   }
+ 
++  // ============================================================================
++  // Debug toolbox
++  // ============================================================================
++  
+   window.__DECAP_DEBUG__ = {
+     dump: function() {
+       console.group('=== Decap CMS Debug Dump ===');
+@@ -310,6 +364,7 @@
+     clearAuth: function() {
+       try {
+         localStorage.removeItem('netlify-cms-user');
+         localStorage.removeItem('decap-cms.user');
++        sessionStorage.removeItem('decap_oauth_reloaded');
+         console.log('[__DECAP_DEBUG__.clearAuth] Cleared auth keys, reloading...');
+         setTimeout(function() {
+           location.reload();
+@@ -328,6 +383,10 @@
+     }
+   };
+ 
++  // ============================================================================
++  // Initialize hooks
++  // ============================================================================
++  
+   // Initialize hooks
+   hookCMSInit();
+   
+diff --git a/apps/website/public/website-admin/index.html b/apps/website/public/website-admin/index.html
+index old..new 100644
+--- a/apps/website/public/website-admin/index.html
++++ b/apps/website/public/website-admin/index.html
+@@ -18,7 +18,7 @@
+   <!-- 4) our robust config loader -->
+   <script type="module" src="/website-admin/config-loader.js"></script>
+ 
+-  <!-- 5) login override for new tab authentication -->
++  <!-- 5) auth state monitoring and debug tools -->
+   <script src="/website-admin/override-login.client.js"></script>
+ 
+   <noscript>Enable JavaScript to use the CMS.</noscript>
+diff --git a/apps/website/src/pages/api/website-admin/config.yml.ts b/apps/website/src/pages/api/website-admin/config.yml.ts
+index old..new 100644
+--- a/apps/website/src/pages/api/website-admin/config.yml.ts
++++ b/apps/website/src/pages/api/website-admin/config.yml.ts
+@@ -61,17 +61,20 @@ export const GET: APIRoute = async ({ request }) => {
+   const yaml = stringify(config);
+   
+   // Log config values for debugging (base_url and auth_endpoint)
+   const resolvedAuthEndpoint = IS_LOCAL ? 'N/A (test-repo)' : authEndpoint;
+   const collectionsCount = config.collections.length;
+   
+-  // Always log configuration summary
+-  console.log('[config.yml] base_url=' + baseUrl + ' auth_endpoint=' + resolvedAuthEndpoint + ' collections.len=' + collectionsCount);
++  // Always log configuration summary with backend details
++  const backendName = IS_LOCAL ? 'test-repo' : config.backend.name;
++  const repoInfo = IS_LOCAL ? 'local-fs' : `${repo}@${branch}`;
++  console.log(`[config.yml] base_url=${baseUrl} auth_endpoint=${resolvedAuthEndpoint} collections.len=${collectionsCount}`);
++  console.log(`[config.yml] backend=${backendName} repo=${repoInfo}`);
+   
+   // Warn if no collections (critical issue) and log each collection's folder path
+   if (collectionsCount === 0) {
+     console.warn('[config.yml] WARNING: collections.len=0 - CMS will not initialize!');
+-  } else if (DEBUG) {
++  } else {
++    // Always log collection names and folders (crucial for debugging)
+     config.collections.forEach((col: any, idx: number) => {
+-      console.log('[config.yml] collection[' + idx + ']: name=' + col.name + ' folder=' + col.folder);
++      console.log(`[config.yml] collection[${idx}]: name=${col.name} folder=${col.folder}`);
+     });
+   }
+

@@ -1,18 +1,18 @@
 /**
- * Decap CMS OAuth popup flow - deep debug instrumentation
- * Does NOT intercept native popup behavior
- * Logs auth messages, config, Redux store, and provides debug toolbox
+ * Decap CMS OAuth popup flow - enhanced auth state detection
+ * Integrates with robust config-loader.js initialization
+ * Provides deep debug instrumentation and reliable login completion
  */
 
 (function() {
   'use strict';
 
-  // Initialize debug flag from localStorage or server flag
+  // Initialize debug flag from localStorage
   window.__DECAP_OAUTH_DEBUG__ = (localStorage.getItem('DECAP_OAUTH_DEBUG') === '1');
   
   var DEBUG = window.__DECAP_OAUTH_DEBUG__;
   
-  // Bootstrap & CMS init logging
+  // Bootstrap logging
   if (DEBUG) {
     console.log('[decap-admin] boot debug=' + DEBUG + ' CMS_MANUAL_INIT=' + !!window.CMS_MANUAL_INIT);
   } else {
@@ -35,13 +35,16 @@
     })();
   }
 
-  // Passive message listener (diagnostic + Redux awareness)
-  // Decap's own handler will consume the message; we just log it
+  // ============================================================================
+  // PART 4: Enhanced auth state detection and reload fallback
+  // ============================================================================
+  
+  // Passive message listener (diagnostic + trigger auth poll)
   window.addEventListener('message', function(e) {
     if (typeof e.data === 'string') {
       var isAuthMsg = e.data.startsWith('authorization:github:');
       if (DEBUG) {
-        console.log('[decap-admin] message: origin=' + e.origin + ' startsWith=\'authorization:github:\'=' + isAuthMsg);
+        console.log('[decap-admin] message: origin=' + e.origin + ' isAuth=' + isAuthMsg);
       } else if (isAuthMsg) {
         console.log('[decap-oauth] received auth message');
       }
@@ -74,16 +77,25 @@
         var state = store.getState();
         var authUser = state.auth?.get?.('user') || state.auth?.user;
         var hasToken = false;
+        var lsKey = 'unknown';
         
         try {
-          hasToken = !!(localStorage.getItem('netlify-cms-user') || localStorage.getItem('decap-cms.user'));
+          if (localStorage.getItem('netlify-cms-user')) {
+            hasToken = true;
+            lsKey = 'netlify-cms-user';
+          } else if (localStorage.getItem('decap-cms.user')) {
+            hasToken = true;
+            lsKey = 'decap-cms.user';
+          }
         } catch(e) {}
         
         // If we have user in Redux, success - stop polling
         if (authUser) {
           clearInterval(pollId);
           if (DEBUG) {
-            console.log('[decap-admin] auth.user detected in Redux @' + (pollAttempts * pollInterval) + 'ms');
+            console.log('[decap-admin] auth.user detected in Redux @' + (pollAttempts * pollInterval) + 'ms via ' + lsKey);
+          } else {
+            console.log('[auth] user present=true via ' + lsKey);
           }
           return;
         }
@@ -112,8 +124,11 @@
     }, pollInterval);
   }
 
+  // ============================================================================
+  // Config and Redux store monitoring
+  // ============================================================================
+  
   // Hook into config parsing (from config-loader.js)
-  // We'll check window.__CMS_CONFIG__ after it's loaded
   function logConfigSummary() {
     try {
       var cfg = window.__CMS_CONFIG__;
@@ -199,7 +214,48 @@
     }
   }
 
+  // Subscribe to auth slice once store appears
+  function subscribeToAuthOnce() {
+    var checkInterval = setInterval(function() {
+      var store = window.CMS && window.CMS.store;
+      if (store && typeof store.subscribe === 'function') {
+        clearInterval(checkInterval);
+        
+        // Single subscription to log auth state
+        var unsubscribe = store.subscribe(function() {
+          try {
+            var state = store.getState();
+            var authUser = state.auth?.get?.('user') || state.auth?.user;
+            
+            if (authUser) {
+              var lsKey = 'unknown';
+              try {
+                if (localStorage.getItem('netlify-cms-user')) lsKey = 'netlify-cms-user';
+                else if (localStorage.getItem('decap-cms.user')) lsKey = 'decap-cms.user';
+              } catch (e) {}
+              
+              console.log('[auth] user present=true via ' + lsKey);
+              
+              // Unsubscribe after first detection
+              if (unsubscribe) {
+                unsubscribe();
+              }
+            }
+          } catch (e) {}
+        });
+      }
+    }, 50);
+    
+    // Timeout after 5 seconds
+    setTimeout(function() {
+      clearInterval(checkInterval);
+    }, 5000);
+  }
+
+  // ============================================================================
   // CMS init hook
+  // ============================================================================
+  
   function hookCMSInit() {
     // Wait for CMS to be available
     var checkInterval = setInterval(function() {
@@ -216,6 +272,7 @@
         // Setup store subscription after CMS init (config-loader.js already calls CMS.init)
         setTimeout(function() {
           setupStoreSubscription();
+          subscribeToAuthOnce();
           
           // Log config validation outcome
           setTimeout(function() {
@@ -240,7 +297,10 @@
     }, 10000);
   }
 
+  // ============================================================================
   // Debug toolbox
+  // ============================================================================
+  
   window.__DECAP_DEBUG__ = {
     dump: function() {
       console.group('=== Decap CMS Debug Dump ===');
@@ -312,6 +372,7 @@
       try {
         localStorage.removeItem('netlify-cms-user');
         localStorage.removeItem('decap-cms.user');
+        sessionStorage.removeItem('decap_oauth_reloaded');
         console.log('[__DECAP_DEBUG__.clearAuth] Cleared auth keys, reloading...');
         setTimeout(function() {
           location.reload();
@@ -328,7 +389,10 @@
     }
   };
 
+  // ============================================================================
   // Initialize hooks
+  // ============================================================================
+  
   hookCMSInit();
   
   if (DEBUG) {

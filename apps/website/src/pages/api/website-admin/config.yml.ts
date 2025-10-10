@@ -64,15 +64,19 @@ export const GET: APIRoute = async ({ request }) => {
   const resolvedAuthEndpoint = IS_LOCAL ? 'N/A (test-repo)' : authEndpoint;
   const collectionsCount = config.collections.length;
   
-  // Always log configuration summary
-  console.log('[config.yml] base_url=' + baseUrl + ' auth_endpoint=' + resolvedAuthEndpoint + ' collections.len=' + collectionsCount);
+  // Always log configuration summary with backend details
+  const backendName = IS_LOCAL ? 'test-repo' : config.backend.name;
+  const repoInfo = IS_LOCAL ? 'local-fs' : `${repo}@${branch}`;
+  console.log(`[config.yml] base_url=${baseUrl} auth_endpoint=${resolvedAuthEndpoint} collections.len=${collectionsCount}`);
+  console.log(`[config.yml] backend=${backendName} repo=${repoInfo}`);
   
   // Warn if no collections (critical issue) and log each collection's folder path
   if (collectionsCount === 0) {
     console.warn('[config.yml] WARNING: collections.len=0 - CMS will not initialize!');
-  } else if (DEBUG) {
+  } else {
+    // Always log collection names and folders (crucial for debugging)
     config.collections.forEach((col: any, idx: number) => {
-      console.log('[config.yml] collection[' + idx + ']: name=' + col.name + ' folder=' + col.folder);
+      console.log(`[config.yml] collection[${idx}]: name=${col.name} folder=${col.folder}`);
     });
   }
   
