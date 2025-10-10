@@ -172,12 +172,14 @@ async function loadConfig() {
 // PART 5: Initialize CMS (let Decap fetch from our guard)
 // ============================================================================
 async function initCMS(config) {
-  console.log('[cms-init] Calling CMS.init (via fetch guard)...');
+  console.log('[cms-init] Calling CMS.init with load_config_file=true...');
   
   try {
-    // Initialize with NO config - let Decap's internal fetch get config from our guard
-    // This prevents duplicate collections error
-    window.CMS.init();
+    // Explicitly tell Decap to load config file - our guard will serve it
+    // This prevents duplicate collections error (only one source of config)
+    window.CMS.init({
+      load_config_file: true
+    });
     
     console.log('[cms-init] CMS.init called, Decap will fetch config via guard...');
     
