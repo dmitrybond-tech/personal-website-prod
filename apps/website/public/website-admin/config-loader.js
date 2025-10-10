@@ -94,7 +94,7 @@ function waitForCMSCore(timeoutMs = 10000, stepMs = 50) {
   });
 }
 
-function waitForStore(maxWaitMs = 3000, stepMs = 100) {
+function waitForStore(maxWaitMs = 2000, stepMs = 50) {
   return new Promise((resolve) => {
     const t0 = Date.now();
     const id = setInterval(() => {
@@ -111,7 +111,7 @@ function waitForStore(maxWaitMs = 3000, stepMs = 100) {
       
       if (Date.now() - t0 > maxWaitMs) {
         clearInterval(id);
-        console.warn('[cms-init] store not ready after ' + maxWaitMs + 'ms');
+        console.error('[cms-init] store not ready after ' + maxWaitMs + 'ms');
         resolve({ success: false });
       }
     }, stepMs);
@@ -196,7 +196,7 @@ function showCollectionsError() {
 }
 
 // ============================================================================
-// PART 5: Two-phase init with object → YAML fallback
+// PART 5: Single-phase init with extended store timeout
 // ============================================================================
 async function initCMS(config, rawYaml) {
   const collectionsPreValidate = validateConfig(config, 'object');
@@ -204,59 +204,42 @@ async function initCMS(config, rawYaml) {
   console.log('[cms-init] gate passed (core ready), calling CMS.init');
   
   try {
-    // Phase A: Try object config first
+    // Initialize with object config
     window.CMS.init({
       load_config_file: false,
       config: config,
     });
     
-    // Wait for store to appear
-    const storeResult = await waitForStore(500, 50);
+    // Wait for store to appear (extended timeout for slower systems)
+    const storeResult = await waitForStore(2000, 50);
     
     if (storeResult.success) {
-      // Check if config was accepted
+      // Check if config was accepted and collections loaded
       const storeCollections = getCollectionNames();
       
       if (storeCollections && storeCollections.count > 0) {
-        console.log('[cms-init] object config accepted');
+        console.log('[cms-init] config accepted, collections loaded successfully');
         logCollectionsPostInit(500);
         return { success: true, method: 'object' };
       }
       
-      // Store exists but no collections - try YAML fallback
-      console.warn('[cms-init] object config failed validation, trying YAML fallback');
+      // Store exists but no collections - config validation issue
+      console.error('[cms-init] Store ready but no collections found');
+      console.error('[cms-init] This indicates a config validation or path issue');
+      console.error('[cms-init] Config passed to CMS.init:', config);
+      logCollectionsPostInit(500);
+      return { success: false, method: 'no-collections' };
     } else {
-      console.warn('[cms-init] store not ready after object config, trying YAML fallback');
+      // Store not ready after 2s - initialization failed
+      console.error('[cms-init] Store not ready after 2000ms');
+      console.error('[cms-init] Check console above for CMS initialization errors');
+      console.error('[cms-init] Config object:', config);
+      return { success: false, method: 'store-timeout' };
     }
-    
-    // Phase B: YAML fallback
-    if (rawYaml) {
-      console.log('[cms-init] retrying with YAML string config');
-      
-      // Re-init with YAML string (let Decap parse internally)
-      window.CMS.init({
-        config: rawYaml
-      });
-      
-      const yamlStoreResult = await waitForStore(500, 50);
-      
-      if (yamlStoreResult.success) {
-        const yamlCollections = getCollectionNames();
-        if (yamlCollections && yamlCollections.count > 0) {
-          console.log('[cms-init] YAML config accepted (fallback)');
-          logCollectionsPostInit(500);
-          return { success: true, method: 'yaml' };
-        }
-      }
-    }
-    
-    // Both paths failed
-    console.error('[cms-init] Both object and YAML config paths failed');
-    logCollectionsPostInit(500);
-    return { success: false, method: 'failed' };
     
   } catch (e) {
     console.error('[cms-init] CMS.init threw error:', e);
+    console.error('[cms-init] Error details:', e.message, e.stack);
     return { success: false, method: 'error', error: e };
   }
 }
@@ -285,12 +268,20 @@ async function initCMS(config, rawYaml) {
     // Wait for core to be truly ready
     await waitForCMSCore();
     
-    // Initialize with two-phase fallback (use config as-is from API)
+    // Initialize CMS (use config as-is from API)
     const result = await initCMS(cfg, rawYaml);
     
     console.log('[cms-init] initialization complete: method=' + result.method + ' success=' + result.success);
     
+    if (!result.success) {
+      console.error('[cms-init] Initialization failed. Check errors above.');
+      console.error('[cms-init] Config object structure:', Object.keys(cfg));
+      console.error('[cms-init] Backend:', cfg.backend);
+      console.error('[cms-init] Collections:', cfg.collections?.length || 0);
+    }
+    
   } catch (e) {
     console.error('[cms] init failed:', e);
+    console.error('[cms] Error stack:', e.stack);
   }
 })();
