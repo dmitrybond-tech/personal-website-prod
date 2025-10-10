@@ -5,11 +5,25 @@ services:
     build:
       context: .
       dockerfile: apps/website/Dockerfile
+      args:
+        # Build-time variables (PUBLIC_*) - injected during build
+        PUBLIC_CAL_USERNAME: ${PUBLIC_CAL_USERNAME}
+        PUBLIC_CAL_EMBED_LINK: ${PUBLIC_CAL_EMBED_LINK}
+        PUBLIC_CAL_EVENTS: ${PUBLIC_CAL_EVENTS}
+        PUBLIC_SITE_URL: ${PUBLIC_SITE_URL}
+        PUBLIC_ENV: ${PUBLIC_ENV}
+        PUBLIC_DECAP_CMS_VERSION: ${PUBLIC_DECAP_CMS_VERSION}
+        # Git information
+        GIT_SHA: ${GIT_SHA:-unknown}
     ports:
       - "127.0.0.1:3000:3000"
     restart: unless-stopped
+    env_file:
+      - env.prod
     environment:
+      # Runtime variables (server-side only)
       - NODE_ENV=production
+      - PORT=3000
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.website.rule=Host(`yourdomain.com`)"

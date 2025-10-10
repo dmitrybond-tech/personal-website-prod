@@ -76,14 +76,38 @@ export function calInlineHref(eventSlug: string): string {
     (processEnv?.PUBLIC_CAL_USERNAME as string | undefined) ||
     '';
 
+  // Debug logging to help troubleshoot environment variables
+  if (typeof window !== 'undefined') {
+    console.log('[cal] Environment variables debug:', {
+      hasImportMeta: !!import.meta?.env,
+      hasProcessEnv: typeof process !== 'undefined',
+      username: username,
+      eventSlug: eventSlug,
+      importMetaEnv: import.meta?.env ? {
+        PUBLIC_CAL_USERNAME: import.meta.env.PUBLIC_CAL_USERNAME,
+        PUBLIC_CAL_EMBED_LINK: import.meta.env.PUBLIC_CAL_EMBED_LINK,
+        PUBLIC_CAL_EVENTS: import.meta.env.PUBLIC_CAL_EVENTS,
+      } : 'not available',
+      processEnv: typeof process !== 'undefined' ? {
+        PUBLIC_CAL_USERNAME: process.env.PUBLIC_CAL_USERNAME,
+        PUBLIC_CAL_EMBED_LINK: process.env.PUBLIC_CAL_EMBED_LINK,
+        PUBLIC_CAL_EVENTS: process.env.PUBLIC_CAL_EVENTS,
+      } : 'not available'
+    });
+  }
+
   // If username is empty, return empty string (component will decide whether to show anything)
   if (!username) {
     console.warn('[cal] PUBLIC_CAL_USERNAME is not set, cannot generate Cal.com inline URL');
+    console.warn('[cal] Available env vars:', { env, processEnv });
     return '';
   }
 
   // Base URL for Cal inline embeds is cal.com, not app.cal.com
   // Must include /{username}/{event}
   const base = 'https://cal.com';
-  return `${base}/${username}/${eventSlug}?embedType=inline&layout=month_view&hideEventTypeDetails=false`;
+  const url = `${base}/${username}/${eventSlug}?embedType=inline&layout=month_view&hideEventTypeDetails=false`;
+  
+  console.log('[cal] Generated Cal.com URL:', url);
+  return url;
 }

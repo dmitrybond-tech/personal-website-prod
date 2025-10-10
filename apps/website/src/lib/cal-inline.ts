@@ -68,7 +68,28 @@ export function getCalConfig() {
   const embedLink = env.PUBLIC_CAL_EMBED_LINK || processEnv.PUBLIC_CAL_EMBED_LINK || '';
   const events = env.PUBLIC_CAL_EVENTS || processEnv.PUBLIC_CAL_EVENTS || '';
 
-  return {
+  // Debug logging to help troubleshoot environment variables
+  if (typeof window !== 'undefined') {
+    console.log('[cal-config] Environment variables debug:', {
+      hasImportMeta: !!import.meta?.env,
+      hasProcessEnv: typeof process !== 'undefined',
+      username: username,
+      embedLink: embedLink,
+      events: events,
+      importMetaEnv: import.meta?.env ? {
+        PUBLIC_CAL_USERNAME: import.meta.env.PUBLIC_CAL_USERNAME,
+        PUBLIC_CAL_EMBED_LINK: import.meta.env.PUBLIC_CAL_EMBED_LINK,
+        PUBLIC_CAL_EVENTS: import.meta.env.PUBLIC_CAL_EVENTS,
+      } : 'not available',
+      processEnv: typeof process !== 'undefined' ? {
+        PUBLIC_CAL_USERNAME: process.env.PUBLIC_CAL_USERNAME,
+        PUBLIC_CAL_EMBED_LINK: process.env.PUBLIC_CAL_EMBED_LINK,
+        PUBLIC_CAL_EVENTS: process.env.PUBLIC_CAL_EVENTS,
+      } : 'not available'
+    });
+  }
+
+  const config = {
     username,
     embedLink,
     events,
@@ -76,4 +97,7 @@ export function getCalConfig() {
     hasEmbedLink: !!embedLink,
     hasEvents: !!events
   };
+
+  console.log('[cal-config] Final configuration:', config);
+  return config;
 }

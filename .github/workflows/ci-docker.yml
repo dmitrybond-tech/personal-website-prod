@@ -97,12 +97,12 @@ jobs:
             ${{ steps.meta.outputs.labels }}
             org.opencontainers.image.revision=${{ github.sha }}
           build-args: |
-            PUBLIC_CAL_USERNAME=${{ vars.PUBLIC_CAL_USERNAME || env.PUBLIC_CAL_USERNAME || '' }}
-            PUBLIC_CAL_EMBED_LINK=${{ vars.PUBLIC_CAL_EMBED_LINK || env.PUBLIC_CAL_EMBED_LINK || '' }}
-            PUBLIC_CAL_EVENTS=${{ vars.PUBLIC_CAL_EVENTS || env.PUBLIC_CAL_EVENTS || '' }}
-            PUBLIC_SITE_URL=${{ vars.PUBLIC_SITE_URL || env.PUBLIC_SITE_URL || '' }}
-            PUBLIC_ENV=${{ vars.PUBLIC_ENV || env.PUBLIC_ENV || '' }}
-            PUBLIC_DECAP_CMS_VERSION=${{ vars.PUBLIC_DECAP_CMS_VERSION || env.PUBLIC_DECAP_CMS_VERSION || '' }}
+            PUBLIC_CAL_USERNAME=${{ vars.PUBLIC_CAL_USERNAME || env.PUBLIC_CAL_USERNAME || 'dmitrybond' }}
+            PUBLIC_CAL_EMBED_LINK=${{ vars.PUBLIC_CAL_EMBED_LINK || env.PUBLIC_CAL_EMBED_LINK || 'https://cal.com/dmitrybond' }}
+            PUBLIC_CAL_EVENTS=${{ vars.PUBLIC_CAL_EVENTS || env.PUBLIC_CAL_EVENTS || 'intro-30m|Intro 30m,tech-90m|Tech 90m,mentoring-60m|Mentoring 60m' }}
+            PUBLIC_SITE_URL=${{ vars.PUBLIC_SITE_URL || env.PUBLIC_SITE_URL || 'https://dmitrybond.tech' }}
+            PUBLIC_ENV=${{ vars.PUBLIC_ENV || env.PUBLIC_ENV || 'production' }}
+            PUBLIC_DECAP_CMS_VERSION=${{ vars.PUBLIC_DECAP_CMS_VERSION || env.PUBLIC_DECAP_CMS_VERSION || '3.8.3' }}
             GIT_SHA=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
