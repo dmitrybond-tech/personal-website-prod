@@ -1,8 +1,22 @@
 import type { APIRoute } from 'astro';
-import { parse } from 'cookie';
+import { parse, serialize } from 'cookie';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
 export const prerender = false;
+
+// Helper function to redirect back to admin with error
+function redirectWithError(error: string, siteUrl: string) {
+  const adminUrl = new URL('/website-admin', siteUrl);
+  adminUrl.searchParams.set('auth_error', error);
+  
+  return new Response(null, {
+    status: 302,
+    headers: {
+      'Location': adminUrl.toString(),
+      'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+    }
+  });
+}
 
 export const GET: APIRoute = async ({ request, cookies, url }) => {
   try {
@@ -24,13 +38,8 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     const stateSecret = process.env.DECAP_OAUTH_STATE_SECRET || 'change_me_long_random';
 
     if (!clientId || !clientSecret) {
-      return new Response(JSON.stringify({ 
-        error: 'OAuth configuration missing',
-        message: 'DECAP_GITHUB_CLIENT_ID and DECAP_GITHUB_CLIENT_SECRET must be set'
-      }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      console.error('[decap-oauth] OAuth configuration missing');
+      return redirectWithError('oauth_config_missing', siteUrl);
     }
 
     // Parse URL parameters
@@ -39,129 +48,38 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     const state = urlParams.get('state');
     const error = urlParams.get('error');
 
-    // Handle OAuth error
+    // Handle OAuth error - redirect back to admin with error message
     if (error) {
-      const errorPayload = `authorization:github:error:${JSON.stringify({ message: error, provider: 'github' })}`;
-      return new Response(`
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="utf-8"><title>Decap CMS OAuth Error</title></head>
-        <body>
-        <script>
-          (function () {
-            var payload = ${JSON.stringify(errorPayload)};
-            try { if (window.opener && !window.opener.closed) window.opener.postMessage(payload, '*'); } catch(e) {}
-            try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-            console.error('[decap-oauth] error:', ${JSON.stringify(error)});
-            setTimeout(function() { try { window.close(); } catch(e) {} }, 100);
-          })();
-        </script>
-        </body>
-        </html>
-      `, {
-        status: 200,
-        headers: { 
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-store',
-          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-        }
-      });
+      console.error('[decap-oauth] GitHub returned error:', error);
+      return redirectWithError(error, siteUrl);
     }
 
     // Validate required parameters
     if (!code || !state) {
-      return new Response(`
-        <script>
-          (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'missing_code_or_state', provider: 'github' });
-            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
-            try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-            console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-            try { window.close(); } catch(e) {}
-          })();
-        </script>
-      `, {
-        status: 400,
-        headers: { 
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-store',
-          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-        }
-      });
+      console.error('[decap-oauth] Missing code or state parameter');
+      return redirectWithError('missing_code_or_state', siteUrl);
     }
 
     // Validate state from cookie
     const cookieHeader = request.headers.get('cookie');
     if (!cookieHeader) {
-      return new Response(`
-        <script>
-          (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'missing_state_cookie', provider: 'github' });
-            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
-            try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-            console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-            try { window.close(); } catch(e) {}
-          })();
-        </script>
-      `, {
-        status: 400,
-        headers: { 
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-store',
-          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-        }
-      });
+      console.error('[decap-oauth] No cookie header found');
+      return redirectWithError('missing_state_cookie', siteUrl);
     }
 
     const parsedCookies = parse(cookieHeader);
     const storedState = parsedCookies.decap_oauth_state;
     
     if (!storedState) {
-      return new Response(`
-        <script>
-          (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_cookie_not_found', provider: 'github' });
-            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
-            try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-            console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-            try { window.close(); } catch(e) {}
-          })();
-        </script>
-      `, {
-        status: 400,
-        headers: { 
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-store',
-          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-        }
-      });
+      console.error('[decap-oauth] State cookie not found');
+      return redirectWithError('state_cookie_not_found', siteUrl);
     }
 
     // Verify state signature
     const [storedStateValue, storedSignature] = storedState.split('.');
     if (!storedStateValue || !storedSignature) {
-      return new Response(`
-        <script>
-          (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'invalid_state_format', provider: 'github' });
-            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
-            try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-            console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-            try { window.close(); } catch(e) {}
-          })();
-        </script>
-      `, {
-        status: 400,
-        headers: { 
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-store',
-          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-        }
-      });
+      console.error('[decap-oauth] Invalid state format');
+      return redirectWithError('invalid_state_format', siteUrl);
     }
 
     const expectedSignature = createHmac('sha256', stateSecret)
@@ -173,48 +91,14 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 
     if (expectedBuffer.length !== receivedBuffer.length || 
         !timingSafeEqual(expectedBuffer, receivedBuffer)) {
-      return new Response(`
-        <script>
-          (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_signature_mismatch', provider: 'github' });
-            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
-            try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-            console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-            try { window.close(); } catch(e) {}
-          })();
-        </script>
-      `, {
-        status: 400,
-        headers: { 
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-store',
-          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-        }
-      });
+      console.error('[decap-oauth] State signature mismatch');
+      return redirectWithError('state_signature_mismatch', siteUrl);
     }
 
     // Verify state matches
     if (state !== storedStateValue) {
-      return new Response(`
-        <script>
-          (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_mismatch', provider: 'github' });
-            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
-            try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-            console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-            try { window.close(); } catch(e) {}
-          })();
-        </script>
-      `, {
-        status: 400,
-        headers: { 
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-store',
-          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-        }
-      });
+      console.error('[decap-oauth] State parameter mismatch');
+      return redirectWithError('state_mismatch', siteUrl);
     }
 
     // Exchange code for access token
@@ -234,192 +118,54 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
-      console.error('[decap-oauth] token exchange failed:', errorText);
-      return new Response(`
-        <script>
-          (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'token_exchange_failed', provider: 'github' });
-            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
-            try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-            console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-            try { window.close(); } catch(e) {}
-          })();
-        </script>
-      `, {
-        status: 500,
-        headers: { 
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-store',
-          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-        }
-      });
+      console.error('[decap-oauth] Token exchange failed:', errorText);
+      return redirectWithError('token_exchange_failed', siteUrl);
     }
 
     const tokenData = await tokenResponse.json();
     
     if (tokenData.error) {
-      console.error('[decap-oauth] token error:', tokenData);
-      const errorMsg = JSON.stringify(tokenData.error_description || tokenData.error);
-      return new Response(`
-        <script>
-          (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: ${errorMsg}, provider: 'github' });
-            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
-            try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-            console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-            try { window.close(); } catch(e) {}
-          })();
-        </script>
-      `, {
-        status: 400,
-        headers: { 
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-store',
-          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-        }
-      });
+      console.error('[decap-oauth] Token error:', tokenData);
+      return redirectWithError(tokenData.error, siteUrl);
     }
 
     const accessToken = tokenData.access_token;
     
     if (!accessToken) {
-      return new Response(`
-        <script>
-          (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'no_access_token', provider: 'github' });
-            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
-            try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-            console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-            try { window.close(); } catch(e) {}
-          })();
-        </script>
-      `, {
-        status: 500,
-        headers: { 
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-store',
-          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-        }
-      });
+      console.error('[decap-oauth] No access token in response');
+      return redirectWithError('no_access_token', siteUrl);
     }
 
-    // Build canonical Decap payload
-    const payloadObj = { token: accessToken, provider: 'github' };
-    const payload = `authorization:github:success:${JSON.stringify(payloadObj)}`;
-    
-    // Return success response with token
-    // Uses '*' for postMessage (Decap validates internally)
-    // Adds localStorage fallback for session restoration
-    return new Response(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Decap CMS OAuth</title>
-      </head>
-      <body>
-        <script>
-          (function () {
-            var payload = ${JSON.stringify(payload)};
-            var acknowledged = false;
-            var fallbackTriggered = false;
-            
-            // Listen for acknowledgment from opener
-            window.addEventListener('message', function(event) {
-              if (event.data === 'decap_oauth_ack' && event.source === window.opener) {
-                console.log('[decap-oauth] acknowledgment received from opener, closing popup');
-                acknowledged = true;
-                // Close immediately on acknowledgment (Decap is ready)
-                setTimeout(function() {
-                  try { window.close(); } catch(e) {}
-                }, 100);
-              }
-            });
-            
-            // Send auth message to opener
-            try { 
-              if (window.opener && !window.opener.closed) {
-                console.log('[decap-oauth] sending auth message to opener');
-                window.opener.postMessage(payload, '*'); 
-              } else {
-                console.warn('[decap-oauth] no valid opener window found');
-              }
-            } catch(e) {
-              console.error('[decap-oauth] postMessage to opener failed:', e);
-            }
-            
-            // Also broadcast via BroadcastChannel
-            try { 
-              new BroadcastChannel('decap_oauth').postMessage(payload); 
-            } catch(e) {}
-            
-            console.log('[decap-oauth] auth sent, waiting for acknowledgment...');
-            
-            // Fallback if no acknowledgment within 800ms
-            // This means Decap wasn't ready, so we'll reload and restore auth
-            setTimeout(function() {
-              if (!acknowledged && !fallbackTriggered && window.opener && !window.opener.closed) {
-                try {
-                  fallbackTriggered = true;
-                  console.log('[decap-oauth] no acknowledgment - Decap not ready, triggering fallback');
-                  localStorage.setItem('decap_oauth_fallback', payload);
-                  window.opener.location.reload();
-                  // Keep popup open for reload to complete
-                  setTimeout(function() {
-                    try { window.close(); } catch(e) {}
-                  }, 1000);
-                } catch(e) {
-                  console.error('[decap-oauth] fallback failed:', e);
-                }
-              } else if (acknowledged) {
-                console.log('[decap-oauth] ack received, no fallback needed');
-              }
-            }, 800);
-            
-            // Safety timeout: force close after 3 seconds no matter what
-            setTimeout(function() {
-              if (!acknowledged && !fallbackTriggered) {
-                console.warn('[decap-oauth] safety timeout reached, closing popup');
-              }
-              try { window.close(); } catch(e) {}
-            }, 3000);
-          })();
-        </script>
-      </body>
-      </html>
-    `, {
-      status: 200,
-      headers: { 
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'no-store',
-        'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+    // Redirect-based OAuth flow (no popups)
+    // Store token in cookie and redirect back to admin page
+    const adminUrl = new URL('/website-admin', siteUrl);
+    adminUrl.searchParams.set('auth_success', 'true');
+
+    // Store token in cookie (non-httpOnly so client JS can read it)
+    const tokenCookie = serialize('decap_auth_token', accessToken, {
+      httpOnly: false, // Must be false for client-side access
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: '/'
+    });
+
+    console.log('[decap-oauth] Token obtained, redirecting to admin with cookie');
+
+    return new Response(null, {
+      status: 302,
+      headers: {
+        'Location': adminUrl.toString(),
+        'Set-Cookie': [
+          'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure',
+          tokenCookie
+        ].join(', ')
       }
     });
 
   } catch (error) {
     console.error('[decap-oauth] callback error:', error);
-    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(`
-      <script>
-        (function () {
-          var payload = 'authorization:github:error:' + JSON.stringify({ message: '${errorMsg}', provider: 'github' });
-          try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-          try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
-          try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-          console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-          try { window.close(); } catch(e) {}
-        })();
-      </script>
-    `, {
-      status: 500,
-      headers: { 
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'no-store',
-        'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-      }
-    });
+    const siteUrl = process.env.PUBLIC_SITE_URL || 'http://localhost:4321';
+    return redirectWithError('unexpected_error', siteUrl);
   }
 };

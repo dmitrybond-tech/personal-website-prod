@@ -1,38 +1,57 @@
 /**
- * Decap CMS OAuth helpers
- * Provides diagnostic logging and fallback auth state restoration
- * The native Decap popup flow is used - no custom buttons or bridges
+ * Decap CMS OAuth redirect handler
+ * Handles redirect-based OAuth flow (no popups)
+ * Waits for Decap to be ready, then injects auth token
  */
 
 (function() {
   'use strict';
 
-  const FALLBACK_KEY = 'decap_oauth_fallback';
-
-  // Mask token in logs to prevent leakage
-  function maskToken(payload) {
-    if (typeof payload !== 'string') return payload;
-    return payload.replace(/(token['"]?\s*:\s*['"])[^'"]+(['"])/gi, '$1***$2');
+  // Helper to get cookie value
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
   }
 
-  // Wait for Decap CMS to be ready (backend initialized)
-  function waitForDecapReady(timeoutMs = 5000) {
-    return new Promise((resolve, reject) => {
+  // Helper to delete cookie
+  function deleteCookie(name) {
+    document.cookie = `${name}=; Max-Age=0; Path=/`;
+  }
+
+  // Mask token in logs to prevent leakage
+  function maskToken(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/(gho_)[a-zA-Z0-9]{36}/g, '$1***');
+  }
+
+  // Wait for Decap CMS to be ready (collections loaded)
+  function waitForDecapReady(timeoutMs = 10000) {
+    return new Promise((resolve) => {
       const startTime = Date.now();
       
       function check() {
-        // Check if Decap is initialized and has a backend
-        if (window.DecapCms && 
-            window.__DECAP_CMS__ && 
-            window.__DECAP_CMS__.store) {
-          console.log('[decap-oauth] Decap CMS is ready');
-          resolve();
+        // Check if Decap is initialized with collections loaded
+        const store = window.__DECAP_CMS__ && window.__DECAP_CMS__.store;
+        const state = store && store.getState && store.getState();
+        const config = state && state.config;
+        const collections = config && (config.collections || (config.get && config.get('collections')));
+        const hasCollections = collections && (
+          Array.isArray(collections) ? collections.length > 0 : 
+          collections.size ? collections.size > 0 : false
+        );
+        
+        if (window.DecapCms && store && hasCollections) {
+          console.log('[decap-oauth] Decap CMS is ready with', 
+            Array.isArray(collections) ? collections.length : collections.size, 'collections');
+          resolve(true);
           return;
         }
         
         if (Date.now() - startTime > timeoutMs) {
           console.warn('[decap-oauth] Timeout waiting for Decap CMS');
-          resolve(); // Don't reject, just proceed
+          resolve(false);
           return;
         }
         
@@ -43,57 +62,88 @@
     });
   }
 
-  // Check for fallback auth state (from popup reload scenario)
-  async function checkFallbackAuth() {
-    try {
-      const payload = localStorage.getItem(FALLBACK_KEY);
-      if (payload && payload.startsWith('authorization:github:success:')) {
-        console.log('[decap-oauth] Found fallback auth state, waiting for Decap...');
-        
-        // CRITICAL: Wait for Decap to be ready before sending message
-        await waitForDecapReady();
-        
-        console.log('[decap-oauth] Restoring fallback auth state');
-        localStorage.removeItem(FALLBACK_KEY);
-        
-        // Re-broadcast to CMS (now that it's ready)
-        window.postMessage(payload, window.location.origin);
-        
-        try {
-          new BroadcastChannel('decap_oauth').postMessage(payload);
-        } catch(e) {}
+  // Handle OAuth redirect completion
+  async function handleOAuthRedirect() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authSuccess = urlParams.get('auth_success');
+    const authError = urlParams.get('auth_error');
+
+    // Handle error case
+    if (authError) {
+      console.error('[decap-oauth] Authentication error:', authError);
+      alert(`GitHub authentication failed: ${authError}`);
+      // Clean up URL
+      window.history.replaceState({}, '', '/website-admin');
+      return;
+    }
+
+    // Handle success case
+    if (authSuccess === 'true') {
+      console.log('[decap-oauth] OAuth redirect completed, processing token...');
+      
+      // Get token from cookie
+      const token = getCookie('decap_auth_token');
+      
+      if (!token) {
+        console.error('[decap-oauth] No auth token found in cookie');
+        alert('Authentication failed: No token received');
+        window.history.replaceState({}, '', '/website-admin');
+        return;
       }
-    } catch (e) {
-      console.error('[decap-oauth] fallback check failed:', e);
+
+      console.log('[decap-oauth] Token received:', maskToken(token));
+      
+      // Wait for Decap to be ready
+      console.log('[decap-oauth] Waiting for Decap CMS to initialize...');
+      const isReady = await waitForDecapReady();
+      
+      if (!isReady) {
+        console.error('[decap-oauth] Decap CMS failed to initialize');
+        alert('CMS failed to initialize. Please refresh the page.');
+        return;
+      }
+
+      // Build auth payload in Decap's expected format
+      const payload = `authorization:github:success:${JSON.stringify({ 
+        token: token, 
+        provider: 'github' 
+      })}`;
+
+      // Send auth message to Decap
+      console.log('[decap-oauth] Sending auth to Decap CMS');
+      window.postMessage(payload, window.location.origin);
+
+      // Also try BroadcastChannel for redundancy
+      try {
+        new BroadcastChannel('decap_oauth').postMessage(payload);
+      } catch(e) {
+        // BroadcastChannel not supported, that's okay
+      }
+
+      // Clean up: remove cookie and URL parameter
+      deleteCookie('decap_auth_token');
+      window.history.replaceState({}, '', '/website-admin');
+      
+      console.log('[decap-oauth] Authentication complete');
     }
   }
 
-  // Smart listener: logs and sends acknowledgment when Decap is ready
+  // Diagnostic listener for postMessage (logs auth messages)
   window.addEventListener('message', (e) => {
     if (typeof e.data === 'string' && e.data.startsWith('authorization:github:')) {
-      console.log('[decap-oauth] received message:', maskToken(e.data).substring(0, 60) + '...');
-      
-      // Check if Decap CMS is ready to process auth
-      const decapReady = window.DecapCms && window.__DECAP_CMS__ && window.__DECAP_CMS__.store;
-      
-      if (decapReady && e.source && typeof e.source.postMessage === 'function') {
-        try {
-          e.source.postMessage('decap_oauth_ack', '*');
-          console.log('[decap-oauth] sent acknowledgment to popup (Decap is ready)');
-        } catch(err) {
-          console.warn('[decap-oauth] could not send acknowledgment:', err);
-        }
-      } else {
-        console.log('[decap-oauth] Decap not ready yet, popup will trigger fallback reload');
-      }
+      console.log('[decap-oauth] Auth message posted:', maskToken(e.data).substring(0, 80) + '...');
     }
   });
 
-  // Check for fallback auth on page load
-  // Use setTimeout to ensure we check AFTER config-loader initializes Decap
-  setTimeout(() => {
-    checkFallbackAuth();
-  }, 1000);
-
-  console.log('[decap-oauth] Native OAuth flow active. Use the "Login with GitHub" button.');
+  // Start OAuth handling on page load
+  console.log('[decap-oauth] Redirect-based OAuth flow active');
+  
+  // Wait a bit for DOM and initial scripts to load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(handleOAuthRedirect, 500);
+    });
+  } else {
+    setTimeout(handleOAuthRedirect, 500);
+  }
 })();
