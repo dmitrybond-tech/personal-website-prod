@@ -1,41 +1,40 @@
 /**
  * Minimal Decap CMS OAuth monitoring
- * Ensures popup auth completes and CMS loads properly
+ * Auto-clicks login if token exists
  */
 
 (function() {
   'use strict';
 
-  console.log('[decap-oauth] minimal monitor loaded');
+  console.log('[decap-oauth] monitor loaded');
 
   // Listen for OAuth completion message from popup
   window.addEventListener('message', function(e) {
     if (typeof e.data === 'string' && e.data.startsWith('authorization:github:')) {
-      console.log('[decap-oauth] auth message received');
-      
-      // Wait a bit for token to be stored, then check if we need to reload
+      console.log('[decap-oauth] auth message received, reloading...');
       setTimeout(function() {
-        // Check if we have token in localStorage
-        const hasToken = localStorage.getItem('netlify-cms-user') || 
-                        localStorage.getItem('decap-cms.user');
-        
-        // Check if CMS store exists
-        const hasStore = window.CMS && window.CMS.store;
-        
-        if (hasToken && !hasStore) {
-          // We have token but no store - reload once
-          if (!sessionStorage.getItem('decap_oauth_reloaded')) {
-            sessionStorage.setItem('decap_oauth_reloaded', '1');
-            console.log('[decap-oauth] reloading to complete auth...');
-            setTimeout(function() {
-              location.reload();
-            }, 100);
-          }
-        } else if (hasStore) {
-          console.log('[decap-oauth] CMS store ready');
-        }
+        location.reload();
       }, 500);
     }
   });
+
+  // Auto-login if token exists
+  setTimeout(function() {
+    const hasToken = localStorage.getItem('netlify-cms-user') || 
+                    localStorage.getItem('decap-cms.user');
+    
+    if (hasToken) {
+      console.log('[decap-oauth] token found, clicking login button...');
+      
+      // Find and click login button
+      const loginButton = document.querySelector('button');
+      if (loginButton && loginButton.textContent.includes('Login')) {
+        console.log('[decap-oauth] auto-clicking login button');
+        loginButton.click();
+      }
+    } else {
+      console.log('[decap-oauth] no token found, manual login required');
+    }
+  }, 1500);
 
 })();
