@@ -1,7 +1,7 @@
 ---
 title: "Book a meeting"
-subtitle: "Pick a slot that suits you"
-description: "Short intro about the call."
+subtitle: "Pick a slot that suits you best"
+description: "You will receive an invitation after you submit. If you don’t see it, please check your spam folder — emails sent via Cal.com may be flagged as suspicious."
 cta: "Schedule now"
 defaultTileSlug: "intro-30m"
 tiles:

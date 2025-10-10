@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import AppShell from '../../../app/layouts/AppShell.astro';
-import Footer from '../../../app/widgets/footer/ui/Footer.astro';
 
 const lang = Astro.url.pathname.split('/')[1]; // "en" or "ru"
 
@@ -56,7 +55,6 @@ const pageTitle = lang === 'ru' ? 'Блог' : 'Blog';
     </div>
   </section>
 </AppShell>
-<Footer />
 
 <style>
   .blog-index {
