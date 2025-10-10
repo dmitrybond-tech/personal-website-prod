@@ -68,10 +68,24 @@
     }
   }
 
-  // Diagnostic listener for postMessage (logs only, does not interfere)
+  // Smart listener: logs and sends acknowledgment when Decap is ready
   window.addEventListener('message', (e) => {
     if (typeof e.data === 'string' && e.data.startsWith('authorization:github:')) {
       console.log('[decap-oauth] received message:', maskToken(e.data).substring(0, 60) + '...');
+      
+      // Check if Decap CMS is ready to process auth
+      const decapReady = window.DecapCms && window.__DECAP_CMS__ && window.__DECAP_CMS__.store;
+      
+      if (decapReady && e.source && typeof e.source.postMessage === 'function') {
+        try {
+          e.source.postMessage('decap_oauth_ack', '*');
+          console.log('[decap-oauth] sent acknowledgment to popup (Decap is ready)');
+        } catch(err) {
+          console.warn('[decap-oauth] could not send acknowledgment:', err);
+        }
+      } else {
+        console.log('[decap-oauth] Decap not ready yet, popup will trigger fallback reload');
+      }
     }
   });
 

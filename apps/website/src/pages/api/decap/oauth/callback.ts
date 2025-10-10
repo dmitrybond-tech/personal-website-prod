@@ -324,44 +324,68 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
         <script>
           (function () {
             var payload = ${JSON.stringify(payload)};
+            var acknowledged = false;
             var fallbackTriggered = false;
             
-            // Broadcast to opener with maximum compatibility
+            // Listen for acknowledgment from opener
+            window.addEventListener('message', function(event) {
+              if (event.data === 'decap_oauth_ack' && event.source === window.opener) {
+                console.log('[decap-oauth] acknowledgment received from opener, closing popup');
+                acknowledged = true;
+                // Close immediately on acknowledgment (Decap is ready)
+                setTimeout(function() {
+                  try { window.close(); } catch(e) {}
+                }, 100);
+              }
+            });
+            
+            // Send auth message to opener
             try { 
               if (window.opener && !window.opener.closed) {
+                console.log('[decap-oauth] sending auth message to opener');
                 window.opener.postMessage(payload, '*'); 
+              } else {
+                console.warn('[decap-oauth] no valid opener window found');
               }
             } catch(e) {
-              console.error('[decap-oauth] postMessage failed:', e);
+              console.error('[decap-oauth] postMessage to opener failed:', e);
             }
             
-            // Also try BroadcastChannel
+            // Also broadcast via BroadcastChannel
             try { 
               new BroadcastChannel('decap_oauth').postMessage(payload); 
             } catch(e) {}
             
-            console.log('[decap-oauth] callback delivered via postMessage/broadcast');
+            console.log('[decap-oauth] auth sent, waiting for acknowledgment...');
             
-            // Last-resort fallback: seed auth state and reload opener
-            // This runs if Decap doesn't accept the postMessage within 800ms
+            // Fallback if no acknowledgment within 800ms
+            // This means Decap wasn't ready, so we'll reload and restore auth
             setTimeout(function() {
-              if (!fallbackTriggered && window.opener && !window.opener.closed) {
+              if (!acknowledged && !fallbackTriggered && window.opener && !window.opener.closed) {
                 try {
                   fallbackTriggered = true;
-                  // Store the token in a temporary key for opener to restore
+                  console.log('[decap-oauth] no acknowledgment - Decap not ready, triggering fallback');
                   localStorage.setItem('decap_oauth_fallback', payload);
-                  console.log('[decap-oauth] fallback: stored auth state, reloading opener');
                   window.opener.location.reload();
+                  // Keep popup open for reload to complete
+                  setTimeout(function() {
+                    try { window.close(); } catch(e) {}
+                  }, 1000);
                 } catch(e) {
                   console.error('[decap-oauth] fallback failed:', e);
                 }
+              } else if (acknowledged) {
+                console.log('[decap-oauth] ack received, no fallback needed');
               }
             }, 800);
             
-            // Close popup after brief delay (avoid popup-blocker races)
-            setTimeout(function() { 
-              try { window.close(); } catch(e) {} 
-            }, 100);
+            // Safety timeout: force close after 3 seconds no matter what
+            setTimeout(function() {
+              if (!acknowledged && !fallbackTriggered) {
+                console.warn('[decap-oauth] safety timeout reached, closing popup');
+              }
+              try { window.close(); } catch(e) {}
+            }, 3000);
           })();
         </script>
       </body>
