@@ -1,10 +1,13 @@
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ params, request, url }) => {
-  // Handle OAuth login flow
-  const provider = url.searchParams.get('provider');
-  const siteId = url.searchParams.get('site_id');
-  const scope = url.searchParams.get('scope') || 'repo';
+  try {
+    // Handle OAuth login flow
+    const provider = url.searchParams.get('provider');
+    const siteId = url.searchParams.get('site_id');
+    const scope = url.searchParams.get('scope') || 'repo';
+    
+    console.log(`[OAuth] GET request: provider=${provider}, siteId=${siteId}, scope=${scope}`);
   
   if (provider === 'github') {
     // Build GitHub OAuth URL
@@ -12,8 +15,11 @@ export const GET: APIRoute = async ({ params, request, url }) => {
     const redirectUri = `${url.origin}/api/decap/callback`;
     
     if (!clientId) {
+      console.error('[OAuth] GitHub OAuth client ID not configured');
       return new Response('GitHub OAuth client ID not configured', { status: 500 });
     }
+    
+    console.log(`[OAuth] Starting OAuth flow with client ID: ${clientId.substring(0, 8)}...`);
     
     const githubAuthUrl = new URL('https://github.com/login/oauth/authorize');
     githubAuthUrl.searchParams.set('client_id', clientId);
@@ -27,7 +33,11 @@ export const GET: APIRoute = async ({ params, request, url }) => {
     return Response.redirect(githubAuthUrl.toString(), 302);
   }
   
-  return new Response(`Provider '${provider}' not supported`, { status: 400 });
+    return new Response(`Provider '${provider}' not supported`, { status: 400 });
+  } catch (error) {
+    console.error('[OAuth] GET error:', error);
+    return new Response('Internal server error', { status: 500 });
+  }
 };
 
 export const POST: APIRoute = async ({ request, url }) => {
