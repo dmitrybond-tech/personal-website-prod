@@ -4,6 +4,7 @@ backend:
   branch: main
   base_url: https://dmitrybond.tech
   auth_endpoint: /api/decap
+  site_domain: dmitrybond.tech
 
 publish_mode: simple
 

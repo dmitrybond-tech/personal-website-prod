@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /
+
+# CMS admin area - block all crawlers

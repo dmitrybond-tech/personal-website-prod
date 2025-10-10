@@ -22,7 +22,7 @@
     "build": "astro build",
     "build:prod": "npm run cms:prodcfg && npm --workspace apps/website run build",
     "deploy:prod": "docker compose -f compose.prod.yml up -d --build",
-    "deploy:dev": "docker compose -f compose.dev.yml up -d --build", 
+    "deploy:dev": "docker compose -f compose.dev.yml up -d --build",
     "deploy:stop": "docker compose -f compose.prod.yml down && docker compose -f compose.dev.yml down",
     "deploy:stop:prod": "docker compose -f compose.prod.yml down",
     "deploy:stop:dev": "docker compose -f compose.dev.yml down",
@@ -41,6 +41,7 @@
     "cross-env": "^7.0.3"
   },
   "dependencies": {
+    "astro-decap-cms-oauth": "^0.5.1",
     "js-yaml": "^4.1.0"
   }
 }

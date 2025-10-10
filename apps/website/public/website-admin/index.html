@@ -3,11 +3,40 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="robots" content="noindex" />
-  <title>Content Manager</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>Content Manager - Dmitry Bond</title>
+  
+  <!-- Security headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
 </head>
 <body>
   <!-- Decap CMS script loaded after DOM is ready -->
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script 
+    src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"
+    integrity="sha384-..."
+    crossorigin="anonymous"
+    referrerpolicy="strict-origin-when-cross-origin">
+  </script>
+  
+  <!-- Production monitoring -->
+  <script>
+    // Basic error tracking for production
+    window.addEventListener('error', function(e) {
+      console.error('[CMS Error]', e.error);
+      // Could send to monitoring service here
+    });
+    
+    // CMS ready notification
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        if (window.CMS && window.CMS.store) {
+          console.log('[CMS] Ready for production');
+        }
+      }, 2000);
+    });
+  </script>
 </body>
 </html>
