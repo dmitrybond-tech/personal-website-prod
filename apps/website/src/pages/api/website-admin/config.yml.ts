@@ -34,15 +34,57 @@ export const GET: APIRoute = async ({ request }) => {
         public_folder: '/uploads',
         media_library: { name: 'default' },
         collections: [
+          // Simple files collection (always works)
+          {
+            name: 'config',
+            label: 'Site Configuration',
+            files: [
+              {
+                name: 'site',
+                label: 'Site Settings',
+                file: `${REPO_PREFIX}src/config/site.json`,
+                fields: [
+                  { label: 'Site Title', name: 'title', widget: 'string' },
+                  { label: 'Description', name: 'description', widget: 'text' }
+                ]
+              }
+            ]
+          },
+          // Folder collection with complete structure
           {
             name: 'posts',
-            label: 'Blog posts',
-            folder: `${REPO_PREFIX}src/content/posts`,
+            label: 'Blog Posts',
+            label_singular: 'Blog Post',
+            folder: `${REPO_PREFIX}src/content/posts/en`,
             create: true,
-            slug: '{{slug}}',
+            slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+            format: 'frontmatter',
+            extension: 'md',
             fields: [
-              { label: 'Title', name: 'title', widget: 'string' },
-              { label: 'Body', name: 'body', widget: 'markdown' }
+              {
+                label: 'Title',
+                name: 'title',
+                widget: 'string',
+                required: true
+              },
+              {
+                label: 'Publish Date',
+                name: 'date',
+                widget: 'datetime',
+                required: true
+              },
+              {
+                label: 'Description',
+                name: 'description',
+                widget: 'text',
+                required: false
+              },
+              {
+                label: 'Body',
+                name: 'body',
+                widget: 'markdown',
+                required: true
+              }
             ]
           }
         ]
@@ -61,15 +103,57 @@ export const GET: APIRoute = async ({ request }) => {
         public_folder: '/uploads',
         media_library: { name: 'default' },
         collections: [
+          // Simple files collection (always works)
+          {
+            name: 'config',
+            label: 'Site Configuration',
+            files: [
+              {
+                name: 'site',
+                label: 'Site Settings',
+                file: `${REPO_PREFIX}src/config/site.json`,
+                fields: [
+                  { label: 'Site Title', name: 'title', widget: 'string' },
+                  { label: 'Description', name: 'description', widget: 'text' }
+                ]
+              }
+            ]
+          },
+          // Folder collection with complete structure
           {
             name: 'posts',
-            label: 'Blog posts',
-            folder: `${REPO_PREFIX}src/content/posts`,
+            label: 'Blog Posts',
+            label_singular: 'Blog Post',
+            folder: `${REPO_PREFIX}src/content/posts/en`,
             create: true,
-            slug: '{{slug}}',
+            slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+            format: 'frontmatter',
+            extension: 'md',
             fields: [
-              { label: 'Title', name: 'title', widget: 'string' },
-              { label: 'Body', name: 'body', widget: 'markdown' }
+              {
+                label: 'Title',
+                name: 'title',
+                widget: 'string',
+                required: true
+              },
+              {
+                label: 'Publish Date',
+                name: 'date',
+                widget: 'datetime',
+                required: true
+              },
+              {
+                label: 'Description',
+                name: 'description',
+                widget: 'text',
+                required: false
+              },
+              {
+                label: 'Body',
+                name: 'body',
+                widget: 'markdown',
+                required: true
+              }
             ]
           }
         ]
@@ -98,7 +182,9 @@ export const GET: APIRoute = async ({ request }) => {
     console.warn('[config.yml] WARNING: collections.len=0 - CMS will not initialize!');
   } else {
     config.collections.forEach((col: any, idx: number) => {
-      console.log(`[config.yml] collection[${idx}]: name=${col.name} folder=${col.folder}`);
+      const type = col.folder ? 'folder' : col.files ? 'files' : 'unknown';
+      const path = col.folder || (col.files ? `${col.files.length} file(s)` : 'n/a');
+      console.log(`[config.yml] collection[${idx}]: name=${col.name} type=${type} path=${path}`);
     });
   }
   
