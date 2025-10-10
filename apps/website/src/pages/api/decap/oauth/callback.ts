@@ -41,17 +41,23 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 
     // Handle OAuth error
     if (error) {
+      const errorPayload = `authorization:github:error:${JSON.stringify({ message: error, provider: 'github' })}`;
       return new Response(`
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8"><title>Decap CMS OAuth Error</title></head>
+        <body>
         <script>
           (function () {
-            var payload = 'authorization:github:error:' + JSON.stringify({ message: '${error}', provider: 'github' });
-            try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-            try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
+            var payload = ${JSON.stringify(errorPayload)};
+            try { if (window.opener && !window.opener.closed) window.opener.postMessage(payload, '*'); } catch(e) {}
             try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-            console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-            try { window.close(); } catch(e) {}
+            console.error('[decap-oauth] error:', ${JSON.stringify(error)});
+            setTimeout(function() { try { window.close(); } catch(e) {} }, 100);
           })();
         </script>
+        </body>
+        </html>
       `, {
         status: 200,
         headers: { 
@@ -300,18 +306,66 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       });
     }
 
+    // Build canonical Decap payload
+    const payloadObj = { token: accessToken, provider: 'github' };
+    const payload = `authorization:github:success:${JSON.stringify(payloadObj)}`;
+    
     // Return success response with token
+    // Uses '*' for postMessage (Decap validates internally)
+    // Adds localStorage fallback for session restoration
     return new Response(`
-      <script>
-        (function () {
-          var payload = 'authorization:github:success:' + JSON.stringify({ token: '${accessToken}', provider: 'github' });
-          try { if (window.opener) window.opener.postMessage(payload, window.location.origin); } catch(e) {}
-          try { localStorage.setItem('decap_oauth_message', payload); } catch(e) {}
-          try { new BroadcastChannel('decap_oauth').postMessage(payload); } catch(e) {}
-          console.log('[decap-oauth] callback delivered via postMessage/localStorage/broadcast');
-          try { window.close(); } catch(e) {}
-        })();
-      </script>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Decap CMS OAuth</title>
+      </head>
+      <body>
+        <script>
+          (function () {
+            var payload = ${JSON.stringify(payload)};
+            var fallbackTriggered = false;
+            
+            // Broadcast to opener with maximum compatibility
+            try { 
+              if (window.opener && !window.opener.closed) {
+                window.opener.postMessage(payload, '*'); 
+              }
+            } catch(e) {
+              console.error('[decap-oauth] postMessage failed:', e);
+            }
+            
+            // Also try BroadcastChannel
+            try { 
+              new BroadcastChannel('decap_oauth').postMessage(payload); 
+            } catch(e) {}
+            
+            console.log('[decap-oauth] callback delivered via postMessage/broadcast');
+            
+            // Last-resort fallback: seed auth state and reload opener
+            // This runs if Decap doesn't accept the postMessage within 800ms
+            setTimeout(function() {
+              if (!fallbackTriggered && window.opener && !window.opener.closed) {
+                try {
+                  fallbackTriggered = true;
+                  // Store the token in a temporary key for opener to restore
+                  localStorage.setItem('decap_oauth_fallback', payload);
+                  console.log('[decap-oauth] fallback: stored auth state, reloading opener');
+                  window.opener.location.reload();
+                } catch(e) {
+                  console.error('[decap-oauth] fallback failed:', e);
+                }
+              }
+            }, 800);
+            
+            // Close popup after brief delay (avoid popup-blocker races)
+            setTimeout(function() { 
+              try { window.close(); } catch(e) {} 
+            }, 100);
+          })();
+        </script>
+      </body>
+      </html>
     `, {
       status: 200,
       headers: { 
