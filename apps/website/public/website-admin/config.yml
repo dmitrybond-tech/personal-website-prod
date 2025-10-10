@@ -3,7 +3,7 @@ backend:
   repo: dmitrybond-tech/personal-website-prod
   branch: main
   base_url: https://dmitrybond.tech
-  auth_endpoint: /api/decap/authorize
+  auth_endpoint: /api/decap
 
 publish_mode: simple
 media_folder: apps/website/public/uploads
