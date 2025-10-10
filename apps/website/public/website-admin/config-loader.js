@@ -169,19 +169,17 @@ async function loadConfig() {
 }
 
 // ============================================================================
-// PART 5: Initialize CMS (simple object config)
+// PART 5: Initialize CMS (let Decap fetch from our guard)
 // ============================================================================
 async function initCMS(config) {
-  console.log('[cms-init] Calling CMS.init...');
+  console.log('[cms-init] Calling CMS.init (via fetch guard)...');
   
   try {
-    // Initialize with config object and explicitly disable config file loading
-    window.CMS.init({
-      load_config_file: false,
-      config: config
-    });
+    // Initialize with NO config - let Decap's internal fetch get config from our guard
+    // This prevents duplicate collections error
+    window.CMS.init();
     
-    console.log('[cms-init] CMS.init called, waiting for store...');
+    console.log('[cms-init] CMS.init called, Decap will fetch config via guard...');
     
     // Wait for store to be created
     const storeReady = await waitForStore(5000);
