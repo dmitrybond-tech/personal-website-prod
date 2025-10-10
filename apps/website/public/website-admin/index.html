@@ -5,56 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="robots" content="noindex" />
   <title>Content Manager</title>
-
-  <!-- Simple fetch guard - redirect any config.yml to /config.yml -->
-  <script>
-    (function() {
-      const originalFetch = window.fetch;
-      window.fetch = function(url, options) {
-        // Redirect any config.yml request to /config.yml
-        if (typeof url === 'string' && url.includes('config.yml')) {
-          console.log('[cms] redirecting', url, '→ /config.yml');
-          url = '/config.yml';
-        }
-        return originalFetch(url, options);
-      };
-    })();
-  </script>
-
-  <!-- OAuth monitoring - load BEFORE Decap to catch early events -->
-  <script src="/website-admin/override-login.client.js"></script>
-
-  <!-- Decap CMS - automatic initialization from config.yml -->
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js" defer></script>
-
-  <!-- Debug: Check CMS initialization -->
-  <script defer>
-    setTimeout(function() {
-      console.log('[debug] CMS object:', window.CMS);
-      console.log('[debug] CMS.store:', window.CMS?.store);
-      console.log('[debug] #nc-root element:', document.getElementById('nc-root'));
-      console.log('[debug] Body children:', document.body.children.length);
-      
-      // Check if CMS initialized
-      if (window.CMS && window.CMS.store) {
-        const state = window.CMS.store.getState();
-        console.log('[debug] CMS state config:', state.config);
-        console.log('[debug] CMS state auth:', state.auth);
-      }
-      
-      // Check what's in #nc-root
-      const root = document.getElementById('nc-root');
-      if (root) {
-        console.log('[debug] #nc-root innerHTML length:', root.innerHTML.length);
-        console.log('[debug] #nc-root has children:', root.children.length);
-      }
-    }, 2000);
-  </script>
-
-  <noscript>Enable JavaScript to use the CMS.</noscript>
+  
+  <!-- Decap CMS -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 </head>
 <body>
-  <!-- Root element for Decap CMS -->
-  <div id="nc-root"></div>
+  <!-- Decap CMS renders here automatically -->
 </body>
 </html>
