@@ -3,7 +3,6 @@ import { stringify } from 'yaml';
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request }) => {
-  const DEBUG = process.env.DECAP_OAUTH_DEBUG === '1';
   const IS_LOCAL = process.env.DECAP_LOCAL_BACKEND === 'true';
   const REPO_PREFIX = IS_LOCAL ? '' : 'apps/website/';
   
@@ -18,41 +17,20 @@ export const GET: APIRoute = async ({ request }) => {
     ? process.env.PUBLIC_SITE_URL || 'https://dmitrybond.tech'
     : baseUrl;
     
-  // Hardcoded repo name (was using wrong env var)
   const repo = 'dmitrybond-tech/personal-website-prod';
-  const branch = process.env.DECAP_GITHUB_BRANCH || 'main';
+  const branch = 'main';
 
-  // Canonical minimal config for Decap CMS
-  // All required fields present to satisfy strict schema validation
+  // Minimal blog-only config for Decap CMS
   const config = IS_LOCAL
     ? {
-        // Local backend mode (decap-server writes to filesystem)
+        // Local backend mode
         local_backend: true,
         backend: { name: 'test-repo' },
-        publish_mode: 'simple',
         media_folder: `${REPO_PREFIX}public/uploads`,
         public_folder: '/uploads',
-        media_library: { name: 'default' },
         collections: [
-          // Simple files collection (always works)
           {
-            name: 'config',
-            label: 'Site Configuration',
-            files: [
-              {
-                name: 'site',
-                label: 'Site Settings',
-                file: `${REPO_PREFIX}src/config/site.json`,
-                fields: [
-                  { label: 'Site Title', name: 'title', widget: 'string' },
-                  { label: 'Description', name: 'description', widget: 'text' }
-                ]
-              }
-            ]
-          },
-          // Folder collection with complete structure
-          {
-            name: 'posts',
+            name: 'blog',
             label: 'Blog Posts',
             label_singular: 'Blog Post',
             folder: `${REPO_PREFIX}src/content/posts/en`,
@@ -61,36 +39,16 @@ export const GET: APIRoute = async ({ request }) => {
             format: 'frontmatter',
             extension: 'md',
             fields: [
-              {
-                label: 'Title',
-                name: 'title',
-                widget: 'string',
-                required: true
-              },
-              {
-                label: 'Publish Date',
-                name: 'date',
-                widget: 'datetime',
-                required: true
-              },
-              {
-                label: 'Description',
-                name: 'description',
-                widget: 'text',
-                required: false
-              },
-              {
-                label: 'Body',
-                name: 'body',
-                widget: 'markdown',
-                required: true
-              }
+              { label: 'Title', name: 'title', widget: 'string' },
+              { label: 'Date', name: 'date', widget: 'datetime' },
+              { label: 'Description', name: 'description', widget: 'text', required: false },
+              { label: 'Body', name: 'body', widget: 'markdown' }
             ]
           }
         ]
       }
     : {
-        // GitHub backend mode (production/staging)
+        // GitHub backend mode
         backend: {
           name: 'github',
           repo,
@@ -98,30 +56,11 @@ export const GET: APIRoute = async ({ request }) => {
           base_url: siteOrigin,
           auth_endpoint: '/api/decap/authorize',
         },
-        publish_mode: 'simple',
         media_folder: `${REPO_PREFIX}public/uploads`,
         public_folder: '/uploads',
-        media_library: { name: 'default' },
         collections: [
-          // Simple files collection (always works)
           {
-            name: 'config',
-            label: 'Site Configuration',
-            files: [
-              {
-                name: 'site',
-                label: 'Site Settings',
-                file: `${REPO_PREFIX}src/config/site.json`,
-                fields: [
-                  { label: 'Site Title', name: 'title', widget: 'string' },
-                  { label: 'Description', name: 'description', widget: 'text' }
-                ]
-              }
-            ]
-          },
-          // Folder collection with complete structure
-          {
-            name: 'posts',
+            name: 'blog',
             label: 'Blog Posts',
             label_singular: 'Blog Post',
             folder: `${REPO_PREFIX}src/content/posts/en`,
@@ -130,30 +69,10 @@ export const GET: APIRoute = async ({ request }) => {
             format: 'frontmatter',
             extension: 'md',
             fields: [
-              {
-                label: 'Title',
-                name: 'title',
-                widget: 'string',
-                required: true
-              },
-              {
-                label: 'Publish Date',
-                name: 'date',
-                widget: 'datetime',
-                required: true
-              },
-              {
-                label: 'Description',
-                name: 'description',
-                widget: 'text',
-                required: false
-              },
-              {
-                label: 'Body',
-                name: 'body',
-                widget: 'markdown',
-                required: true
-              }
+              { label: 'Title', name: 'title', widget: 'string' },
+              { label: 'Date', name: 'date', widget: 'datetime' },
+              { label: 'Description', name: 'description', widget: 'text', required: false },
+              { label: 'Body', name: 'body', widget: 'markdown' }
             ]
           }
         ]
@@ -169,34 +88,15 @@ export const GET: APIRoute = async ({ request }) => {
 
   const yaml = stringify(config);
   
-  // Log canonical config summary
+  // Log config summary for debugging
   const backendName = IS_LOCAL ? 'test-repo' : 'github';
-  const authEndpoint = IS_LOCAL ? 'N/A (test-repo)' : '/api/decap/authorize';
-  const repoInfo = IS_LOCAL ? 'local-fs' : `${repo}@${branch}`;
-  const collectionsCount = config.collections.length;
+  const repoInfo = IS_LOCAL ? 'local' : `${repo}@${branch}`;
+  console.log(`[config.yml] backend=${backendName} repo=${repoInfo} collections=1 (blog-only)`);
   
-  console.log(`[config.yml] base_url=${siteOrigin} auth_endpoint=${authEndpoint} backend=${backendName} repo=${repoInfo} collections.len=${collectionsCount}`);
-  
-  // Always log collection details (crucial for debugging)
-  if (collectionsCount === 0) {
-    console.warn('[config.yml] WARNING: collections.len=0 - CMS will not initialize!');
-  } else {
-    config.collections.forEach((col: any, idx: number) => {
-      const type = col.folder ? 'folder' : col.files ? 'files' : 'unknown';
-      const path = col.folder || (col.files ? `${col.files.length} file(s)` : 'n/a');
-      console.log(`[config.yml] collection[${idx}]: name=${col.name} type=${type} path=${path}`);
-    });
-  }
-  
-  const headers: Record<string, string> = {
-    'Content-Type': 'text/yaml; charset=utf-8',
-    'Cache-Control': 'no-store',
-    'X-Decap-Backend': backendName,
-  };
-  
-  if (DEBUG) {
-    headers['X-Decap-Debug'] = '1';
-  }
-  
-  return new Response(yaml, { headers });
+  return new Response(yaml, {
+    headers: {
+      'Content-Type': 'text/yaml; charset=utf-8',
+      'Cache-Control': 'no-store',
+    }
+  });
 };

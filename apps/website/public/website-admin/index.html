@@ -9,19 +9,16 @@
   <!-- 1) disable auto init -->
   <script>window.CMS_MANUAL_INIT = true;</script>
 
-      <!-- 2) load CMS core first (with fallback) -->
-      <script id="decap-core"
-              src="https://unpkg.com/decap-cms@3.9.0/dist/decap-cms.js"
-              onerror="(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/decap-cms@3.9.0/dist/decap-cms.js';s.onload=function(){console.log('[cms] fallback CDN loaded');};s.onerror=function(){console.error('[cms] both CDNs failed');};document.head.appendChild(s);}())">
-      </script>
+  <!-- 2) load latest stable Decap CMS from official CDN -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-  <!-- 3) yaml parser -->
+  <!-- 3) js-yaml for config parsing -->
   <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
 
-  <!-- 4) our robust config loader -->
+  <!-- 4) our simple config loader -->
   <script type="module" src="/website-admin/config-loader.js"></script>
 
-  <!-- 5) auth state monitoring and debug tools -->
+  <!-- 5) auth monitoring -->
   <script src="/website-admin/override-login.client.js"></script>
 
   <noscript>Enable JavaScript to use the CMS.</noscript>
