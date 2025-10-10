@@ -1,6 +1,6 @@
 ---
 // apps/website/src/widgets/cal/CalBooking.astro
-import { parseCalEvents, makeCalDataLink, buildCalOverlayUrl } from '../../lib/cal';
+import { parseCalEvents, makeCalDataLink, buildCalOverlayUrl, calInlineHref } from '../../lib/cal';
 import { makeCalInlineUrl, getCalConfig } from '../../lib/cal-inline';
 
 interface Props {
@@ -294,15 +294,18 @@ const t = texts[locale];
       // Build proper data-cal-link format: username/slug
       const dataCalLink = `${username}/${event.slug}`;
       
-      // Build full URL for inline embed with proper parameters
-      const inlineUrl = `https://cal.com/${username}/${event.slug}?embedType=inline&layout=month_view&hideEventTypeDetails=false`;
+      // Use the new utility function for proper inline URL generation
+      const inlineUrl = `${username}/${event.slug}`;
       
       // Обновляем data-cal-link атрибут
       calEmbed.setAttribute('data-cal-link', dataCalLink);
       
       // Переключаем Cal.com embed
       if (window.Cal) {
-        window.Cal('ui', { calLink: inlineUrl });
+        window.Cal('inline', {
+          elementOrSelector: calEmbed,
+          calLink: inlineUrl
+        });
       }
     }
 

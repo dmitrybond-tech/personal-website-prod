@@ -58,3 +58,32 @@ export function buildCalOverlayUrl(base: string, slug: string): string {
   const username = extractUsernameFromBase(base);
   return `https://cal.com/${username}/${slug}?overlayCalendar=true&layout=month_view`;
 }
+
+/**
+ * Creates a proper Cal.com inline embed URL with build-time environment variables
+ * @param eventSlug - Event slug (e.g., "intro-30m")
+ * @returns Complete Cal.com URL for inline embed
+ */
+export function calInlineHref(eventSlug: string): string {
+  // For Astro/Vite: use import.meta.env for public env vars (build-time)
+  const env = typeof import !== 'undefined' && import.meta?.env ? import.meta.env : {};
+  
+  // Fallback to process.env for SSR (build-time)
+  const processEnv = typeof process !== 'undefined' ? process.env : {};
+  
+  const username = 
+    (env?.PUBLIC_CAL_USERNAME as string | undefined) ||
+    (processEnv?.PUBLIC_CAL_USERNAME as string | undefined) ||
+    '';
+
+  // If username is empty, return empty string (component will decide whether to show anything)
+  if (!username) {
+    console.warn('[cal] PUBLIC_CAL_USERNAME is not set, cannot generate Cal.com inline URL');
+    return '';
+  }
+
+  // Base URL for Cal inline embeds is cal.com, not app.cal.com
+  // Must include /{username}/{event}
+  const base = 'https://cal.com';
+  return `${base}/${username}/${eventSlug}?embedType=inline&layout=month_view&hideEventTypeDetails=false`;
+}
