@@ -24,6 +24,9 @@ export const GET: APIRoute = async ({ request }) => {
     
   const repo = process.env.DECAP_GITHUB_REPO || 'dmitrybond-tech/personal-website-pre-prod';
   const branch = process.env.DECAP_GITHUB_BRANCH || 'main';
+  
+  // Locked OAuth endpoint (flat structure) - supports both /api/decap/authorize and /api/decap/oauth/authorize
+  const authEndpoint = '/api/decap/authorize';
 
   const config = {
     ...(IS_LOCAL ? { local_backend: true } : {}),
@@ -34,7 +37,7 @@ export const GET: APIRoute = async ({ request }) => {
           repo: repo,
           branch: branch,
           base_url: baseUrl,
-          auth_endpoint: '/api/decap/oauth'
+          auth_endpoint: authEndpoint
         },
     publish_mode: 'simple',
     media_folder: `${REPO_PREFIX}public/uploads`,
@@ -63,8 +66,8 @@ export const GET: APIRoute = async ({ request }) => {
 
   const yaml = stringify(config);
   // Log config values for debugging (base_url and auth_endpoint)
-  const authEndpoint = IS_LOCAL ? 'N/A (test-repo)' : '/api/decap/oauth';
-  console.log(`[config.yml] Generated config: base_url=${baseUrl}, auth_endpoint=${authEndpoint}, collections=${config.collections.length}`);
+  const resolvedAuthEndpoint = IS_LOCAL ? 'N/A (test-repo)' : authEndpoint;
+  console.log(`[config.yml] Generated config: base_url=${baseUrl}, auth_endpoint=${resolvedAuthEndpoint}, collections=${config.collections.length}`);
   
   return new Response(yaml, {
     headers: {
