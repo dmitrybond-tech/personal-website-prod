@@ -13,8 +13,8 @@ interface Props {
 const { src, alt, size, fitToWidth = false, noBorder = false } = Astro.props;
 
 const sizeToClass = /* tw */ {
-  large: fitToWidth ? 'h-18 w-auto max-w-32 object-contain' : 'h-18 w-18',
-  small: fitToWidth ? 'h-12 w-auto max-w-20 object-contain' : 'h-12 w-12',
+  large: fitToWidth ? 'max-h-18 w-auto max-w-32 object-contain' : 'h-18 w-18',
+  small: fitToWidth ? 'max-h-12 w-auto max-w-20 object-contain' : 'h-12 w-12',
 };
 ---
 
