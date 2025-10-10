@@ -323,7 +323,7 @@ sections:
             - title: Mark Manson
               type: Newsletter & Podcast
               url: https://www.youtube.com/playlist?list=PLkkA1LPpvlkjbuctKTaViIeIiZljzbqxW
-              image: /uploads/about/favorites/people-mark-manson (Custom).jpg
+              image: /uploads/about/favorites/rsz_people-mark-manson (Custom).jpg
             - title: ByteMonk
               type: Tech and System Design
               url: https://www.youtube.com/c/bytemonk

@@ -43,15 +43,20 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     if (error) {
       return new Response(`
         <script>
-          window.opener.postMessage(
-            'authorization:github:error:' + JSON.stringify({error: '${error}'}),
-            window.location.origin
-          );
-          window.close();
+          (function () {
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: '${error}' });
+            try { window.opener.postMessage(payload, window.location.origin); }
+            catch(e) { window.opener.postMessage(payload, '*'); }
+            window.close();
+          })();
         </script>
       `, {
         status: 200,
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store',
+          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+        }
       });
     }
 
@@ -59,15 +64,20 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     if (!code || !state) {
       return new Response(`
         <script>
-          window.opener.postMessage(
-            'authorization:github:error:' + JSON.stringify({error: 'missing_code_or_state'}),
-            window.location.origin
-          );
-          window.close();
+          (function () {
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'missing_code_or_state' });
+            try { window.opener.postMessage(payload, window.location.origin); }
+            catch(e) { window.opener.postMessage(payload, '*'); }
+            window.close();
+          })();
         </script>
       `, {
         status: 400,
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store',
+          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+        }
       });
     }
 
@@ -76,15 +86,20 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     if (!cookieHeader) {
       return new Response(`
         <script>
-          window.opener.postMessage(
-            'authorization:github:error:' + JSON.stringify({error: 'missing_state_cookie'}),
-            window.location.origin
-          );
-          window.close();
+          (function () {
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'missing_state_cookie' });
+            try { window.opener.postMessage(payload, window.location.origin); }
+            catch(e) { window.opener.postMessage(payload, '*'); }
+            window.close();
+          })();
         </script>
       `, {
         status: 400,
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store',
+          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+        }
       });
     }
 
@@ -94,15 +109,20 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     if (!storedState) {
       return new Response(`
         <script>
-          window.opener.postMessage(
-            'authorization:github:error:' + JSON.stringify({error: 'state_cookie_not_found'}),
-            window.location.origin
-          );
-          window.close();
+          (function () {
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_cookie_not_found' });
+            try { window.opener.postMessage(payload, window.location.origin); }
+            catch(e) { window.opener.postMessage(payload, '*'); }
+            window.close();
+          })();
         </script>
       `, {
         status: 400,
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store',
+          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+        }
       });
     }
 
@@ -111,15 +131,20 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     if (!storedStateValue || !storedSignature) {
       return new Response(`
         <script>
-          window.opener.postMessage(
-            'authorization:github:error:' + JSON.stringify({error: 'invalid_state_format'}),
-            window.location.origin
-          );
-          window.close();
+          (function () {
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'invalid_state_format' });
+            try { window.opener.postMessage(payload, window.location.origin); }
+            catch(e) { window.opener.postMessage(payload, '*'); }
+            window.close();
+          })();
         </script>
       `, {
         status: 400,
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store',
+          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+        }
       });
     }
 
@@ -134,15 +159,20 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
         !timingSafeEqual(expectedBuffer, receivedBuffer)) {
       return new Response(`
         <script>
-          window.opener.postMessage(
-            'authorization:github:error:' + JSON.stringify({error: 'state_signature_mismatch'}),
-            window.location.origin
-          );
-          window.close();
+          (function () {
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_signature_mismatch' });
+            try { window.opener.postMessage(payload, window.location.origin); }
+            catch(e) { window.opener.postMessage(payload, '*'); }
+            window.close();
+          })();
         </script>
       `, {
         status: 400,
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store',
+          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+        }
       });
     }
 
@@ -150,15 +180,20 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     if (state !== storedStateValue) {
       return new Response(`
         <script>
-          window.opener.postMessage(
-            'authorization:github:error:' + JSON.stringify({error: 'state_mismatch'}),
-            window.location.origin
-          );
-          window.close();
+          (function () {
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'state_mismatch' });
+            try { window.opener.postMessage(payload, window.location.origin); }
+            catch(e) { window.opener.postMessage(payload, '*'); }
+            window.close();
+          })();
         </script>
       `, {
         status: 400,
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store',
+          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+        }
       });
     }
 
@@ -182,15 +217,20 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       console.error('[decap-oauth] token exchange failed:', errorText);
       return new Response(`
         <script>
-          window.opener.postMessage(
-            'authorization:github:error:' + JSON.stringify({error: 'token_exchange_failed'}),
-            window.location.origin
-          );
-          window.close();
+          (function () {
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'token_exchange_failed' });
+            try { window.opener.postMessage(payload, window.location.origin); }
+            catch(e) { window.opener.postMessage(payload, '*'); }
+            window.close();
+          })();
         </script>
       `, {
         status: 500,
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store',
+          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+        }
       });
     }
 
@@ -200,15 +240,20 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       console.error('[decap-oauth] token error:', tokenData);
       return new Response(`
         <script>
-          window.opener.postMessage(
-            'authorization:github:error:' + JSON.stringify({error: tokenData.error_description || tokenData.error}),
-            window.location.origin
-          );
-          window.close();
+          (function () {
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: tokenData.error_description || tokenData.error });
+            try { window.opener.postMessage(payload, window.location.origin); }
+            catch(e) { window.opener.postMessage(payload, '*'); }
+            window.close();
+          })();
         </script>
       `, {
         status: 400,
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store',
+          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+        }
       });
     }
 
@@ -217,48 +262,60 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     if (!accessToken) {
       return new Response(`
         <script>
-          window.opener.postMessage(
-            'authorization:github:error:' + JSON.stringify({error: 'no_access_token'}),
-            window.location.origin
-          );
-          window.close();
+          (function () {
+            var payload = 'authorization:github:error:' + JSON.stringify({ message: 'no_access_token' });
+            try { window.opener.postMessage(payload, window.location.origin); }
+            catch(e) { window.opener.postMessage(payload, '*'); }
+            window.close();
+          })();
         </script>
       `, {
         status: 500,
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store',
+          'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+        }
       });
     }
 
     // Return success response with token
     return new Response(`
       <script>
-        (function() {
-          // Send token & provider to window.opener for Decap
-          window.opener.postMessage(
-            'authorization:github:success:' + JSON.stringify({token: '${accessToken}'}),
-            window.location.origin
-          );
+        (function () {
+          var payload = 'authorization:github:success:' + JSON.stringify({ token: '${accessToken}' });
+          try { window.opener.postMessage(payload, window.location.origin); }
+          catch(e) { window.opener.postMessage(payload, '*'); }
           window.close();
         })();
       </script>
     `, {
       status: 200,
-      headers: { 'Content-Type': 'text/html' }
+      headers: { 
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-store',
+        'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+      }
     });
 
   } catch (error) {
     console.error('[decap-oauth] callback error:', error);
     return new Response(`
       <script>
-        window.opener.postMessage(
-          'authorization:github:error:' + JSON.stringify({error: '${error instanceof Error ? error.message : 'Unknown error'}'}),
-          window.location.origin
-        );
-        window.close();
+        (function () {
+          var payload = 'authorization:github:error:' + JSON.stringify({ message: '${error instanceof Error ? error.message : 'Unknown error'}' });
+          try { window.opener.postMessage(payload, window.location.origin); }
+          catch(e) { window.opener.postMessage(payload, '*'); }
+          window.close();
+        })();
       </script>
     `, {
       status: 500,
-      headers: { 'Content-Type': 'text/html' }
+      headers: { 
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-store',
+        'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
+      }
     });
   }
 };
