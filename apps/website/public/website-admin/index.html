@@ -6,6 +6,21 @@
   <meta name="robots" content="noindex" />
   <title>Content Manager</title>
 
+  <!-- Simple fetch guard - redirect any config.yml to /config.yml -->
+  <script>
+    (function() {
+      const originalFetch = window.fetch;
+      window.fetch = function(url, options) {
+        // Redirect any config.yml request to /config.yml
+        if (typeof url === 'string' && url.includes('config.yml')) {
+          console.log('[cms] redirecting', url, '→ /config.yml');
+          url = '/config.yml';
+        }
+        return originalFetch(url, options);
+      };
+    })();
+  </script>
+
   <!-- Decap CMS - automatic initialization from config.yml -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
@@ -14,5 +29,8 @@
 
   <noscript>Enable JavaScript to use the CMS.</noscript>
 </head>
-<body></body>
+<body>
+  <!-- Root element for Decap CMS -->
+  <div id="nc-root"></div>
+</body>
 </html>

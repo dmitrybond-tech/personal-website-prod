@@ -1,0 +1,26 @@
+backend:
+  name: github
+  repo: dmitrybond-tech/personal-website-prod
+  branch: main
+  base_url: https://dmitrybond.tech
+  auth_endpoint: /api/decap/authorize
+
+publish_mode: simple
+media_folder: apps/website/public/uploads
+public_folder: /uploads
+
+collections:
+  - name: posts
+    label: Blog Posts
+    label_singular: Blog Post
+    folder: apps/website/src/content/posts/en
+    create: true
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    format: frontmatter
+    extension: md
+    fields:
+      - { label: 'Title', name: 'title', widget: 'string' }
+      - { label: 'Date', name: 'date', widget: 'datetime' }
+      - { label: 'Description', name: 'description', widget: 'text', required: false }
+      - { label: 'Body', name: 'body', widget: 'markdown' }
+
