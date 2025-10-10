@@ -21,11 +21,11 @@
     })();
   </script>
 
+  <!-- OAuth monitoring - load BEFORE Decap to catch early events -->
+  <script src="/website-admin/override-login.client.js"></script>
+
   <!-- Decap CMS - automatic initialization from config.yml -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js" defer></script>
-
-  <!-- OAuth monitoring - ensures login completes properly -->
-  <script src="/website-admin/override-login.client.js" defer></script>
 
   <noscript>Enable JavaScript to use the CMS.</noscript>
 </head>
