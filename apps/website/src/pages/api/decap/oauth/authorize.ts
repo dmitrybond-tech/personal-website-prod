@@ -42,12 +42,12 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     
     const signedState = `${state}.${stateSignature}`;
 
-    // Store signed state in httpOnly cookie (10 minutes expiry, redirect flow)
+    // Store signed state in httpOnly cookie (10 minutes expiry, popup flow)
     const stateCookie = serialize('decap_oauth_state', signedState, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax', // Lax for redirect flow (not cross-origin)
-      maxAge: 10 * 60, // 10 minutes
+      sameSite: 'none', // None for popup cross-site flow
+      maxAge: 10 * 60, // 10 minutes (600 seconds)
       path: '/'
     });
 

@@ -34,7 +34,7 @@ export const GET: APIRoute = async ({ request }) => {
           repo: repo,
           branch: branch,
           base_url: baseUrl,
-          auth_endpoint: '/api/decap/oauth/authorize'
+          auth_endpoint: '/api/decap/oauth'
         },
     publish_mode: 'simple',
     media_folder: `${REPO_PREFIX}public/uploads`,
@@ -63,7 +63,8 @@ export const GET: APIRoute = async ({ request }) => {
 
   const yaml = stringify(config);
   // Log config values for debugging (base_url and auth_endpoint)
-  console.log(`[config.yml] Generated config: base_url=${baseUrl}, auth_endpoint=/api/decap/oauth/authorize`);
+  const authEndpoint = IS_LOCAL ? 'N/A (test-repo)' : '/api/decap/oauth';
+  console.log(`[config.yml] Generated config: base_url=${baseUrl}, auth_endpoint=${authEndpoint}, collections=${config.collections.length}`);
   
   return new Response(yaml, {
     headers: {

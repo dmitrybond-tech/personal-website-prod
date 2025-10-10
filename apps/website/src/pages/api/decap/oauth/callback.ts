@@ -4,23 +4,6 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 
 export const prerender = false;
 
-// Helper function to redirect back to admin with error
-function redirectWithError(error: string, siteUrl: string) {
-  const adminUrl = new URL('/website-admin/', siteUrl);
-  adminUrl.searchParams.set('auth_error', error);
-  adminUrl.hash = '/';
-  
-  const headers = new Headers();
-  headers.append('Location', adminUrl.toString());
-  headers.append('Set-Cookie', 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=Lax');
-  headers.append('Cache-Control', 'no-store');
-  
-  return new Response(null, {
-    status: 302,
-    headers: headers
-  });
-}
-
 export const GET: APIRoute = async ({ request, cookies, url }) => {
   try {
     // Get OAuth configuration from environment
@@ -42,7 +25,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 
     if (!clientId || !clientSecret) {
       console.error('[decap-oauth] OAuth configuration missing');
-      return redirectWithError('oauth_config_missing', siteUrl);
+      return new Response('OAuth configuration missing', { status: 500 });
     }
 
     // Parse URL parameters
@@ -51,23 +34,23 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     const state = urlParams.get('state');
     const error = urlParams.get('error');
 
-    // Handle OAuth error - redirect back to admin with error message
+    // Handle OAuth error
     if (error) {
       console.error('[decap-oauth] GitHub returned error:', error);
-      return redirectWithError(error, siteUrl);
+      return new Response(`OAuth error: ${error}`, { status: 400 });
     }
 
     // Validate required parameters
     if (!code || !state) {
       console.error('[decap-oauth] Missing code or state parameter');
-      return redirectWithError('missing_code_or_state', siteUrl);
+      return new Response('Missing code or state parameter', { status: 400 });
     }
 
     // Validate state from cookie
     const cookieHeader = request.headers.get('cookie');
     if (!cookieHeader) {
       console.error('[decap-oauth] No cookie header found');
-      return redirectWithError('missing_state_cookie', siteUrl);
+      return new Response('No state cookie found', { status: 400 });
     }
 
     const parsedCookies = parse(cookieHeader);
@@ -75,14 +58,14 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     
     if (!storedState) {
       console.error('[decap-oauth] State cookie not found');
-      return redirectWithError('state_cookie_not_found', siteUrl);
+      return new Response('State cookie not found', { status: 400 });
     }
 
     // Verify state signature
     const [storedStateValue, storedSignature] = storedState.split('.');
     if (!storedStateValue || !storedSignature) {
       console.error('[decap-oauth] Invalid state format');
-      return redirectWithError('invalid_state_format', siteUrl);
+      return new Response('Invalid state format', { status: 400 });
     }
 
     const expectedSignature = createHmac('sha256', stateSecret)
@@ -95,13 +78,13 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     if (expectedBuffer.length !== receivedBuffer.length || 
         !timingSafeEqual(expectedBuffer, receivedBuffer)) {
       console.error('[decap-oauth] State signature mismatch');
-      return redirectWithError('state_signature_mismatch', siteUrl);
+      return new Response('State signature mismatch', { status: 400 });
     }
 
     // Verify state matches
     if (state !== storedStateValue) {
       console.error('[decap-oauth] State parameter mismatch');
-      return redirectWithError('state_mismatch', siteUrl);
+      return new Response('State parameter mismatch', { status: 400 });
     }
 
     // Exchange code for access token
@@ -122,55 +105,100 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
       console.error('[decap-oauth] Token exchange failed:', errorText);
-      return redirectWithError('token_exchange_failed', siteUrl);
+      return new Response('Token exchange failed', { status: 502 });
     }
 
     const tokenData = await tokenResponse.json();
     
     if (tokenData.error) {
-      console.error('[decap-oauth] Token error:', tokenData);
-      return redirectWithError(tokenData.error, siteUrl);
+      console.error('[decap-oauth] Token error:', tokenData.error);
+      return new Response(`Token error: ${tokenData.error}`, { status: 400 });
     }
 
     const accessToken = tokenData.access_token;
     
     if (!accessToken) {
       console.error('[decap-oauth] No access token in response');
-      return redirectWithError('no_access_token', siteUrl);
+      return new Response('No access token received', { status: 502 });
     }
 
-    // Redirect-based OAuth flow (no popups)
-    // Store token in cookie and redirect back to admin page
-    const adminUrl = new URL('/website-admin/', siteUrl);
-    adminUrl.searchParams.set('auth_success', '1');
-    adminUrl.hash = '/'; // Decap uses hash routing
+    // Log success (diagnostic)
+    console.log('[decap-oauth] delivered via postMessage + close');
 
-    // Store token in cookie (non-httpOnly so client JS can read it, short-lived)
-    const tokenCookie = serialize('decap_auth_token', accessToken, {
-      httpOnly: false, // Must be false for client-side access
+    // Build Decap-formatted payload (canonical format)
+    const payload = {
+      token: accessToken,
+      provider: 'github'
+    };
+
+    // Return HTML with postMessage script (popup flow)
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Authenticating...</title>
+</head>
+<body>
+  <script>
+    (function() {
+      // Decap expects: 'authorization:github:success:' + JSON.stringify({ token, provider })
+      var payload = 'authorization:github:success:' + JSON.stringify(${JSON.stringify(payload)});
+      
+      // Send to opener with permissive target (Decap's handler validates)
+      try {
+        if (window.opener) {
+          window.opener.postMessage(payload, '*');
+          console.log('[decap-oauth] posted message to opener');
+        }
+      } catch(e) {
+        console.error('[decap-oauth] postMessage failed:', e);
+      }
+      
+      // Optional: Send with explicit origin as backup
+      try {
+        if (window.opener) {
+          window.opener.postMessage(payload, window.location.origin);
+        }
+      } catch(e) {}
+      
+      // Optional: Mirror to localStorage as harmless backup
+      try {
+        localStorage.setItem('decap_oauth_message', payload);
+      } catch(e) {}
+      
+      // Close popup
+      setTimeout(function() {
+        try {
+          window.close();
+        } catch(e) {
+          document.body.innerHTML = '<p>Authentication complete. You may close this window.</p>';
+        }
+      }, 100);
+    })();
+  </script>
+</body>
+</html>`;
+
+    // Clear state cookie in response
+    const clearStateCookie = serialize('decap_oauth_state', '', {
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax', // Lax for redirect flow
-      maxAge: 900, // 15 minutes (900 seconds)
+      sameSite: 'none',
+      maxAge: 0,
       path: '/'
     });
 
-    console.log('[decap-oauth] Token obtained, redirecting to admin with cookie');
-
-    // Use Headers object to properly set multiple Set-Cookie headers
-    const headers = new Headers();
-    headers.append('Location', adminUrl.toString());
-    headers.append('Set-Cookie', 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=Lax');
-    headers.append('Set-Cookie', tokenCookie);
-    headers.append('Cache-Control', 'no-store'); // Prevent caching of token
-
-    return new Response(null, {
-      status: 302,
-      headers: headers
+    return new Response(html, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-store',
+        'Set-Cookie': clearStateCookie
+      }
     });
 
   } catch (error) {
     console.error('[decap-oauth] callback error:', error);
-    const siteUrl = process.env.PUBLIC_SITE_URL || 'http://localhost:4321';
-    return redirectWithError('unexpected_error', siteUrl);
+    return new Response('Unexpected error', { status: 500 });
   }
 };
