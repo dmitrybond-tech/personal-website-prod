@@ -6,12 +6,14 @@ export const prerender = false;
 
 // Helper function to redirect back to admin with error
 function redirectWithError(error: string, siteUrl: string) {
-  const adminUrl = new URL('/website-admin', siteUrl);
+  const adminUrl = new URL('/website-admin/', siteUrl);
   adminUrl.searchParams.set('auth_error', error);
+  adminUrl.hash = '/';
   
   const headers = new Headers();
   headers.append('Location', adminUrl.toString());
-  headers.append('Set-Cookie', 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure');
+  headers.append('Set-Cookie', 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=Lax');
+  headers.append('Cache-Control', 'no-store');
   
   return new Response(null, {
     status: 302,
@@ -139,15 +141,16 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 
     // Redirect-based OAuth flow (no popups)
     // Store token in cookie and redirect back to admin page
-    const adminUrl = new URL('/website-admin', siteUrl);
-    adminUrl.searchParams.set('auth_success', 'true');
+    const adminUrl = new URL('/website-admin/', siteUrl);
+    adminUrl.searchParams.set('auth_success', '1');
+    adminUrl.hash = '/'; // Decap uses hash routing
 
-    // Store token in cookie (non-httpOnly so client JS can read it)
+    // Store token in cookie (non-httpOnly so client JS can read it, short-lived)
     const tokenCookie = serialize('decap_auth_token', accessToken, {
       httpOnly: false, // Must be false for client-side access
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
+      sameSite: 'lax', // Lax for redirect flow
+      maxAge: 900, // 15 minutes (900 seconds)
       path: '/'
     });
 
@@ -156,8 +159,9 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     // Use Headers object to properly set multiple Set-Cookie headers
     const headers = new Headers();
     headers.append('Location', adminUrl.toString());
-    headers.append('Set-Cookie', 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure');
+    headers.append('Set-Cookie', 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=Lax');
     headers.append('Set-Cookie', tokenCookie);
+    headers.append('Cache-Control', 'no-store'); // Prevent caching of token
 
     return new Response(null, {
       status: 302,
