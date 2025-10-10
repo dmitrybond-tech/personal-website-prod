@@ -20,22 +20,24 @@ export const GET: APIRoute = async ({ request }) => {
   const repo = 'dmitrybond-tech/personal-website-prod';
   const branch = 'main';
 
-  // Minimal blog-only config for Decap CMS
+  // Canonical minimal config for Decap CMS
   const config = IS_LOCAL
     ? {
         // Local backend mode
         local_backend: true,
         backend: { name: 'test-repo' },
+        publish_mode: 'simple',
         media_folder: `${REPO_PREFIX}public/uploads`,
         public_folder: '/uploads',
+        media_library: { name: 'default' },
         collections: [
           {
-            name: 'blog',
+            name: 'posts',
             label: 'Blog Posts',
             label_singular: 'Blog Post',
-            folder: `${REPO_PREFIX}src/content/posts/en`,
+            folder: `${REPO_PREFIX}src/content/posts`,
             create: true,
-            slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+            slug: '{{slug}}',
             format: 'frontmatter',
             extension: 'md',
             fields: [
@@ -48,7 +50,7 @@ export const GET: APIRoute = async ({ request }) => {
         ]
       }
     : {
-        // GitHub backend mode
+        // GitHub backend mode - canonical minimal config
         backend: {
           name: 'github',
           repo,
@@ -56,16 +58,18 @@ export const GET: APIRoute = async ({ request }) => {
           base_url: siteOrigin,
           auth_endpoint: '/api/decap/authorize',
         },
+        publish_mode: 'simple',
         media_folder: `${REPO_PREFIX}public/uploads`,
         public_folder: '/uploads',
+        media_library: { name: 'default' },
         collections: [
           {
-            name: 'blog',
+            name: 'posts',
             label: 'Blog Posts',
             label_singular: 'Blog Post',
-            folder: `${REPO_PREFIX}src/content/posts/en`,
+            folder: `${REPO_PREFIX}src/content/posts`,
             create: true,
-            slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+            slug: '{{slug}}',
             format: 'frontmatter',
             extension: 'md',
             fields: [
@@ -88,10 +92,13 @@ export const GET: APIRoute = async ({ request }) => {
 
   const yaml = stringify(config);
   
-  // Log config summary for debugging
+  // Enhanced logging - log once per request with full details
   const backendName = IS_LOCAL ? 'test-repo' : 'github';
   const repoInfo = IS_LOCAL ? 'local' : `${repo}@${branch}`;
-  console.log(`[config.yml] backend=${backendName} repo=${repoInfo} collections=1 (blog-only)`);
+  const authEndpoint = IS_LOCAL ? 'n/a' : '/api/decap/authorize';
+  
+  console.log(`[config.yml] base_url=${siteOrigin} auth_endpoint=${authEndpoint} backend=${backendName} repo=${repoInfo} collections.len=${config.collections.length}`);
+  console.log(`[config.yml] collection[0]: name=${config.collections[0].name} folder=${config.collections[0].folder}`);
   
   return new Response(yaml, {
     headers: {

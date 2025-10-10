@@ -104,6 +104,7 @@
         if (pollAttempts >= maxAttempts && !authUser && hasToken) {
           clearInterval(pollId);
           
+          // One-time guarded reload
           if (!sessionStorage.getItem('decap_oauth_reloaded')) {
             sessionStorage.setItem('decap_oauth_reloaded', '1');
             if (DEBUG) {
@@ -119,7 +120,7 @@
           }
         }
       } catch(e) {
-        // Silent failure
+        // Silent failure for store access issues
       }
     }, pollInterval);
   }
