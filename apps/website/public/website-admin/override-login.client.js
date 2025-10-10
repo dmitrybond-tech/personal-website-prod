@@ -11,6 +11,12 @@
   const MAX_RETRIES = 10;
   const RETRY_INTERVAL = 250;
 
+  // Mask token in logs
+  function maskToken(payload) {
+    if (typeof payload !== 'string') return payload;
+    return payload.replace(/(token['"]?\s*:\s*['"])[^'"]+(['"])/gi, '$1***$2');
+  }
+
   // Check if CMS has accepted the token (login screen disappeared)
   function isCMSAuthenticated() {
     // Check if login button is gone
@@ -23,9 +29,28 @@
     return (!loginButton && !loginText) || !!collectionsPanel;
   }
 
+  // Deliver via child-window bridge (makes event.source a child window)
+  function deliverViaChildBridge(payload, origin) {
+    try {
+      const w = window.open('', 'decap-auth-bridge', 'width=1,height=1');
+      if (!w) return false;
+      w.document.write(
+        '<!doctype html><meta charset="utf-8"/>' +
+        '<script>' +
+        'try { window.opener.postMessage(' + JSON.stringify(payload) + ', ' + JSON.stringify(origin) + '); }' +
+        'finally { window.close(); }' +
+        '<\/script>'
+      );
+      return true;
+    } catch (e) {
+      console.error('[override-login] bridge failed:', e);
+      return false;
+    }
+  }
+
   // Deliver token to CMS with retry mechanism
   function deliverToCMS(payload) {
-    console.log('[override-login] Delivering token to CMS...');
+    console.log('[override-login] Delivering token to CMS...', maskToken(payload));
     
     let attempt = 0;
     
@@ -49,7 +74,11 @@
       if (attempt < MAX_RETRIES) {
         setTimeout(tryDeliver, RETRY_INTERVAL);
       } else {
-        console.warn('[override-login] Max retries reached, CMS might not have received token');
+        // Try child-window bridge as last resort
+        console.log('[override-login] Max retries reached, trying child bridge');
+        if (deliverViaChildBridge(payload, window.location.origin)) {
+          console.log('[override-login] bridge used');
+        }
       }
     }
     
@@ -98,7 +127,7 @@
     if (e.origin === window.location.origin && 
         typeof e.data === 'string' && 
         e.data.startsWith('authorization:github:')) {
-      console.log('[override-login] received message:', e.data.substring(0, 50) + '...');
+      console.log('[override-login] received message:', maskToken(e.data).substring(0, 50) + '...');
     }
   });
 
@@ -108,6 +137,95 @@
     document.addEventListener('DOMContentLoaded', relayFromStorage);
   } else {
     relayFromStorage();
+  }
+
+  // Wait for native GitHub button with timeout
+  function waitForNativeButton(timeout) {
+    return new Promise((resolve) => {
+      const selectors = [
+        '[data-testid="oauth-login"] button',
+        '.nc-githubAuthButton button',
+        'button[aria-label*="GitHub"]',
+        'button:has(svg[aria-label="GitHub"])'
+      ];
+      
+      function findButton() {
+        for (const selector of selectors) {
+          try {
+            const btn = document.querySelector(selector);
+            if (btn) return btn;
+          } catch (e) {
+            // querySelector may fail on :has() in older browsers
+          }
+        }
+        // Fallback: find by text
+        const buttons = document.querySelectorAll('button');
+        for (const btn of buttons) {
+          if (btn.textContent?.includes('Login with GitHub')) {
+            return btn;
+          }
+        }
+        return null;
+      }
+      
+      const btn = findButton();
+      if (btn) {
+        resolve(btn);
+        return;
+      }
+      
+      // Watch for button to appear
+      const observer = new MutationObserver(() => {
+        const btn = findButton();
+        if (btn) {
+          observer.disconnect();
+          resolve(btn);
+        }
+      });
+      
+      observer.observe(document.body, { childList: true, subtree: true });
+      
+      setTimeout(() => {
+        observer.disconnect();
+        resolve(null);
+      }, timeout);
+    });
+  }
+
+  // Prime native OAuth listener then open new tab
+  async function primeNativeAndOpenNewTab(authUrl) {
+    console.log('[override-login] primed native auth');
+    
+    // 1) Capture & close native popup
+    const origOpen = window.open;
+    let nativeChild = null;
+    window.open = function(url, name, specs) {
+      nativeChild = origOpen.call(window, url, name || 'decap-native-popup', specs);
+      return nativeChild;
+    };
+
+    // 2) Find and click native button to mount listener
+    const btn = await waitForNativeButton(1000);
+    if (btn) {
+      try {
+        btn.click();
+      } catch (e) {
+        console.warn('[override-login] native button click failed:', e);
+      }
+    }
+
+    // 3) Close native popup if opened, restore window.open
+    try {
+      if (nativeChild && !nativeChild.closed) {
+        nativeChild.close();
+      }
+    } catch (e) {
+      // Ignore close errors
+    }
+    window.open = origOpen;
+
+    // 4) Open our new-tab OAuth (keep opener available)
+    window.open(authUrl, '_blank');
   }
 
   // Add custom login button
@@ -139,7 +257,7 @@
 
     btn.onclick = () => {
       const url = `${location.origin}/api/decap/oauth/authorize?provider=github&site_id=${location.host}&scope=repo`;
-      window.open(url, '_blank');
+      primeNativeAndOpenNewTab(url);
     };
 
     const container = document.querySelector('.cms-login, .login-form, .cms-login-form') || document.body;

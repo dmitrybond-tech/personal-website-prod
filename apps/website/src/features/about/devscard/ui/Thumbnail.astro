@@ -12,22 +12,25 @@ interface Props {
 
 const { src, alt, size, fitToWidth = false, noBorder = false } = Astro.props;
 
+// Square container sizes; image will fit inside without overflow
 const sizeToClass = /* tw */ {
-  large: fitToWidth ? 'max-h-18 w-auto max-w-32 object-contain' : 'h-18 w-18',
-  small: fitToWidth ? 'max-h-12 w-auto max-w-20 object-contain' : 'h-12 w-12',
+  large: 'h-18 w-18',
+  small: 'h-12 w-12',
 };
 ---
 
 {
   src && (
-    <div class="flex items-center">
+    <div class:list={['hidden sm:flex items-center justify-center', noBorder ? '' : 'rounded-md', sizeToClass[size]]}>
       <Photo
         src={src}
         alt={alt}
-        class:list={['hidden sm:block', noBorder ? '' : 'rounded-md', sizeToClass[size]]}
+        class:list={[
+          fitToWidth
+            ? 'max-h-full max-w-full object-contain w-auto h-auto'
+            : 'h-full w-full object-cover',
+        ]}
         style={noBorder ? 'border: none !important;' : ''}
-        width={104}
-        height={104}
       />
     </div>
   )
