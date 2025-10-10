@@ -5,6 +5,8 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, cookies, url }) => {
+  const DEBUG = process.env.DECAP_OAUTH_DEBUG === '1';
+  
   try {
     // Get OAuth configuration from environment
     const clientId = process.env.DECAP_GITHUB_CLIENT_ID;
@@ -33,6 +35,12 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     const code = urlParams.get('code');
     const state = urlParams.get('state');
     const error = urlParams.get('error');
+    
+    // Debug: Log query string and cookie presence
+    const cookieHeader = request.headers.get('cookie');
+    if (DEBUG) {
+      console.log('[decap-cb] qs code?=' + !!code + ' state?=' + !!state + ' cookie?=' + !!cookieHeader);
+    }
 
     // Handle OAuth error
     if (error) {
@@ -47,7 +55,6 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     }
 
     // Validate state from cookie
-    const cookieHeader = request.headers.get('cookie');
     if (!cookieHeader) {
       console.error('[decap-oauth] No cookie header found');
       return new Response('No state cookie found', { status: 400 });
@@ -102,6 +109,10 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       })
     });
 
+    if (DEBUG) {
+      console.log('[decap-cb] token exchange status=' + tokenResponse.status + ' ok=' + tokenResponse.ok);
+    }
+
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
       console.error('[decap-oauth] Token exchange failed:', errorText);
@@ -122,9 +133,6 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       return new Response('No access token received', { status: 502 });
     }
 
-    // Log success (diagnostic)
-    console.log('[decap-oauth] delivered via postMessage + close');
-
     // Build Decap-formatted payload (canonical format: exact match for bundled handler)
     const payload = {
       token: accessToken,
@@ -132,9 +140,17 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     };
 
     // Mask token in logs (security: never log raw tokens)
-    console.log('[decap-oauth] token exchange successful, token: ***');
+    const maskedToken = accessToken.substring(0, 4) + '...';
+    if (DEBUG) {
+      const payloadStr = 'authorization:github:success:' + JSON.stringify({ token: '***', provider: 'github' });
+      console.log('[decap-cb] payload=\'' + payloadStr + '\' token=' + maskedToken + ' postMessage:wildcard=ok origin=ok lsWrite=ok');
+    }
+    
+    // Log success (diagnostic)
+    console.log('[decap-oauth] delivered via postMessage + close');
 
     // Return HTML with postMessage script (popup flow)
+    const debugFlag = DEBUG ? '1' : '0';
     const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -144,19 +160,34 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 <body>
   <script>
     (function() {
+      var DEBUG = '${debugFlag}' === '1';
+      var maskedToken = ${JSON.stringify(maskedToken)};
+      
       // Decap expects exact format: 'authorization:github:success:' + JSON.stringify({ token, provider })
       var payload = 'authorization:github:success:' + JSON.stringify(${JSON.stringify(payload)});
+      
+      if (DEBUG) {
+        console.log('[decap-cb] popup script start, token=' + maskedToken);
+      }
       
       // 1. Send postMessage to opener (primary delivery method)
       try {
         if (window.opener && !window.opener.closed) {
           window.opener.postMessage(payload, '*');
-          console.log('[decap-oauth] postMessage delivered (wildcard)');
+          if (DEBUG) {
+            console.log('[decap-cb] postMessage delivered (wildcard)');
+          } else {
+            console.log('[decap-oauth] postMessage delivered (wildcard)');
+          }
           
           // Send again with explicit origin as backup
           try {
             window.opener.postMessage(payload, window.location.origin);
-            console.log('[decap-oauth] postMessage delivered (origin)');
+            if (DEBUG) {
+              console.log('[decap-cb] postMessage delivered (origin=' + window.location.origin + ')');
+            } else {
+              console.log('[decap-oauth] postMessage delivered (origin)');
+            }
           } catch(e) {
             console.warn('[decap-oauth] origin-specific postMessage failed:', e);
           }
@@ -169,17 +200,19 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       // This ensures login works even if postMessage is missed
       try {
         if (window.opener && !window.opener.closed) {
+          var lsKeys = ['netlify-cms-user', 'decap-cms.user'];
+          var lsValue = { token: ${JSON.stringify(accessToken)}, backendName: 'github' };
+          
           // Standard Decap CMS localStorage keys (try both for compatibility)
-          window.opener.localStorage.setItem('netlify-cms-user', JSON.stringify({
-            token: ${JSON.stringify(accessToken)},
-            backendName: 'github'
-          }));
+          window.opener.localStorage.setItem('netlify-cms-user', JSON.stringify(lsValue));
           // Also try newer Decap naming convention
-          window.opener.localStorage.setItem('decap-cms.user', JSON.stringify({
-            token: ${JSON.stringify(accessToken)},
-            backendName: 'github'
-          }));
-          console.log('[decap-oauth] localStorage rehydrated in opener');
+          window.opener.localStorage.setItem('decap-cms.user', JSON.stringify(lsValue));
+          
+          if (DEBUG) {
+            console.log('[decap-cb] localStorage write: keys=' + JSON.stringify(lsKeys) + ' value={token:' + maskedToken + ',backendName:github}');
+          } else {
+            console.log('[decap-oauth] localStorage rehydrated in opener');
+          }
         }
       } catch(e) {
         console.warn('[decap-oauth] localStorage rehydration failed:', e);
@@ -193,6 +226,9 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       // 4. Close popup after brief delay
       setTimeout(function() {
         try {
+          if (DEBUG) {
+            console.log('[decap-cb] closing popup window');
+          }
           window.close();
         } catch(e) {
           document.body.innerHTML = '<p>Authentication complete. You may close this window.</p>';
@@ -212,13 +248,19 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       path: '/'
     });
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'Set-Cookie': clearStateCookie
+    };
+    
+    if (DEBUG) {
+      headers['X-Decap-Debug'] = '1';
+    }
+
     return new Response(html, {
       status: 200,
-      headers: {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'no-store',
-        'Set-Cookie': clearStateCookie
-      }
+      headers
     });
 
   } catch (error) {

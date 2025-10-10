@@ -3,6 +3,7 @@ import { stringify } from 'yaml';
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request }) => {
+  const DEBUG = process.env.DECAP_OAUTH_DEBUG === '1';
   const IS_LOCAL = process.env.DECAP_LOCAL_BACKEND === 'true';
   const REPO_PREFIX = IS_LOCAL ? '' : 'apps/website/';
   
@@ -60,14 +61,35 @@ export const GET: APIRoute = async ({ request }) => {
   const yaml = stringify(config);
   // Log config values for debugging (base_url and auth_endpoint)
   const resolvedAuthEndpoint = IS_LOCAL ? 'N/A (test-repo)' : authEndpoint;
-  console.log(`[config.yml] Generated config: base_url=${baseUrl}, auth_endpoint=${resolvedAuthEndpoint}, collections=${config.collections.length}`);
+  const collectionsCount = config.collections.length;
+  
+  console.log(`[config.yml] Generated config: base_url=${baseUrl}, auth_endpoint=${resolvedAuthEndpoint}, collections=${collectionsCount}`);
+  
+  // Warn if no collections (critical issue)
+  if (collectionsCount === 0) {
+    console.warn(`[config.yml] WARNING: collections.len=0 - CMS will not initialize! Check folder paths: ${REPO_PREFIX}src/content/posts`);
+  }
+  
+  if (DEBUG) {
+    console.log('[config.yml] base_url=' + baseUrl + ' auth_endpoint=' + resolvedAuthEndpoint + ' collections.len=' + collectionsCount);
+  }
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'text/yaml; charset=utf-8',
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
+    'Pragma': 'no-cache',
+    'X-Decap-Mode': IS_LOCAL ? 'local' : 'git'
+  };
+  
+  if (DEBUG) {
+    headers['X-Decap-Debug'] = '1';
+  }
+  
+  if (collectionsCount === 0) {
+    headers['X-Decap-Empty'] = '1';
+  }
   
   return new Response(yaml, {
-    headers: {
-      'Content-Type': 'text/yaml; charset=utf-8',
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
-      'Pragma': 'no-cache',
-      'X-Decap-Mode': IS_LOCAL ? 'local' : 'git'
-    }
+    headers
   });
 };
