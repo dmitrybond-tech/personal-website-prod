@@ -18,7 +18,8 @@ export const GET: APIRoute = async ({ request }) => {
     ? process.env.PUBLIC_SITE_URL || 'https://dmitrybond.tech'
     : baseUrl;
     
-  const repo = process.env.DECAP_GITHUB_REPO || 'dmitrybond-tech/personal-website-pre-prod';
+  // Hardcoded repo name (was using wrong env var)
+  const repo = 'dmitrybond-tech/personal-website-prod';
   const branch = process.env.DECAP_GITHUB_BRANCH || 'main';
 
   // Canonical minimal config for Decap CMS

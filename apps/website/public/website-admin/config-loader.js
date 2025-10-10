@@ -15,20 +15,22 @@ window.addEventListener('unhandledrejection', function(e) {
 // ============================================================================
 // PART 1: Block static config.yml files (prevent duplicates)
 // ============================================================================
-(function hardBlockDefaultConfig() {
-  const orig = window.fetch;
-  window.fetch = function(url, opts) {
-    try {
-      const str = typeof url === 'string' ? url : (url?.url || '');
-      // Block all static config.yml files, but allow API endpoint
-      if (str.includes('config.yml') && !str.includes('/api/')) {
-        console.warn('[cms] Blocked fetch to static config.yml:', str);
-        return Promise.resolve(new Response('', { status: 404 }));
-      }
-    } catch {}
-    return orig.apply(this, arguments);
-  };
-})();
+// NOTE: Blocker disabled - was too aggressive and blocked internal Decap operations
+// We rely on load_config_file: false to prevent auto-loading
+// (function hardBlockDefaultConfig() {
+//   const orig = window.fetch;
+//   window.fetch = function(url, opts) {
+//     try {
+//       const str = typeof url === 'string' ? url : (url?.url || '');
+//       // Block all static config.yml files, but allow API endpoint
+//       if (str.includes('config.yml') && !str.includes('/api/')) {
+//         console.warn('[cms] Blocked fetch to static config.yml:', str);
+//         return Promise.resolve(new Response('', { status: 404 }));
+//       }
+//     } catch {}
+//     return orig.apply(this, arguments);
+//   };
+// })();
 
 // ============================================================================
 // PART 2: Configuration resolution

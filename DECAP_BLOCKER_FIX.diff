@@ -1,0 +1,58 @@
+diff --git a/apps/website/public/website-admin/config-loader.js b/apps/website/public/website-admin/config-loader.js
+index old..new 100644
+--- a/apps/website/public/website-admin/config-loader.js
++++ b/apps/website/public/website-admin/config-loader.js
+@@ -14,17 +14,19 @@ window.addEventListener('unhandledrejection', function(e) {
+ 
+ // ============================================================================
+ // PART 1: Block static config.yml files (prevent duplicates)
+ // ============================================================================
+-(function hardBlockDefaultConfig() {
+-  const orig = window.fetch;
+-  window.fetch = function(url, opts) {
+-    try {
+-      const str = typeof url === 'string' ? url : (url?.url || '');
+-      // Block all static config.yml files, but allow API endpoint
+-      if (str.includes('config.yml') && !str.includes('/api/')) {
+-        console.warn('[cms] Blocked fetch to static config.yml:', str);
+-        return Promise.resolve(new Response('', { status: 404 }));
+-      }
+-    } catch {}
+-    return orig.apply(this, arguments);
+-  };
+-})();
++// NOTE: Blocker disabled - was too aggressive and blocked internal Decap operations
++// We rely on load_config_file: false to prevent auto-loading
++// (function hardBlockDefaultConfig() {
++//   const orig = window.fetch;
++//   window.fetch = function(url, opts) {
++//     try {
++//       const str = typeof url === 'string' ? url : (url?.url || '');
++//       // Block all static config.yml files, but allow API endpoint
++//       if (str.includes('config.yml') && !str.includes('/api/')) {
++//         console.warn('[cms] Blocked fetch to static config.yml:', str);
++//         return Promise.resolve(new Response('', { status: 404 }));
++//       }
++//     } catch {}
++//     return orig.apply(this, arguments);
++//   };
++// })();
+ 
+ // ============================================================================
+ 
+diff --git a/apps/website/src/pages/api/website-admin/config.yml.ts b/apps/website/src/pages/api/website-admin/config.yml.ts
+index old..new 100644
+--- a/apps/website/src/pages/api/website-admin/config.yml.ts
++++ b/apps/website/src/pages/api/website-admin/config.yml.ts
+@@ -18,8 +18,9 @@ export const GET: APIRoute = async ({ request }) => {
+     ? process.env.PUBLIC_SITE_URL || 'https://dmitrybond.tech'
+     : baseUrl;
+     
+-  const repo = process.env.DECAP_GITHUB_REPO || 'dmitrybond-tech/personal-website-pre-prod';
++  // Hardcoded repo name (was using wrong env var)
++  const repo = 'dmitrybond-tech/personal-website-prod';
+   const branch = process.env.DECAP_GITHUB_BRANCH || 'main';
+ 
+   // Canonical minimal config for Decap CMS
+   // All required fields present to satisfy strict schema validation
+
