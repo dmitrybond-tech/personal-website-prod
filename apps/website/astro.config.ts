@@ -50,14 +50,7 @@ export default defineConfig({
   integrations: [
     react(),
     auth(),
-    // Decap CMS OAuth integration
-    decapCmsOAuth({
-      adminRoute: '/website-admin',
-      oauthLoginRoute: '/api/decap',
-      oauthCallbackRoute: '/api/decap/callback',
-      oauthDisabled: !HAS_DECAP,
-      adminDisabled: false,
-    }),
+    // OAuth handled by custom API routes instead of integration
   ],
   vite: {
     plugins: [
