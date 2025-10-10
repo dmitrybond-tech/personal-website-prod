@@ -59,19 +59,21 @@ export const GET: APIRoute = async ({ request }) => {
   };
 
   const yaml = stringify(config);
+  
   // Log config values for debugging (base_url and auth_endpoint)
   const resolvedAuthEndpoint = IS_LOCAL ? 'N/A (test-repo)' : authEndpoint;
   const collectionsCount = config.collections.length;
   
-  console.log(`[config.yml] Generated config: base_url=${baseUrl}, auth_endpoint=${resolvedAuthEndpoint}, collections=${collectionsCount}`);
+  // Always log configuration summary
+  console.log('[config.yml] base_url=' + baseUrl + ' auth_endpoint=' + resolvedAuthEndpoint + ' collections.len=' + collectionsCount);
   
-  // Warn if no collections (critical issue)
+  // Warn if no collections (critical issue) and log each collection's folder path
   if (collectionsCount === 0) {
-    console.warn(`[config.yml] WARNING: collections.len=0 - CMS will not initialize! Check folder paths: ${REPO_PREFIX}src/content/posts`);
-  }
-  
-  if (DEBUG) {
-    console.log('[config.yml] base_url=' + baseUrl + ' auth_endpoint=' + resolvedAuthEndpoint + ' collections.len=' + collectionsCount);
+    console.warn('[config.yml] WARNING: collections.len=0 - CMS will not initialize!');
+  } else if (DEBUG) {
+    config.collections.forEach((col: any, idx: number) => {
+      console.log('[config.yml] collection[' + idx + ']: name=' + col.name + ' folder=' + col.folder);
+    });
   }
   
   const headers: Record<string, string> = {

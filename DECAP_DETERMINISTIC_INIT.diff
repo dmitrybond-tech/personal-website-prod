@@ -1,0 +1,279 @@
+diff --git a/apps/website/public/website-admin/config-loader.js b/apps/website/public/website-admin/config-loader.js
+index 16c24bcd..f5ba1f0c 100644
+--- a/apps/website/public/website-admin/config-loader.js
++++ b/apps/website/public/website-admin/config-loader.js
+@@ -87,22 +87,28 @@ function ensureLocalBackend(cfg) {
+     await waitForCMS();
+     
+     // Initialize CMS without auto-loading default config file
++    const collectionsPreValidate = Array.isArray(cfg.collections) ? cfg.collections.length : 'n/a';
++    console.log('[decap-admin] CMS.init called (collections pre-validate:', collectionsPreValidate, ')');
++    
+     window.CMS.init({
+       load_config_file: false,
+       config: cfg,
+     });
+ 
+-    setTimeout(() => {
+-      try {
+-        const storeCfg = window.__DECAP_CMS__?.state?.config?.toJS?.()
+-          || window.__DECAP_CMS__?.state?.config;
+-        console.info('[cms] Store config snapshot:', storeCfg);
+-        const cols = storeCfg?.collections?.map?.(c => c.name) || [];
+-        console.info('[cms] Collections:', cols);
+-      } catch (e) {
+-        console.warn('[cms] Unable to read store config:', e);
+-      }
+-    }, 500);
++    // Post-init probe: check collections at multiple intervals
++    [0, 250, 500].forEach(delay => {
++      setTimeout(() => {
++        try {
++          const store = window.CMS && window.CMS.store;
++          const state = store && store.getState && store.getState();
++          const collections = state?.config?.get?.('collections');
++          const collectionsCount = collections ? (collections.size || collections.length || 0) : 'n/a';
++          console.log('[decap-admin] collections(post-validate)=' + collectionsCount + ' @' + delay + 'ms');
++        } catch (e) {
++          console.warn('[decap-admin] Unable to read collections @' + delay + 'ms:', e);
++        }
++      }, delay);
++    });
+   } catch (e) {
+     console.error('[cms] init failed:', e);
+   }
+diff --git a/apps/website/public/website-admin/override-login.client.js b/apps/website/public/website-admin/override-login.client.js
+index 6063f1f9..c13c2a0c 100644
+--- a/apps/website/public/website-admin/override-login.client.js
++++ b/apps/website/public/website-admin/override-login.client.js
+@@ -45,8 +45,72 @@
+       } else if (isAuthMsg) {
+         console.log('[decap-oauth] received auth message');
+       }
++      
++      // Trigger post-auth polling when we receive auth message
++      if (isAuthMsg) {
++        scheduleAuthPoll();
++      }
+     }
+   }, { once: false });
++  
++  // Post-auth polling: check if Redux picked up the auth, reload if needed
++  function scheduleAuthPoll() {
++    var pollAttempts = 0;
++    var maxAttempts = 12; // 12 * 100ms = 1.2s
++    var pollInterval = 100;
++    
++    var pollId = setInterval(function() {
++      pollAttempts++;
++      
++      try {
++        var store = window.CMS && window.CMS.store;
++        if (!store) {
++          if (pollAttempts >= maxAttempts) {
++            clearInterval(pollId);
++          }
++          return;
++        }
++        
++        var state = store.getState();
++        var authUser = state.auth?.get?.('user') || state.auth?.user;
++        var hasToken = false;
++        
++        try {
++          hasToken = !!(localStorage.getItem('netlify-cms-user') || localStorage.getItem('decap-cms.user'));
++        } catch(e) {}
++        
++        // If we have user in Redux, success - stop polling
++        if (authUser) {
++          clearInterval(pollId);
++          if (DEBUG) {
++            console.log('[decap-admin] auth.user detected in Redux @' + (pollAttempts * pollInterval) + 'ms');
++          }
++          return;
++        }
++        
++        // If max attempts reached and still no user but LS has token, reload once
++        if (pollAttempts >= maxAttempts && !authUser && hasToken) {
++          clearInterval(pollId);
++          
++          if (!sessionStorage.getItem('decap_oauth_reloaded')) {
++            sessionStorage.setItem('decap_oauth_reloaded', '1');
++            if (DEBUG) {
++              console.log('[decap-admin] Redux auth delayed, reloading once...');
++            } else {
++              console.log('[decap-oauth] Reloading to complete authentication...');
++            }
++            setTimeout(function() {
++              location.reload();
++            }, 100);
++          } else if (DEBUG) {
++            console.warn('[decap-admin] Already reloaded once, not reloading again');
++          }
++        }
++      } catch(e) {
++        // Silent failure
++      }
++    }, pollInterval);
++  }
+ 
+   // Hook into config parsing (from config-loader.js)
+   // We'll check window.__CMS_CONFIG__ after it's loaded
+diff --git a/apps/website/src/pages/api/decap/oauth/callback.ts b/apps/website/src/pages/api/decap/oauth/callback.ts
+index 65e66a2b..320229de 100644
+--- a/apps/website/src/pages/api/decap/oauth/callback.ts
++++ b/apps/website/src/pages/api/decap/oauth/callback.ts
+@@ -133,7 +133,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
+       return new Response('No access token received', { status: 502 });
+     }
+ 
+-    // Build Decap-formatted payload (canonical format: exact match for bundled handler)
++    // Build canonical Decap payload (exact format required by CMS)
+     const payload = {
+       token: accessToken,
+       provider: 'github'
+@@ -141,13 +141,12 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
+ 
+     // Mask token in logs (security: never log raw tokens)
+     const maskedToken = accessToken.substring(0, 4) + '...';
++    
+     if (DEBUG) {
+-      const payloadStr = 'authorization:github:success:' + JSON.stringify({ token: '***', provider: 'github' });
+-      console.log('[decap-cb] payload=\'' + payloadStr + '\' token=' + maskedToken + ' postMessage:wildcard=ok origin=ok lsWrite=ok');
++      console.log('[decap-cb] token=' + maskedToken + ' delivering via postMessage(*) + LS seed + close');
++    } else {
++      console.log('[decap-oauth] token obtained, delivering to popup opener');
+     }
+-    
+-    // Log success (diagnostic)
+-    console.log('[decap-oauth] delivered via postMessage + close');
+ 
+     // Return HTML with postMessage script (popup flow)
+     const debugFlag = DEBUG ? '1' : '0';
+@@ -161,79 +160,46 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
+   <script>
+     (function() {
+       var DEBUG = '${debugFlag}' === '1';
+-      var maskedToken = ${JSON.stringify(maskedToken)};
+       
+-      // Decap expects exact format: 'authorization:github:success:' + JSON.stringify({ token, provider })
++      // Canonical Decap payload format
+       var payload = 'authorization:github:success:' + JSON.stringify(${JSON.stringify(payload)});
+       
+-      if (DEBUG) {
+-        console.log('[decap-cb] popup script start, token=' + maskedToken);
+-      }
+-      
+-      // 1. Send postMessage to opener (primary delivery method)
++      // 1. Send postMessage to opener (primary delivery)
+       try {
+         if (window.opener && !window.opener.closed) {
+           window.opener.postMessage(payload, '*');
+           if (DEBUG) {
+-            console.log('[decap-cb] postMessage delivered (wildcard)');
+-          } else {
+-            console.log('[decap-oauth] postMessage delivered (wildcard)');
+-          }
+-          
+-          // Send again with explicit origin as backup
+-          try {
+-            window.opener.postMessage(payload, window.location.origin);
+-            if (DEBUG) {
+-              console.log('[decap-cb] postMessage delivered (origin=' + window.location.origin + ')');
+-            } else {
+-              console.log('[decap-oauth] postMessage delivered (origin)');
+-            }
+-          } catch(e) {
+-            console.warn('[decap-oauth] origin-specific postMessage failed:', e);
++            console.log('[decap-cb] postMessage delivered to opener');
+           }
+         }
+       } catch(e) {
+         console.error('[decap-oauth] postMessage failed:', e);
+       }
+       
+-      // 2. Rehydrate opener's localStorage (fallback for next render tick)
+-      // This ensures login works even if postMessage is missed
++      // 2. Seed localStorage in opener (compatibility fallback)
+       try {
+         if (window.opener && !window.opener.closed) {
+-          var lsKeys = ['netlify-cms-user', 'decap-cms.user'];
+-          var lsValue = { token: ${JSON.stringify(accessToken)}, backendName: 'github' };
+-          
+-          // Standard Decap CMS localStorage keys (try both for compatibility)
+-          window.opener.localStorage.setItem('netlify-cms-user', JSON.stringify(lsValue));
+-          // Also try newer Decap naming convention
+-          window.opener.localStorage.setItem('decap-cms.user', JSON.stringify(lsValue));
+-          
++          var lsValue = JSON.stringify({ token: ${JSON.stringify(accessToken)}, backendName: 'github' });
++          window.opener.localStorage.setItem('netlify-cms-user', lsValue);
++          window.opener.localStorage.setItem('decap-cms.user', lsValue);
+           if (DEBUG) {
+-            console.log('[decap-cb] localStorage write: keys=' + JSON.stringify(lsKeys) + ' value={token:' + maskedToken + ',backendName:github}');
+-          } else {
+-            console.log('[decap-oauth] localStorage rehydrated in opener');
++            console.log('[decap-cb] localStorage seeded in opener');
+           }
+         }
+       } catch(e) {
+-        console.warn('[decap-oauth] localStorage rehydration failed:', e);
++        if (DEBUG) {
++          console.warn('[decap-oauth] localStorage seed failed:', e);
++        }
+       }
+       
+-      // 3. Mirror to popup's own localStorage (harmless diagnostic backup)
+-      try {
+-        localStorage.setItem('decap_oauth_message', payload);
+-      } catch(e) {}
+-      
+-      // 4. Close popup after brief delay
++      // 3. Close popup
+       setTimeout(function() {
+         try {
+-          if (DEBUG) {
+-            console.log('[decap-cb] closing popup window');
+-          }
+           window.close();
+         } catch(e) {
+           document.body.innerHTML = '<p>Authentication complete. You may close this window.</p>';
+         }
+-      }, 150);
++      }, 0);
+     })();
+   </script>
+ </body>
+diff --git a/apps/website/src/pages/api/website-admin/config.yml.ts b/apps/website/src/pages/api/website-admin/config.yml.ts
+index 9e706cf5..5998af16 100644
+--- a/apps/website/src/pages/api/website-admin/config.yml.ts
++++ b/apps/website/src/pages/api/website-admin/config.yml.ts
+@@ -59,19 +59,21 @@ export const GET: APIRoute = async ({ request }) => {
+   };
+ 
+   const yaml = stringify(config);
++  
+   // Log config values for debugging (base_url and auth_endpoint)
+   const resolvedAuthEndpoint = IS_LOCAL ? 'N/A (test-repo)' : authEndpoint;
+   const collectionsCount = config.collections.length;
+   
+-  console.log(`[config.yml] Generated config: base_url=${baseUrl}, auth_endpoint=${resolvedAuthEndpoint}, collections=${collectionsCount}`);
++  // Always log configuration summary
++  console.log('[config.yml] base_url=' + baseUrl + ' auth_endpoint=' + resolvedAuthEndpoint + ' collections.len=' + collectionsCount);
+   
+-  // Warn if no collections (critical issue)
++  // Warn if no collections (critical issue) and log each collection's folder path
+   if (collectionsCount === 0) {
+-    console.warn(`[config.yml] WARNING: collections.len=0 - CMS will not initialize! Check folder paths: ${REPO_PREFIX}src/content/posts`);
+-  }
+-  
+-  if (DEBUG) {
+-    console.log('[config.yml] base_url=' + baseUrl + ' auth_endpoint=' + resolvedAuthEndpoint + ' collections.len=' + collectionsCount);
++    console.warn('[config.yml] WARNING: collections.len=0 - CMS will not initialize!');
++  } else if (DEBUG) {
++    config.collections.forEach((col: any, idx: number) => {
++      console.log('[config.yml] collection[' + idx + ']: name=' + col.name + ' folder=' + col.folder);
++    });
+   }
+   
+   const headers: Record<string, string> = {
+

@@ -133,7 +133,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       return new Response('No access token received', { status: 502 });
     }
 
-    // Build Decap-formatted payload (canonical format: exact match for bundled handler)
+    // Build canonical Decap payload (exact format required by CMS)
     const payload = {
       token: accessToken,
       provider: 'github'
@@ -141,13 +141,12 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 
     // Mask token in logs (security: never log raw tokens)
     const maskedToken = accessToken.substring(0, 4) + '...';
-    if (DEBUG) {
-      const payloadStr = 'authorization:github:success:' + JSON.stringify({ token: '***', provider: 'github' });
-      console.log('[decap-cb] payload=\'' + payloadStr + '\' token=' + maskedToken + ' postMessage:wildcard=ok origin=ok lsWrite=ok');
-    }
     
-    // Log success (diagnostic)
-    console.log('[decap-oauth] delivered via postMessage + close');
+    if (DEBUG) {
+      console.log('[decap-cb] token=' + maskedToken + ' delivering via postMessage(*) + LS seed + close');
+    } else {
+      console.log('[decap-oauth] token obtained, delivering to popup opener');
+    }
 
     // Return HTML with postMessage script (popup flow)
     const debugFlag = DEBUG ? '1' : '0';
@@ -161,79 +160,46 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
   <script>
     (function() {
       var DEBUG = '${debugFlag}' === '1';
-      var maskedToken = ${JSON.stringify(maskedToken)};
       
-      // Decap expects exact format: 'authorization:github:success:' + JSON.stringify({ token, provider })
+      // Canonical Decap payload format
       var payload = 'authorization:github:success:' + JSON.stringify(${JSON.stringify(payload)});
       
-      if (DEBUG) {
-        console.log('[decap-cb] popup script start, token=' + maskedToken);
-      }
-      
-      // 1. Send postMessage to opener (primary delivery method)
+      // 1. Send postMessage to opener (primary delivery)
       try {
         if (window.opener && !window.opener.closed) {
           window.opener.postMessage(payload, '*');
           if (DEBUG) {
-            console.log('[decap-cb] postMessage delivered (wildcard)');
-          } else {
-            console.log('[decap-oauth] postMessage delivered (wildcard)');
-          }
-          
-          // Send again with explicit origin as backup
-          try {
-            window.opener.postMessage(payload, window.location.origin);
-            if (DEBUG) {
-              console.log('[decap-cb] postMessage delivered (origin=' + window.location.origin + ')');
-            } else {
-              console.log('[decap-oauth] postMessage delivered (origin)');
-            }
-          } catch(e) {
-            console.warn('[decap-oauth] origin-specific postMessage failed:', e);
+            console.log('[decap-cb] postMessage delivered to opener');
           }
         }
       } catch(e) {
         console.error('[decap-oauth] postMessage failed:', e);
       }
       
-      // 2. Rehydrate opener's localStorage (fallback for next render tick)
-      // This ensures login works even if postMessage is missed
+      // 2. Seed localStorage in opener (compatibility fallback)
       try {
         if (window.opener && !window.opener.closed) {
-          var lsKeys = ['netlify-cms-user', 'decap-cms.user'];
-          var lsValue = { token: ${JSON.stringify(accessToken)}, backendName: 'github' };
-          
-          // Standard Decap CMS localStorage keys (try both for compatibility)
-          window.opener.localStorage.setItem('netlify-cms-user', JSON.stringify(lsValue));
-          // Also try newer Decap naming convention
-          window.opener.localStorage.setItem('decap-cms.user', JSON.stringify(lsValue));
-          
+          var lsValue = JSON.stringify({ token: ${JSON.stringify(accessToken)}, backendName: 'github' });
+          window.opener.localStorage.setItem('netlify-cms-user', lsValue);
+          window.opener.localStorage.setItem('decap-cms.user', lsValue);
           if (DEBUG) {
-            console.log('[decap-cb] localStorage write: keys=' + JSON.stringify(lsKeys) + ' value={token:' + maskedToken + ',backendName:github}');
-          } else {
-            console.log('[decap-oauth] localStorage rehydrated in opener');
+            console.log('[decap-cb] localStorage seeded in opener');
           }
         }
       } catch(e) {
-        console.warn('[decap-oauth] localStorage rehydration failed:', e);
+        if (DEBUG) {
+          console.warn('[decap-oauth] localStorage seed failed:', e);
+        }
       }
       
-      // 3. Mirror to popup's own localStorage (harmless diagnostic backup)
-      try {
-        localStorage.setItem('decap_oauth_message', payload);
-      } catch(e) {}
-      
-      // 4. Close popup after brief delay
+      // 3. Close popup
       setTimeout(function() {
         try {
-          if (DEBUG) {
-            console.log('[decap-cb] closing popup window');
-          }
           window.close();
         } catch(e) {
           document.body.innerHTML = '<p>Authentication complete. You may close this window.</p>';
         }
-      }, 150);
+      }, 0);
     })();
   </script>
 </body>

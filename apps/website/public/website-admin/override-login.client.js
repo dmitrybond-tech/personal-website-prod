@@ -45,8 +45,72 @@
       } else if (isAuthMsg) {
         console.log('[decap-oauth] received auth message');
       }
+      
+      // Trigger post-auth polling when we receive auth message
+      if (isAuthMsg) {
+        scheduleAuthPoll();
+      }
     }
   }, { once: false });
+  
+  // Post-auth polling: check if Redux picked up the auth, reload if needed
+  function scheduleAuthPoll() {
+    var pollAttempts = 0;
+    var maxAttempts = 12; // 12 * 100ms = 1.2s
+    var pollInterval = 100;
+    
+    var pollId = setInterval(function() {
+      pollAttempts++;
+      
+      try {
+        var store = window.CMS && window.CMS.store;
+        if (!store) {
+          if (pollAttempts >= maxAttempts) {
+            clearInterval(pollId);
+          }
+          return;
+        }
+        
+        var state = store.getState();
+        var authUser = state.auth?.get?.('user') || state.auth?.user;
+        var hasToken = false;
+        
+        try {
+          hasToken = !!(localStorage.getItem('netlify-cms-user') || localStorage.getItem('decap-cms.user'));
+        } catch(e) {}
+        
+        // If we have user in Redux, success - stop polling
+        if (authUser) {
+          clearInterval(pollId);
+          if (DEBUG) {
+            console.log('[decap-admin] auth.user detected in Redux @' + (pollAttempts * pollInterval) + 'ms');
+          }
+          return;
+        }
+        
+        // If max attempts reached and still no user but LS has token, reload once
+        if (pollAttempts >= maxAttempts && !authUser && hasToken) {
+          clearInterval(pollId);
+          
+          if (!sessionStorage.getItem('decap_oauth_reloaded')) {
+            sessionStorage.setItem('decap_oauth_reloaded', '1');
+            if (DEBUG) {
+              console.log('[decap-admin] Redux auth delayed, reloading once...');
+            } else {
+              console.log('[decap-oauth] Reloading to complete authentication...');
+            }
+            setTimeout(function() {
+              location.reload();
+            }, 100);
+          } else if (DEBUG) {
+            console.warn('[decap-admin] Already reloaded once, not reloading again');
+          }
+        }
+      } catch(e) {
+        // Silent failure
+      }
+    }, pollInterval);
+  }
 
   // Hook into config parsing (from config-loader.js)
   // We'll check window.__CMS_CONFIG__ after it's loaded

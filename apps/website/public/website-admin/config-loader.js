@@ -87,22 +87,28 @@ function ensureLocalBackend(cfg) {
     await waitForCMS();
     
     // Initialize CMS without auto-loading default config file
+    const collectionsPreValidate = Array.isArray(cfg.collections) ? cfg.collections.length : 'n/a';
+    console.log('[decap-admin] CMS.init called (collections pre-validate:', collectionsPreValidate, ')');
+    
     window.CMS.init({
       load_config_file: false,
       config: cfg,
     });
 
-    setTimeout(() => {
-      try {
-        const storeCfg = window.__DECAP_CMS__?.state?.config?.toJS?.()
-          || window.__DECAP_CMS__?.state?.config;
-        console.info('[cms] Store config snapshot:', storeCfg);
-        const cols = storeCfg?.collections?.map?.(c => c.name) || [];
-        console.info('[cms] Collections:', cols);
-      } catch (e) {
-        console.warn('[cms] Unable to read store config:', e);
-      }
-    }, 500);
+    // Post-init probe: check collections at multiple intervals
+    [0, 250, 500].forEach(delay => {
+      setTimeout(() => {
+        try {
+          const store = window.CMS && window.CMS.store;
+          const state = store && store.getState && store.getState();
+          const collections = state?.config?.get?.('collections');
+          const collectionsCount = collections ? (collections.size || collections.length || 0) : 'n/a';
+          console.log('[decap-admin] collections(post-validate)=' + collectionsCount + ' @' + delay + 'ms');
+        } catch (e) {
+          console.warn('[decap-admin] Unable to read collections @' + delay + 'ms:', e);
+        }
+      }, delay);
+    });
   } catch (e) {
     console.error('[cms] init failed:', e);
   }
