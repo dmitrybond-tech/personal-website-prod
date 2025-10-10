@@ -26,18 +26,33 @@ apps/website/public/website-admin/config.yml
 
 ### 3. Client Init (`config-loader.js`)
 ```javascript
-// ADDED: Fetch guard (blocks /config.yml, /en/config.yml, etc.)
+// ADDED: Fetch guard (intercepts & serves /config.yml, /en/config.yml, etc.)
+let cachedConfigResponse = null;
+
 window.fetch = function(input, init) {
   const url = typeof input === 'string' ? input : input.url;
+  
+  // If Decap tries to fetch config.yml (NOT our API), serve cached config
   if (configYmlPattern.test(url) && !url.includes('/api/website-admin/config.yml')) {
-    console.warn('[cms] fetch guard blocked:', url);
-    return Promise.resolve(new Response('', { status: 404 }));
+    console.log('[cms] fetch guard intercepted:', url, '→ serving API config');
+    
+    if (cachedConfigResponse) {
+      return Promise.resolve(new Response(cachedConfigResponse, {
+        status: 200,
+        headers: { 'Content-Type': 'text/yaml; charset=utf-8' }
+      }));
+    }
   }
+  
   return originalFetch.apply(this, arguments);
 };
 
 // CHANGED: Simple object config init
 const yamlText = await response.text();
+
+// Cache YAML for fetch guard
+window.__setCachedConfig(yamlText);
+
 const config = window.jsyaml.load(yamlText);
 
 // Validate required fields
@@ -87,16 +102,17 @@ if (!sessionStorage.getItem('decap_oauth_reloaded')) {
 [auth] user present=true via netlify-cms-user
 ```
 
-### If Fetch Guard Triggers (should never happen in normal flow):
+### If Fetch Guard Triggers (expected with Decap 3.9.0):
 ```
-[cms] fetch guard blocked: /config.yml
+[cms] fetch guard intercepted: config.yml → serving API config
 ```
 
 ## Key Guarantees
 
-✅ **No Static Config Fetches**  
-- Fetch guard blocks `/config.yml`, `/en/config.yml`, etc.  
-- Only `/api/website-admin/config.yml` allowed
+✅ **No Static Config Files**  
+- Fetch guard intercepts `/config.yml`, `/en/config.yml`, etc.  
+- Serves API config instead (cached YAML)  
+- Works even when Decap 3.9.0 tries internal fetch
 
 ✅ **Deterministic Init**  
 - Simple object config with `load_config_file: false`

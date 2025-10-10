@@ -51,14 +51,14 @@ Previously, even with `CMS_MANUAL_INIT = true`, Decap CMS would:
 
 **Changes:**
 
-1. **Fetch Guard (Belt-and-Suspenders Protection):**
+1. **Fetch Guard (Intercept & Serve):**
    - Installed before CMS.init() runs
    - Intercepts all fetch calls
    - Pattern: `/(^|\/)([a-z]{2}\/)?config\.yml(\?.*)?$/i`
-   - Blocks: `/config.yml`, `/en/config.yml`, `/ru/config.yml`, etc.
-   - Allows: `/api/website-admin/config.yml` only
-   - Returns immediate 404 for blocked requests
-   - Logs: `[cms] fetch guard blocked: <url>`
+   - Intercepts: `/config.yml`, `/en/config.yml`, `/ru/config.yml`, etc.
+   - Serves: Cached config from `/api/website-admin/config.yml` (200 response)
+   - **Key:** Returns config content (not 404) so internal Decap fetches succeed
+   - Logs: `[cms] fetch guard intercepted: <url> → serving API config`
 
 2. **Simple Object Config Init:**
    - Fetches `/api/website-admin/config.yml` only
@@ -188,14 +188,15 @@ Fetch guard successfully blocks any attempts if Decap core tries them.
 
 ## Rationale
 
-Decap CMS 3.x has internal code paths that attempt default config fetches even with `CMS_MANUAL_INIT = true`. By:
+Decap CMS 3.x (especially 3.9.0) has internal code paths that attempt default config fetches even with `CMS_MANUAL_INIT = true` and `load_config_file: false`. By:
 
 1. **Removing static files** — eliminates ambiguity and accidental serving
-2. **Adding fetch guard** — hard-blocks any default fetch attempts at the network layer
-3. **Using YAML string init** — bypasses config.js fetch logic entirely (different code path)
+2. **Fetch guard that serves** — intercepts internal fetch attempts and serves the correct config (not 404 block)
+3. **Simple object config** — most reliable init approach with explicit `load_config_file: false`
 4. **Canonical server config** — ensures all required fields present, preventing partial init failures
+5. **Client-side validation** — catches config issues before passing to CMS.init
 
-This combination makes init deterministic, eliminating race conditions and ensuring the Redux store and collections are created reliably. With a clean store, OAuth hydration completes properly and the CMS UI renders without manual intervention.
+This combination makes init deterministic. Even when Decap's internal code tries to fetch `config.yml`, our guard serves the right config, allowing initialization to complete. With a clean store, OAuth hydration completes properly and the CMS UI renders without manual intervention.
 
 ## Maintenance Notes
 

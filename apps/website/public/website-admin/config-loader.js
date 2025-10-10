@@ -13,27 +13,62 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 
 // ============================================================================
-// PART 1.5: Fetch guard to prevent static config.yml fetches
+// PART 1.5: Fetch guard - serve API config for any config.yml request
 // ============================================================================
 (function installFetchGuard() {
   const originalFetch = window.fetch;
   const configYmlPattern = /(^|\/)([a-z]{2}\/)?config\.yml(\?.*)?$/i;
   const allowedConfigUrl = '/api/website-admin/config.yml';
   
+  // Cache the config response to serve to internal Decap fetches
+  let cachedConfigResponse = null;
+  
   window.fetch = function(input, init) {
     const url = typeof input === 'string' ? input : input.url;
     
-    // Block any config.yml requests EXCEPT our API endpoint
+    // If Decap tries to fetch config.yml (NOT our API), serve cached config
     if (configYmlPattern.test(url) && !url.includes(allowedConfigUrl)) {
-      console.warn('[cms] fetch guard blocked:', url);
-      // Return a 404 response immediately
-      return Promise.resolve(new Response('', { 
-        status: 404, 
-        statusText: 'Blocked by fetch guard' 
-      }));
+      console.log('[cms] fetch guard intercepted:', url, '→ serving API config');
+      
+      // If we have cached config, return it
+      if (cachedConfigResponse) {
+        return Promise.resolve(new Response(cachedConfigResponse, {
+          status: 200,
+          headers: { 'Content-Type': 'text/yaml; charset=utf-8' }
+        }));
+      }
+      
+      // Otherwise, proxy to our API endpoint
+      console.log('[cms] fetch guard: no cache, proxying to API');
+      return originalFetch(allowedConfigUrl + '?t=' + Date.now(), { cache: 'no-store' })
+        .then(function(response) {
+          return response.text();
+        })
+        .then(function(yaml) {
+          cachedConfigResponse = yaml;
+          return new Response(yaml, {
+            status: 200,
+            headers: { 'Content-Type': 'text/yaml; charset=utf-8' }
+          });
+        });
+    }
+    
+    // For our API endpoint, cache the response
+    if (url.includes(allowedConfigUrl)) {
+      return originalFetch.apply(this, arguments).then(function(response) {
+        return response.clone().text().then(function(yaml) {
+          cachedConfigResponse = yaml;
+          return response;
+        });
+      });
     }
     
     return originalFetch.apply(this, arguments);
+  };
+  
+  // Expose cache setter for manual config loading
+  window.__setCachedConfig = function(yamlText) {
+    cachedConfigResponse = yamlText;
   };
 })();
 
@@ -94,6 +129,11 @@ async function loadConfig() {
     }
     
     const yamlText = await response.text();
+    
+    // Cache for fetch guard (so internal Decap fetches get the same config)
+    if (window.__setCachedConfig) {
+      window.__setCachedConfig(yamlText);
+    }
     
     if (!window.jsyaml) {
       throw new Error('js-yaml not available');
