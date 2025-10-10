@@ -1,0 +1,57 @@
+diff --git a/apps/website/public/website-admin/config-loader.js b/apps/website/public/website-admin/config-loader.js
+index old..new 100644
+--- a/apps/website/public/website-admin/config-loader.js
++++ b/apps/website/public/website-admin/config-loader.js
+@@ -12,21 +12,32 @@ window.addEventListener('unhandledrejection', function(e) {
+ });
+ 
+ // ============================================================================
+-// PART 1: Block static config.yml files (prevent duplicates)
++// PART 1: Intercept auto-config loads and return empty response
+ // ============================================================================
+-// NOTE: Blocker disabled - was too aggressive and blocked internal Decap operations
+-// We rely on load_config_file: false to prevent auto-loading
+-// (function hardBlockDefaultConfig() {
+-//   const orig = window.fetch;
+-//   window.fetch = function(url, opts) {
+-//     try {
+-//       const str = typeof url === 'string' ? url : (url?.url || '');
+-//       // Block all static config.yml files, but allow API endpoint
+-//       if (str.includes('config.yml') && !str.includes('/api/')) {
+-//         console.warn('[cms] Blocked fetch to static config.yml:', str);
+-//         return Promise.resolve(new Response('', { status: 404 }));
+-//       }
+-//     } catch {}
+-//     return orig.apply(this, arguments);
+-//   };
+-// })();
++// Decap 3.9.0 tries to auto-load config.yml even with load_config_file: false
++// We intercept these requests and return valid empty YAML to prevent 404 errors
++(function interceptAutoConfigLoads() {
++  const orig = window.fetch;
++  window.fetch = function(url, opts) {
++    try {
++      const str = typeof url === 'string' ? url : (url?.url || '');
++      
++      // Intercept ONLY requests to config.yml that are NOT to our API
++      // (e.g., /en/config.yml, /config.yml, but NOT /api/website-admin/config.yml)
++      if (str.includes('config.yml') && !str.includes('/api/')) {
++        console.log('[cms] Intercepting auto-config load:', str, '(returning empty valid config)');
++        
++        // Return a minimal valid YAML config that Decap will ignore
++        const emptyConfig = `backend:
++  name: test-repo
++collections: []`;
++        
++        return Promise.resolve(new Response(emptyConfig, {
++          status: 200,
++          headers: { 'Content-Type': 'text/yaml' }
++        }));
++      }
++    } catch (e) {
++      console.error('[cms] Fetch interceptor error:', e);
++    }
++    return orig.apply(this, arguments);
++  };
++})();
+
