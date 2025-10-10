@@ -9,12 +9,13 @@ function redirectWithError(error: string, siteUrl: string) {
   const adminUrl = new URL('/website-admin', siteUrl);
   adminUrl.searchParams.set('auth_error', error);
   
+  const headers = new Headers();
+  headers.append('Location', adminUrl.toString());
+  headers.append('Set-Cookie', 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure');
+  
   return new Response(null, {
     status: 302,
-    headers: {
-      'Location': adminUrl.toString(),
-      'Set-Cookie': 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure'
-    }
+    headers: headers
   });
 }
 
@@ -152,15 +153,15 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 
     console.log('[decap-oauth] Token obtained, redirecting to admin with cookie');
 
+    // Use Headers object to properly set multiple Set-Cookie headers
+    const headers = new Headers();
+    headers.append('Location', adminUrl.toString());
+    headers.append('Set-Cookie', 'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure');
+    headers.append('Set-Cookie', tokenCookie);
+
     return new Response(null, {
       status: 302,
-      headers: {
-        'Location': adminUrl.toString(),
-        'Set-Cookie': [
-          'decap_oauth_state=; Max-Age=0; Path=/; SameSite=None; Secure',
-          tokenCookie
-        ].join(', ')
-      }
+      headers: headers
     });
 
   } catch (error) {
