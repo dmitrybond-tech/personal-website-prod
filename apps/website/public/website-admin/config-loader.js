@@ -59,19 +59,8 @@ async function loadYaml(url) {
   const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
   if (!res.ok) throw new Error('Config fetch failed: ' + url);
   const text = await res.text();
+  // Return both parsed config and raw YAML text (exact response, no mutations)
   return { config: window.jsyaml.load(text), rawText: text };
-}
-
-function ensureLocalBackend(cfg) {
-  const forceLocal = qs.get('local_backend') === 'true';
-  if (forceLocal) {
-    const def = { url: 'http://localhost:8081', allowed_hosts: ['localhost:4321'] };
-    if (cfg.local_backend === true) cfg.local_backend = def;
-    else if (!cfg.local_backend) cfg.local_backend = def;
-  } else {
-    delete cfg.local_backend;
-  }
-  return cfg;
 }
 
 // ============================================================================
@@ -283,11 +272,12 @@ async function initCMS(config, rawYaml) {
       return; 
     }
     
+    // Load config from API (returns canonical minimal config)
     const { config: cfg, rawText: rawYaml } = await loadYaml(path);
-    const finalCfg = ensureLocalBackend(cfg);
     
+    // Store references for debugging (no mutations)
     window.__CMS_CONFIG_PATH__ = path;
-    window.__CMS_CONFIG__ = finalCfg;
+    window.__CMS_CONFIG__ = cfg;
     window.__CMS_CONFIG_RAW_YAML__ = rawYaml;
     
     console.info('[cms] Loaded config from', path);
@@ -295,8 +285,8 @@ async function initCMS(config, rawYaml) {
     // Wait for core to be truly ready
     await waitForCMSCore();
     
-    // Initialize with two-phase fallback
-    const result = await initCMS(finalCfg, rawYaml);
+    // Initialize with two-phase fallback (use config as-is from API)
+    const result = await initCMS(cfg, rawYaml);
     
     console.log('[cms-init] initialization complete: method=' + result.method + ' success=' + result.success);
     
