@@ -4,13 +4,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" href="/favicons/favicon.ico" />
   <title>Content Manager - Dmitry Bond</title>
 </head>
 <body>
-  <!-- Decap CMS script -->
+  <!-- Decap CMS - Auto-initializes from config.yml -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   
-  <!-- OAuth popup handler -->
+  <!-- OAuth popup handler - Handles GitHub OAuth callback messages -->
   <script src="./override-login.client.js"></script>
+  
+  <!-- Debug helper: Expose CMS instance for console debugging -->
+  <script>
+    if (window.CMS) {
+      console.log('[decap-admin] CMS loaded successfully, version:', window.CMS.getBackend?.()?.constructor?.name || 'unknown');
+      console.log('[decap-admin] Access CMS via window.CMS for debugging');
+    }
+  </script>
 </body>
 </html>

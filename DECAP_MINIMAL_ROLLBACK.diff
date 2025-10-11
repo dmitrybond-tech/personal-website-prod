@@ -1,0 +1,559 @@
+diff --git a/apps/website/public/website-admin/DECAP_POPUP_FINISH_FIX.diff b/apps/website/public/website-admin/DECAP_POPUP_FINISH_FIX.diff
+deleted file mode 100644
+index ...
+--- a/apps/website/public/website-admin/DECAP_POPUP_FINISH_FIX.diff
++++ /dev/null
+@@ -1,XX +0,0 @@
+-[Removed debug/diff file]
+
+diff --git a/apps/website/public/website-admin/README.md b/apps/website/public/website-admin/README.md
+new file mode 100644
+index 00000000..xxxxxxxx
+--- /dev/null
++++ b/apps/website/public/website-admin/README.md
+@@ -0,0 +1,XX @@
++# Decap CMS Admin Setup
++
++This directory contains the Decap CMS (formerly Netlify CMS) admin interface for managing blog content.
++
++[Full README content added - see file]
+
+diff --git a/apps/website/public/website-admin/config-with-iconify-dev.yml b/apps/website/public/website-admin/config-with-iconify-dev.yml
+deleted file mode 100644
+index ...
+--- a/apps/website/public/website-admin/config-with-iconify-dev.yml
++++ /dev/null
+@@ -1,XX +0,0 @@
+-[Removed alternate config file]
+
+diff --git a/apps/website/public/website-admin/config.dev.yml b/apps/website/public/website-admin/config.dev.yml
+deleted file mode 100644
+index ...
+--- a/apps/website/public/website-admin/config.dev.yml
++++ /dev/null
+@@ -1,XX +0,0 @@
+-[Removed alternate config file]
+
+diff --git a/apps/website/public/website-admin/config.generated.yml b/apps/website/public/website-admin/config.generated.yml
+deleted file mode 100644
+index ...
+--- a/apps/website/public/website-admin/config.generated.yml
++++ /dev/null
+@@ -1,XX +0,0 @@
+-[Removed generated config file]
+
+diff --git a/apps/website/public/website-admin/config.prod.yml b/apps/website/public/website-admin/config.prod.yml
+deleted file mode 100644
+index ...
+--- a/apps/website/public/website-admin/config.prod.yml
++++ /dev/null
+@@ -1,XX +0,0 @@
+-[Removed alternate config file]
+
+diff --git a/apps/website/public/website-admin/config.yml b/apps/website/public/website-admin/config.yml
+index 802a4ab0..22b7df69 100644
+--- a/apps/website/public/website-admin/config.yml
++++ b/apps/website/public/website-admin/config.yml
+@@ -13,14 +13,15 @@ collections:
+   - name: posts
+     label: Blog Posts
+     label_singular: Blog Post
+-    folder: apps/website/src/content/posts/en
++    folder: apps/website/src/content/blog
+     create: true
+-    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
++    slug: '{{slug}}.{{fields.lang}}'
+     format: frontmatter
+     extension: md
+     fields:
+       - { label: 'Title', name: 'title', widget: 'string' }
+-      - { label: 'Date', name: 'date', widget: 'datetime' }
++      - { label: 'Language', name: 'lang', widget: 'select', options: ['en', 'ru'], default: 'en' }
++      - { label: 'Published At', name: 'publishedAt', widget: 'datetime', date_format: 'YYYY-MM-DD', time_format: false }
+       - { label: 'Description', name: 'description', widget: 'text', required: false }
++      - { label: 'Tags', name: 'tags', widget: 'list', required: false, default: [] }
+       - { label: 'Body', name: 'body', widget: 'markdown' }
+-
+
+diff --git a/apps/website/public/website-admin/decap-cms.js b/apps/website/public/website-admin/decap-cms.js
+deleted file mode 100644
+index ...
+--- a/apps/website/public/website-admin/decap-cms.js
++++ /dev/null
+@@ -1,XXXX +0,0 @@
+-[Removed local Decap CMS copy - now using CDN]
+
+diff --git a/apps/website/public/website-admin/iconify-icons-config.yml b/apps/website/public/website-admin/iconify-icons-config.yml
+deleted file mode 100644
+index ...
+--- a/apps/website/public/website-admin/iconify-icons-config.yml
++++ /dev/null
+@@ -1,XX +0,0 @@
+-[Removed alternate config file]
+
+diff --git a/apps/website/public/website-admin/index.html b/apps/website/public/website-admin/index.html
+index 278df07c..85d056cf 100644
+--- a/apps/website/public/website-admin/index.html
++++ b/apps/website/public/website-admin/index.html
+@@ -4,13 +4,22 @@
+   <meta charset="utf-8" />
+   <meta name="viewport" content="width=device-width,initial-scale=1" />
+   <meta name="robots" content="noindex,nofollow" />
++  <link rel="icon" href="/favicons/favicon.ico" />
+   <title>Content Manager - Dmitry Bond</title>
+ </head>
+ <body>
+-  <!-- Decap CMS script -->
++  <!-- Decap CMS - Auto-initializes from config.yml -->
+   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+   
+-  <!-- OAuth popup handler -->
++  <!-- OAuth popup handler - Handles GitHub OAuth callback messages -->
+   <script src="./override-login.client.js"></script>
++  
++  <!-- Debug helper: Expose CMS instance for console debugging -->
++  <script>
++    if (window.CMS) {
++      console.log('[decap-admin] CMS loaded successfully, version:', window.CMS.getBackend?.()?.constructor?.name || 'unknown');
++      console.log('[decap-admin] Access CMS via window.CMS for debugging');
++    }
++  </script>
+ </body>
+ </html>
+
+diff --git a/apps/website/public/website-admin/vendor/decap-cms.js b/apps/website/public/website-admin/vendor/decap-cms.js
+deleted file mode 100644
+index ...
+--- a/apps/website/public/website-admin/vendor/decap-cms.js
++++ /dev/null
+@@ -1,XXXX +0,0 @@
+-[Removed local vendor Decap CMS copy - now using CDN]
+
+diff --git a/apps/website/src/pages/api/decap/[...params].ts b/apps/website/src/pages/api/decap/[...params].ts
+index 3dec19de..3f73c6db 100644
+--- a/apps/website/src/pages/api/decap/[...params].ts
++++ b/apps/website/src/pages/api/decap/[...params].ts
+@@ -1,5 +1,9 @@
+ import type { APIRoute } from 'astro';
+ 
++/**
++ * OAuth entry point for Decap CMS GitHub authentication
++ * GET /api/decap?provider=github&scope=repo&site_id=<host>
++ */
+ export const GET: APIRoute = async ({ params, request, url }) => {
+   try {
+     // Handle OAuth login flow
+@@ -9,37 +13,67 @@ export const GET: APIRoute = async ({ params, request, url }) => {
+     
+     console.log(`[OAuth] GET request: provider=${provider}, siteId=${siteId}, scope=${scope}`);
+   
+-  if (provider === 'github') {
+-    // Build GitHub OAuth URL
+-    const clientId = process.env.DECAP_GITHUB_CLIENT_ID;
+-    const redirectUri = `${url.origin}/api/decap/callback`;
+-    
+-    if (!clientId) {
+-      console.error('[OAuth] GitHub OAuth client ID not configured');
+-      return new Response('GitHub OAuth client ID not configured', { status: 500 });
++    if (provider === 'github') {
++      // Read GitHub OAuth credentials from environment
++      const clientId = process.env.DECAP_GITHUB_CLIENT_ID || process.env.AUTHJS_GITHUB_CLIENT_ID;
++      const redirectUri = `${url.origin}/api/decap/callback`;
++      
++      if (!clientId) {
++        console.error('[OAuth] GitHub OAuth client ID not configured. Set DECAP_GITHUB_CLIENT_ID or AUTHJS_GITHUB_CLIENT_ID');
++        return new Response(
++          JSON.stringify({ 
++            error: 'GitHub OAuth client ID not configured',
++            details: 'Set DECAP_GITHUB_CLIENT_ID environment variable'
++          }),
++          { 
++            status: 500,
++            headers: { 'Content-Type': 'application/json' }
++          }
++        );
++      }
++      
++      // Log fallback warning if using AUTHJS credentials
++      if (!process.env.DECAP_GITHUB_CLIENT_ID && process.env.AUTHJS_GITHUB_CLIENT_ID) {
++        console.warn('[OAuth] Using AUTHJS_GITHUB_CLIENT_ID as fallback. Consider setting DECAP_GITHUB_CLIENT_ID for clarity.');
++      }
++      
++      console.log(`[OAuth] Starting OAuth flow with client ID: ${clientId.substring(0, 8)}...`);
++      
++      const githubAuthUrl = new URL('https://github.com/login/oauth/authorize');
++      githubAuthUrl.searchParams.set('client_id', clientId);
++      githubAuthUrl.searchParams.set('redirect_uri', redirectUri);
++      githubAuthUrl.searchParams.set('scope', scope);
++      githubAuthUrl.searchParams.set('state', siteId || url.origin);
++      githubAuthUrl.searchParams.set('response_type', 'code');
++      
++      console.log(`[OAuth] Redirecting to GitHub: ${githubAuthUrl.toString()}`);
++      
++      return Response.redirect(githubAuthUrl.toString(), 302);
+     }
+-    
+-    console.log(`[OAuth] Starting OAuth flow with client ID: ${clientId.substring(0, 8)}...`);
+-    
+-    const githubAuthUrl = new URL('https://github.com/login/oauth/authorize');
+-    githubAuthUrl.searchParams.set('client_id', clientId);
+-    githubAuthUrl.searchParams.set('redirect_uri', redirectUri);
+-    githubAuthUrl.searchParams.set('scope', scope);
+-    githubAuthUrl.searchParams.set('state', siteId || url.origin);
+-    githubAuthUrl.searchParams.set('response_type', 'code');
+-    
+-    console.log(`[OAuth] Redirecting to GitHub: ${githubAuthUrl.toString()}`);
+-    
+-    return Response.redirect(githubAuthUrl.toString(), 302);
+-  }
+   
+-    return new Response(`Provider '${provider}' not supported`, { status: 400 });
++    return new Response(
++      JSON.stringify({ error: `Provider '${provider}' not supported` }),
++      { 
++        status: 400,
++        headers: { 'Content-Type': 'application/json' }
++      }
++    );
+   } catch (error) {
+     console.error('[OAuth] GET error:', error);
+-    return new Response('Internal server error', { status: 500 });
++    return new Response(
++      JSON.stringify({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }),
++      { 
++        status: 500,
++        headers: { 'Content-Type': 'application/json' }
++      }
++    );
+   }
+ };
+ 
++/**
++ * OAuth token exchange endpoint (for POST-based flow)
++ * POST /api/decap with form data: code, state
++ */
+ export const POST: APIRoute = async ({ request, url }) => {
+   // Handle OAuth callback from GitHub
+   try {
+@@ -48,10 +82,34 @@ export const POST: APIRoute = async ({ request, url }) => {
+     const state = formData.get('state') as string;
+     
+     if (!code) {
+-      return new Response('Missing authorization code', { status: 400 });
++      return new Response(
++        JSON.stringify({ error: 'Missing authorization code' }),
++        { 
++          status: 400,
++          headers: { 'Content-Type': 'application/json' }
++        }
++      );
+     }
+     
+-    console.log(`[OAuth] Received callback with code: ${code.substring(0, 10)}...`);
++    console.log(`[OAuth] POST received callback with code: ${code.substring(0, 10)}...`);
++    
++    // Read GitHub OAuth credentials
++    const clientId = process.env.DECAP_GITHUB_CLIENT_ID || process.env.AUTHJS_GITHUB_CLIENT_ID;
++    const clientSecret = process.env.DECAP_GITHUB_CLIENT_SECRET || process.env.AUTHJS_GITHUB_CLIENT_SECRET;
++    
++    if (!clientId || !clientSecret) {
++      console.error('[OAuth] GitHub OAuth credentials not configured');
++      return new Response(
++        JSON.stringify({ 
++          error: 'GitHub OAuth credentials not configured',
++          details: 'Set DECAP_GITHUB_CLIENT_ID and DECAP_GITHUB_CLIENT_SECRET'
++        }),
++        { 
++          status: 500,
++          headers: { 'Content-Type': 'application/json' }
++        }
++      );
++    }
+     
+     // Exchange code for access token
+     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+@@ -62,8 +120,8 @@ export const POST: APIRoute = async ({ request, url }) => {
+         'User-Agent': 'DecapCMS-OAuth/1.0',
+       },
+       body: JSON.stringify({
+-        client_id: process.env.DECAP_GITHUB_CLIENT_ID,
+-        client_secret: process.env.DECAP_GITHUB_CLIENT_SECRET,
++        client_id: clientId,
++        client_secret: clientSecret,
+         code: code,
+       }),
+     });
+@@ -72,10 +130,15 @@ export const POST: APIRoute = async ({ request, url }) => {
+     
+     if (tokenData.error) {
+       console.error(`[OAuth] GitHub error: ${tokenData.error_description || tokenData.error}`);
+-      return new Response(`OAuth error: ${tokenData.error_description || tokenData.error}`, { 
+-        status: 400,
+-        headers: { 'Content-Type': 'application/json' }
+-      });
++      return new Response(
++        JSON.stringify({ 
++          error: tokenData.error_description || tokenData.error 
++        }),
++        { 
++          status: 400,
++          headers: { 'Content-Type': 'application/json' }
++        }
++      );
+     }
+     
+     console.log(`[OAuth] Successfully obtained token for user`);
+@@ -89,11 +152,22 @@ export const POST: APIRoute = async ({ request, url }) => {
+       headers: {
+         'Content-Type': 'application/json',
+         'Cache-Control': 'no-store, no-cache, must-revalidate',
++        'Access-Control-Allow-Origin': url.origin,
++        'Access-Control-Allow-Credentials': 'true',
+       },
+     });
+     
+   } catch (error) {
+     console.error('[OAuth] Callback error:', error);
+-    return new Response('Internal server error during OAuth callback', { status: 500 });
++    return new Response(
++      JSON.stringify({ 
++        error: 'Internal server error during OAuth callback',
++        details: error instanceof Error ? error.message : 'Unknown error'
++      }),
++      { 
++        status: 500,
++        headers: { 'Content-Type': 'application/json' }
++      }
++    );
+   }
+ };
+
+diff --git a/apps/website/src/pages/api/decap/callback.ts b/apps/website/src/pages/api/decap/callback.ts
+index 19d30baa..54017bf3 100644
+--- a/apps/website/src/pages/api/decap/callback.ts
++++ b/apps/website/src/pages/api/decap/callback.ts
+@@ -1,5 +1,10 @@
+ import type { APIRoute } from 'astro';
+ 
++/**
++ * OAuth callback handler for Decap CMS
++ * GitHub redirects here after user authorizes
++ * GET /api/decap/callback?code=<auth_code>&state=<state>
++ */
+ export const GET: APIRoute = async ({ url }) => {
+   // Handle OAuth callback redirect from GitHub
+   const code = url.searchParams.get('code');
+@@ -8,16 +13,81 @@ export const GET: APIRoute = async ({ url }) => {
+   
+   if (error) {
+     console.error(`[OAuth] GitHub error: ${error}`);
+-    return new Response(`OAuth error: ${error}`, { status: 400 });
++    return new Response(
++      `<!DOCTYPE html>
++<html>
++<head>
++  <meta charset="utf-8">
++  <title>OAuth Error</title>
++</head>
++<body>
++  <h1>Authentication Error</h1>
++  <p>GitHub returned an error: ${error}</p>
++  <p><a href="/website-admin/">Return to CMS</a></p>
++</body>
++</html>`,
++      { 
++        status: 400,
++        headers: { 'Content-Type': 'text/html' }
++      }
++    );
+   }
+   
+   if (!code) {
+-    return new Response('Missing authorization code', { status: 400 });
++    return new Response(
++      `<!DOCTYPE html>
++<html>
++<head>
++  <meta charset="utf-8">
++  <title>OAuth Error</title>
++</head>
++<body>
++  <h1>Authentication Error</h1>
++  <p>Missing authorization code from GitHub</p>
++  <p><a href="/website-admin/">Return to CMS</a></p>
++</body>
++</html>`,
++      { 
++        status: 400,
++        headers: { 'Content-Type': 'text/html' }
++      }
++    );
+   }
+   
+   console.log(`[OAuth] Processing callback with code: ${code.substring(0, 10)}...`);
+   
+   try {
++    // Read GitHub OAuth credentials
++    const clientId = process.env.DECAP_GITHUB_CLIENT_ID || process.env.AUTHJS_GITHUB_CLIENT_ID;
++    const clientSecret = process.env.DECAP_GITHUB_CLIENT_SECRET || process.env.AUTHJS_GITHUB_CLIENT_SECRET;
++    
++    if (!clientId || !clientSecret) {
++      console.error('[OAuth] GitHub OAuth credentials not configured');
++      return new Response(
++        `<!DOCTYPE html>
++<html>
++<head>
++  <meta charset="utf-8">
++  <title>Configuration Error</title>
++</head>
++<body>
++  <h1>Configuration Error</h1>
++  <p>GitHub OAuth is not properly configured on the server.</p>
++  <p>Please set DECAP_GITHUB_CLIENT_ID and DECAP_GITHUB_CLIENT_SECRET environment variables.</p>
++</body>
++</html>`,
++        { 
++          status: 500,
++          headers: { 'Content-Type': 'text/html' }
++        }
++      );
++    }
++    
++    // Log fallback warning if using AUTHJS credentials
++    if (!process.env.DECAP_GITHUB_CLIENT_ID && process.env.AUTHJS_GITHUB_CLIENT_ID) {
++      console.warn('[OAuth] Using AUTHJS_GITHUB credentials as fallback. Consider setting DECAP_GITHUB_CLIENT_ID and DECAP_GITHUB_CLIENT_SECRET.');
++    }
++    
+     // Exchange code for access token
+     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+       method: 'POST',
+@@ -27,8 +97,8 @@ export const GET: APIRoute = async ({ url }) => {
+         'User-Agent': 'DecapCMS-OAuth/1.0',
+       },
+       body: JSON.stringify({
+-        client_id: process.env.DECAP_GITHUB_CLIENT_ID,
+-        client_secret: process.env.DECAP_GITHUB_CLIENT_SECRET,
++        client_id: clientId,
++        client_secret: clientSecret,
+         code: code,
+       }),
+     });
+@@ -37,7 +107,24 @@ export const GET: APIRoute = async ({ url }) => {
+     
+     if (tokenData.error) {
+       console.error(`[OAuth] GitHub token error: ${tokenData.error_description || tokenData.error}`);
+-      return new Response(`OAuth error: ${tokenData.error_description || tokenData.error}`, { status: 400 });
++      return new Response(
++        `<!DOCTYPE html>
++<html>
++<head>
++  <meta charset="utf-8">
++  <title>OAuth Error</title>
++</head>
++<body>
++  <h1>Authentication Error</h1>
++  <p>GitHub token exchange failed: ${tokenData.error_description || tokenData.error}</p>
++  <p><a href="/website-admin/">Return to CMS</a></p>
++</body>
++</html>`,
++        { 
++          status: 400,
++          headers: { 'Content-Type': 'text/html' }
++        }
++      );
+     }
+     
+     console.log(`[OAuth] Token exchange successful`);
+@@ -45,30 +132,50 @@ export const GET: APIRoute = async ({ url }) => {
+     // Create a simple HTML page that posts the token back to Decap CMS
+     const adminUrl = new URL('/website-admin/', url.origin);
+     
+-    const html = `
+-<!DOCTYPE html>
++    const html = `<!DOCTYPE html>
+ <html>
+ <head>
+   <meta charset="utf-8">
+   <title>OAuth Complete</title>
++  <style>
++    body { font-family: system-ui, -apple-system, sans-serif; padding: 2rem; text-align: center; }
++    .success { color: #059669; }
++  </style>
+ </head>
+ <body>
++  <h1 class="success">✓ Authentication Successful</h1>
++  <p>Completing login...</p>
+   <script>
+-    // Post token back to parent window (Decap CMS)
+-    if (window.opener) {
+-      window.opener.postMessage({
+-        message: 'authorization:github:success',
+-        token: '${tokenData.access_token}',
+-        provider: 'github',
+-        site_id: '${state || url.origin}'
+-      }, '*');
+-      window.close();
+-    } else {
+-      // Fallback: redirect to admin
+-      window.location.href = '${adminUrl.toString()}';
+-    }
++    (function() {
++      console.log('[OAuth] Callback page loaded, posting token to parent window');
++      
++      // Post token back to parent window (Decap CMS)
++      if (window.opener) {
++        window.opener.postMessage({
++          message: 'authorization:github:success',
++          token: '${tokenData.access_token}',
++          provider: 'github',
++          site_id: '${state || url.origin}'
++        }, '${url.origin}');
++        
++        console.log('[OAuth] Token posted to parent window');
++        
++        // Close popup after a short delay
++        setTimeout(function() {
++          console.log('[OAuth] Closing popup window');
++          window.close();
++        }, 1000);
++      } else {
++        console.warn('[OAuth] No window.opener found, redirecting to admin');
++        // Fallback: redirect to admin
++        window.location.href = '${adminUrl.toString()}';
++      }
++    })();
+   </script>
+-  <p>Authentication successful. You can close this window.</p>
++  <noscript>
++    <p>JavaScript is required to complete authentication.</p>
++    <p><a href="${adminUrl.toString()}">Return to CMS</a></p>
++  </noscript>
+ </body>
+ </html>`;
+     
+@@ -81,6 +188,23 @@ export const GET: APIRoute = async ({ url }) => {
+     
+   } catch (error) {
+     console.error('[OAuth] Callback processing error:', error);
+-    return new Response('Internal server error during OAuth callback', { status: 500 });
++    return new Response(
++      `<!DOCTYPE html>
++<html>
++<head>
++  <meta charset="utf-8">
++  <title>Server Error</title>
++</head>
++<body>
++  <h1>Server Error</h1>
++  <p>An error occurred during OAuth callback: ${error instanceof Error ? error.message : 'Unknown error'}</p>
++  <p><a href="/website-admin/">Return to CMS</a></p>
++</body>
++</html>`,
++      { 
++        status: 500,
++        headers: { 'Content-Type': 'text/html' }
++      }
++    );
+   }
+ };
+

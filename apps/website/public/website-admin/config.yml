@@ -13,14 +13,15 @@ collections:
   - name: posts
     label: Blog Posts
     label_singular: Blog Post
-    folder: apps/website/src/content/posts/en
+    folder: apps/website/src/content/blog
     create: true
-    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    slug: '{{slug}}.{{fields.lang}}'
     format: frontmatter
     extension: md
     fields:
       - { label: 'Title', name: 'title', widget: 'string' }
-      - { label: 'Date', name: 'date', widget: 'datetime' }
+      - { label: 'Language', name: 'lang', widget: 'select', options: ['en', 'ru'], default: 'en' }
+      - { label: 'Published At', name: 'publishedAt', widget: 'datetime', date_format: 'YYYY-MM-DD', time_format: false }
       - { label: 'Description', name: 'description', widget: 'text', required: false }
+      - { label: 'Tags', name: 'tags', widget: 'list', required: false, default: [] }
       - { label: 'Body', name: 'body', widget: 'markdown' }
-
