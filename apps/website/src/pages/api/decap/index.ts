@@ -43,9 +43,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     }
 
     const state = makeState();
-    // ⚠️ If cookie is not visible on /token — problem is in proxy, not code
-    cookies.set('decap_oauth_state', state, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' });
-
+    
     const redirectUri = `${origin}/api/decap/callback`;
     const authUrl = new URL('https://github.com/login/oauth/authorize');
     authUrl.searchParams.set('client_id', String(clientId));
@@ -54,7 +52,22 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     authUrl.searchParams.set('state', state);
     authUrl.searchParams.set('response_type', 'code');
 
+    // Defensive logging
+    const forcedOrigin = process.env.DECAP_ORIGIN;
+    console.info('[DECAP] OAuth entry:', {
+      forcedOrigin: forcedOrigin || '(none)',
+      finalOrigin: origin,
+      locationLength: authUrl.toString().length,
+      statePrefix: state.slice(0, 8),
+      dry: url.searchParams.get('dry') === '1'
+    });
+
     if (dry) {
+      // Dry-run mode: use cookies.set for diagnostic purposes
+      // ⚠️ The 302 branch uses manual Set-Cookie by design because some proxies/runtime
+      // combinations drop cookies on Response.redirect
+      cookies.set('decap_oauth_state', state, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' });
+      
       // Don't redirect — just show what would happen
       const echo = {
         ok: true,
@@ -72,7 +85,18 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       return new Response(JSON.stringify(echo), { status: 200, headers: { ...base, 'content-type': 'application/json' } });
     }
 
-    return Response.redirect(authUrl.toString(), 302);
+    // Normal path: manual 302 redirect with explicit Set-Cookie header
+    // ⚠️ Do NOT use Response.redirect or cookies.set here — some proxies drop cookies on redirects
+    const setCookie = `decap_oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax`;
+    return new Response(null, {
+      status: 302,
+      headers: {
+        'Location': authUrl.toString(),
+        ...base,
+        'Set-Cookie': setCookie,
+        'Content-Type': 'text/plain; charset=utf-8',
+      }
+    });
   } catch (e: any) {
     return new Response(JSON.stringify({
       error: 'entry_route_failed',
