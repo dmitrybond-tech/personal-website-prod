@@ -1,0 +1,331 @@
+diff --git a/apps/website/public/website-admin/index.html b/apps/website/public/website-admin/index.html
+index xxxxxxx..xxxxxxx 100644
+--- a/apps/website/public/website-admin/index.html
++++ b/apps/website/public/website-admin/index.html
+@@ -6,21 +6,11 @@
+   <meta name="robots" content="noindex,nofollow" />
+   <link rel="icon" href="/favicons/favicon.ico" />
+   <title>Content Manager - Dmitry Bond</title>
++  <!-- Canonical config path hint for Decap CMS -->
++  <link rel="cms-config-url" href="/website-admin/config.yml" />
+ </head>
+ <body>
+-  <!-- Decap CMS - Auto-initializes from config.yml -->
+-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+-  
+-  <!-- OAuth popup handler - Handles GitHub OAuth callback messages -->
+-  <script src="./override-login.client.js"></script>
+-  
+-  <!-- Debug helper: Expose CMS instance for console debugging -->
+-  <script>
+-    if (window.CMS) {
+-      console.log('[decap-admin] CMS loaded successfully, version:', window.CMS.getBackend?.()?.constructor?.name || 'unknown');
+-      console.log('[decap-admin] Access CMS via window.CMS for debugging');
+-    }
+-  </script>
++  <!-- Decap CMS - Pinned version, auto-initializes from config.yml -->
++  <script src="https://unpkg.com/decap-cms@3.9.0/dist/decap-cms.js"></script>
+ </body>
+ </html>
+
+diff --git a/apps/website/public/website-admin/override-login.client.js b/apps/website/public/website-admin/override-login.client.js
+deleted file mode 100644
+index xxxxxxx..0000000
+--- a/apps/website/public/website-admin/override-login.client.js
++++ /dev/null
+@@ -1,54 +0,0 @@
+-// OAuth popup handler for Decap CMS
+-console.log('[decap-oauth] override-login.client.js loaded');
+-
+-// Listen for OAuth completion messages from popup
+-window.addEventListener('message', function(event) {
+-  // Only accept messages from same origin
+-  if (event.origin !== window.location.origin) {
+-    return;
+-  }
+-  
+-  console.log('[decap-oauth] received message:', event.data);
+-  
+-  // Handle OAuth success message
+-  if (event.data && event.data.message === 'authorization:github:success') {
+-    console.log('[decap-oauth] OAuth success received');
+-    
+-    // Store token in localStorage for Decap CMS
+-    if (event.data.token) {
+-      localStorage.setItem('netlify-cms-user', JSON.stringify({
+-        token: event.data.token,
+-        provider: event.data.provider,
+-        site_id: event.data.site_id
+-      }));
+-      
+-      console.log('[decap-oauth] Token stored in localStorage');
+-      
+-      // Reload page to initialize CMS with new token
+-      setTimeout(() => {
+-        console.log('[decap-oauth] Reloading page to initialize CMS...');
+-        window.location.reload();
+-      }, 500);
+-    }
+-  }
+-});
+-
+-// Auto-click login button if token exists (for development/testing)
+-document.addEventListener('DOMContentLoaded', function() {
+-  setTimeout(() => {
+-    const token = localStorage.getItem('netlify-cms-user');
+-    if (token) {
+-      console.log('[decap-oauth] Token found, checking if CMS is ready...');
+-      
+-      // Try to click login button automatically
+-      const loginButton = document.querySelector('button[class*="LoginButton"]');
+-      if (loginButton && !document.querySelector('.nc-root')) {
+-        console.log('[decap-oauth] Auto-clicking login button...');
+-        loginButton.click();
+-      }
+-    }
+-  }, 1000);
+-});
+-
+-console.log('[decap-oauth] OAuth handler initialized');
+
+diff --git a/apps/website/src/pages/api/decap/index.ts b/apps/website/src/pages/api/decap/index.ts
+new file mode 100644
+index 0000000..xxxxxxx
+--- /dev/null
++++ b/apps/website/src/pages/api/decap/index.ts
+@@ -0,0 +1,73 @@
++import type { APIRoute } from 'astro';
++
++/**
++ * OAuth entry point for Decap CMS
++ * GET /api/decap?provider=github&scope=repo&site_id=<host>
++ * Redirects to GitHub OAuth authorize endpoint
++ */
++
++function getOrigin(req: Request): string {
++  const url = new URL(req.url);
++  const proto = req.headers.get('x-forwarded-proto') || url.protocol.replace(':', '');
++  const host = req.headers.get('x-forwarded-host') || url.host;
++  return `${proto}://${host}`;
++}
++
++export const GET: APIRoute = async ({ request, cookies }) => {
++  const url = new URL(request.url);
++  const provider = url.searchParams.get('provider') || 'github';
++  
++  // Only support GitHub provider
++  if (provider !== 'github') {
++    return new Response(JSON.stringify({ 
++      error: 'Unsupported provider', 
++      provider,
++      supported: ['github']
++    }), {
++      status: 400, 
++      headers: { 'content-type': 'application/json' }
++    });
++  }
++
++  // Read GitHub OAuth client ID from environment
++  const clientId = process.env.DECAP_GITHUB_CLIENT_ID || process.env.AUTHJS_GITHUB_CLIENT_ID;
++  
++  if (!clientId) {
++    console.error('[OAuth] Missing GitHub client ID. Set DECAP_GITHUB_CLIENT_ID or AUTHJS_GITHUB_CLIENT_ID');
++    return new Response(JSON.stringify({
++      error: 'Missing GitHub client ID',
++      expected: ['DECAP_GITHUB_CLIENT_ID', 'AUTHJS_GITHUB_CLIENT_ID'],
++      message: 'Server configuration error: GitHub OAuth client ID not set'
++    }), { 
++      status: 500, 
++      headers: { 'content-type': 'application/json' } 
++    });
++  }
++
++  // Log fallback warning if using AUTHJS credentials
++  if (!process.env.DECAP_GITHUB_CLIENT_ID && process.env.AUTHJS_GITHUB_CLIENT_ID) {
++    console.warn('[OAuth] Using AUTHJS_GITHUB_CLIENT_ID as fallback. Consider setting DECAP_GITHUB_CLIENT_ID for clarity.');
++  }
++
++  // Build OAuth parameters
++  const origin = getOrigin(request);
++  const redirectUri = `${origin}/api/decap/callback`;
++  const scope = url.searchParams.get('scope') || 'repo';
++  const state = crypto.randomUUID();
++
++  // Set state cookie for CSRF protection
++  cookies.set('decap_oauth_state', state, { 
++    httpOnly: true, 
++    sameSite: 'lax', 
++    path: '/',
++    secure: origin.startsWith('https')
++  });
++
++  // Build GitHub OAuth authorization URL
++  const authUrl = new URL('https://github.com/login/oauth/authorize');
++  authUrl.searchParams.set('client_id', String(clientId));
++  authUrl.searchParams.set('redirect_uri', redirectUri);
++  authUrl.searchParams.set('scope', scope);
++  authUrl.searchParams.set('state', state);
++
++  console.log(`[OAuth] Redirecting to GitHub OAuth (client_id: ${String(clientId).substring(0, 8)}..., redirect_uri: ${redirectUri})`);
++
++  return Response.redirect(authUrl.toString(), 302);
++};
+
+diff --git a/apps/website/src/pages/api/website-admin/config.yml.ts b/apps/website/src/pages/api/website-admin/config.yml.ts
+deleted file mode 100644
+index xxxxxxx..0000000
+--- a/apps/website/src/pages/api/website-admin/config.yml.ts
++++ /dev/null
+@@ -1,107 +0,0 @@
+-import type { APIRoute } from 'astro';
+-import { stringify } from 'yaml';
+-export const prerender = false;
+-
+-export const GET: APIRoute = async ({ request }) => {
+-  const IS_LOCAL = process.env.DECAP_LOCAL_BACKEND === 'true';
+-  const REPO_PREFIX = IS_LOCAL ? '' : 'apps/website/';
+-  
+-  // Derive site origin safely behind proxies
+-  const url = new URL(request.url);
+-  const proto = request.headers.get('x-forwarded-proto') ?? url.protocol.replace(':', '');
+-  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? url.host;
+-  const baseUrl = `${proto}://${host}`;
+-  
+-  // Prevent localhost fallback in production
+-  const siteOrigin = process.env.NODE_ENV === 'production' && baseUrl.includes('localhost')
+-    ? process.env.PUBLIC_SITE_URL || 'https://dmitrybond.tech'
+-    : baseUrl;
+-    
+-  const repo = 'dmitrybond-tech/personal-website-prod';
+-  const branch = 'main';
+-
+-  // Canonical minimal config for Decap CMS
+-  const config = IS_LOCAL
+-    ? {
+-        // Local backend mode
+-        local_backend: true,
+-        backend: { name: 'test-repo' },
+-        publish_mode: 'simple',
+-        media_folder: `${REPO_PREFIX}public/uploads`,
+-        public_folder: '/uploads',
+-        collections: [
+-          {
+-            name: 'posts',
+-            label: 'Blog Posts',
+-            label_singular: 'Blog Post',
+-            folder: `${REPO_PREFIX}src/content/posts`,
+-            create: true,
+-            slug: '{{slug}}',
+-            format: 'frontmatter',
+-            extension: 'md',
+-            fields: [
+-              { label: 'Title', name: 'title', widget: 'string' },
+-              { label: 'Date', name: 'date', widget: 'datetime' },
+-              { label: 'Description', name: 'description', widget: 'text', required: false },
+-              { label: 'Body', name: 'body', widget: 'markdown' }
+-            ]
+-          }
+-        ]
+-      }
+-    : {
+-        // GitHub backend mode - canonical minimal config
+-        backend: {
+-          name: 'github',
+-          repo,
+-          branch,
+-          base_url: siteOrigin,
+-          auth_endpoint: '/api/decap/authorize',
+-        },
+-        publish_mode: 'simple',
+-        media_folder: `${REPO_PREFIX}public/uploads`,
+-        public_folder: '/uploads',
+-        collections: [
+-          {
+-            name: 'posts',
+-            label: 'Blog Posts',
+-            label_singular: 'Blog Post',
+-            folder: `${REPO_PREFIX}src/content/posts`,
+-            create: true,
+-            slug: '{{slug}}',
+-            format: 'frontmatter',
+-            extension: 'md',
+-            fields: [
+-              { label: 'Title', name: 'title', widget: 'string' },
+-              { label: 'Date', name: 'date', widget: 'datetime' },
+-              { label: 'Description', name: 'description', widget: 'text', required: false },
+-              { label: 'Body', name: 'body', widget: 'markdown' }
+-            ]
+-          }
+-        ]
+-      };
+-
+-  // Guardrails: verify required fields are present
+-  const requiredFields = ['backend', 'media_folder', 'collections'];
+-  requiredFields.forEach(field => {
+-    if (!(config as any)[field]) {
+-      throw new Error(`[config.yml] Missing required field: ${field}`);
+-    }
+-  });
+-
+-  const yaml = stringify(config);
+-  
+-  // Enhanced logging - log once per request with full details
+-  const backendName = IS_LOCAL ? 'test-repo' : 'github';
+-  const repoInfo = IS_LOCAL ? 'local' : `${repo}@${branch}`;
+-  const authEndpoint = IS_LOCAL ? 'n/a' : '/api/decap/authorize';
+-  
+-  console.log(`[config.yml] base_url=${siteOrigin} auth_endpoint=${authEndpoint} backend=${backendName} repo=${repoInfo} collections.len=${config.collections.length}`);
+-  console.log(`[config.yml] collection[0]: name=${config.collections[0].name} folder=${config.collections[0].folder}`);
+-  
+-  return new Response(yaml, {
+-    headers: {
+-      'Content-Type': 'text/yaml; charset=utf-8',
+-      'Cache-Control': 'no-store',
+-    }
+-  });
+-};
+
+diff --git a/apps/website/public/website-admin/README.md b/apps/website/public/website-admin/README.md
+new file mode 100644
+index 0000000..xxxxxxx
+--- /dev/null
++++ b/apps/website/public/website-admin/README.md
+@@ -0,0 +1,35 @@
++# Decap CMS Admin
++
++Content management interface for the personal website.
++
++## Configuration
++
++- **Config path**: `/website-admin/config.yml` (static file)
++- **OAuth endpoint**: `/api/decap` (GitHub OAuth entry)
++- **Callback endpoint**: `/api/decap/callback` (OAuth completion)
++
++## Required Environment Variables
++
++```bash
++DECAP_GITHUB_CLIENT_ID=<your_github_oauth_app_client_id>
++DECAP_GITHUB_CLIENT_SECRET=<your_github_oauth_app_secret>
++```
++
++**Fallback**: If `DECAP_GITHUB_*` vars are not set, the system will use `AUTHJS_GITHUB_CLIENT_ID` and `AUTHJS_GITHUB_CLIENT_SECRET`.
++
++## Smoke Tests
++
++```bash
++# 1. Verify config is accessible
++curl -i https://<your-host>/website-admin/config.yml
++
++# 2. Test OAuth entry (expect 302 redirect to github.com)
++curl -i "https://<your-host>/api/decap?provider=github&scope=repo&site_id=<your-host>"
++
++# 3. Check environment variables inside container
++docker exec -it <container-name> env | grep -E "DECAP_|AUTHJS_"
++```
++
++## Troubleshooting
++
++- **404 on config.yml**: Ensure static file exists at `apps/website/public/website-admin/config.yml`
++- **500 on /api/decap**: Check that `DECAP_GITHUB_CLIENT_ID` or `AUTHJS_GITHUB_CLIENT_ID` is set
++- **OAuth fails**: Verify GitHub OAuth app callback URL is set to `https://<your-host>/api/decap/callback`
+
