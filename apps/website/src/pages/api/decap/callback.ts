@@ -16,6 +16,7 @@ export const GET: APIRoute = async ({ request }) => {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       credentials: 'include', // <- carry HttpOnly cookie
+      mode: 'same-origin',
       body: JSON.stringify({ code: ${JSON.stringify(code)}, state: ${JSON.stringify(state)} })
     }).then(r => r.json()).then(data => {
       if (data && data.token) done({ type: 'authorization:github:success', token: data.token });
