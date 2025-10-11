@@ -2,7 +2,6 @@ import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 import react from '@astrojs/react';
 import auth from 'auth-astro';
-import decapCmsOAuth from 'astro-decap-cms-oauth';
 import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 import { config as loadEnv } from 'dotenv';

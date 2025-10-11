@@ -1,11 +1,12 @@
 import type { APIRoute } from 'astro';
 
+export const prerender = false;
+
 /**
  * Health check endpoint for Decap OAuth backend
  * GET /api/decap/health
  * Returns 200 OK with timestamp
  */
-
 export const GET: APIRoute = () => {
   return new Response(
     JSON.stringify({ 
@@ -22,4 +23,3 @@ export const GET: APIRoute = () => {
     }
   );
 };
-

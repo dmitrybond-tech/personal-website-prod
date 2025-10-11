@@ -8,13 +8,12 @@
   <title>Content Manager - Dmitry Bond</title>
   <!-- Official way to point Decap at a custom config path -->
   <link href="/website-admin/config.yml" type="text/yaml" rel="cms-config-url" />
-  <script>
-    // Extra guard for older Decap loaders and brittle environments (3.8.x/3.9.x)
-    window.CMS_CONFIG_PATH = '/website-admin/config.yml';
-  </script>
 </head>
 <body>
-  <!-- Decap CMS - Vendored locally (v3.8.4) to avoid CDN/CSP issues -->
-  <script src="/website-admin/decap-cms-3.8.4.min.js"></script>
+  <!-- Decap CMS - Pinned version 3.9.0 -->
+  <script src="https://unpkg.com/decap-cms@3.9.0/dist/decap-cms.js"></script>
+  <script>
+    console.log('[Decap CMS] Loaded from pinned CDN bundle (v3.9.0)');
+  </script>
 </body>
 </html>

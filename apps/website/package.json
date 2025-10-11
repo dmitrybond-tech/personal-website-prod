@@ -48,7 +48,8 @@
     "dev": "astro dev --host --port 4321",
     "cms:dev": "decap-server --port 4322",
     "fetch:favorites:dry": "node scripts/fetch-favorites.mjs --dry-run",
-    "fetch:favorites": "node scripts/fetch-favorites.mjs --apply"
+    "fetch:favorites": "node scripts/fetch-favorites.mjs --apply",
+    "oauth:check": "bash ../../scripts/oauth-acceptance-tests.sh"
   },
   "keywords": [],
   "author": "",
