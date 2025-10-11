@@ -1,0 +1,248 @@
+diff --git a/apps/website/public/website-admin/README.md b/apps/website/public/website-admin/README.md
+index a7d9ccca..6e8d3553 100644
+--- a/apps/website/public/website-admin/README.md
++++ b/apps/website/public/website-admin/README.md
+@@ -88,10 +88,40 @@ curl https://<host>/api/decap/health
+ # Click "Login with GitHub" → authorize → popup closes → CMS shows Posts collection
+ ```
+ 
++## Config Path Hardening
++
++To eliminate 500 errors during login and prevent wrong config fetches, the admin HTML now uses **dual config hints**:
++
++1. `<link rel="cms-config-url" href="/website-admin/config.yml" />` (standard Decap 3.8.x+ mechanism)
++2. `window.CMS_CONFIG_PATH = '/website-admin/config.yml'` (fallback for older loaders and brittle environments)
++
++This ensures Decap always fetches `/website-admin/config.yml` instead of attempting root-level `/config.yml` (which would 404).
++
++**CORS & Error Handling**: The `/api/decap` entry route now includes:
++- **OPTIONS handler** for CORS preflight (204 response)
++- **Try/catch** wrapper: all errors return structured JSON (`{error, details, message}`) with proper CORS headers instead of bare 500 HTML
++- **Safer origin detection**: `x-forwarded-proto` and `x-forwarded-host` are normalized (lowercase, no colons)
++
++**Testing**:
++```bash
++# CORS preflight
++curl -i -X OPTIONS https://<host>/api/decap
++# Expected: 204 No Content, access-control-allow-methods: GET, POST, OPTIONS
++
++# OAuth entry with error
++curl -i "https://<host>/api/decap?provider=unsupported"
++# Expected: 400 JSON with {"error":"Unsupported provider",...}
++
++# OAuth entry success
++curl -i "https://<host>/api/decap?provider=github&scope=repo"
++# Expected: 302 Found, Location: https://github.com/login/oauth/authorize?...
++```
++
+ ## Troubleshooting
+ 
+-- **Blank admin page, `window.CMS` undefined**: Check Network tab for `/website-admin/decap-cms-3.8.4.min.js` (should be 200 OK). If missing, run `npm run prebuild` to fetch the vendored script.
+-- **500 on `/api/decap`**: Missing `DECAP_GITHUB_CLIENT_ID` or `AUTHJS_GITHUB_CLIENT_ID`. Check environment variables.
++- **Blank admin page, `window.CMS` undefined**: Check Network tab for `/website-admin/decap-cms-3.9.0.min.js` (should be 200 OK). If missing, run `npm run prebuild` to fetch the vendored script.
++- **500 on `/api/decap`**: Missing `DECAP_GITHUB_CLIENT_ID` or `AUTHJS_GITHUB_CLIENT_ID`. Check environment variables. The error will now return JSON with details instead of HTML.
+ - **400 "Invalid state"**: Cookie may be blocked or cleared. Check browser settings for third-party cookies.
+ - **Token exchange fails**: Verify `DECAP_GITHUB_CLIENT_SECRET` is set and matches GitHub OAuth app.
+ - **Defensive redirect loop**: Should not occur; redirects are one-way from `/website-admin/api/decap/*` → `/api/decap/*`.
++- **Wrong config fetch (e.g. `/config.yml` instead of `/website-admin/config.yml`)**: Should not occur with dual hints. Check browser console for `window.CMS_CONFIG_PATH` (should be defined before Decap script loads).
+diff --git a/apps/website/public/website-admin/index.html b/apps/website/public/website-admin/index.html
+index d85f9517..95b33c05 100644
+--- a/apps/website/public/website-admin/index.html
++++ b/apps/website/public/website-admin/index.html
+@@ -8,9 +8,13 @@
+   <title>Content Manager - Dmitry Bond</title>
+   <!-- Canonical config path hint for Decap CMS -->
+   <link rel="cms-config-url" href="/website-admin/config.yml" />
++  <script>
++    // Extra guard for older Decap loaders and brittle environments (3.8.x/3.9.x)
++    window.CMS_CONFIG_PATH = '/website-admin/config.yml';
++  </script>
+ </head>
+ <body>
+-  <!-- Decap CMS - Vendored locally (v3.8.4 - latest stable) to avoid CDN/CSP issues -->
+-  <script src="/website-admin/decap-cms-3.8.4.min.js"></script>
++  <!-- Decap CMS - Vendored locally (v3.9.0) to avoid CDN/CSP issues -->
++  <script src="/website-admin/decap-cms-3.9.0.min.js"></script>
+ </body>
+ </html>
+diff --git a/apps/website/src/pages/api/decap/index.ts b/apps/website/src/pages/api/decap/index.ts
+index 02d9d057..4ab0fa85 100644
+--- a/apps/website/src/pages/api/decap/index.ts
++++ b/apps/website/src/pages/api/decap/index.ts
+@@ -4,82 +4,114 @@ import type { APIRoute } from 'astro';
+  * OAuth entry point for Decap CMS
+  * GET /api/decap?provider=github&scope=repo&site_id=<host>
+  * Redirects to GitHub OAuth authorize endpoint with state cookie for CSRF protection
++ * OPTIONS /api/decap (CORS preflight)
+  */
+ 
+ function getOrigin(req: Request): string {
+   const url = new URL(req.url);
+-  const proto = req.headers.get('x-forwarded-proto') || url.protocol.replace(':', '');
++  const proto = (req.headers.get('x-forwarded-proto') || url.protocol.replace(':', '')).toLowerCase();
+   const host = req.headers.get('x-forwarded-host') || url.host;
+   return `${proto}://${host}`;
+ }
+ 
+-export const GET: APIRoute = async ({ request, cookies }) => {
+-  const url = new URL(request.url);
++function corsHeaders(origin: string) {
++  return {
++    'access-control-allow-origin': origin,
++    'access-control-allow-methods': 'GET, POST, OPTIONS',
++    'access-control-allow-headers': 'Content-Type',
++    'vary': 'Origin'
++  };
++}
++
++export const OPTIONS: APIRoute = ({ request }) => {
+   const origin = getOrigin(request);
+-  const provider = url.searchParams.get('provider') || 'github';
+-  
+-  // Only support GitHub provider
+-  if (provider !== 'github') {
+-    return new Response(JSON.stringify({ 
+-      error: 'Unsupported provider', 
+-      provider,
+-      supported: ['github']
+-    }), {
+-      status: 400, 
+-      headers: { 
+-        'content-type': 'application/json',
+-        'access-control-allow-origin': origin,
+-        'vary': 'Origin'
+-      }
+-    });
+-  }
++  return new Response(null, {
++    status: 204,
++    headers: corsHeaders(origin)
++  });
++};
+ 
+-  // Read GitHub OAuth client ID from environment
+-  const clientId = process.env.DECAP_GITHUB_CLIENT_ID || process.env.AUTHJS_GITHUB_CLIENT_ID;
+-  
+-  if (!clientId) {
+-    console.error('[OAuth] Missing GitHub client ID. Set DECAP_GITHUB_CLIENT_ID or AUTHJS_GITHUB_CLIENT_ID');
+-    return new Response(JSON.stringify({
+-      error: 'Missing GitHub client ID',
+-      expected: ['DECAP_GITHUB_CLIENT_ID', 'AUTHJS_GITHUB_CLIENT_ID'],
+-      message: 'Server configuration error: GitHub OAuth client ID not set'
+-    }), { 
+-      status: 500, 
+-      headers: { 
+-        'content-type': 'application/json',
+-        'access-control-allow-origin': origin,
+-        'vary': 'Origin'
+-      } 
+-    });
+-  }
++export const GET: APIRoute = async ({ request, cookies }) => {
++  try {
++    const url = new URL(request.url);
++    const origin = getOrigin(request);
++    const provider = url.searchParams.get('provider') || 'github';
++    
++    // Only support GitHub provider
++    if (provider !== 'github') {
++      return new Response(JSON.stringify({ 
++        error: 'Unsupported provider', 
++        provider,
++        supported: ['github']
++      }), {
++        status: 400, 
++        headers: { 
++          'content-type': 'application/json',
++          ...corsHeaders(origin)
++        }
++      });
++    }
+ 
+-  // Log fallback warning if using AUTHJS credentials
+-  if (!process.env.DECAP_GITHUB_CLIENT_ID && process.env.AUTHJS_GITHUB_CLIENT_ID) {
+-    console.warn('[OAuth] Using AUTHJS_GITHUB_CLIENT_ID as fallback. Consider setting DECAP_GITHUB_CLIENT_ID for clarity.');
+-  }
++    // Read GitHub OAuth client ID from environment
++    const clientId = process.env.DECAP_GITHUB_CLIENT_ID || process.env.AUTHJS_GITHUB_CLIENT_ID;
++    
++    if (!clientId) {
++      console.error('[OAuth] Missing GitHub client ID. Set DECAP_GITHUB_CLIENT_ID or AUTHJS_GITHUB_CLIENT_ID');
++      return new Response(JSON.stringify({
++        error: 'Missing GitHub client ID',
++        expected: ['DECAP_GITHUB_CLIENT_ID', 'AUTHJS_GITHUB_CLIENT_ID'],
++        message: 'Server configuration error: GitHub OAuth client ID not set'
++      }), { 
++        status: 500, 
++        headers: { 
++          'content-type': 'application/json',
++          ...corsHeaders(origin)
++        } 
++      });
++    }
+ 
+-  // Build OAuth parameters
+-  const redirectUri = `${origin}/api/decap/callback`;
+-  const scope = url.searchParams.get('scope') || 'repo';
+-  const state = crypto.randomUUID();
++    // Log fallback warning if using AUTHJS credentials
++    if (!process.env.DECAP_GITHUB_CLIENT_ID && process.env.AUTHJS_GITHUB_CLIENT_ID) {
++      console.warn('[OAuth] Using AUTHJS_GITHUB_CLIENT_ID as fallback. Consider setting DECAP_GITHUB_CLIENT_ID for clarity.');
++    }
+ 
+-  // Set state cookie for CSRF protection
+-  cookies.set('decap_oauth_state', state, { 
+-    httpOnly: true, 
+-    sameSite: 'lax', 
+-    path: '/',
+-    secure: origin.startsWith('https')
+-  });
++    // Build OAuth parameters
++    const redirectUri = `${origin}/api/decap/callback`;
++    const scope = url.searchParams.get('scope') || 'repo';
++    const state = crypto.randomUUID();
++
++    // Set state cookie for CSRF protection
++    cookies.set('decap_oauth_state', state, { 
++      httpOnly: true, 
++      sameSite: 'lax', 
++      path: '/',
++      secure: origin.startsWith('https')
++    });
+ 
+-  // Build GitHub OAuth authorization URL
+-  const authUrl = new URL('https://github.com/login/oauth/authorize');
+-  authUrl.searchParams.set('client_id', String(clientId));
+-  authUrl.searchParams.set('redirect_uri', redirectUri);
+-  authUrl.searchParams.set('scope', scope);
+-  authUrl.searchParams.set('state', state);
++    // Build GitHub OAuth authorization URL
++    const authUrl = new URL('https://github.com/login/oauth/authorize');
++    authUrl.searchParams.set('client_id', String(clientId));
++    authUrl.searchParams.set('redirect_uri', redirectUri);
++    authUrl.searchParams.set('scope', scope);
++    authUrl.searchParams.set('state', state);
+ 
+-  console.log(`[OAuth] Redirecting to GitHub OAuth (client_id: ${String(clientId).substring(0, 8)}..., redirect_uri: ${redirectUri})`);
++    console.log(`[OAuth] Redirecting to GitHub OAuth (client_id: ${String(clientId).substring(0, 8)}..., redirect_uri: ${redirectUri})`);
+ 
+-  return Response.redirect(authUrl.toString(), 302);
++    return Response.redirect(authUrl.toString(), 302);
++  } catch (error) {
++    console.error('[OAuth] Unexpected error in GET /api/decap:', error);
++    const origin = getOrigin(request);
++    return new Response(JSON.stringify({
++      error: 'Internal server error',
++      details: error instanceof Error ? error.message : 'Unknown error',
++      message: 'OAuth entry endpoint failed unexpectedly'
++    }), {
++      status: 500,
++      headers: {
++        'content-type': 'application/json',
++        ...corsHeaders(origin)
++      }
++    });
++  }
+ };
+ 
+

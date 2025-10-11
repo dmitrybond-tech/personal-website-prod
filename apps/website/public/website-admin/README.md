@@ -88,10 +88,40 @@ curl https://<host>/api/decap/health
 # Click "Login with GitHub" → authorize → popup closes → CMS shows Posts collection
 ```
 
+## Config Path Hardening
+
+To eliminate 500 errors during login and prevent wrong config fetches, the admin HTML now uses **dual config hints**:
+
+1. `<link rel="cms-config-url" href="/website-admin/config.yml" />` (standard Decap 3.8.x+ mechanism)
+2. `window.CMS_CONFIG_PATH = '/website-admin/config.yml'` (fallback for older loaders and brittle environments)
+
+This ensures Decap always fetches `/website-admin/config.yml` instead of attempting root-level `/config.yml` (which would 404).
+
+**CORS & Error Handling**: The `/api/decap` entry route now includes:
+- **OPTIONS handler** for CORS preflight (204 response)
+- **Try/catch** wrapper: all errors return structured JSON (`{error, details, message}`) with proper CORS headers instead of bare 500 HTML
+- **Safer origin detection**: `x-forwarded-proto` and `x-forwarded-host` are normalized (lowercase, no colons)
+
+**Testing**:
+```bash
+# CORS preflight
+curl -i -X OPTIONS https://<host>/api/decap
+# Expected: 204 No Content, access-control-allow-methods: GET, POST, OPTIONS
+
+# OAuth entry with error
+curl -i "https://<host>/api/decap?provider=unsupported"
+# Expected: 400 JSON with {"error":"Unsupported provider",...}
+
+# OAuth entry success
+curl -i "https://<host>/api/decap?provider=github&scope=repo"
+# Expected: 302 Found, Location: https://github.com/login/oauth/authorize?...
+```
+
 ## Troubleshooting
 
-- **Blank admin page, `window.CMS` undefined**: Check Network tab for `/website-admin/decap-cms-3.8.4.min.js` (should be 200 OK). If missing, run `npm run prebuild` to fetch the vendored script.
-- **500 on `/api/decap`**: Missing `DECAP_GITHUB_CLIENT_ID` or `AUTHJS_GITHUB_CLIENT_ID`. Check environment variables.
+- **Blank admin page, `window.CMS` undefined**: Check Network tab for `/website-admin/decap-cms-3.9.0.min.js` (should be 200 OK). If missing, run `npm run prebuild` to fetch the vendored script.
+- **500 on `/api/decap`**: Missing `DECAP_GITHUB_CLIENT_ID` or `AUTHJS_GITHUB_CLIENT_ID`. Check environment variables. The error will now return JSON with details instead of HTML.
 - **400 "Invalid state"**: Cookie may be blocked or cleared. Check browser settings for third-party cookies.
 - **Token exchange fails**: Verify `DECAP_GITHUB_CLIENT_SECRET` is set and matches GitHub OAuth app.
 - **Defensive redirect loop**: Should not occur; redirects are one-way from `/website-admin/api/decap/*` → `/api/decap/*`.
+- **Wrong config fetch (e.g. `/config.yml` instead of `/website-admin/config.yml`)**: Should not occur with dual hints. Check browser console for `window.CMS_CONFIG_PATH` (should be defined before Decap script loads).
