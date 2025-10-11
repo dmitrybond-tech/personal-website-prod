@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { computeOrigin, cors } from '@/utils/decapOrigin';
+import { computeOrigin, cors } from '../../../utils/decapOrigin.js';
 
 export const prerender = false;
 

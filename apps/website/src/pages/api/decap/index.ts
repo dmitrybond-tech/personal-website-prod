@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { randomUUID as nodeRandomUUID } from 'node:crypto';
-import { computeOrigin, cors } from '@/utils/decapOrigin';
+import { computeOrigin, cors } from '../../../utils/decapOrigin.js';
 
 export const prerender = false;
 

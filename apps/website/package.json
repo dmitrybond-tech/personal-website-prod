@@ -63,7 +63,6 @@
   "dependencies": {
     "@astrojs/react": "4.4.0",
     "@iconify/react": "6.0.2",
-    "astro-decap-cms-oauth": "0.5.1",
     "cookie": "0.6.0",
     "date-fns": "4.1.0",
     "iconify-icon": "3.0.1",
