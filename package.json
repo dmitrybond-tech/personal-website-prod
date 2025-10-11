@@ -18,6 +18,7 @@
     "cms:preflight": "node apps/website/scripts/decap-config-preflight.mjs",
     "cms:devcfg": "node apps/website/scripts/cms-config-swap.mjs dev",
     "cms:prodcfg": "node apps/website/scripts/cms-config-swap.mjs prod",
+    "prebuild": "node scripts/fetch-decap.mjs",
     "dev": "npm run cms:devcfg && astro dev --host --port 4321 --strictPort",
     "build": "astro build",
     "build:prod": "npm run cms:prodcfg && npm --workspace apps/website run build",

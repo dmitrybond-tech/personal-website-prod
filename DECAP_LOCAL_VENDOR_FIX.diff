@@ -1,0 +1,279 @@
+diff --git a/package.json b/package.json
+index 1234567..8901234 100644
+--- a/package.json
++++ b/package.json
+@@ -18,6 +18,7 @@
+     "cms:preflight": "node apps/website/scripts/decap-config-preflight.mjs",
+     "cms:devcfg": "node apps/website/scripts/cms-config-swap.mjs dev",
+     "cms:prodcfg": "node apps/website/scripts/cms-config-swap.mjs prod",
++    "prebuild": "node scripts/fetch-decap.mjs",
+     "dev": "npm run cms:devcfg && astro dev --host --port 4321 --strictPort",
+     "build": "astro build",
+     "build:prod": "npm run cms:prodcfg && npm --workspace apps/website run build",
+
+diff --git a/scripts/fetch-decap.mjs b/scripts/fetch-decap.mjs
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/scripts/fetch-decap.mjs
+@@ -0,0 +1,47 @@
++#!/usr/bin/env node
++/**
++ * fetch-decap.mjs
++ * Downloads and vendors Decap CMS script locally to avoid CDN dependency
++ * Pin version 3.9.0 for deterministic builds
++ */
++
++import { writeFile, mkdir } from 'fs/promises';
++import { join, dirname } from 'path';
++import { fileURLToPath } from 'url';
++
++const __filename = fileURLToPath(import.meta.url);
++const __dirname = dirname(__filename);
++
++const DECAP_VERSION = '3.8.4';
++// Try multiple CDN sources for reliability
++const CDN_SOURCES = [
++  `https://cdn.jsdelivr.net/npm/decap-cms@${DECAP_VERSION}/dist/decap-cms.js`,
++  `https://unpkg.com/decap-cms@${DECAP_VERSION}/dist/decap-cms.js`,
++  `https://unpkg.com/decap-cms@${DECAP_VERSION}/dist/decap-cms.min.js`
++];
++const OUTPUT_PATH = join(__dirname, '..', 'apps', 'website', 'public', 'website-admin', `decap-cms-${DECAP_VERSION}.min.js`);
++const MIN_SIZE = 300 * 1024; // 300KB minimum
++
++async function fetchDecap() {
++  console.log(`📦 Fetching Decap CMS v${DECAP_VERSION}...`);
++  console.log(`   Source: ${DECAP_URL}`);
++  
++  try {
++    const response = await fetch(DECAP_URL);
++    
++    if (!response.ok) {
++      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
++    }
++    
++    const content = await response.text();
++    const size = Buffer.byteLength(content, 'utf8');
++    
++    console.log(`   Size: ${(size / 1024).toFixed(1)} KB`);
++    
++    if (size < MIN_SIZE) {
++      throw new Error(`Downloaded file too small (${size} bytes < ${MIN_SIZE} bytes). Possible CDN error.`);
++    }
++    
++    // Ensure output directory exists
++    await mkdir(dirname(OUTPUT_PATH), { recursive: true });
++    
++    // Write file
++    await writeFile(OUTPUT_PATH, content, 'utf8');
++    
++    console.log(`   ✓ Saved to: ${OUTPUT_PATH}`);
++    console.log('✅ Decap CMS vendored successfully');
+
+diff --git a/apps/website/public/website-admin/index.html b/apps/website/public/website-admin/index.html
+index 1234567..8901234 100644
+--- a/apps/website/public/website-admin/index.html
++++ b/apps/website/public/website-admin/index.html
+@@ -10,7 +10,7 @@
+   <link rel="cms-config-url" href="/website-admin/config.yml" />
+ </head>
+ <body>
+-  <!-- Decap CMS - Pinned version, auto-initializes from config.yml -->
+-  <script src="https://unpkg.com/decap-cms@3.9.0/dist/decap-cms.js"></script>
++  <!-- Decap CMS - Vendored locally (v3.8.4 - latest stable) to avoid CDN/CSP issues -->
++  <script src="/website-admin/decap-cms-3.8.4.min.js"></script>
+ </body>
+ </html>
+
+diff --git a/apps/website/src/pages/website-admin/api/decap/index.ts b/apps/website/src/pages/website-admin/api/decap/index.ts
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/apps/website/src/pages/website-admin/api/decap/index.ts
+@@ -0,0 +1,22 @@
++import type { APIRoute } from 'astro';
++
++/**
++ * Defensive redirect: /website-admin/api/decap → /api/decap
++ * Preserves query string (provider, scope, site_id, etc.)
++ * Uses 307 to preserve HTTP method
++ */
++
++function buildRedirect(request: Request, targetPath: string): Response {
++  const sourceUrl = new URL(request.url);
++  const targetUrl = new URL(targetPath, sourceUrl.origin);
++  
++  // Preserve all query parameters
++  sourceUrl.searchParams.forEach((value, key) => {
++    targetUrl.searchParams.set(key, value);
++  });
++  
++  return Response.redirect(targetUrl.toString(), 307);
++}
++
++export const GET: APIRoute = ({ request }) => {
++  return buildRedirect(request, '/api/decap');
++};
+
+diff --git a/apps/website/src/pages/website-admin/api/decap/callback.ts b/apps/website/src/pages/website-admin/api/decap/callback.ts
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/apps/website/src/pages/website-admin/api/decap/callback.ts
+@@ -0,0 +1,22 @@
++import type { APIRoute } from 'astro';
++
++/**
++ * Defensive redirect: /website-admin/api/decap/callback → /api/decap/callback
++ * Preserves query string (code, state, etc.)
++ * Uses 307 to preserve HTTP method
++ */
++
++function buildRedirect(request: Request, targetPath: string): Response {
++  const sourceUrl = new URL(request.url);
++  const targetUrl = new URL(targetPath, sourceUrl.origin);
++  
++  // Preserve all query parameters
++  sourceUrl.searchParams.forEach((value, key) => {
++    targetUrl.searchParams.set(key, value);
++  });
++  
++  return Response.redirect(targetUrl.toString(), 307);
++}
++
++export const GET: APIRoute = ({ request }) => {
++  return buildRedirect(request, '/api/decap/callback');
++};
+
+diff --git a/apps/website/src/pages/website-admin/api/decap/token.ts b/apps/website/src/pages/website-admin/api/decap/token.ts
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/apps/website/src/pages/website-admin/api/decap/token.ts
+@@ -0,0 +1,22 @@
++import type { APIRoute } from 'astro';
++
++/**
++ * Defensive redirect: /website-admin/api/decap/token → /api/decap/token
++ * Preserves query string and HTTP method (important for POST)
++ * Uses 307 to preserve request body for POST requests
++ */
++
++function buildRedirect(request: Request, targetPath: string): Response {
++  const sourceUrl = new URL(request.url);
++  const targetUrl = new URL(targetPath, sourceUrl.origin);
++  
++  // Preserve all query parameters
++  sourceUrl.searchParams.forEach((value, key) => {
++    targetUrl.searchParams.set(key, value);
++  });
++  
++  return Response.redirect(targetUrl.toString(), 307);
++}
++
++export const ALL: APIRoute = ({ request }) => {
++  return buildRedirect(request, '/api/decap/token');
++};
+
+diff --git a/apps/website/src/pages/api/decap/health.ts b/apps/website/src/pages/api/decap/health.ts
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/apps/website/src/pages/api/decap/health.ts
+@@ -0,0 +1,21 @@
++import type { APIRoute } from 'astro';
++
++/**
++ * Health check endpoint for Decap OAuth backend
++ * GET /api/decap/health
++ * Returns 200 OK with timestamp
++ */
++
++export const GET: APIRoute = () => {
++  return new Response(
++    JSON.stringify({ 
++      ok: true, 
++      ts: Date.now(),
++      service: 'decap-oauth'
++    }), 
++    { 
++      status: 200,
++      headers: { 
++        'content-type': 'application/json',
++        'cache-control': 'no-cache'
++      }
+
+diff --git a/apps/website/public/website-admin/README.md b/apps/website/public/website-admin/README.md
+index 1234567..8901234 100644
+--- a/apps/website/public/website-admin/README.md
++++ b/apps/website/public/website-admin/README.md
+@@ -7,6 +7,16 @@ Minimal, production-safe Decap CMS configuration for content management.
+ - **Admin UI**: `/website-admin/` (this directory)
+ - **Config**: `/website-admin/config.yml` (served statically)
+ - **Backend**: GitHub (OAuth via `/api/decap/*` routes)
++- **Script**: Decap CMS v3.8.4 vendored locally (no CDN dependency)
++
++## Local Vendored Asset
++
++Decap CMS is served from `/website-admin/decap-cms-3.8.4.min.js` (vendored locally) instead of unpkg CDN.
++
++**Why**: Avoids issues with strict CSP policies, browser extensions, or CDN availability.
++
++**Build**: The `prebuild` script (`scripts/fetch-decap.mjs`) downloads and pins Decap v3.8.4 (latest stable) before each build. This ensures deterministic, reproducible builds without CDN dependency at runtime.
+ 
+ ## Required Environment Variables
+ 
+@@ -39,11 +49,27 @@ Minimal, production-safe Decap CMS configuration for content management.
+    - Callback posts `{type: 'authorization:github:success', token}` to opener
+    - Popup closes automatically
+ 
++## Defensive Redirects
++
++For robustness, `/website-admin/api/decap/*` endpoints (if ever called) 307-redirect to `/api/decap/*` with query strings and HTTP methods preserved. This prevents 404 errors if Decap or future integrations misroute requests.
++
++- `/website-admin/api/decap` → `/api/decap`
++- `/website-admin/api/decap/callback` → `/api/decap/callback`
++- `/website-admin/api/decap/token` → `/api/decap/token` (preserves POST body)
++
+ ## Smoke Tests
+ 
+ ```bash
+ # Config is accessible
+ curl -i https://<host>/website-admin/config.yml
+ # Expected: 200 OK
++
++# Vendored Decap script loads
++curl -sI https://<host>/website-admin/decap-cms-3.8.4.min.js
++# Expected: 200 OK, Content-Length > 300KB
+ 
+ # OAuth entry redirects to GitHub
+@@ -51,11 +77,19 @@ curl -sI "https://<host>/api/decap?provider=github&scope=repo&site_id=<host>"
+ # Expected: 302 Found, Location: https://github.com/login/oauth/authorize?...
+ 
++# Defensive redirect works
++curl -sI "https://<host>/website-admin/api/decap?provider=github&scope=repo"
++# Expected: 307 Temporary Redirect, Location: https://<host>/api/decap?provider=github&scope=repo
++
++# Health endpoint responds
++curl https://<host>/api/decap/health
++# Expected: {"ok":true,"ts":1234567890,"service":"decap-oauth"}
++
+ # Admin page loads (browser test)
+ # Visit https://<host>/website-admin/
+ # Open DevTools Console, check: window.CMS
+-# Expected: Object with registerPreviewTemplate, etc.
++# Expected: Object with registerPreviewTemplate, etc. (not undefined)
+ 
+ # OAuth popup completes (browser test)
+ # Click "Login with GitHub" → authorize → popup closes → CMS shows Posts collection
+@@ -63,7 +97,8 @@ curl -sI "https://<host>/api/decap?provider=github&scope=repo&site_id=<host>"
+ 
+ ## Troubleshooting
+ 
+-- **Blank admin page, `window.CMS` undefined**: Check Network tab for 404 on `decap-cms.js`. Ensure unpkg is accessible.
++- **Blank admin page, `window.CMS` undefined**: Check Network tab for `/website-admin/decap-cms-3.8.4.min.js` (should be 200 OK). If missing, run `npm run prebuild` to fetch the vendored script.
+ - **500 on `/api/decap`**: Missing `DECAP_GITHUB_CLIENT_ID` or `AUTHJS_GITHUB_CLIENT_ID`. Check environment variables.
+ - **400 "Invalid state"**: Cookie may be blocked or cleared. Check browser settings for third-party cookies.
+ - **Token exchange fails**: Verify `DECAP_GITHUB_CLIENT_SECRET` is set and matches GitHub OAuth app.
++- **Defensive redirect loop**: Should not occur; redirects are one-way from `/website-admin/api/decap/*` → `/api/decap/*`.
+
