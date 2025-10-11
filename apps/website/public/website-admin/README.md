@@ -15,7 +15,9 @@ Decap CMS is served from `/website-admin/decap-cms-3.8.4.min.js` (vendored local
 
 **Why**: Avoids issues with strict CSP policies, browser extensions, or CDN availability.
 
-**Build**: The `prebuild` script (`scripts/fetch-decap.mjs`) downloads and pins Decap v3.8.4 (latest stable) before each build. This ensures deterministic, reproducible builds without CDN dependency at runtime.
+**Build Guard**: The `prebuild` script runs `scripts/assert-decap-asset.mjs` before each build to verify the asset exists and is valid (>300KB, contains Decap/Netlify banner). The build will fail if the asset is missing or corrupted, ensuring deterministic, reproducible builds without CDN dependency at runtime.
+
+**Version**: Decap CMS v3.8.4 (latest stable as of pinning). The file is committed directly to the repository for maximum reliability.
 
 ## Required Environment Variables
 
@@ -119,7 +121,7 @@ curl -i "https://<host>/api/decap?provider=github&scope=repo"
 
 ## Troubleshooting
 
-- **Blank admin page, `window.CMS` undefined**: Check Network tab for `/website-admin/decap-cms-3.9.0.min.js` (should be 200 OK). If missing, run `npm run prebuild` to fetch the vendored script.
+- **Blank admin page, `window.CMS` undefined**: Check Network tab for `/website-admin/decap-cms-3.8.4.min.js` (should be 200 OK, ~5.2MB). If missing or returning 404, verify the file exists in `public/website-admin/` directory.
 - **500 on `/api/decap`**: Missing `DECAP_GITHUB_CLIENT_ID` or `AUTHJS_GITHUB_CLIENT_ID`. Check environment variables. The error will now return JSON with details instead of HTML.
 - **400 "Invalid state"**: Cookie may be blocked or cleared. Check browser settings for third-party cookies.
 - **Token exchange fails**: Verify `DECAP_GITHUB_CLIENT_SECRET` is set and matches GitHub OAuth app.

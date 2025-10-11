@@ -7,7 +7,7 @@
     "dev:cms": "concurrently -k -n astro,proxy \"astro dev --host --port 4321 --strictPort\" \"decap-server --port 8081 --allowed-hosts=localhost:4321\"",
     "doctor:cms": "node scripts/decap-doctor.mjs",
     "dev:git": "cross-env NODE_OPTIONS=--trace-warnings concurrently -k -s first -n astro \"astro dev --host --port 4321 --strictPort\"",
-    "prebuild": "node scripts/build-iconify-bundle.mjs",
+    "prebuild": "node scripts/assert-decap-asset.mjs && node scripts/build-iconify-bundle.mjs",
     "build": "astro build",
     "preview": "astro preview --host --port 4321",
     "check": "tsc -p . --noEmit",

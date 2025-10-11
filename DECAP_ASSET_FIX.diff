@@ -1,0 +1,80 @@
+diff --git a/apps/website/package.json b/apps/website/package.json
+index 213b0469..36d0d051 100644
+--- a/apps/website/package.json
++++ b/apps/website/package.json
+@@ -7,7 +7,7 @@
+     "dev:cms": "concurrently -k -n astro,proxy \"astro dev --host --port 4321 --strictPort\" \"decap-server --port 8081 --allowed-hosts=localhost:4321\"",
+     "doctor:cms": "node scripts/decap-doctor.mjs",
+     "dev:git": "cross-env NODE_OPTIONS=--trace-warnings concurrently -k -s first -n astro \"astro dev --host --port 4321 --strictPort\"",
+-    "prebuild": "node scripts/build-iconify-bundle.mjs",
++    "prebuild": "node scripts/assert-decap-asset.mjs && node scripts/build-iconify-bundle.mjs",
+     "build": "astro build",
+     "preview": "astro preview --host --port 4321",
+     "check": "tsc -p . --noEmit",
+diff --git a/apps/website/public/website-admin/README.md b/apps/website/public/website-admin/README.md
+index 6e8d3553..c6b8dbe1 100644
+--- a/apps/website/public/website-admin/README.md
++++ b/apps/website/public/website-admin/README.md
+@@ -15,7 +15,9 @@ Decap CMS is served from `/website-admin/decap-cms-3.8.4.min.js` (vendored local
+ 
+ **Why**: Avoids issues with strict CSP policies, browser extensions, or CDN availability.
+ 
+-**Build**: The `prebuild` script (`scripts/fetch-decap.mjs`) downloads and pins Decap v3.8.4 (latest stable) before each build. This ensures deterministic, reproducible builds without CDN dependency at runtime.
++**Build Guard**: The `prebuild` script runs `scripts/assert-decap-asset.mjs` before each build to verify the asset exists and is valid (>300KB, contains Decap/Netlify banner). The build will fail if the asset is missing or corrupted, ensuring deterministic, reproducible builds without CDN dependency at runtime.
++
++**Version**: Decap CMS v3.8.4 (latest stable as of pinning). The file is committed directly to the repository for maximum reliability.
+ 
+ ## Required Environment Variables
+ 
+@@ -119,7 +121,7 @@ curl -i "https://<host>/api/decap?provider=github&scope=repo"
+ 
+ ## Troubleshooting
+ 
+-- **Blank admin page, `window.CMS` undefined**: Check Network tab for `/website-admin/decap-cms-3.9.0.min.js` (should be 200 OK). If missing, run `npm run prebuild` to fetch the vendored script.
++- **Blank admin page, `window.CMS` undefined**: Check Network tab for `/website-admin/decap-cms-3.8.4.min.js` (should be 200 OK, ~5.2MB). If missing or returning 404, verify the file exists in `public/website-admin/` directory.
+ - **500 on `/api/decap`**: Missing `DECAP_GITHUB_CLIENT_ID` or `AUTHJS_GITHUB_CLIENT_ID`. Check environment variables. The error will now return JSON with details instead of HTML.
+ - **400 "Invalid state"**: Cookie may be blocked or cleared. Check browser settings for third-party cookies.
+ - **Token exchange fails**: Verify `DECAP_GITHUB_CLIENT_SECRET` is set and matches GitHub OAuth app.
+diff --git a/apps/website/public/website-admin/index.html b/apps/website/public/website-admin/index.html
+index 95b33c05..2d4eeb28 100644
+--- a/apps/website/public/website-admin/index.html
++++ b/apps/website/public/website-admin/index.html
+@@ -14,7 +14,7 @@
+   </script>
+ </head>
+ <body>
+-  <!-- Decap CMS - Vendored locally (v3.9.0) to avoid CDN/CSP issues -->
+-  <script src="/website-admin/decap-cms-3.9.0.min.js"></script>
++  <!-- Decap CMS - Vendored locally (v3.8.4) to avoid CDN/CSP issues -->
++  <script src="/website-admin/decap-cms-3.8.4.min.js"></script>
+ </body>
+ </html>
+
+diff --git a/apps/website/scripts/assert-decap-asset.mjs b/apps/website/scripts/assert-decap-asset.mjs
+new file mode 100644
+index 00000000..xxxxxxxx
+--- /dev/null
++++ b/apps/website/scripts/assert-decap-asset.mjs
+@@ -0,0 +1,20 @@
++import { statSync, readFileSync } from 'node:fs';
++import { resolve } from 'node:path';
++
++const p = resolve(process.cwd(), 'public/website-admin/decap-cms-3.8.4.min.js');
++try {
++  const st = statSync(p);
++  if (!st.isFile() || st.size < 300_000) {
++    console.error(`[assert-decap] Asset too small or not a file: ${p}, size=${st.size}`);
++    process.exit(1);
++  }
++  // quick sanity: must contain "Netlify" or "Decap" banner
++  const head = readFileSync(p, 'utf8').slice(0, 2000);
++  if (!/Decap|Netlify/i.test(head)) {
++    console.error('[assert-decap] Unexpected file contents, not a Decap bundle.');
++    process.exit(1);
++  }
++  console.log('[assert-decap] OK:', p, `(${st.size} bytes)`);
++} catch (e) {
++  console.error('[assert-decap] Missing asset:', p, e?.message || e);
++  process.exit(1);
++}
+
