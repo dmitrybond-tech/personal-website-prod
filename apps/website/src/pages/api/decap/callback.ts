@@ -1,210 +1,155 @@
 import type { APIRoute } from 'astro';
 
 /**
- * OAuth callback handler for Decap CMS
+ * OAuth callback bridge for Decap CMS
  * GitHub redirects here after user authorizes
  * GET /api/decap/callback?code=<auth_code>&state=<state>
+ * 
+ * This page implements the postMessage bridge pattern:
+ * 1. Receives code & state from GitHub redirect
+ * 2. Sends handshake message to opener (Decap popup listener)
+ * 3. On handshake response, calls /api/decap/token to exchange code for token
+ * 4. Posts result back to opener via postMessage
+ * 5. Closes popup window
  */
-export const GET: APIRoute = async ({ url }) => {
-  // Handle OAuth callback redirect from GitHub
-  const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
+export const GET: APIRoute = async ({ request }) => {
+  const url = new URL(request.url);
+  const code = url.searchParams.get('code') || '';
+  const state = url.searchParams.get('state') || '';
   const error = url.searchParams.get('error');
-  
+
   if (error) {
-    console.error(`[OAuth] GitHub error: ${error}`);
-    return new Response(
-      `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>OAuth Error</title>
-</head>
-<body>
-  <h1>Authentication Error</h1>
-  <p>GitHub returned an error: ${error}</p>
-  <p><a href="/website-admin/">Return to CMS</a></p>
-</body>
-</html>`,
-      { 
-        status: 400,
-        headers: { 'Content-Type': 'text/html' }
-      }
-    );
+    console.error(`[OAuth Callback] GitHub error: ${error}`);
   }
-  
-  if (!code) {
-    return new Response(
-      `<!DOCTYPE html>
+
+  console.log(`[OAuth Callback] Rendering bridge page (code: ${code ? code.substring(0, 10) + '...' : 'missing'})`);
+
+  const html = `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>OAuth Error</title>
-</head>
-<body>
-  <h1>Authentication Error</h1>
-  <p>Missing authorization code from GitHub</p>
-  <p><a href="/website-admin/">Return to CMS</a></p>
-</body>
-</html>`,
-      { 
-        status: 400,
-        headers: { 'Content-Type': 'text/html' }
-      }
-    );
-  }
-  
-  console.log(`[OAuth] Processing callback with code: ${code.substring(0, 10)}...`);
-  
-  try {
-    // Read GitHub OAuth credentials
-    const clientId = process.env.DECAP_GITHUB_CLIENT_ID || process.env.AUTHJS_GITHUB_CLIENT_ID;
-    const clientSecret = process.env.DECAP_GITHUB_CLIENT_SECRET || process.env.AUTHJS_GITHUB_CLIENT_SECRET;
-    
-    if (!clientId || !clientSecret) {
-      console.error('[OAuth] GitHub OAuth credentials not configured');
-      return new Response(
-        `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Configuration Error</title>
-</head>
-<body>
-  <h1>Configuration Error</h1>
-  <p>GitHub OAuth is not properly configured on the server.</p>
-  <p>Please set DECAP_GITHUB_CLIENT_ID and DECAP_GITHUB_CLIENT_SECRET environment variables.</p>
-</body>
-</html>`,
-        { 
-          status: 500,
-          headers: { 'Content-Type': 'text/html' }
-        }
-      );
-    }
-    
-    // Log fallback warning if using AUTHJS credentials
-    if (!process.env.DECAP_GITHUB_CLIENT_ID && process.env.AUTHJS_GITHUB_CLIENT_ID) {
-      console.warn('[OAuth] Using AUTHJS_GITHUB credentials as fallback. Consider setting DECAP_GITHUB_CLIENT_ID and DECAP_GITHUB_CLIENT_SECRET.');
-    }
-    
-    // Exchange code for access token
-    const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'User-Agent': 'DecapCMS-OAuth/1.0',
-      },
-      body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
-        code: code,
-      }),
-    });
-    
-    const tokenData = await tokenResponse.json();
-    
-    if (tokenData.error) {
-      console.error(`[OAuth] GitHub token error: ${tokenData.error_description || tokenData.error}`);
-      return new Response(
-        `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>OAuth Error</title>
-</head>
-<body>
-  <h1>Authentication Error</h1>
-  <p>GitHub token exchange failed: ${tokenData.error_description || tokenData.error}</p>
-  <p><a href="/website-admin/">Return to CMS</a></p>
-</body>
-</html>`,
-        { 
-          status: 400,
-          headers: { 'Content-Type': 'text/html' }
-        }
-      );
-    }
-    
-    console.log(`[OAuth] Token exchange successful`);
-    
-    // Create a simple HTML page that posts the token back to Decap CMS
-    const adminUrl = new URL('/website-admin/', url.origin);
-    
-    const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>OAuth Complete</title>
+  <title>Completing OAuth…</title>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; padding: 2rem; text-align: center; }
-    .success { color: #059669; }
+    body { font-family: system-ui, sans-serif; padding: 2rem; text-align: center; color: #333; }
+    .status { margin: 2rem 0; }
+    .error { color: #dc2626; }
   </style>
 </head>
 <body>
-  <h1 class="success">✓ Authentication Successful</h1>
-  <p>Completing login...</p>
+  <h1>Completing authentication...</h1>
+  <div class="status" id="status">Please wait...</div>
   <script>
-    (function() {
-      console.log('[OAuth] Callback page loaded, posting token to parent window');
+(function(){
+  const statusEl = document.getElementById('status');
+  
+  function setStatus(msg, isError) {
+    statusEl.textContent = msg;
+    if (isError) statusEl.className = 'status error';
+  }
+
+  // Check for GitHub OAuth error
+  const error = ${JSON.stringify(error)};
+  if (error) {
+    console.error('[OAuth Bridge] GitHub returned error:', error);
+    setStatus('GitHub authorization error: ' + error, true);
+    if (window.opener) {
+      window.opener.postMessage({ 
+        type: 'authorization:github:error', 
+        error: error 
+      }, '*');
+      setTimeout(() => window.close(), 2000);
+    }
+    return;
+  }
+
+  const code = ${JSON.stringify(code)};
+  const state = ${JSON.stringify(state)};
+
+  if (!code) {
+    console.error('[OAuth Bridge] Missing authorization code');
+    setStatus('Missing authorization code from GitHub', true);
+    if (window.opener) {
+      window.opener.postMessage({ 
+        type: 'authorization:github:error', 
+        error: 'missing_code' 
+      }, '*');
+      setTimeout(() => window.close(), 2000);
+    }
+    return;
+  }
+
+  console.log('[OAuth Bridge] Bridge page loaded, initiating handshake');
+
+  function onMsg(ev){
+    if (!ev || !ev.data) return;
+    
+    // Listen for Decap's handshake message
+    if (ev.data === 'authorizing:github' || ev.data.type === 'authorizing:github') {
+      console.log('[OAuth Bridge] Handshake received, exchanging code for token');
+      setStatus('Exchanging code for token...');
       
-      // Post token back to parent window (Decap CMS)
-      if (window.opener) {
-        window.opener.postMessage({
-          message: 'authorization:github:success',
-          token: '${tokenData.access_token}',
-          provider: 'github',
-          site_id: '${state || url.origin}'
-        }, '${url.origin}');
-        
-        console.log('[OAuth] Token posted to parent window');
-        
-        // Close popup after a short delay
-        setTimeout(function() {
-          console.log('[OAuth] Closing popup window');
-          window.close();
-        }, 1000);
-      } else {
-        console.warn('[OAuth] No window.opener found, redirecting to admin');
-        // Fallback: redirect to admin
-        window.location.href = '${adminUrl.toString()}';
-      }
-    })();
+      fetch('/api/decap/token', {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({ code: code, state: state })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.token) {
+          console.log('[OAuth Bridge] Token received, posting success to opener');
+          setStatus('Success! Closing window...');
+          if (window.opener) {
+            window.opener.postMessage({ 
+              type: 'authorization:github:success', 
+              token: data.token 
+            }, '*');
+          }
+        } else {
+          console.error('[OAuth Bridge] Token exchange failed:', data);
+          setStatus('Token exchange failed: ' + (data && data.error || 'token_missing'), true);
+          if (window.opener) {
+            window.opener.postMessage({ 
+              type: 'authorization:github:error', 
+              error: data && (data.error || 'token_missing') 
+            }, '*');
+          }
+        }
+        setTimeout(() => window.close(), 1000);
+      })
+      .catch(err => {
+        console.error('[OAuth Bridge] Fetch error:', err);
+        setStatus('Network error: ' + String(err), true);
+        if (window.opener) {
+          window.opener.postMessage({ 
+            type: 'authorization:github:error', 
+            error: String(err) 
+          }, '*');
+        }
+        setTimeout(() => window.close(), 2000);
+      });
+    }
+  }
+
+  window.addEventListener('message', onMsg, false);
+  
+  // Kick off the handshake for Decap popup listener
+  if (window.opener) {
+    console.log('[OAuth Bridge] Sending handshake to opener');
+    window.opener.postMessage('authorizing:github', '*');
+  } else {
+    console.warn('[OAuth Bridge] No window.opener found');
+    setStatus('No parent window found', true);
+  }
+})();
   </script>
-  <noscript>
-    <p>JavaScript is required to complete authentication.</p>
-    <p><a href="${adminUrl.toString()}">Return to CMS</a></p>
-  </noscript>
 </body>
 </html>`;
-    
-    return new Response(html, {
-      headers: {
-        'Content-Type': 'text/html',
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-      },
-    });
-    
-  } catch (error) {
-    console.error('[OAuth] Callback processing error:', error);
-    return new Response(
-      `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Server Error</title>
-</head>
-<body>
-  <h1>Server Error</h1>
-  <p>An error occurred during OAuth callback: ${error instanceof Error ? error.message : 'Unknown error'}</p>
-  <p><a href="/website-admin/">Return to CMS</a></p>
-</body>
-</html>`,
-      { 
-        status: 500,
-        headers: { 'Content-Type': 'text/html' }
-      }
-    );
-  }
+
+  return new Response(html, { 
+    status: 200, 
+    headers: { 
+      'content-type': 'text/html; charset=utf-8',
+      'cache-control': 'no-store, no-cache, must-revalidate'
+    } 
+  });
 };

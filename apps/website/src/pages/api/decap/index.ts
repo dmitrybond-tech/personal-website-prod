@@ -3,7 +3,7 @@ import type { APIRoute } from 'astro';
 /**
  * OAuth entry point for Decap CMS
  * GET /api/decap?provider=github&scope=repo&site_id=<host>
- * Redirects to GitHub OAuth authorize endpoint
+ * Redirects to GitHub OAuth authorize endpoint with state cookie for CSRF protection
  */
 
 function getOrigin(req: Request): string {
@@ -15,6 +15,7 @@ function getOrigin(req: Request): string {
 
 export const GET: APIRoute = async ({ request, cookies }) => {
   const url = new URL(request.url);
+  const origin = getOrigin(request);
   const provider = url.searchParams.get('provider') || 'github';
   
   // Only support GitHub provider
@@ -25,7 +26,11 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       supported: ['github']
     }), {
       status: 400, 
-      headers: { 'content-type': 'application/json' }
+      headers: { 
+        'content-type': 'application/json',
+        'access-control-allow-origin': origin,
+        'vary': 'Origin'
+      }
     });
   }
 
@@ -40,7 +45,11 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       message: 'Server configuration error: GitHub OAuth client ID not set'
     }), { 
       status: 500, 
-      headers: { 'content-type': 'application/json' } 
+      headers: { 
+        'content-type': 'application/json',
+        'access-control-allow-origin': origin,
+        'vary': 'Origin'
+      } 
     });
   }
 
@@ -50,7 +59,6 @@ export const GET: APIRoute = async ({ request, cookies }) => {
   }
 
   // Build OAuth parameters
-  const origin = getOrigin(request);
   const redirectUri = `${origin}/api/decap/callback`;
   const scope = url.searchParams.get('scope') || 'repo';
   const state = crypto.randomUUID();
