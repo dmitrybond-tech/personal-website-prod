@@ -9,19 +9,42 @@ publish_mode: simple
 media_folder: apps/website/public/uploads
 public_folder: /uploads
 
+# DRY: Common field schema for blog posts (EN/RU)
+post_fields: &postFields
+  - { label: "Title", name: "title", widget: "string" }
+  - { label: "Slug", name: "slug", widget: "string", hint: "URL-friendly slug (ASCII + dashes)", required: false }
+  - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false }
+  - { label: "Description", name: "description", widget: "text", required: false }
+  - { label: "Tags", name: "tags", widget: "list", required: false, default: [] }
+  - { label: "Cover", name: "cover", widget: "image", required: false, hint: "Hero image for the post" }
+  - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+  - { label: "Body", name: "body", widget: "markdown" }
+
 collections:
-  - name: posts
-    label: Blog Posts
-    label_singular: Blog Post
-    folder: apps/website/src/content/blog
+  # Blog EN
+  - name: "blog_en"
+    label: "Blog (EN)"
+    label_singular: "Post (EN)"
+    folder: "apps/website/src/content/posts/en"
     create: true
-    slug: '{{slug}}.{{fields.lang}}'
-    format: frontmatter
-    extension: md
+    format: "frontmatter"
+    extension: "md"
+    slug: "{{slug}}"
+    identifier_field: "title"
+    preview_path: "/en/blog/{{slug}}"
     fields:
-      - { label: 'Title', name: 'title', widget: 'string' }
-      - { label: 'Language', name: 'lang', widget: 'select', options: ['en', 'ru'], default: 'en' }
-      - { label: 'Published At', name: 'publishedAt', widget: 'datetime', date_format: 'YYYY-MM-DD', time_format: false }
-      - { label: 'Description', name: 'description', widget: 'text', required: false }
-      - { label: 'Tags', name: 'tags', widget: 'list', required: false, default: [] }
-      - { label: 'Body', name: 'body', widget: 'markdown' }
+      *postFields
+
+  # Blog RU
+  - name: "blog_ru"
+    label: "Блог (RU)"
+    label_singular: "Пост (RU)"
+    folder: "apps/website/src/content/posts/ru"
+    create: true
+    format: "frontmatter"
+    extension: "md"
+    slug: "{{slug}}"
+    identifier_field: "title"
+    preview_path: "/ru/blog/{{slug}}"
+    fields:
+      *postFields
