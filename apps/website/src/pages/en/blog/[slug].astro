@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import AppShell from '../../../app/layouts/AppShell.astro';
-import Footer from '../../../app/widgets/footer/ui/Footer.astro';
 
 const lang = Astro.url.pathname.split('/')[1];
 const { slug } = Astro.params;
@@ -50,7 +49,6 @@ const { Content } = await entry.render();
     </div>
   </article>
 </AppShell>
-<Footer />
 
 <style>
   .blog-post {
@@ -58,9 +56,9 @@ const { Content } = await entry.render();
   }
   
   .post-container {
-    max-width: 800px;
+    max-width: var(--cv-content-max-w, 800px);
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 var(--cv-content-pad-x, 1rem);
   }
   
   .post-nav {
@@ -68,9 +66,14 @@ const { Content } = await entry.render();
   }
   
   .back-link {
-    color: #3b82f6;
+    color: var(--cv-primary-600);
     text-decoration: none;
     font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .dark .back-link {
+    color: var(--cv-primary-400);
   }
   
   .back-link:hover {
@@ -82,10 +85,18 @@ const { Content } = await entry.render();
   }
   
   .post-title {
-    font-size: 2.5rem;
-    font-weight: bold;
+    /* Использует token из Typography: section-title */
+    font-size: 3rem; /* text-3xl в xl+ */
+    font-weight: 800; /* font-extrabold */
+    color: var(--cv-text);
     margin-bottom: 1rem;
     line-height: 1.2;
+  }
+  
+  @media (max-width: 640px) {
+    .post-title {
+      font-size: 2.25rem; /* text-3xl */
+    }
   }
   
   .post-meta {
@@ -94,7 +105,7 @@ const { Content } = await entry.render();
     align-items: center;
     margin-bottom: 1rem;
     font-size: 0.875rem;
-    color: #9ca3af;
+    color: var(--cv-muted);
   }
   
   .post-tags {
@@ -103,21 +114,41 @@ const { Content } = await entry.render();
   }
   
   .tag {
-    background: #f3f4f6;
+    background: var(--cv-surface-2);
+    color: var(--cv-text);
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
     font-size: 0.75rem;
+    font-weight: 500;
   }
   
   .post-description {
-    font-size: 1.125rem;
-    color: #6b7280;
+    /* Использует token: paragraph */
+    font-size: 1rem;
+    line-height: 1.625;
+    color: var(--cv-muted);
     font-style: italic;
     margin-bottom: 0;
   }
   
+  @media (min-width: 640px) {
+    .post-description {
+      font-size: 1.125rem;
+    }
+  }
+  
   .post-content {
-    line-height: 1.7;
+    /* Использует token: paragraph */
+    font-size: 0.875rem;
+    line-height: 1.625;
+    color: var(--cv-text);
+  }
+  
+  @media (min-width: 640px) {
+    .post-content {
+      font-size: 1rem;
+      line-height: 1.625;
+    }
   }
   
   .post-content :global(h1),
@@ -128,13 +159,15 @@ const { Content } = await entry.render();
   .post-content :global(h6) {
     margin-top: 2rem;
     margin-bottom: 1rem;
-    font-weight: 600;
+    font-weight: 800; /* font-extrabold */
+    color: var(--cv-text);
   }
   
-  .post-content :global(h1) { font-size: 2rem; }
-  .post-content :global(h2) { font-size: 1.75rem; }
-  .post-content :global(h3) { font-size: 1.5rem; }
-  .post-content :global(h4) { font-size: 1.25rem; }
+  /* Matching Typography tokens */
+  .post-content :global(h1) { font-size: 2rem; }      /* item-title */
+  .post-content :global(h2) { font-size: 1.5rem; }    /* section-subtitle */
+  .post-content :global(h3) { font-size: 1.25rem; }   /* item-title variant */
+  .post-content :global(h4) { font-size: 1.125rem; }
   
   .post-content :global(p) {
     margin-bottom: 1.5rem;
@@ -151,15 +184,16 @@ const { Content } = await entry.render();
   }
   
   .post-content :global(blockquote) {
-    border-left: 4px solid #3b82f6;
+    border-left: 4px solid var(--cv-primary-600);
     padding-left: 1rem;
     margin: 1.5rem 0;
     font-style: italic;
-    color: #6b7280;
+    color: var(--cv-muted);
   }
   
   .post-content :global(code) {
-    background: #f3f4f6;
+    background: var(--cv-surface-2);
+    color: var(--cv-text);
     padding: 0.125rem 0.25rem;
     border-radius: 0.25rem;
     font-size: 0.875rem;
@@ -177,20 +211,6 @@ const { Content } = await entry.render();
   .post-content :global(pre code) {
     background: none;
     padding: 0;
-  }
-  
-  .dark .tag {
-    background: #374151;
-    color: #d1d5db;
-  }
-  
-  .dark .post-description {
-    color: #9ca3af;
-  }
-  
-  .dark .post-content :global(code) {
-    background: #374151;
-    color: #d1d5db;
   }
   
   .dark .post-content :global(pre) {
