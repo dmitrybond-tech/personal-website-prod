@@ -7,7 +7,7 @@ export const GET: APIRoute = async ({ request }) => {
   const code = url.searchParams.get('code') || '';
   const state = url.searchParams.get('state') || '';
 
-  // Enhanced bridge HTML with better error display
+  // Enhanced bridge HTML with STRING-ONLY postMessage for Decap CMS
   const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Completing OAuth…</title>
 <style>
@@ -18,53 +18,57 @@ pre { background: #f5f5f5; padding: 1em; border-radius: 4px; overflow: auto; }
 </head>
 <body><div id="status">Completing authentication…</div><script>
 (function(){
-  const statusEl = document.getElementById('status');
+  const params = new URLSearchParams(location.search);
+  const code = params.get('code');
+  const state = params.get('state');
+  
+  function send(kind, obj) {
+    const payload = JSON.stringify(obj || {});
+    window.opener && window.opener.postMessage(\`authorization:github:\${kind}:\${payload}\`, "*");
+  }
+  
   function showError(data) {
-    statusEl.innerHTML = '<h2 class="error">Authentication Failed</h2><pre>' + 
+    document.body.innerHTML = '<h2 class="error">OAuth error</h2><pre style="font:12px/1.4 monospace;white-space:pre-wrap;">' + 
       JSON.stringify(data, null, 2) + '</pre>';
   }
-  function done(msg) {
-    try { 
-      window.opener && window.opener.postMessage(msg, '*'); 
-    } finally { 
-      setTimeout(() => window.close(), 100);
+  
+  // Рукопожатие
+  try { 
+    window.opener && window.opener.postMessage("authorizing:github", "*"); 
+  } catch(e) {}
+  
+  fetch("/api/decap/token", {
+    method: "POST",
+    credentials: "include",
+    mode: "same-origin",
+    headers: { 
+      "content-type": "application/json", 
+      "x-requested-with": "XMLHttpRequest" 
+    },
+    body: JSON.stringify({ code: code, state: state })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data && data.token) {
+      send("success", { token: data.token });
+      window.close();
+    } else {
+      const errorData = { 
+        error: data?.error || "token_missing", 
+        details: data?.details || null 
+      };
+      send("error", errorData);
+      showError(errorData);
     }
-  }
-  function onMsg(ev){
-    if (!ev || !ev.data || (ev.data !== 'authorizing:github' && ev.data.type !== 'authorizing:github')) return;
-    
-    fetch('/api/decap/token', {
-      method: 'POST',
-      headers: { 
-        'content-type': 'application/json',
-        'x-requested-with': 'XMLHttpRequest'
-      },
-      credentials: 'include', // <- carry HttpOnly cookie
-      mode: 'same-origin',
-      body: JSON.stringify({ code: ${JSON.stringify(code)}, state: ${JSON.stringify(state)} })
-    }).then(r => {
-      if (!r.ok) {
-        return r.json().then(data => {
-          showError(data);
-          done({ type: 'authorization:github:error', error: data.error || 'token_exchange_failed', details: data });
-        });
-      }
-      return r.json();
-    }).then(data => {
-      if (data && data.token) {
-        done({ type: 'authorization:github:success', token: data.token });
-      } else if (data && data.error) {
-        showError(data);
-        done({ type: 'authorization:github:error', error: data.error, details: data });
-      }
-    }).catch(err => {
-      const errData = { error: 'network_error', message: String(err) };
-      showError(errData);
-      done({ type: 'authorization:github:error', error: String(err) });
-    });
-  }
-  window.addEventListener('message', onMsg, false);
-  window.opener && window.opener.postMessage('authorizing:github', '*');
+  })
+  .catch(err => {
+    const errorData = { 
+      error: "bridge_exception", 
+      details: String(err) 
+    };
+    send("error", errorData);
+    showError(errorData);
+  });
 })();
 </script></body></html>`;
 
