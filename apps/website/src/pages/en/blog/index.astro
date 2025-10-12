@@ -29,24 +29,26 @@ const pageTitle = lang === 'ru' ? 'Блог' : 'Blog';
     <div class="blog-container">
       <div class="posts-list">
         {posts.map((p) => (
-          <article class="post-preview">
-            <h2 class="post-title">
-              <a href={linkFor(p)} class="post-link">{p.data.title}</a>
-            </h2>
-            {p.data.description && (
-              <p class="post-description">{p.data.description}</p>
-            )}
-            <div class="post-meta">
-              <time class="post-date">
-                {new Date(p.data.date).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US')}
-              </time>
-              {p.data.tags && p.data.tags.length > 0 && (
-                <div class="post-tags">
-                  {p.data.tags.map((tag) => (
-                    <span class="tag">{tag}</span>
-                  ))}
-                </div>
+          <article class="rounded-2xl border cv-panel shadow-sm">
+            <div class="p-5 sm:p-6 lg:p-8">
+              <h2 class="post-title">
+                <a href={linkFor(p)} class="post-link">{p.data.title}</a>
+              </h2>
+              {p.data.description && (
+                <p class="post-description">{p.data.description}</p>
               )}
+              <div class="post-meta">
+                <time class="post-date">
+                  {new Date(p.data.date).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US')}
+                </time>
+                {p.data.tags && p.data.tags.length > 0 && (
+                  <div class="post-tags">
+                    {p.data.tags.map((tag) => (
+                      <span class="tag">{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </article>
         ))}
@@ -69,12 +71,7 @@ const pageTitle = lang === 'ru' ? 'Блог' : 'Blog';
   .posts-list {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-  }
-  
-  .post-preview {
-    border-bottom: 1px solid var(--cv-border-hairline, #e5e7eb);
-    padding-bottom: 1.5rem;
+    gap: 1.5rem;
   }
   
   .post-title {
@@ -123,6 +120,7 @@ const pageTitle = lang === 'ru' ? 'Блог' : 'Blog';
   .post-tags {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
   
   .tag {
