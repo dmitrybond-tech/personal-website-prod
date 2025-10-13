@@ -50,8 +50,8 @@ export default function HeroIsland({
     (!link.url.includes('t.me') && !link.url.includes('linkedin.com'))
   );
 
-  // Calculate avatar size with safeguards - using fixed 160x240 for vertical scaling
-  const avatarWidth = 160;
+  // Calculate avatar size with safeguards - using fixed 180x240 for 3:4 aspect ratio
+  const avatarWidth = 180;
   const avatarHeight = 240;
 
   return (
