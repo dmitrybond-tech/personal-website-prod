@@ -31,14 +31,9 @@ if (DEV) {
 
 export default defineConfig({
   site: 'https://dmitrybond.tech',
-  base: '/',
-  trailingSlash: 'never',
   output: 'server',
   adapter: node({ mode: 'standalone' }),
   devToolbar: { enabled: false },
-  build: {
-    assets: '_astro', // стандартная папка для хэшированных бандлов
-  },
   server: { 
     port: 4321, 
     host: true,
