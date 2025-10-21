@@ -9,7 +9,7 @@
     "dev:git": "cross-env NODE_OPTIONS=--trace-warnings concurrently -k -s first -n astro \"astro dev --host --port 4321 --strictPort\"",
     "prebuild": "node scripts/assert-decap-asset.mjs && node scripts/build-iconify-bundle.mjs",
     "build": "astro build",
-    "postbuild": "tsc src/server.ts --outDir dist/server --module nodenext --target es2022 --moduleResolution nodenext --skipLibCheck --esModuleInterop --resolveJsonModule --allowSyntheticDefaultImports",
+    "postbuild": "tsc src/server.ts --outDir dist/server --module nodenext --target es2022 --moduleResolution nodenext --skipLibCheck --esModuleInterop --resolveJsonModule --allowSyntheticDefaultImports --noResolve",
     "start": "node ./dist/server/server.mjs",
     "preview": "astro preview --host --port 4321",
     "check": "tsc -p . --noEmit",
