@@ -12,7 +12,7 @@
 ### ✅ Изменены
 - **`apps/website/astro.config.ts`** - добавлены `base: '/'`, `trailingSlash: 'never'`, `build.assets`
 - **`apps/website/package.json`** - добавлены express/compression, изменён start script, добавлен postbuild
-- **`Dockerfile`** - изменён CMD, добавлена установка production dependencies
+- **`apps/website/Dockerfile`** - изменён CMD, добавлен healthcheck для `/_healthz`
 
 ### ✅ Документация
 - **`SSR_STATIC_ASSET_FIX.md`** - полное описание изменений и проверки
@@ -52,12 +52,11 @@ export default defineConfig({
 }
 ```
 
-### 4. Dockerfile
+### 4. Dockerfile (`apps/website/Dockerfile`)
 ```dockerfile
-# Install production dependencies
-RUN cd /tmp/website && npm ci --omit=dev && \
-    cp -r node_modules /app/node_modules
-
+# node_modules уже копируются из builder stage (строка 85)
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+    CMD node -e "fetch('http://127.0.0.1:3000/_healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node","./dist/server/server.mjs"]
 ```
 
@@ -105,10 +104,10 @@ CMD ["node","./dist/server/server.mjs"]
 ## Быстрый rollback
 
 ```bash
-git checkout apps/website/package.json apps/website/astro.config.ts Dockerfile
+git checkout apps/website/package.json apps/website/astro.config.ts apps/website/Dockerfile
 rm apps/website/src/server.ts
-npm install
-npm run deploy:prod
+cd apps/website && npm install && cd ../..
+git push origin main  # или ваш deployment workflow
 ```
 
 ## Детали

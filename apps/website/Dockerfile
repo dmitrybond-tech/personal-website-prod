@@ -85,4 +85,6 @@ COPY --from=builder /app/apps/website/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
     
 EXPOSE 3000
-CMD ["node", "./dist/server/entry.mjs"]
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+    CMD node -e "fetch('http://127.0.0.1:3000/_healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "./dist/server/server.mjs"]

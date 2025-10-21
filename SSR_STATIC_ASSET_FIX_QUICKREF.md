@@ -10,7 +10,7 @@
 | `apps/website/src/server.ts` | ✨ Создан | Express server с раздачей статики |
 | `apps/website/astro.config.ts` | ✏️ Изменён | Добавлены `base`, `trailingSlash`, `build.assets` |
 | `apps/website/package.json` | ✏️ Изменён | Добавлены express/compression, изменён start script |
-| `Dockerfile` | ✏️ Изменён | CMD на server.mjs, установка prod dependencies |
+| `apps/website/Dockerfile` | ✏️ Изменён | CMD на server.mjs, healthcheck на `/_healthz` |
 | `SSR_STATIC_ASSET_FIX.md` | 📖 Создан | Полная документация |
 | `SSR_STATIC_ASSET_FIX_SUMMARY.md` | 📖 Создан | Краткая сводка |
 | `SSR_STATIC_ASSET_FIX_CHANGELOG.md` | 📖 Создан | Детальный changelog |
@@ -97,18 +97,16 @@ docker exec <container-id> ls -la /app/dist/client/fonts
 
 ```bash
 # 1. Откатить файлы
-git checkout apps/website/package.json apps/website/astro.config.ts Dockerfile
+git checkout apps/website/package.json apps/website/astro.config.ts apps/website/Dockerfile
 
 # 2. Удалить новый server
 rm apps/website/src/server.ts
 
 # 3. Переустановить зависимости
-cd apps/website
-npm install
+cd apps/website && npm install && cd ../..
 
-# 4. Задеплоить
-cd ../..
-npm run deploy:prod
+# 4. Задеплоить (push в main запустит GitHub Actions)
+git push origin main
 ```
 
 ## 📚 Дополнительная информация
