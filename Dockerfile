@@ -83,6 +83,14 @@ ENV DECAP_GITHUB_CLIENT_ID=$DECAP_GITHUB_CLIENT_ID \
 COPY --from=build /app/apps/website/dist /app/dist
 COPY --from=build /app/apps/website/package.json /app/package.json
 
+# Install production dependencies for the custom Express server
+# (express, compression required for server.mjs)
+COPY --from=build /app/package*.json /tmp/root/
+COPY --from=build /app/apps/website/package*.json /tmp/website/
+RUN cd /tmp/website && npm ci --omit=dev && \
+    cp -r node_modules /app/node_modules && \
+    rm -rf /tmp/root /tmp/website
+
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["node","./dist/server/entry.mjs"]
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD node -e "fetch('http://127.0.0.1:3000/_healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node","./dist/server/server.mjs"]

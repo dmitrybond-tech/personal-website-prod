@@ -1,0 +1,192 @@
+diff --git a/src/server.ts b/src/server.ts
+new file mode 100644
+index 00000000..904a8cd0
+--- /dev/null
++++ b/src/server.ts
+@@ -0,0 +1,186 @@
++/**
++ * Custom SSR Server Entry Point
++ * 
++ * ╨á╨░╨╖╨┤╨░╤æ╤é ╤ü╤é╨░╤é╨╕╨║╤â ╨╕╨╖ dist/client ╤ü ╨┐╤Ç╨░╨▓╨╕╨╗╤î╨╜╤ï╨╝╨╕ ╨╖╨░╨│╨╛╨╗╨╛╨▓╨║╨░╨╝╨╕
++ * ╨╕ ╨╕╤ü╨┐╨╛╨╗╤î╨╖╤â╨╡╤é Astro SSR handler ╨┤╨╗╤Å ╨╛╤ü╤é╨░╨╗╤î╨╜╨╛╨│╨╛.
++ * 
++ * @see SSR_CACHE_POLICY.md
++ * @see src/middleware.ts - ╨┤╨╛╨┐╨╛╨╗╨╜╨╕╤é╨╡╨╗╤î╨╜╤ï╨╡ ╨╖╨░╨│╨╛╨╗╨╛╨▓╨║╨╕ ╨┤╨╗╤Å SSR responses
++ */
++
++import { fileURLToPath } from 'node:url';
++import { dirname, join, resolve } from 'node:path';
++import express, { type Request, type Response } from 'express';
++import compression from 'compression';
++// ╨ƒ╨╛╤ü╨╗╨╡ ╨║╨╛╨╝╨┐╨╕╨╗╤Å╤å╨╕╨╕: dist/server/server.mjs -> dist/server/entry.mjs
++import { handler as astroHandler } from './entry.mjs';
++
++const __filename = fileURLToPath(import.meta.url);
++const __dirname = dirname(__filename);
++
++// ╨Æ prod: dist/server/server.mjs
++// ╨¥╤â╨╢╨╜╨╛ ╨╜╨░╨╣╤é╨╕ dist/client ╨╛╤é╨╜╨╛╤ü╨╕╤é╨╡╨╗╤î╨╜╨╛ dist/server
++const CLIENT_ROOT = resolve(__dirname, '../client');
++
++const app = express();
++
++// ╨₧╤é╨║╨╗╤Ä╤ç╨░╨╡╨╝ ╨┤╨╡╤ä╨╛╨╗╤é╨╜╤ï╨╡ ╨╖╨░╨│╨╛╨╗╨╛╨▓╨║╨╕
++app.disable('x-powered-by');
++app.disable('etag'); // ╨Ü╨╛╨╜╤é╤Ç╨╛╨╗╨╕╤Ç╤â╨╡╨╝ ╨║╤ì╤ê ╤ç╨╡╤Ç╨╡╨╖ Cache-Control
++
++// ╨í╨╢╨░╤é╨╕╨╡ ╨┤╨╗╤Å ╤é╨╡╨║╤ü╤é╨╛╨▓╤ï╤à ╤Ç╨╡╤ü╤â╤Ç╤ü╨╛╨▓
++app.use(compression());
++
++/**
++ * ╨Ñ╨╡╨╗╨┐╨╡╤Ç ╨┤╨╗╤Å immutable-╨║╤ì╤ê╨░ (╤à╤ì╤ê╨╕╤Ç╨╛╨▓╨░╨╜╨╜╤ï╨╡ ╤ä╨░╨╣╨╗╤ï)
++ */
++function setImmutableCache(res: Response) {
++  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
++}
++
++/**
++ * ╨Ñ╨╡╨╗╨┐╨╡╤Ç ╨┤╨╗╤Å ╨┤╨╗╨╕╤é╨╡╨╗╤î╨╜╨╛╨│╨╛ ╨║╤ì╤ê╨░ (╨▒╨╡╨╖ immutable)
++ */
++function setLongCache(res: Response) {
++  res.setHeader('Cache-Control', 'public, max-age=31536000');
++}
++
++/**
++ * Middleware ╨┤╨╗╤Å ╤â╤ü╤é╨░╨╜╨╛╨▓╨║╨╕ Content-Type ╨╕ ╨║╤ì╤ê╨░ ╨┤╨╗╤Å ╤ü╤é╨░╤é╨╕╨║╨╕
++ */
++function staticHeaders(res: Response, filePath: string) {
++  // CSS ╤ä╨░╨╣╨╗╤ï
++  if (filePath.endsWith('.css')) {
++    res.type('text/css; charset=utf-8');
++    setImmutableCache(res); // _astro ╨▓╤ü╨╡╨│╨┤╨░ ╤à╤ì╤ê╨╕╤Ç╨╛╨▓╨░╨╜╨╜╤ï╨╡
++  }
++  // JavaScript ╤ä╨░╨╣╨╗╤ï
++  else if (filePath.endsWith('.js') || filePath.endsWith('.mjs')) {
++    res.type('application/javascript; charset=utf-8');
++    setImmutableCache(res);
++  }
++  // WOFF2 ╤ê╤Ç╨╕╤ä╤é╤ï
++  else if (filePath.endsWith('.woff2')) {
++    res.type('font/woff2');
++    setImmutableCache(res);
++  }
++  // WOFF ╤ê╤Ç╨╕╤ä╤é╤ï
++  else if (filePath.endsWith('.woff')) {
++    res.type('font/woff');
++    setImmutableCache(res);
++  }
++  // ╨Ü╨░╤Ç╤é╨╕╨╜╨║╨╕
++  else if (filePath.endsWith('.png')) {
++    res.type('image/png');
++  }
++  else if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
++    res.type('image/jpeg');
++  }
++  else if (filePath.endsWith('.svg')) {
++    res.type('image/svg+xml');
++  }
++  else if (filePath.endsWith('.webp')) {
++    res.type('image/webp');
++  }
++  else if (filePath.endsWith('.gif')) {
++    res.type('image/gif');
++  }
++  // JSON
++  else if (filePath.endsWith('.json')) {
++    res.type('application/json; charset=utf-8');
++  }
++}
++
++// ================================
++// 1. /_astro/* - ╤à╤ì╤ê╨╕╤Ç╨╛╨▓╨░╨╜╨╜╤ï╨╡ ╨▒╨░╨╜╨┤╨╗╤ï (immutable)
++// ================================
++app.use(
++  '/_astro',
++  express.static(join(CLIENT_ROOT, '_astro'), {
++    fallthrough: false,
++    maxAge: '365d',
++    immutable: true,
++    setHeaders: (res, filePath) => {
++      staticHeaders(res, filePath);
++    },
++  })
++);
++
++// ================================
++// 2. /fonts/* - ╤ê╤Ç╨╕╤ä╤é╤ï (immutable)
++// ================================
++app.use(
++  '/fonts',
++  express.static(join(CLIENT_ROOT, 'fonts'), {
++    fallthrough: false,
++    maxAge: '365d',
++    immutable: true,
++    setHeaders: (res, filePath) => {
++      staticHeaders(res, filePath);
++    },
++  })
++);
++
++// ================================
++// 3. /uploads/* - ╨┐╨╛╨╗╤î╨╖╨╛╨▓╨░╤é╨╡╨╗╤î╤ü╨║╨╕╨╣ ╨║╨╛╨╜╤é╨╡╨╜╤é (╨┤╨╗╨╕╤é╨╡╨╗╤î╨╜╤ï╨╣ ╨║╤ì╤ê ╨▒╨╡╨╖ immutable)
++// ================================
++app.use(
++  '/uploads',
++  express.static(join(CLIENT_ROOT, 'uploads'), {
++    fallthrough: false,
++    maxAge: '365d',
++    setHeaders: (res, filePath) => {
++      staticHeaders(res, filePath);
++      // ╨ƒ╨╡╤Ç╨╡╨╛╨┐╤Ç╨╡╨┤╨╡╨╗╤Å╨╡╨╝ ╨╜╨░ ╨┤╨╗╨╕╤é╨╡╨╗╤î╨╜╤ï╨╣ ╨║╤ì╤ê ╨▒╨╡╨╖ immutable
++      setLongCache(res);
++    },
++  })
++);
++
++// ================================
++// 4. ╨Ü╨╛╤Ç╨╜╨╡╨▓╤ï╨╡ ╤ü╤é╨░╤é╨╕╤ç╨╜╤ï╨╡ ╤ä╨░╨╣╨╗╤ï (favicon, robots, sitemap)
++// ================================
++const ROOT_STATIC_FILES = [
++  'favicon.ico',
++  'robots.txt',
++  'sitemap.xml',
++  'manifest.webmanifest',
++];
++
++for (const file of ROOT_STATIC_FILES) {
++  app.get(`/${file}`, (req, res, next) => {
++    const filePath = join(CLIENT_ROOT, file);
++    res.sendFile(filePath, (err) => {
++      if (err) next(); // fallthrough to Astro
++    });
++  });
++}
++
++// ================================
++// 5. Healthcheck (╨┤╨╗╤Å Docker/╨╝╨╛╨╜╨╕╤é╨╛╤Ç╨╕╨╜╨│╨░)
++// ================================
++app.get('/_healthz', (req, res) => {
++  res.status(200).type('text/plain').send('ok');
++});
++
++// ================================
++// 6. Astro SSR Handler (╨┤╨╗╤Å ╨▓╤ü╨╡╨│╨╛ ╨╛╤ü╤é╨░╨╗╤î╨╜╨╛╨│╨╛)
++// ================================
++// Middleware ╨▓ src/middleware.ts ╨┤╨╛╨▒╨░╨▓╨╕╤é Cache-Control ╨┤╨╗╤Å HTML
++app.use((req, res, next) => {
++  // ╨ƒ╤Ç╨╡╨╛╨▒╤Ç╨░╨╖╤â╨╡╨╝ Express req/res ╨▓ Web API Request/Response ╨┤╨╗╤Å Astro
++  astroHandler(req, res);
++});
++
++// ================================
++// Server Start
++// ================================
++const PORT = parseInt(process.env.PORT || '3000', 10);
++const HOST = process.env.HOST || '0.0.0.0';
++
++app.listen(PORT, HOST, () => {
++  console.log(`Γ£à SSR server running on http://${HOST}:${PORT}`);
++  console.log(`   Static assets: ${CLIENT_ROOT}`);
++  console.log(`   Health check: http://${HOST}:${PORT}/_healthz`);
++});
++
