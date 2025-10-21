@@ -1,0 +1,5 @@
+No changes required.
+
+All asset references in apps/website/src already use safe root-absolute paths (e.g., /uploads/...).
+Zero relative asset references found across all content, components, and pages.
+

@@ -1,0 +1,13 @@
+diff --git a/apps/website/public/uploads/logos/Amazon_Web_Services_Logo.svg.png b/apps/website/public/uploads/logos/amazon-web-services-logo.svg.png
+similarity index 100%
+rename from apps/website/public/uploads/logos/Amazon_Web_Services_Logo.svg.png
+rename to apps/website/public/uploads/logos/amazon-web-services-logo.svg.png
+diff --git a/apps/website/public/uploads/logos/CSS3_logo_and_wordmark.svg.png b/apps/website/public/uploads/logos/css3-logo-and-wordmark.svg.png
+similarity index 100%
+rename from apps/website/public/uploads/logos/CSS3_logo_and_wordmark.svg.png
+rename to apps/website/public/uploads/logos/css3-logo-and-wordmark.svg.png
+diff --git a/apps/website/public/uploads/logos/sibsutis_logo.png b/apps/website/public/uploads/logos/sibsutis-logo.png
+similarity index 100%
+rename from apps/website/public/uploads/logos/sibsutis_logo.png
+rename to apps/website/public/uploads/logos/sibsutis-logo.png
+

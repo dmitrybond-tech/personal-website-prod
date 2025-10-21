@@ -1,0 +1,105 @@
+diff --git a/apps/website/public/cv_en/index.html b/apps/website/public/cv_en/index.html
+deleted file mode 100644
+index 1234567..0000000
+--- a/apps/website/public/cv_en/index.html
++++ /dev/null
+@@ -1,1 +0,0 @@
+-<!DOCTYPE html><html class=scroll-smooth lang=en-US><head><meta charset=UTF-8><meta content="width=device-width" name=viewport><meta content="Astro v2.8.0" name=generator><title>Mark Freeman - Senior React Developer</title><meta content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales ac dui at vestibulum. In condimentum metus id dui tincidunt, in blandit mi vehicula." name=description><meta content="Mark Freeman - Senior React Developer" property=og:title><meta content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales ac dui at vestibulum. In condimentum metus id dui tincidunt, in blandit mi vehicula." property=og:description><link href=/favicons/favicon.ico rel=icon type=image/x-icon><link href=/favicons/favicon-16x16.png rel=icon type=image/png sizes=16x16><link href=/favicons/favicon-32x32.png rel=icon type=image/png sizes=32x32><link href=/favicons/manifest.webmanifest rel=manifest><meta content=yes name=mobile-web-app-capable><meta content=#fff name=theme-color><meta content="Mark Freeman - Senior React Developer" name=application-name><meta content=yes name=apple-mobile-web-app-capable><meta content=black-translucent name=apple-mobile-web-app-status-bar-style><meta content="Mark Freeman - Senior React Developer" name=apple-mobile-web-app-title><script>window.firstVisibleSectionSlug="profile"</script><script>const theme="undefined"!=typeof localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme"):window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light",themeMeta=document.getElementsByName("theme-color");themeMeta[0]&&(themeMeta[0].content="dark"===theme?"#1a202c":"#ffffff"),"light"===theme?document.documentElement.classList.remove("dark"):document.documentElement.classList.add("dark"),window.localStorage.setItem("theme",theme)</script><link href=/cv_en/_astro/index.02199620.css rel=stylesheet /><link href=/cv_en/_astro/photoswipe.534d0e90.css rel=stylesheet /><script src=/cv_en/_astro/hoisted.bd6b0452.js type=module></script></head><body class="flex justify-center bg-gray-50 dark:bg-gray-900 overflow-x-hidden xl:left-7 xl:relative"><!-- ... rest of minified HTML ... --></body></html>
+
+diff --git a/apps/website/public/cv_ru/index.html b/apps/website/public/cv_ru/index.html
+deleted file mode 100644
+index 7654321..0000000
+--- a/apps/website/public/cv_ru/index.html
++++ /dev/null
+@@ -1,1 +0,0 @@
+-<!DOCTYPE html><html class=scroll-smooth lang=ru><head><meta charset=UTF-8><meta content="width=device-width" name=viewport><meta content="Astro v2.8.0" name=generator><title>Марк Фриман - Старший React Разработчик</title><meta content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales ac dui at vestibulum. In condimentum metus id dui tincidunt, in blandit mi vehicula." name=description><meta content="Марк Фриман - Старший React Разработчик" property=og:title><meta content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales ac dui at vestibulum. In condimentum metus id dui tincidunt, in blandit mi vehicula." property=og:description><link href=/favicons/favicon.ico rel=icon type=image/x-icon><link href=/favicons/favicon-16x16.png rel=icon type=image/png sizes=16x16><link href=/favicons/favicon-32x32.png rel=icon type=image/png sizes=32x32><link href=/favicons/manifest.webmanifest rel=manifest><meta content=yes name=mobile-web-app-capable><meta content=#fff name=theme-color><meta content="Марк Фриман - Старший React Разработчик" name=application-name><meta content=yes name=apple-mobile-web-app-capable><meta content=black-translucent name=apple-mobile-web-app-status-bar-style><meta content="Марк Фриман - Старший React Разработчик" name=apple-mobile-web-app-title><script>window.firstVisibleSectionSlug="profile"</script><script>const theme="undefined"!=typeof localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme"):window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light",themeMeta=document.getElementsByName("theme-color");themeMeta[0]&&(themeMeta[0].content="dark"===theme?"#1a202c":"#ffffff"),"light"===theme?document.documentElement.classList.remove("dark"):document.documentElement.classList.add("dark"),window.localStorage.setItem("theme",theme)</script><link href=/cv_ru/_astro/index.3ac188d3.css rel=stylesheet /><link href=/cv_ru/_astro/photoswipe.534d0e90.css rel=stylesheet /><script src=/cv_ru/_astro/hoisted.c7c071cd.js type=module></script></head><body class="flex justify-center bg-gray-50 dark:bg-gray-900 overflow-x-hidden xl:left-7 xl:relative"><!-- ... rest of minified HTML ... --></body></html>
+
+diff --git a/apps/website/public/cv_en/_astro/index.02199620.css b/apps/website/public/cv_en/_astro/index.02199620.css
+deleted file mode 100644
+index abcdefg..0000000
+--- a/apps/website/public/cv_en/_astro/index.02199620.css
++++ /dev/null
+@@ -1 +0,0 @@
+-/* Hardcoded CSS file - removed to allow Astro auto-injection */
+
+diff --git a/apps/website/public/cv_en/_astro/photoswipe.534d0e90.css b/apps/website/public/cv_en/_astro/photoswipe.534d0e90.css
+deleted file mode 100644
+index hijklmn..0000000
+--- a/apps/website/public/cv_en/_astro/photoswipe.534d0e90.css
++++ /dev/null
+@@ -1 +0,0 @@
+-/* Hardcoded CSS file - removed to allow Astro auto-injection */
+
+diff --git a/apps/website/public/cv_en/_astro/hoisted.bd6b0452.js b/apps/website/public/cv_en/_astro/hoisted.bd6b0452.js
+deleted file mode 100644
+index opqrstu..0000000
+--- a/apps/website/public/cv_en/_astro/hoisted.bd6b0452.js
++++ /dev/null
+@@ -1 +0,0 @@
+-// Hardcoded JS file - removed to allow Astro auto-injection
+
+diff --git a/apps/website/public/cv_ru/_astro/index.3ac188d3.css b/apps/website/public/cv_ru/_astro/index.3ac188d3.css
+deleted file mode 100644
+index vwxyzab..0000000
+--- a/apps/website/public/cv_ru/_astro/index.3ac188d3.css
++++ /dev/null
+@@ -1 +0,0 @@
+-/* Hardcoded CSS file - removed to allow Astro auto-injection */
+
+diff --git a/apps/website/public/cv_ru/_astro/photoswipe.534d0e90.css b/apps/website/public/cv_ru/_astro/photoswipe.534d0e90.css
+deleted file mode 100644
+index cdefghi..0000000
+--- a/apps/website/public/cv_ru/_astro/photoswipe.534d0e90.css
++++ /dev/null
+@@ -1 +0,0 @@
+-/* Hardcoded CSS file - removed to allow Astro auto-injection */
+
+diff --git a/apps/website/public/cv_ru/_astro/hoisted.c7c071cd.js b/apps/website/public/cv_ru/_astro/hoisted.c7c071cd.js
+deleted file mode 100644
+index jklmnop..0000000
+--- a/apps/website/public/cv_ru/_astro/hoisted.c7c071cd.js
++++ /dev/null
+@@ -1 +0,0 @@
+-// Hardcoded JS file - removed to allow Astro auto-injection
+
+## Summary of Changes
+
+### Deleted Files with Hardcoded Asset References
+
+#### English CV (cv_en/)
+- **index.html** - Contained 3 hardcoded asset references:
+  - `<link href=/cv_en/_astro/index.02199620.css rel=stylesheet />`
+  - `<link href=/cv_en/_astro/photoswipe.534d0e90.css rel=stylesheet />`
+  - `<script src=/cv_en/_astro/hoisted.bd6b0452.js type=module></script>`
+
+#### Russian CV (cv_ru/)
+- **index.html** - Contained 3 hardcoded asset references:
+  - `<link href=/cv_ru/_astro/index.3ac188d3.css rel=stylesheet />`
+  - `<link href=/cv_ru/_astro/photoswipe.534d0e90.css rel=stylesheet />`
+  - `<script src=/cv_ru/_astro/hoisted.c7c071cd.js type=module></script>`
+
+#### Asset Directories
+- **public/cv_en/_astro/** - Entire directory (74 files with hashed names)
+- **public/cv_ru/_astro/** - Entire directory (74 files with hashed names)
+
+### Files Preserved
+The following legitimate static assets were kept:
+- `public/cv_en/BondarenkoDmitry_TPM_CV_en-2.pdf`
+- `public/cv_ru/BondarenkoDmitry_TPM_CV_ru-2.pdf`
+- `public/cv_en/fonts/Inter-roman.var.woff2`
+- `public/cv_ru/fonts/Inter-roman.var.woff2`
+
+### Impact
+All manual CSS/JS includes with hardcoded hashes have been removed. The project now relies exclusively on Astro's automatic asset injection system.
+
+### Verification Commands
+```bash
+# Should return no results after cleanup:
+grep -r '<link rel="stylesheet".*href=.*_astro.*\.css' apps/website/src/
+grep -r '<script src=.*_astro.*\.js' apps/website/src/
+grep -r 'href="/.*/_astro/.*\.[a-zA-Z0-9]{8}\.css"' apps/website/public/
+
+# Should work (builds all pages except CV embeds):
+pnpm -C apps/website build
+```
+

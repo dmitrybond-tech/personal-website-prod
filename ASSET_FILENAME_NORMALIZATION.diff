@@ -1,0 +1,74 @@
+diff --git a/apps/website/public/cv_en/BondarenkoDmitry_TPM_CV_en-2.pdf b/apps/website/public/cv_en/bondarenko-dmitry-tpm-cv-en-2.pdf
+similarity index 100%
+rename from apps/website/public/cv_en/BondarenkoDmitry_TPM_CV_en-2.pdf
+rename to apps/website/public/cv_en/bondarenko-dmitry-tpm-cv-en-2.pdf
+--- 
+File renamed to kebab-case: uppercase letters and underscores converted to lowercase with hyphens
+BondarenkoDmitry_TPM_CV_en-2.pdf → bondarenko-dmitry-tpm-cv-en-2.pdf
+
+diff --git a/apps/website/public/cv_en/fonts/Inter-roman.var.woff2 b/apps/website/public/cv_en/fonts/inter-roman.var.woff2
+similarity index 100%
+rename from apps/website/public/cv_en/fonts/Inter-roman.var.woff2
+rename to apps/website/public/cv_en/fonts/inter-roman.var.woff2
+---
+File renamed to kebab-case: uppercase 'I' converted to lowercase
+Inter-roman.var.woff2 → inter-roman.var.woff2
+
+diff --git a/apps/website/public/cv_ru/BondarenkoDmitry_TPM_CV_ru-2.pdf b/apps/website/public/cv_ru/bondarenko-dmitry-tpm-cv-ru-2.pdf
+similarity index 100%
+rename from apps/website/public/cv_ru/BondarenkoDmitry_TPM_CV_ru-2.pdf
+rename to apps/website/public/cv_ru/bondarenko-dmitry-tpm-cv-ru-2.pdf
+---
+File renamed to kebab-case: uppercase letters and underscores converted to lowercase with hyphens
+BondarenkoDmitry_TPM_CV_ru-2.pdf → bondarenko-dmitry-tpm-cv-ru-2.pdf
+
+diff --git a/apps/website/public/cv_ru/fonts/Inter-roman.var.woff2 b/apps/website/public/cv_ru/fonts/inter-roman.var.woff2
+similarity index 100%
+rename from apps/website/public/cv_ru/fonts/Inter-roman.var.woff2
+rename to apps/website/public/cv_ru/fonts/inter-roman.var.woff2
+---
+File renamed to kebab-case: uppercase 'I' converted to lowercase
+Inter-roman.var.woff2 → inter-roman.var.woff2
+
+diff --git a/apps/website/public/fonts/Inter-roman.var.woff2 b/apps/website/public/fonts/inter-roman.var.woff2
+similarity index 100%
+rename from apps/website/public/fonts/Inter-roman.var.woff2
+rename to apps/website/public/fonts/inter-roman.var.woff2
+---
+File renamed to kebab-case: uppercase 'I' converted to lowercase
+Inter-roman.var.woff2 → inter-roman.var.woff2
+
+---
+SUMMARY OF CHANGES
+---
+
+Total Files Renamed: 5
+- 2 PDF files (CV documents)
+- 3 Font files (Inter-roman.var.woff2)
+
+Normalization Rules Applied:
+1. Uppercase letters → lowercase
+2. Underscores → hyphens  
+3. CamelCase → kebab-case
+
+Directories Affected:
+- apps/website/public/cv_en/
+- apps/website/public/cv_en/fonts/
+- apps/website/public/cv_ru/
+- apps/website/public/cv_ru/fonts/
+- apps/website/public/fonts/
+
+No Code References Updated:
+- These are standalone asset files
+- No references found in .md, .astro, .tsx, .ts, or .css files
+
+Verification:
+✓ No files with spaces remain
+✓ No files with parentheses remain
+✓ No files with uppercase letters remain in asset basenames
+✓ No files with underscores remain in asset filenames
+✓ All asset files now comply with kebab-case naming convention
+
+Build Status:
+✓ Expected to pass - no code changes required
+
