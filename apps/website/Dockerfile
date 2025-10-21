@@ -51,6 +51,9 @@ RUN echo "=== WORKSPACE STRUCTURE ===" && ls -la && echo "=== APPS STRUCTURE ===
 # Make sure we build the correct workspace with fallback
 RUN npm run --workspace apps/website build || (echo "Workspace build failed, trying direct build..." && cd apps/website && npm run build)
 
+# Copy custom server.mjs into dist/server (no TypeScript compilation needed)
+RUN cp /app/apps/website/src/server.mjs /app/apps/website/dist/server/server.mjs
+
 # 1) uploads действительно собраны (fail-fast если отсутствует)
 RUN set -e; \
     echo "[sanity] dist/client listing:" && ls -lah /app/apps/website/dist/client | head -n 200; \

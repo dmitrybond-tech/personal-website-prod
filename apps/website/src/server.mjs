@@ -10,9 +10,9 @@
 
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
-import express, { type Request, type Response } from 'express';
+import express from 'express';
 import compression from 'compression';
-// После компиляции: dist/server/server.mjs -> dist/server/entry.mjs
+// После копирования: dist/server/server.mjs -> dist/server/entry.mjs
 import { handler as astroHandler } from './entry.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -34,21 +34,21 @@ app.use(compression());
 /**
  * Хелпер для immutable-кэша (хэшированные файлы)
  */
-function setImmutableCache(res: Response) {
+function setImmutableCache(res) {
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
 }
 
 /**
  * Хелпер для длительного кэша (без immutable)
  */
-function setLongCache(res: Response) {
+function setLongCache(res) {
   res.setHeader('Cache-Control', 'public, max-age=31536000');
 }
 
 /**
  * Middleware для установки Content-Type и кэша для статики
  */
-function staticHeaders(res: Response, filePath: string) {
+function staticHeaders(res, filePath) {
   // CSS файлы
   if (filePath.endsWith('.css')) {
     res.type('text/css; charset=utf-8');
