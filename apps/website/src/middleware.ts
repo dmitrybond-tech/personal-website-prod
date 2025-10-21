@@ -3,6 +3,9 @@ import type { MiddlewareHandler } from 'astro';
 /**
  * Static asset prefixes that should bypass SSR and i18n logic.
  * These paths are served directly by the Node adapter with optimized cache headers.
+ * 
+ * @see src/server/static-headers.ts for Node adapter cache configuration
+ * @see SSR_CACHE_POLICY.md for caching strategy documentation
  */
 const STATIC_ASSET_PREFIXES = /^\/(?:_astro|assets|fonts|uploads|favicon\.ico|robots\.txt|sitemap\.xml|manifest\.webmanifest)\b/;
 

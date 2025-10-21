@@ -79,6 +79,20 @@ bash scripts/health.sh localhost:3000
 
 **Details**: See [SSR_CACHE_POLICY.md](./SSR_CACHE_POLICY.md) for full documentation.
 
+### Running Behind Reverse Proxy
+
+For production deployments behind Caddy/Nginx, see [docs/REVERSE_PROXY_SETUP.md](./docs/REVERSE_PROXY_SETUP.md).
+
+**Quick smoke tests**:
+
+```bash
+# Local server
+npm run test:smoke
+
+# Production server
+npm run test:smoke:prod
+```
+
 ### i18n Admin Configuration
 
 With i18n enabled (`prefixDefaultLocale: true`), the admin UI can be accessed at locale-prefixed routes like `/en/website-admin` or `/ru/website-admin`. 
