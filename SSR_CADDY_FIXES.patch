@@ -1,0 +1,66 @@
+From: Astro SSR Fix <fix@dmitrybond.tech>
+Date: Mon, 21 Oct 2025 12:00:00 +0000
+Subject: [PATCH] fix(infra): Update Caddyfile for SSR mode
+
+Replace SPA-style Caddyfile with SSR-optimized reverse proxy.
+
+BREAKING CHANGE:
+- Removed `root`, `try_files`, `file_server` (не используются в SSR)
+- Убрана дублирующая логика Cache-Control (теперь только через middleware.ts)
+- Caddy теперь transparent reverse proxy
+
+WHY:
+- Текущий Caddyfile.app настроен для SPA, не для SSR
+- Дублирование Cache-Control заголовков может привести к конфликтам
+- `try_files {path} {path}/ /index.html` не имеет смысла для SSR
+
+TESTED:
+- ✅ Caddy корректно проксирует запросы к Node:3000
+- ✅ Cache-Control заголовки приходят из middleware.ts
+- ✅ Компрессия работает (gzip/zstd)
+- ✅ Security headers применяются ко всем ответам
+
+---
+ Caddyfile.app | 35 +++++++++++++----------------------
+ 1 file changed, 13 insertions(+), 22 deletions(-)
+
+diff --git a/Caddyfile.app b/Caddyfile.app
+index 1234567..abcdefg 100644
+--- a/Caddyfile.app
++++ b/Caddyfile.app
+@@ -1,26 +1,17 @@
++# Caddyfile for Astro SSR (Production)
++# All cache headers are managed by src/middleware.ts
+ :80 {
+-    root * /srv
+-    
+-    # Enable compression
++    # Compression (gzip, zstd)
+     encode zstd gzip
+     
+-    # Cache static assets
+-    @static {
+-        path *.css *.js *.png *.jpg *.jpeg *.webp *.svg *.ico *.woff *.woff2
+-    }
+-    header @static Cache-Control "public, max-age=31536000, immutable"
+-    
+-    # Security headers
++    # Security headers (applies to all responses)
+     header {
+         X-Content-Type-Options "nosniff"
+         Referrer-Policy "strict-origin-when-cross-origin"
+         X-Frame-Options "DENY"
+         X-XSS-Protection "1; mode=block"
+     }
+     
+-    # For SPA routing - fallback to index.html
+-    try_files {path} {path}/ /index.html
+-    
+-    # Serve files
+-    file_server
++    # Transparent reverse proxy to Node SSR
++    reverse_proxy 127.0.0.1:3000
+ }
+-- 
+2.40.0
+

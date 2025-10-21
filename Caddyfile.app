@@ -1,16 +1,10 @@
+# Caddyfile for Astro SSR (Production)
+# All cache headers are managed by src/middleware.ts
 :80 {
-    root * /srv
-    
-    # Enable compression
+    # Compression (gzip, zstd)
     encode zstd gzip
     
-    # Cache static assets
-    @static {
-        path *.css *.js *.png *.jpg *.jpeg *.webp *.svg *.ico *.woff *.woff2
-    }
-    header @static Cache-Control "public, max-age=31536000, immutable"
-    
-    # Security headers
+    # Security headers (applies to all responses)
     header {
         X-Content-Type-Options "nosniff"
         Referrer-Policy "strict-origin-when-cross-origin"
@@ -18,9 +12,6 @@
         X-XSS-Protection "1; mode=block"
     }
     
-    # For SPA routing - fallback to index.html
-    try_files {path} {path}/ /index.html
-    
-    # Serve files
-    file_server
+    # Transparent reverse proxy to Node SSR
+    reverse_proxy 127.0.0.1:3000
 }

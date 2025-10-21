@@ -71,6 +71,21 @@ export const onRequest: MiddlewareHandler = (context, next) => {
   return next().then(response => {
     const contentType = response.headers.get('content-type') || '';
     
+    // Content Security Policy for HTML
+    if (contentType.includes('text/html')) {
+      response.headers.set('Content-Security-Policy', [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://api.iconify.design",
+        "style-src 'self' 'unsafe-inline'",
+        "font-src 'self' data:",
+        "img-src 'self' data: https:",
+        "connect-src 'self' https://api.iconify.design",
+        "frame-ancestors 'none'",
+        "base-uri 'self'",
+        "form-action 'self'"
+      ].join('; '));
+    }
+    
     // Admin pages: strict security + no-cache
     if (pathname.startsWith('/website-admin/')) {
       response.headers.set('X-Frame-Options', 'DENY');

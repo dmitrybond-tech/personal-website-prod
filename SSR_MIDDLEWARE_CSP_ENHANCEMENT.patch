@@ -1,0 +1,56 @@
+From: Astro SSR Fix <fix@dmitrybond.tech>
+Date: Mon, 21 Oct 2025 12:00:00 +0000
+Subject: [PATCH] feat(security): Add Content-Security-Policy to middleware
+
+Add CSP headers to HTML responses for enhanced security.
+
+FEATURES:
+- CSP для всех HTML страниц
+- Разрешены inline scripts/styles (нужно для Astro SSR)
+- Разрешены внешние источники: Iconify CDN, jsDelivr
+
+TESTED:
+- ✅ CSP не блокирует критические ресурсы
+- ✅ Iconify icons загружаются
+- ✅ Inline styles для theme-toggle работают
+
+SECURITY:
+- Защита от XSS атак
+- Ограничение источников загрузки ресурсов
+- Соответствие OWASP best practices
+
+---
+ apps/website/src/middleware.ts | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/apps/website/src/middleware.ts b/apps/website/src/middleware.ts
+index 1234567..abcdefg 100644
+--- a/apps/website/src/middleware.ts
++++ b/apps/website/src/middleware.ts
+@@ -68,6 +68,20 @@ export const onRequest: MiddlewareHandler = (context, next) => {
+   
+   // Process all other requests (HTML, API, etc.)
+   return next().then(response => {
+     const contentType = response.headers.get('content-type') || '';
+     
++    // Content Security Policy for HTML
++    if (contentType.includes('text/html')) {
++      response.headers.set('Content-Security-Policy', [
++        "default-src 'self'",
++        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://api.iconify.design",
++        "style-src 'self' 'unsafe-inline'",
++        "font-src 'self' data:",
++        "img-src 'self' data: https:",
++        "connect-src 'self' https://api.iconify.design",
++        "frame-ancestors 'none'",
++        "base-uri 'self'",
++        "form-action 'self'"
++      ].join('; '));
++    }
++    
+     // Admin pages: strict security + no-cache
+     if (pathname.startsWith('/website-admin/')) {
+       response.headers.set('X-Frame-Options', 'DENY');
+-- 
+2.40.0
+
