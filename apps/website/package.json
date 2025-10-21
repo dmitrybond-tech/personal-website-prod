@@ -9,6 +9,7 @@
     "dev:git": "cross-env NODE_OPTIONS=--trace-warnings concurrently -k -s first -n astro \"astro dev --host --port 4321 --strictPort\"",
     "prebuild": "node scripts/assert-decap-asset.mjs && node scripts/build-iconify-bundle.mjs",
     "build": "astro build",
+    "start": "node ./dist/server/entry.mjs",
     "preview": "astro preview --host --port 4321",
     "check": "tsc -p . --noEmit",
     "check:env": "node --env-file=.env.local ./scripts/check-env.mjs",

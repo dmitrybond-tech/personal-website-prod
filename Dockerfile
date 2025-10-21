@@ -1,14 +1,12 @@
-# syntax=docker/dockerfile:1.5
-# -------- build stage --------
-FROM node:22-alpine AS builder
-
-# Install toolchain for native modules and common libs for canvas/sharp
-RUN apk add --no-cache --virtual .build-deps python3 make g++ libc6-compat \
-    pkgconfig cairo-dev pango-dev jpeg-dev giflib-dev \
-    && ln -sf /usr/bin/python3 /usr/bin/python
-    
-# Set working directory to monorepo root
+# ---- build ----
+FROM node:20-alpine AS build
 WORKDIR /app
+
+# Install toolchain for native modules (sharp, etc.)
+RUN apk add --no-cache python3 make g++ libc6-compat \
+    && ln -sf /usr/bin/python3 /usr/bin/python
+
+ENV NODE_ENV=production
 
 # Accept and export build args for PUBLIC_* variables
 ARG PUBLIC_SITE_URL=""
@@ -38,14 +36,15 @@ ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL \
     DECAP_GITHUB_CLIENT_SECRET=$DECAP_GITHUB_CLIENT_SECRET \
     AUTHJS_GITHUB_CLIENT_ID=$AUTHJS_GITHUB_CLIENT_ID \
     AUTHJS_GITHUB_CLIENT_SECRET=$AUTHJS_GITHUB_CLIENT_SECRET
-    
+
 # Copy only manifests first for better caching
 COPY package*.json ./
 COPY apps/website/package*.json ./apps/website/
-RUN npm config set registry https://registry.npmjs.org
 
-# Install dependencies
-RUN npm ci
+# Support npm/pnpm/yarn: use the lockfile that exists
+RUN if [ -f pnpm-lock.yaml ]; then corepack enable && pnpm i --frozen-lockfile; \
+    elif [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+    else npm ci; fi
 
 # Copy the rest of the repo (needed for public/src)
 COPY . .
@@ -58,13 +57,13 @@ RUN test -d /app/apps/website/dist/client/uploads
 
 # Visibility in CI logs - show directory structure
 RUN node -e "const {readdirSync} = require('fs'); console.log('SERVER:', readdirSync('/app/apps/website/dist/server')); console.log('CLIENT:', readdirSync('/app/apps/website/dist/client')); console.log('UPLOADS:', readdirSync('/app/apps/website/dist/client/uploads'));"
-    
-# -------- runtime stage --------
-FROM node:22-alpine AS runner
+
+# ---- run ----
+FROM node:20-alpine AS run
 WORKDIR /app
-ENV NODE_ENV=production \
-    PORT=3000
-    
+ENV NODE_ENV=production
+ENV PORT=3000
+
 # Labels and ENV for git revision tracking
 ARG GIT_SHA=unknown
 LABEL org.opencontainers.image.revision=$GIT_SHA
@@ -79,9 +78,11 @@ ENV DECAP_GITHUB_CLIENT_ID=$DECAP_GITHUB_CLIENT_ID \
     DECAP_GITHUB_CLIENT_SECRET=$DECAP_GITHUB_CLIENT_SECRET \
     AUTHJS_GITHUB_CLIENT_ID=$AUTHJS_GITHUB_CLIENT_ID \
     AUTHJS_GITHUB_CLIENT_SECRET=$AUTHJS_GITHUB_CLIENT_SECRET
-    
+
 # Copy the entire dist (server + client) from the apps/website workspace
-COPY --from=builder /app/apps/website/dist ./dist
-    
+COPY --from=build /app/apps/website/dist /app/dist
+COPY --from=build /app/apps/website/package.json /app/package.json
+
 EXPOSE 3000
-CMD ["node", "./dist/server/entry.mjs"]
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node","./dist/server/entry.mjs"]
