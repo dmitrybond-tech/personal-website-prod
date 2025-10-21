@@ -86,8 +86,9 @@ const bodyClasses = [
     <link rel="alternate" hrefLang="ru" href={`${site}${altRu}`} />
     <link rel="alternate" hrefLang="x-default" href={`${site}${altEn}`} />
 
-    <!-- Iconify CDN optimization -->
+    <!-- Performance optimizations -->
     <link rel="preconnect" href="https://api.iconify.design" crossorigin />
+    <link rel="preload" as="font" href="/fonts/inter-roman.var.woff2" type="font/woff2" crossorigin />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />

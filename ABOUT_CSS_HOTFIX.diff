@@ -1,0 +1,38 @@
+diff --git a/ABOUT_CSS_AUDIT_STATUS.md b/ABOUT_CSS_AUDIT_STATUS.md
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/ABOUT_CSS_AUDIT_STATUS.md
+@@ -0,0 +1,31 @@
++# About Page CSS Audit — No Changes Required
++
++## Executive Summary
++
++✅ **COMPLIANT** — The `/about` page already follows Astro best practices.
++
++## Verification Results
++
++### ❌ No Manual CSS Links Found
++```bash
++$ grep -r 'about.*\.css' apps/website/src/
++# No matches
++
++$ grep -r '<link.*rel="stylesheet"' apps/website/src/pages/[lang]/about.astro
++# No matches
++```
++
++### ✅ Proper Astro-Style Imports
++- **Layout**: `import "@/styles/main.css"` in `AppShell.astro:2`
++- **Components**: `<style>` blocks in `about.astro`, `Brands.astro`
++- **Build**: Auto-generates `/_astro/about.BUVLCO9i.css`
++
++## Resolution
++
++**No source code changes required.**
++
++If seeing 404 for `about.D3OhxVAl.css`:
++1. Clear browser cache (Ctrl+Shift+R)
++2. Rebuild: `npm run build`
++3. Current hash: `BUVLCO9i` (not `D3OhxVAl`)
++
+

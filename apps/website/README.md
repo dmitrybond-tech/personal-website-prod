@@ -48,6 +48,37 @@ npm run dev:local
 - All OAuth routes (`/api/auth/*` and `/oauth*`) are excluded from middleware protection
 - Non-ASCII characters in URL environment variables will cause startup failures to prevent ByteString errors
 
+## SSR Cache Policy & Health Check
+
+### Production Health Check
+
+Verify cache headers and static asset delivery:
+
+```bash
+# Production
+bash scripts/health.sh dmitrybond.tech
+
+# Local
+bash scripts/health.sh localhost:3000
+```
+
+### Expected Cache Headers
+
+| Path | Cache-Control | Content-Type |
+|------|---------------|--------------|
+| HTML pages | `no-store, max-age=0, must-revalidate` | `text/html` |
+| `/_astro/*.css` | `public, max-age=31536000, immutable` | `text/css` |
+| `/fonts/*.woff2` | `public, max-age=31536000, immutable` | `font/woff2` |
+| `/uploads/*` | `public, max-age=86400` | Varies |
+
+### Troubleshooting
+
+**Problem**: CSS loads as HTML or styles don't apply
+
+**Solution**: Check middleware exclusions in `src/middleware.ts`. Static assets (`/_astro/`, `/fonts/`, `/uploads/`) must bypass i18n and SSR logic.
+
+**Details**: See [SSR_CACHE_POLICY.md](./SSR_CACHE_POLICY.md) for full documentation.
+
 ### i18n Admin Configuration
 
 With i18n enabled (`prefixDefaultLocale: true`), the admin UI can be accessed at locale-prefixed routes like `/en/website-admin` or `/ru/website-admin`. 
