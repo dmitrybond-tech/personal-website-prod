@@ -243,31 +243,31 @@ sections:
       visible: true
       items:
         - name: CloudBlue
-          img: /uploads/logos/brand-cloudblue Custom).png
+          img: /uploads/logos/brand-cloudblue-custom.png
           url: https://www.cloudblue.com
         - name: Datacom
-          img: /uploads/logos/brand-datacom-logo-edited (Custom).png
+          img: /uploads/logos/brand-datacom-logo-edited-custom.png
           url: https://datacom.com
         - name: Ingram Micro
-          img: /uploads/logos/brand-ingram-micro (Custom).png
+          img: /uploads/logos/brand-ingram-micro-custom.png
           url: https://www.ingrammicro.com
         - name: Telefónica
-          img: /uploads/logos/brand-telefonica (Custom).png
+          img: /uploads/logos/brand-telefonica-custom.png
           url: https://www.telefonica.com
         - name: Intel
-          img: /uploads/logos/brand-Intel-copy-edited (Custom).png
+          img: /uploads/logos/brand-intel-copy-edited-custom.png
           url: https://www.intel.com
         - name: Microsoft
-          img: /uploads/logos/brand-Microsoft_logo_(2012)-edited (Custom).png
+          img: /uploads/logos/brand-microsoft-logo-2012-edited-custom.png
           url: https://www.microsoft.com
         - name: Adobe
-          img: /uploads/logos/brand-Adobe_Corporate_logo-edited (Custom).png
+          img: /uploads/logos/brand-adobe-corporate-logo-edited-custom.png
           url: https://www.adobe.com
         - name: Ricoh
-          img: /uploads/logos/brand-Ricoh (Custom).png
+          img: /uploads/logos/brand-ricoh-custom.png
           url: https://www.ricoh.com
         - name: CDW
-          img: /uploads/logos/brand-CDW_Logo (Custom).png
+          img: /uploads/logos/brand-cdw-logo-custom.png
           url: https://www.cdw.com
   - type: favorites
     data:
@@ -290,23 +290,23 @@ sections:
             - title: Technologies
               url: https://github.com/trending
               icon: simple-icons:github
-              image: /uploads/about/favorites/technologies-thumbnail (Custom).jpg
+              image: /uploads/about/favorites/technologies-thumbnail-custom.jpg
             - title: Snowboarding
               url: https://www.redbull.com/us-en/snowboarding
               icon: simple-icons:snowboarding
-              image: /uploads/about/favorites/snowboarding-thumbnail (Custom).jpeg
+              image: /uploads/about/favorites/snowboarding-thumbnail-custom.jpeg
             - title: Art
               url: https://www.artsy.net
               icon: simple-icons:artstation
-              image: /uploads/about/favorites/art-pb-thumbnail (Custom).jpg
+              image: /uploads/about/favorites/art-pb-thumbnail-custom.jpg
             - title: Stand-up Comedy
               url: https://www.netflix.com/browse/genre/11559
               icon: simple-icons:netflix
-              image: /uploads/about/favorites/stand-up-thumbnail (Custom).jpg
+              image: /uploads/about/favorites/stand-up-thumbnail-custom.jpg
             - title: Cooking
               url: https://www.bonappetit.com
               icon: simple-icons:chef
-              image: /uploads/about/favorites/cooking-thumbnail (Custom).jpg
+              image: /uploads/about/favorites/cooking-thumbnail-custom.jpg
         - title: Media I Follow
           type: medias
           style:
@@ -315,7 +315,7 @@ sections:
             - title: Huberman Lab
               type: Science-based optimization tools
               url: https://www.hubermanlab.com/
-              image: /uploads/about/favorites/people-andrew-huberman (Custom).jpg
+              image: /uploads/about/favorites/people-andrew-huberman-custom.jpg
             - title: Y Combinator
               type: Accelerator
               url: https://www.ycombinator.com
@@ -323,7 +323,7 @@ sections:
             - title: Mark Manson
               type: Newsletter & Podcast
               url: https://www.youtube.com/playlist?list=PLkkA1LPpvlkjbuctKTaViIeIiZljzbqxW
-              image: /uploads/about/favorites/rsz_people-mark-manson (Custom).jpg
+              image: /uploads/about/favorites/rsz-people-mark-manson-custom.jpg
             - title: ByteMonk
               type: Tech and System Design
               url: https://www.youtube.com/c/bytemonk
@@ -340,22 +340,22 @@ sections:
             - title: How to Create Tech Products Customers Love
               author: Scott H.
               url: https://www.goodreads.com/book/show/18043039-how-to-create-tech-products-customers-love
-              image: /uploads/about/favorites/book-how-to-create-tech-products-customers-love (Custom).jpg
+              image: /uploads/about/favorites/book-how-to-create-tech-products-customers-love-custom.jpg
             - title: PMBoK
               author: Project Management Institute
               url: https://www.goodreads.com/book/show/58682340-pmbok-guide
-              image: /uploads/about/favorites/book-pmbok-guide-hero (Custom).jpg
+              image: /uploads/about/favorites/book-pmbok-guide-hero-custom.jpg
             - title: The Subtle Art of Not Giving a Fuck
               author: Mark Manson
               url: https://markmanson.net/books/the-subtle-art-of-not-giving-a-f
-              image: /uploads/about/favorites/mark-manson-the-subtle-art-of-not-giving-a-f-ck (Custom).jpg
+              image: /uploads/about/favorites/mark-manson-the-subtle-art-of-not-giving-a-f-ck-custom.jpg
             - title: Toyota Production System
               author: Taiichi Ohno
               url: https://www.goodreads.com/book/show/376237.Toyota_Production_System
-              image: /uploads/about/favorites/book-toyota-tps (Custom).jpg
+              image: /uploads/about/favorites/book-toyota-tps-custom.jpg
             - title: The Culture Map
               author: Erin Meyer
               url: https://www.goodreads.com/book/show/22085568-the-culture-map
-              image: /uploads/about/favorites/book-the culture-map (Custom).jpg
+              image: /uploads/about/favorites/book-the-culture-map-custom.jpg
 lineWidth: 0
 ---
