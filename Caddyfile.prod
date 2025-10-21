@@ -1,0 +1,121 @@
+# Caddyfile для Production: Caddy на хосте + Astro SSR в Docker
+# Caddy раздаёт статику напрямую, динамику проксирует на Astro SSR
+
+{
+  email dima@dmitrybond.tech
+}
+
+# === Матчеры для статики ===
+@static {
+  path /_astro/* /fonts/* /uploads/* /favicon.ico /robots.txt /sitemap.xml /manifest.webmanifest
+}
+
+# Матчеры для типов файлов
+@css path *.css
+@js path *.js *.mjs
+@woff2 path *.woff2
+@woff path *.woff
+@ttf path *.ttf
+@png path *.png
+@jpg path *.jpg *.jpeg
+@svg path *.svg
+@webp path *.webp
+@ico path *.ico
+@json path *.json
+@xml path *.xml
+
+dmitrybond.tech, www.dmitrybond.tech {
+  # Сжатие для всех ответов
+  encode zstd gzip
+
+  # === СТАТИКА: Caddy раздаёт напрямую из Docker volume ===
+  handle @static {
+    # Статика из Docker volume (примонтирован из контейнера)
+    # Путь на хосте: /var/lib/docker/volumes/<project>_website-static/_data
+    # Нужно будет заменить <project> на реальное имя проекта
+    root * /var/lib/docker/volumes/prod_website-static/_data
+    file_server
+    
+    # Иммутабельный кэш для хэшированных файлов (_astro, fonts)
+    @hashed {
+      path /_astro/* /fonts/*
+    }
+    header @hashed Cache-Control "public, max-age=31536000, immutable"
+    
+    # Длинный кэш для uploads (без immutable, файлы могут меняться)
+    @uploads path /uploads/*
+    header @uploads Cache-Control "public, max-age=31536000"
+    
+    # Короткий кэш для корневых файлов
+    @root path /favicon.ico /robots.txt /sitemap.xml /manifest.webmanifest
+    header @root Cache-Control "public, max-age=3600"
+    
+    # Правильные Content-Type для всех типов файлов
+    header @css Content-Type "text/css; charset=utf-8"
+    header @js Content-Type "application/javascript; charset=utf-8"
+    header @woff2 Content-Type "font/woff2"
+    header @woff Content-Type "font/woff"
+    header @ttf Content-Type "font/ttf"
+    header @png Content-Type "image/png"
+    header @jpg Content-Type "image/jpeg"
+    header @svg Content-Type "image/svg+xml"
+    header @webp Content-Type "image/webp"
+    header @ico Content-Type "image/x-icon"
+    header @json Content-Type "application/json; charset=utf-8"
+    header @xml Content-Type "application/xml; charset=utf-8"
+  }
+
+  # === Безопасные заголовки для всех ответов ===
+  header {
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "DENY"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    # Убираем X-Powered-By если есть
+    -X-Powered-By
+    -Server
+  }
+
+  # === ВСЁ ОСТАЛЬНОЕ: проксируем на Astro SSR в Docker ===
+  reverse_proxy 127.0.0.1:3000 {
+    # Передаём правильные заголовки для SSR
+    header_up Host {host}
+    header_up X-Real-IP {remote_host}
+    header_up X-Forwarded-For {remote_host}
+    header_up X-Forwarded-Proto {scheme}
+    header_up X-Forwarded-Host {host}
+    
+    # Таймауты
+    transport http {
+      dial_timeout 10s
+      response_header_timeout 30s
+    }
+  }
+
+  # === Логи ===
+  log {
+    output file /var/lib/caddy/logs/website_access.log {
+      roll_size 10MiB
+      roll_keep 10
+      roll_keep_for 720h
+    }
+    format json
+  }
+}
+
+# === MAILCOW (если нужен) ===
+mail.dmitrybond.tech, autodiscover.dmitrybond.tech, autoconfig.dmitrybond.tech {
+  encode zstd gzip
+  reverse_proxy 127.0.0.1:8080
+  
+  log {
+    output file /var/lib/caddy/logs/mail_access.log {
+      roll_size 10MiB
+      roll_keep 10
+      roll_keep_for 720h
+    }
+    format json
+  }
+}
+
