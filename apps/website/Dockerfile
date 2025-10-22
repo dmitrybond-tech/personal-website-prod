@@ -79,16 +79,12 @@ ENV NODE_ENV=production \
 ARG GIT_SHA=unknown
 LABEL org.opencontainers.image.revision=$GIT_SHA
 ENV APP_BUILD_SHA=$GIT_SHA
-
-# Copy package files to install production runtime deps
-COPY package*.json ./
-COPY apps/website/package*.json ./apps/website/
-
-# Install production dependencies (includes express, compression)
-RUN npm ci --omit=dev --no-audit --no-fund --workspace apps/website || npm install --omit=dev --no-audit --no-fund --workspace apps/website
     
 # Copy the entire dist (server + client) from the builder
 COPY --from=builder /app/apps/website/dist ./dist
+
+# Copy node_modules from builder (includes express, compression as runtime deps)
+COPY --from=builder /app/node_modules ./node_modules
     
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \

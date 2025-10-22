@@ -34,10 +34,9 @@ Fixed 404 errors on `/_astro/*.css|*.js` by implementing an Express wrapper in f
 
 ### 3. **Updated `apps/website/Dockerfile`**
    - **Runtime stage changes**:
-     - Copy package files (`package.json`, `apps/website/package.json`) to runtime image
-     - Install production dependencies using `npm ci --omit=dev --workspace apps/website`
-     - Ensures `express` and `compression` are available at runtime
-     - Removed copy of builder's `node_modules` (now installed fresh in runtime)
+     - Copy `dist` and `node_modules` from builder stage
+     - `node_modules` includes `express` and `compression` as runtime dependencies
+     - Simplified dependency management (copy from builder rather than reinstall)
    - **CMD**:
      - Changed from `node ./dist/server/entry.mjs` → `node ./dist/server/server.mjs`
    - **HEALTHCHECK**:

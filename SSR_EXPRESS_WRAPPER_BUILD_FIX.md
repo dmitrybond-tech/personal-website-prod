@@ -39,3 +39,31 @@ This way:
 ## Status
 ✅ Fixed - Ready for Docker build
 
+---
+
+## Issue 2: Runtime Dependency Not Found
+
+### Error
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'express' imported from /app/dist/server/server.mjs
+```
+
+### Root Cause
+The runtime stage was trying to install production dependencies with `npm ci --workspace`, but the workspace structure wasn't set up correctly in the runtime image, causing `express` and `compression` to not be found.
+
+### Solution
+Reverted to copying `node_modules` from the builder stage (where all dependencies are already installed correctly):
+
+```dockerfile
+# Copy node_modules from builder (includes express, compression as runtime deps)
+COPY --from=builder /app/node_modules ./node_modules
+```
+
+This is simpler and more reliable than trying to reinstall dependencies in the runtime stage.
+
+### Files Updated
+- `apps/website/Dockerfile` - Simplified runtime stage to copy node_modules from builder
+
+## Final Status
+✅ Both issues fixed - Ready for deployment
+
