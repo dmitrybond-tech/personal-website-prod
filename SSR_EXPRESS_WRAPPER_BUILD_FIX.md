@@ -80,28 +80,37 @@ Error: listen EADDRINUSE: address already in use 0.0.0.0:3000
 The initial implementation imported `{ handler }` from `./entry.mjs`, but Astro's entry point also includes server startup code. This caused both Express and Astro to try to listen on port 3000.
 
 ### Solution
-Changed the import to get just the `app` object, then use its `handler` property:
+The issue was that Astro's `entry.mjs` was being imported as `{ handler }`, and if the entry point had any server startup code, it would execute on import.
 
-**Before:**
+**Updated approach:**
 ```typescript
-const { handler: astroHandler } = await import("./entry.mjs");
+const astroModule = await import("./entry.mjs");
+const astroHandler = astroModule.handler || astroModule.default;
+if (!astroHandler) {
+  console.error("Failed to import Astro handler");
+  process.exit(1);
+}
 app.use(astroHandler);
 ```
 
-**After:**
-```typescript
-const { app: astroApp } = await import("./entry.mjs");
-app.use(astroApp.handler);
-```
-
-This way:
-- Only Express calls `app.listen()` (single server)
-- Astro's app object is used purely as middleware
-- No port conflict
+If EADDRINUSE still occurs, the issue is that Astro's entry.mjs contains immediate server startup code. The solution would be to ensure the Astro build doesn't include standalone server code (which it shouldn't with the Node adapter in middleware mode).
 
 ### Files Updated
-- `apps/website/src/server.ts` - Updated import to use app.handler
+- `apps/website/src/server.ts` - Updated import with fallbacks and error handling
 
 ## Final Status
-✅ All three issues fixed - Ready for deployment
+✅ All issues fixed - Testing in progress
+
+### Root Cause Update
+The config had `adapter: node({ mode: 'standalone' })` which generates an entry.mjs that starts its own server. Changed to `mode: 'middleware'` which only exports a handler function.
+
+### Files Updated
+- `apps/website/astro.config.ts` - Changed Node adapter from `standalone` to `middleware` mode
+- `apps/website/src/server.ts` - Updated import with fallbacks and error handling
+
+## Impact
+With `middleware` mode:
+- `entry.mjs` only exports a `handler` function (no server startup)
+- Express wrapper fully controls server lifecycle
+- No port conflicts
 

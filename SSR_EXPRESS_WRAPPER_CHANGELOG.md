@@ -68,6 +68,7 @@ Fixed 404 errors on `/_astro/*.css|*.js` by implementing an Express wrapper in f
 - `apps/website/src/server.ts` (NEW)
 - `apps/website/package.json`
 - `apps/website/Dockerfile`
+- `apps/website/astro.config.ts` (Node adapter mode: standalone → middleware)
 
 ## Acceptance Criteria Met
 ✅ `/_astro/*.css` and `/_astro/*.js` return 200 with correct Content-Type and cache headers  

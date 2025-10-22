@@ -34,7 +34,7 @@ export default defineConfig({
   base: '/',
   trailingSlash: 'never',
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  adapter: node({ mode: 'middleware' }),
   devToolbar: { enabled: false },
   build: {
     assets: '_astro',
