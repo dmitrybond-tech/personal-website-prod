@@ -79,12 +79,18 @@ ENV NODE_ENV=production \
 ARG GIT_SHA=unknown
 LABEL org.opencontainers.image.revision=$GIT_SHA
 ENV APP_BUILD_SHA=$GIT_SHA
+
+# Copy package files to install production runtime deps
+COPY package*.json ./
+COPY apps/website/package*.json ./apps/website/
+
+# Install production dependencies (includes express, compression)
+RUN npm ci --omit=dev --no-audit --no-fund --workspace apps/website || npm install --omit=dev --no-audit --no-fund --workspace apps/website
     
-# Copy the entire dist (server + client) and node_modules from the apps/website workspace
+# Copy the entire dist (server + client) from the builder
 COPY --from=builder /app/apps/website/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
     
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-    CMD node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["node", "./dist/server/entry.mjs"]
+HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/_healthz || exit 1
+CMD ["node", "./dist/server/server.mjs"]

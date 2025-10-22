@@ -1,0 +1,111 @@
+diff --git a/apps/website/src/server.ts b/apps/website/src/server.ts
+new file mode 100644
+index 00000000..c8f5e2a9
+--- /dev/null
++++ b/apps/website/src/server.ts
+@@ -0,0 +1,42 @@
++// apps/website/src/server.ts
++import express, { type Request, type Response, type NextFunction } from "express";
++import compression from "compression";
++import { join, resolve } from "node:path";
++import type { NodeApp } from "astro/app/node";
++
++const app = express();
++app.disable("x-powered-by");
++app.use(compression());
++
++const CLIENT_ROOT = resolve(import.meta.dirname, "../client");
++
++app.use("/_astro", express.static(join(CLIENT_ROOT, "_astro"), {
++  maxAge: "365d",
++  setHeaders: (res: Response) => res.setHeader("Cache-Control", "public, max-age=31536000, immutable"),
++}));
++app.use("/fonts", express.static(join(CLIENT_ROOT, "fonts"), {
++  maxAge: "365d",
++  setHeaders: (res: Response) => res.setHeader("Cache-Control", "public, max-age=31536000, immutable"),
++}));
++app.use("/uploads", express.static(join(CLIENT_ROOT, "uploads"), {
++  maxAge: "365d",
++  setHeaders: (res: Response) => res.setHeader("Cache-Control", "public, max-age=31536000"),
++}));
++
++app.get("/_healthz", (_req: Request, res: Response) => res.type("text/plain").send("ok"));
++
++app.use((_req: Request, res: Response, next: NextFunction) => {
++  // HTML should never be cached
++  res.setHeader("Cache-Control", "no-store, max-age=0, must-revalidate");
++  next();
++});
++
++// hand off to Astro SSR
++// @ts-ignore - entry.mjs is generated at build time
++const { handler: astroHandler } = await import("./entry.mjs");
++app.use(astroHandler);
++
++app.listen(process.env.PORT ?? 3000, () => {
++  console.log("SSR listening on :3000");
++});
+diff --git a/apps/website/package.json b/apps/website/package.json
+index d623e648..f4e31cea 100644
+--- a/apps/website/package.json
++++ b/apps/website/package.json
+@@ -9,7 +9,8 @@
+     "dev:git": "cross-env NODE_OPTIONS=--trace-warnings concurrently -k -s first -n astro \"astro dev --host --port 4321 --strictPort\"",
+     "prebuild": "node scripts/assert-decap-asset.mjs && node scripts/build-iconify-bundle.mjs",
+     "build": "astro build",
+-    "start": "node ./dist/server/entry.mjs",
++    "postbuild": "esbuild src/server.ts --outfile=dist/server/server.mjs --bundle --platform=node --format=esm --target=node20 --legal-comments=none --log-level=info",
++    "start": "node ./dist/server/server.mjs",
+     "preview": "astro preview --host --port 4321",
+     "check": "tsc -p . --noEmit",
+     "check:env": "node --env-file=.env.local ./scripts/check-env.mjs",
+@@ -69,8 +70,10 @@
+   "dependencies": {
+     "@astrojs/react": "4.4.0",
+     "@iconify/react": "6.0.2",
++    "compression": "1.7.4",
+     "cookie": "0.6.0",
+     "date-fns": "4.1.0",
++    "express": "4.19.2",
+     "iconify-icon": "3.0.1",
+     "marked": "16.3.0",
+     "nanoid": "5.0.7",
+@@ -84,6 +87,9 @@
+     "@auth/core": "0.40.0",
+     "@playwright/test": "^1.49.1",
+     "@iconify-json/fa6-brands": "1.2.6",
++    "@types/compression": "1.7.5",
++    "@types/express": "4.17.21",
++    "esbuild": "0.23.0",
+     "@iconify-json/fa6-solid": "1.2.4",
+     "@iconify-json/logos": "1.2.9",
+     "@iconify-json/mdi": "1.2.3",
+diff --git a/apps/website/Dockerfile b/apps/website/Dockerfile
+index 1fd3d75e..295ca87d 100644
+--- a/apps/website/Dockerfile
++++ b/apps/website/Dockerfile
+@@ -79,12 +79,18 @@ ENV NODE_ENV=production \
+ ARG GIT_SHA=unknown
+ LABEL org.opencontainers.image.revision=$GIT_SHA
+ ENV APP_BUILD_SHA=$GIT_SHA
++
++# Copy package files to install production runtime deps
++COPY package*.json ./
++COPY apps/website/package*.json ./apps/website/
++
++# Install production dependencies (includes express, compression)
++RUN npm ci --omit=dev --no-audit --no-fund --workspace apps/website || npm install --omit=dev --no-audit --no-fund --workspace apps/website
+     
+-# Copy the entire dist (server + client) and node_modules from the apps/website workspace
++# Copy the entire dist (server + client) from the builder
+ COPY --from=builder /app/apps/website/dist ./dist
+-COPY --from=builder /app/node_modules ./node_modules
+     
+ EXPOSE 3000
+-HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+-    CMD node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+-CMD ["node", "./dist/server/entry.mjs"]
++HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
++    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/_healthz || exit 1
++CMD ["node", "./dist/server/server.mjs"]
+
