@@ -54,7 +54,7 @@ index d623e648..f4e31cea 100644
      "prebuild": "node scripts/assert-decap-asset.mjs && node scripts/build-iconify-bundle.mjs",
      "build": "astro build",
 -    "start": "node ./dist/server/entry.mjs",
-+    "postbuild": "esbuild src/server.ts --outfile=dist/server/server.mjs --bundle --platform=node --format=esm --target=node20 --legal-comments=none --log-level=info",
++    "postbuild": "esbuild src/server.ts --outfile=dist/server/server.mjs --bundle --platform=node --format=esm --target=node20 --packages=external --external:./entry.mjs --log-level=info",
 +    "start": "node ./dist/server/server.mjs",
      "preview": "astro preview --host --port 4321",
      "check": "tsc -p . --noEmit",

@@ -29,7 +29,7 @@ Fixed 404 errors on `/_astro/*.css|*.js` by implementing an Express wrapper in f
      - Added `@types/compression@1.7.5` (TypeScript type definitions)
      - Added `esbuild@0.23.0` (bundler for server.ts)
    - **Scripts**:
-     - Added `postbuild`: bundles `src/server.ts` → `dist/server/server.mjs` using esbuild (ESM, Node 20+, bundled)
+     - Added `postbuild`: bundles `src/server.ts` → `dist/server/server.mjs` using esbuild with `--packages=external` and `--external:./entry.mjs` flags
      - Updated `start`: changed from `./dist/server/entry.mjs` → `./dist/server/server.mjs`
 
 ### 3. **Updated `apps/website/Dockerfile`**
