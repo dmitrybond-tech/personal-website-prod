@@ -9,7 +9,7 @@
     "dev:git": "cross-env NODE_OPTIONS=--trace-warnings concurrently -k -s first -n astro \"astro dev --host --port 4321 --strictPort\"",
     "prebuild": "node scripts/assert-decap-asset.mjs && node scripts/build-iconify-bundle.mjs",
     "build": "astro build",
-    "postbuild": "esbuild src/server.ts --outfile=dist/server/server.mjs --bundle --platform=node --format=esm --target=node20 --legal-comments=none --log-level=info",
+    "postbuild": "esbuild src/server.ts --outfile=dist/server/server.mjs --bundle --platform=node --format=esm --target=node20 --packages=external --log-level=info",
     "start": "node ./dist/server/server.mjs",
     "preview": "astro preview --host --port 4321",
     "check": "tsc -p . --noEmit",
