@@ -31,10 +31,11 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// hand off to Astro SSR
+// Import just the app, not the server starter
 // @ts-ignore - entry.mjs is generated at build time
-const { handler: astroHandler } = await import("./entry.mjs");
-app.use(astroHandler);
+const { app: astroApp } = await import("./entry.mjs");
+// Use the handler from the app
+app.use(astroApp.handler);
 
 app.listen(process.env.PORT ?? 3000, () => {
   console.log("SSR listening on :3000");

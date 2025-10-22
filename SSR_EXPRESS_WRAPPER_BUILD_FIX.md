@@ -67,3 +67,41 @@ This is simpler and more reliable than trying to reinstall dependencies in the r
 ## Final Status
 ✅ Both issues fixed - Ready for deployment
 
+---
+
+## Issue 3: EADDRINUSE - Port Already in Use
+
+### Error
+```
+Error: listen EADDRINUSE: address already in use 0.0.0.0:3000
+```
+
+### Root Cause
+The initial implementation imported `{ handler }` from `./entry.mjs`, but Astro's entry point also includes server startup code. This caused both Express and Astro to try to listen on port 3000.
+
+### Solution
+Changed the import to get just the `app` object, then use its `handler` property:
+
+**Before:**
+```typescript
+const { handler: astroHandler } = await import("./entry.mjs");
+app.use(astroHandler);
+```
+
+**After:**
+```typescript
+const { app: astroApp } = await import("./entry.mjs");
+app.use(astroApp.handler);
+```
+
+This way:
+- Only Express calls `app.listen()` (single server)
+- Astro's app object is used purely as middleware
+- No port conflict
+
+### Files Updated
+- `apps/website/src/server.ts` - Updated import to use app.handler
+
+## Final Status
+✅ All three issues fixed - Ready for deployment
+
