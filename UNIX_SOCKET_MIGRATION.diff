@@ -1,0 +1,208 @@
+--- a/apps/website/src/server.ts
++++ b/apps/website/src/server.ts
+@@ -1,6 +1,7 @@
+ // apps/website/src/server.ts
+ // @ts-ignore 3p types resolved in workspace package
+ import express, { type Request, type Response, type NextFunction } from "express";
+ // @ts-ignore 3p types resolved in workspace package
+ import compression from "compression";
+ import http from "node:http";
++import fs from "node:fs";
+ import { join, resolve } from "node:path";
+@@ -68,7 +69,25 @@ process.on("unhandledRejection", (err: any) => console.error(err));
+ 
+ const PORT = Number(process.env.PORT || 3000);
+-server.listen(PORT, () => {
+-  console.log(`SSR listening on :${PORT}`);
+-});
++const SOCKET_PATH = process.env.SOCKET_PATH;
++
++if (SOCKET_PATH) {
++  try { 
++    fs.unlinkSync(SOCKET_PATH); 
++  } catch {} // ignore if file doesn't exist
++  
++  server.listen(SOCKET_PATH, () => {
++    try { 
++      fs.chmodSync(SOCKET_PATH, 0o660); 
++    } catch {} // ignore chmod errors
++    console.log(`SSR listening on unix://${SOCKET_PATH}`);
++  });
++  
++  // Also keep loopback for health checks inside container
++  server.on("listening", () => {
++    const loop = http.createServer(app);
++    loop.keepAliveTimeout = 65_000;
++    loop.headersTimeout = 66_000;
++    loop.requestTimeout = 0;
++    loop.listen(3000, "127.0.0.1", () => console.log("Health loopback on 127.0.0.1:3000"));
++  });
++} else {
++  server.listen(PORT, () => {
++    console.log(`SSR listening on :${PORT}`);
++  });
++}
+ 
+--- a/compose.prod.yml
++++ b/compose.prod.yml
+@@ -16,10 +16,8 @@ services:
+         # Git information
+         GIT_SHA: ${GIT_SHA:-unknown}
+-    ports:
+-      - "127.0.0.1:3000:3000"
+     restart: unless-stopped
+     env_file:
+       - env.prod
+     environment:
+       # Runtime variables (server-side only)
+-      - NODE_ENV=production
+-      - PORT=3000
++      - NODE_ENV=production
++      - SOCKET_PATH=/socket/astro.sock
+     # Volume для раздачи статики через Caddy на хосте
+     volumes:
+       - website-static:/app/apps/website/dist/client:ro
++      - /var/run/website:/socket
+     healthcheck:
+       test: ["CMD", "node", "-e", "fetch('http://localhost:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+       interval: 30s
+       timeout: 10s
+       retries: 3
+       start_period: 40s
+     labels:
+       - "traefik.enable=true"
+       - "traefik.http.routers.website.rule=Host(`yourdomain.com`)"
+       - "traefik.http.services.website.loadbalancer.server.port=3000"
+ 
+ # Named volume для статики
+ volumes:
+   website-static:
+     driver: local
+ 
+--- a/Caddyfile.prod
++++ b/Caddyfile.prod
+@@ -1,80 +1,44 @@
+-# Caddyfile для Production: Caddy на хосте + Astro SSR в Docker
+-# Caddy раздаёт статику напрямую, динамику проксирует на Astro SSR
+-
+ {
+   email dima@dmitrybond.tech
++  servers { protocols h1 h2 }
+ }
+ 
+-# === Матчеры для статики ===
+-@static {
+-  path /_astro/* /fonts/* /uploads/* /favicon.ico /robots.txt /sitemap.xml /manifest.webmanifest
+-}
+-
+-# Матчеры для типов файлов
+-@css path *.css
+-@js path *.js *.mjs
+-@woff2 path *.woff2
+-@woff path *.woff
+-@ttf path *.ttf
+-@png path *.png
+-@jpg path *.jpg *.jpeg
+-@svg path *.svg
+-@webp path *.webp
+-@ico path *.ico
+-@json path *.json
+-@xml path *.xml
+-
+ dmitrybond.tech, www.dmitrybond.tech {
+-  # Сжатие для всех ответов
+-  encode zstd gzip
+-
+-  # === СТАТИКА: Caddy раздаёт напрямую из Docker volume ===
+-  handle @static {
+-    # Статика из Docker volume (примонтирован из контейнера)
+-    # Путь на хосте: /var/lib/docker/volumes/<project>_website-static/_data
+-    # Нужно будет заменить <project> на реальное имя проекта
+-    root * /var/lib/docker/volumes/prod_website-static/_data
+-    file_server
+-    
+-    # Иммутабельный кэш для хэшированных файлов (_astro, fonts)
+-    @hashed {
+-      path /_astro/* /fonts/*
+-    }
+-    header @hashed Cache-Control "public, max-age=31536000, immutable"
+-    
+-    # Длинный кэш для uploads (без immutable, файлы могут меняться)
+-    @uploads path /uploads/*
+-    header @uploads Cache-Control "public, max-age=31536000"
+-    
+-    # Короткий кэш для корневых файлов
+-    @root path /favicon.ico /robots.txt /sitemap.xml /manifest.webmanifest
+-    header @root Cache-Control "public, max-age=3600"
+-    
+-    # Правильные Content-Type для всех типов файлов
+-    header @css Content-Type "text/css; charset=utf-8"
+-    header @js Content-Type "application/javascript; charset=utf-8"
+-    header @woff2 Content-Type "font/woff2"
+-    header @woff Content-Type "font/woff"
+-    header @ttf Content-Type "font/ttf"
+-    header @png Content-Type "image/png"
+-    header @jpg Content-Type "image/jpeg"
+-    header @svg Content-Type "image/svg+xml"
+-    header @webp Content-Type "image/webp"
+-    header @ico Content-Type "image/x-icon"
+-    header @json Content-Type "application/json; charset=utf-8"
+-    header @xml Content-Type "application/xml; charset=utf-8"
+-  }
+-
+-  # === Безопасные заголовки для всех ответов ===
++  header -Alt-Svc
++
+   header {
+     X-Content-Type-Options "nosniff"
+     X-Frame-Options "DENY"
+     Referrer-Policy "strict-origin-when-cross-origin"
+     Permissions-Policy "geolocation=(), microphone=(), camera=()"
+     Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+-    # Убираем X-Powered-By если есть
+     -X-Powered-By
+     -Server
+   }
+ 
+-  # === ВСЁ ОСТАЛЬНОЕ: проксируем на Astro SSR в Docker ===
+-  reverse_proxy 127.0.0.1:3000 {
+-    # Передаём правильные заголовки для SSR
+-    header_up Host {host}
+-    header_up X-Real-IP {remote_host}
+-    header_up X-Forwarded-For {remote_host}
+-    header_up X-Forwarded-Proto {scheme}
+-    header_up X-Forwarded-Host {host}
+-    
+-    # Таймауты
+-    transport http {
+-      dial_timeout 10s
+-      response_header_timeout 30s
+-    }
++  reverse_proxy unix//var/run/website/astro.sock {
++    flush_interval -1
++    health_uri /_healthz
+   }
+ 
+   log {
+     output file /var/lib/caddy/logs/website_access.log {
+       roll_size 10MiB
+       roll_keep 10
+       roll_keep_for 720h
+     }
+     format json
+   }
+ }
+ 
+-# === MAILCOW (если нужен) ===
+ mail.dmitrybond.tech, autodiscover.dmitrybond.tech, autoconfig.dmitrybond.tech {
+-  encode zstd gzip
+   reverse_proxy 127.0.0.1:8080
+   log {
+     output file /var/lib/caddy/logs/mail_access.log {
+       roll_size 10MiB
+       roll_keep 10
+       roll_keep_for 720h
+     }
+     format json
+   }
+ }

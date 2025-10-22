@@ -4,6 +4,7 @@ import express, { type Request, type Response, type NextFunction } from "express
 // @ts-ignore 3p types resolved in workspace package
 import compression from "compression";
 import http from "node:http";
+import fs from "node:fs";
 import { join, resolve } from "node:path";
 
 const app = express();
@@ -65,7 +66,7 @@ server.keepAliveTimeout = 65_000;
 server.headersTimeout = 66_000;
 server.requestTimeout = 0;
 
-// Don’t crash on broken pipes / client resets
+// Don't crash on broken pipes / client resets
 process.on("uncaughtException", (err: any) => {
   if (err && (err.code === "EPIPE" || err.code === "ECONNRESET")) return;
   console.error(err);
@@ -73,7 +74,31 @@ process.on("uncaughtException", (err: any) => {
 process.on("unhandledRejection", (err: any) => console.error(err));
 
 const PORT = Number(process.env.PORT || 3000);
-server.listen(PORT, () => {
-  console.log(`SSR listening on :${PORT}`);
-});
+const SOCKET_PATH = process.env.SOCKET_PATH;
+
+if (SOCKET_PATH) {
+  try { 
+    fs.unlinkSync(SOCKET_PATH); 
+  } catch {} // ignore if file doesn't exist
+  
+  server.listen(SOCKET_PATH, () => {
+    try { 
+      fs.chmodSync(SOCKET_PATH, 0o660); 
+    } catch {} // ignore chmod errors
+    console.log(`SSR listening on unix://${SOCKET_PATH}`);
+  });
+  
+  // Also keep loopback for health checks inside container
+  server.on("listening", () => {
+    const loop = http.createServer(app);
+    loop.keepAliveTimeout = 65_000;
+    loop.headersTimeout = 66_000;
+    loop.requestTimeout = 0;
+    loop.listen(3000, "127.0.0.1", () => console.log("Health loopback on 127.0.0.1:3000"));
+  });
+} else {
+  server.listen(PORT, () => {
+    console.log(`SSR listening on :${PORT}`);
+  });
+}
 
