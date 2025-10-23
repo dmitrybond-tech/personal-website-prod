@@ -12,6 +12,18 @@ The production setup uses a simplified, deterministic architecture:
 - **Uploads**: Media files served from `/opt/prod/uploads` with softer caching
 - **Mailcow**: Existing mail configuration remains untouched
 
+### Client Bundle Standardization
+
+The production image includes client assets at standardized paths:
+- **Primary Path**: `/app/dist/client` (contains `_astro` directory)
+- **Symlink**: `/app/client` → `/app/dist/client` (for compatibility)
+- **Auto-Discovery**: `deploy.sh` automatically finds `_astro` directory if paths change
+
+The deployment script (`deploy.sh`) includes robust auto-discovery that:
+1. Checks standard paths: `/app/dist/client`, `/app/client`, `/app/apps/website/dist/client`
+2. Falls back to searching for `_astro` directory anywhere in the image
+3. Extracts client assets to `/opt/prod/static` with verification
+
 ## Quick Start
 
 ### Prerequisites
@@ -78,17 +90,34 @@ The `caddy/Caddyfile` contains website-specific blocks that:
 ### Server Commands
 
 ```bash
-# Check static assets caching
+# Check static assets caching (should return 200 with Cache-Control: public, max-age=31536000, immutable)
 curl -sI --resolve dmitrybond.tech:443:127.0.0.1 https://dmitrybond.tech/_astro/any.css | egrep -i '^(HTTP/|content-type:|cache-control:|etag:|last-modified:)'
 
-# Check SSR container
+# Check SSR container health
+curl -sS http://127.0.0.1:8088/_healthz
+
+# Check SSR container renders pages
 curl -sS http://127.0.0.1:8088/en/about | head -n 50
+
+# Verify static assets extraction
+ls -la /opt/prod/static/_astro/
 
 # Check container logs
 docker logs -f website-prod
 
 # Check Caddy logs
 tail -f /var/log/caddy/dmitrybond.access.log
+```
+
+### Quick Verification
+
+```bash
+# Test full website functionality
+curl -sI https://dmitrybond.tech/en/about | head -n 1  # Should return 200
+curl -sI https://dmitrybond.tech/_astro/any.css | head -n 1  # Should return 200 with cache headers
+
+# Verify no blank pages (SSR working)
+curl -s https://dmitrybond.tech/en/about | grep -q "<!DOCTYPE html" && echo "✅ SSR working" || echo "❌ SSR failed"
 ```
 
 ### Windows/PowerShell (Dev)

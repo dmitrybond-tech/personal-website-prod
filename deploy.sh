@@ -70,16 +70,38 @@ docker create --name "$TEMP_CONTAINER" "$IMAGE_NAME" >/dev/null
 
 # Detect the correct path for client assets inside the image
 CLIENT_PATH=""
-for path in "/app/dist/client" "/app/client" "/app/apps/website/dist/client"; do
-    if docker exec "$TEMP_CONTAINER" test -d "$path" 2>/dev/null; then
-        CLIENT_PATH="$path"
-        log "Found client assets at: $CLIENT_PATH"
-        break
+CANDIDATES=(
+    "/app/dist/client"
+    "/app/client" 
+    "/app/apps/website/dist/client"
+    "/app/apps/website/dist"
+    "/app/dist"
+)
+
+# Try standard paths first
+for path in "${CANDIDATES[@]}"; do
+    if docker run --rm "$IMAGE_NAME" test -d "$path" 2>/dev/null; then
+        # Check if this path contains _astro directory
+        if docker run --rm "$IMAGE_NAME" test -d "$path/_astro" 2>/dev/null; then
+            CLIENT_PATH="$path"
+            log "Found client assets at: $CLIENT_PATH"
+            break
+        fi
     fi
 done
 
+# Auto-discovery fallback: find _astro directory anywhere in the image
 if [[ -z "$CLIENT_PATH" ]]; then
-    error "Could not find client assets in the image. Checked: /app/dist/client, /app/client, /app/apps/website/dist/client"
+    log "Standard paths not found, attempting auto-discovery..."
+    CLIENT_ROOT="$(docker run --rm --entrypoint sh "$IMAGE_NAME" -lc 'set -e; for d in /app /workspace /usr/src/app; do [ -d "$d" ] && find "$d" -maxdepth 5 -type d -name "_astro" -print -quit; done' | xargs -I{} dirname "{}" 2>/dev/null || true)"
+    if [[ -n "$CLIENT_ROOT" ]]; then
+        CLIENT_PATH="$CLIENT_ROOT"
+        log "Auto-discovered client assets at: $CLIENT_PATH"
+    fi
+fi
+
+if [[ -z "$CLIENT_PATH" ]]; then
+    error "Could not find client assets in the image. Checked: ${CANDIDATES[*]} and auto-discovery failed"
 fi
 
 # Extract client assets to static directory
@@ -91,7 +113,7 @@ if [[ ! -d "$STATIC_DIR/_astro" ]]; then
     error "Static assets extraction failed. _astro directory not found in $STATIC_DIR"
 fi
 
-log "Static assets extracted successfully:"
+log "Static assets extracted successfully from '$CLIENT_PATH':"
 ls -la "$STATIC_DIR" | head -10
 
 # Clean up temporary container

@@ -83,6 +83,10 @@ ENV DECAP_GITHUB_CLIENT_ID=$DECAP_GITHUB_CLIENT_ID \
 COPY --from=build /app/apps/website/dist /app/dist
 COPY --from=build /app/apps/website/package.json /app/package.json
 
+# Ensure client assets are available at standardized path for deploy.sh
+# This creates a symlink to maintain compatibility with existing deploy scripts
+RUN ln -sf /app/dist/client /app/client
+
 # Install production dependencies for the custom Express server
 # (express, compression required for server.mjs)
 COPY --from=build /app/package*.json /tmp/root/
