@@ -54,7 +54,7 @@ services:
       - "443:443"
     volumes:
       - ../caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ../../apps/website/dist:/srv/www/static:ro
+      - ../../apps/website/dist/client:/srv/www/static:ro
       - caddy_data:/data
       - caddy_config:/config
     restart: unless-stopped
