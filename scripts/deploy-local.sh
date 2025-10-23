@@ -54,6 +54,29 @@ docker compose -f compose.prod.yml up -d
 echo "⏳ Waiting for service to start..."
 sleep 5
 
+echo "📁 Syncing static assets from container to host..."
+# Create static directory if it doesn't exist
+sudo mkdir -p /srv/www/static
+
+# Copy static assets from container
+CONTAINER_ID=$(docker compose -f compose.prod.yml ps -q website)
+if [ ! -z "$CONTAINER_ID" ]; then
+    echo "📋 Copying _astro assets..."
+    docker cp $CONTAINER_ID:/app/dist/client/_astro /srv/www/static/ 2>/dev/null || echo "⚠️  _astro directory not found in container"
+    
+    echo "📋 Copying fonts..."
+    docker cp $CONTAINER_ID:/app/dist/client/fonts /srv/www/static/ 2>/dev/null || echo "⚠️  fonts directory not found in container"
+    
+    echo "📋 Copying uploads..."
+    docker cp $CONTAINER_ID:/app/dist/client/uploads /srv/www/static/ 2>/dev/null || echo "⚠️  uploads directory not found in container"
+    
+    # Set proper ownership for Caddy
+    sudo chown -R caddy:caddy /srv/www/static
+    echo "✅ Static assets synced and ownership set"
+else
+    echo "⚠️  Container not found, skipping static asset sync"
+fi
+
 echo "🔍 Checking service status..."
 docker compose -f compose.prod.yml ps
 
