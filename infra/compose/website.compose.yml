@@ -11,8 +11,9 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - BASE_URL=https://dmitrybond.tech
+      - HOST=0.0.0.0
     ports:
-      - "127.0.0.1:8088:3000"
+      - "127.0.0.1:3000:3000"
     volumes:
       # Mount for reference only - Caddy serves from host
       - /opt/prod/static:/app/.external-static:ro

@@ -1,8 +1,8 @@
 #!/bin/bash
 # Production deployment script for dmitrybond.tech
-# This script handles the complete deployment process including static asset extraction
+# This script handles the complete deployment process with idempotency and safety
 
-set -euo pipefail
+set -Eeuo pipefail
 
 # Configuration
 IMAGE_NAME="ghcr.io/dmitrybond-tech/personal-website-prod:main"
@@ -10,12 +10,16 @@ COMPOSE_FILE="infra/compose/website.compose.yml"
 ENV_FILE=".env.prod"
 STATIC_DIR="/opt/prod/static"
 UPLOADS_DIR="/opt/prod/uploads"
-TEMP_CONTAINER="temp-extract-$(date +%s)"
+CONTAINER_NAME="website-prod"
+SERVICE_NAME="website"
+HEALTH_ENDPOINT="/_healthz"
+MAX_WAIT_TIME=60
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 log() {
@@ -31,18 +35,33 @@ error() {
     exit 1
 }
 
+info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
 # Check if running as root - allow but warn
 if [[ $EUID -eq 0 ]]; then
     warn "Running as root - this is allowed but not recommended for security"
 fi
 
-# Check if required files exist
+# Validate required files exist
+log "Validating deployment environment..."
+
 if [[ ! -f "$COMPOSE_FILE" ]]; then
     error "Compose file not found: $COMPOSE_FILE"
 fi
 
 if [[ ! -f "$ENV_FILE" ]]; then
     error "Environment file not found: $ENV_FILE"
+fi
+
+# Check if docker and docker compose are available
+if ! command -v docker >/dev/null 2>&1; then
+    error "Docker is not installed or not in PATH"
+fi
+
+if ! docker compose version >/dev/null 2>&1; then
+    error "Docker Compose is not available"
 fi
 
 log "Starting production deployment..."
@@ -63,18 +82,28 @@ fi
 
 # Pull the latest image
 log "Pulling latest image: $IMAGE_NAME"
-docker pull "$IMAGE_NAME" || error "Failed to pull image: $IMAGE_NAME"
+if ! docker pull "$IMAGE_NAME"; then
+    error "Failed to pull image: $IMAGE_NAME"
+fi
 
-# Stop and remove existing container if it exists
-log "Stopping existing container..."
-docker stop website-prod 2>/dev/null || true
-docker rm website-prod 2>/dev/null || true
+# Stop and remove existing containers safely
+log "Stopping existing containers..."
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" down --remove-orphans || true
 
-# Extract static assets from the image
+# Remove any orphaned containers with the same name
+if docker ps -a --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "^$CONTAINER_NAME$"; then
+    log "Removing orphaned container: $CONTAINER_NAME"
+    docker rm -f "$CONTAINER_NAME" || true
+fi
+
+# Extract static assets from the image (simplified approach)
 log "Extracting static assets from image..."
 
 # Create temporary container to extract assets
-docker create --name "$TEMP_CONTAINER" "$IMAGE_NAME" >/dev/null
+TEMP_CONTAINER="temp-extract-$(date +%s)"
+if ! docker create --name "$TEMP_CONTAINER" "$IMAGE_NAME" >/dev/null; then
+    error "Failed to create temporary container for asset extraction"
+fi
 
 # Detect the correct path for client assets inside the image
 CLIENT_PATH=""
@@ -114,7 +143,9 @@ fi
 
 # Extract client assets to static directory
 log "Extracting client assets from $CLIENT_PATH to $STATIC_DIR"
-docker cp "$TEMP_CONTAINER:$CLIENT_PATH/." "$STATIC_DIR/"
+if ! docker cp "$TEMP_CONTAINER:$CLIENT_PATH/." "$STATIC_DIR/"; then
+    error "Failed to extract client assets"
+fi
 
 # Verify extraction
 if [[ ! -d "$STATIC_DIR/_astro" ]]; then
@@ -129,22 +160,30 @@ docker rm "$TEMP_CONTAINER" >/dev/null
 
 # Start the SSR container
 log "Starting SSR container..."
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
+if ! docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d; then
+    error "Failed to start container with docker compose"
+fi
 
 # Wait for container to be healthy
 log "Waiting for container to be healthy..."
-for i in {1..30}; do
-    if docker ps --filter "name=website-prod" --filter "status=running" | grep -q website-prod; then
-        if docker exec website-prod node -e "fetch('http://127.0.0.1:3000/_healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" 2>/dev/null; then
+HEALTHY=false
+for i in $(seq 1 $MAX_WAIT_TIME); do
+    if docker ps --filter "name=$CONTAINER_NAME" --filter "status=running" | grep -q "$CONTAINER_NAME"; then
+        if docker exec "$CONTAINER_NAME" node -e "fetch('http://127.0.0.1:3000$HEALTH_ENDPOINT').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" 2>/dev/null; then
             log "Container is healthy!"
+            HEALTHY=true
             break
         fi
     fi
-    if [[ $i -eq 30 ]]; then
-        error "Container failed to become healthy within 30 seconds"
+    if [[ $i -eq $MAX_WAIT_TIME ]]; then
+        error "Container failed to become healthy within ${MAX_WAIT_TIME} seconds"
     fi
     sleep 1
 done
+
+if [[ "$HEALTHY" != "true" ]]; then
+    error "Container health check failed"
+fi
 
 # Reload Caddy configuration
 log "Reloading Caddy configuration..."
@@ -162,14 +201,14 @@ else
     warn "Caddy not found in PATH. Please reload Caddy manually."
 fi
 
-# Verify deployment
+# Verify deployment with comprehensive checks
 log "Verifying deployment..."
 
 # Check if SSR container is responding
-if curl -s -f "http://127.0.0.1:8088/_healthz" >/dev/null 2>&1; then
-    log "✅ SSR container is responding on 127.0.0.1:8088"
+if curl -s -f "http://127.0.0.1:3000$HEALTH_ENDPOINT" >/dev/null 2>&1; then
+    log "✅ SSR container is responding on 127.0.0.1:3000"
 else
-    error "❌ SSR container is not responding on 127.0.0.1:8088"
+    error "❌ SSR container is not responding on 127.0.0.1:3000"
 fi
 
 # Check static assets
@@ -179,18 +218,41 @@ else
     warn "⚠️  No CSS files found in static directory"
 fi
 
+# Test i18n routes
+log "Testing i18n routes..."
+for route in "/en/about" "/ru/about"; do
+    if curl -s -f "http://127.0.0.1:3000$route" >/dev/null 2>&1; then
+        log "✅ Route $route is responding"
+    else
+        warn "⚠️  Route $route is not responding"
+    fi
+done
+
+# Test static assets
+log "Testing static assets..."
+if curl -s -f "http://127.0.0.1:3000/_astro" >/dev/null 2>&1; then
+    log "✅ Static assets endpoint is responding"
+else
+    warn "⚠️  Static assets endpoint is not responding"
+fi
+
 # Show container status
 log "Container status:"
-docker ps --filter "name=website-prod" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+docker ps --filter "name=$CONTAINER_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# Show container logs (last 20 lines)
+log "Recent container logs:"
+docker logs --tail=20 "$CONTAINER_NAME" 2>/dev/null || warn "Could not retrieve container logs"
 
 log "🎉 Deployment completed successfully!"
 log "Static assets: $STATIC_DIR"
 log "Uploads: $UPLOADS_DIR"
-log "SSR container: 127.0.0.1:8088"
+log "SSR container: 127.0.0.1:3000"
 
 # Show next steps
 echo ""
 log "Next steps:"
 echo "1. Verify Caddy configuration includes the new static routes"
 echo "2. Test the website: curl -I https://dmitrybond.tech/_astro/any.css"
-echo "3. Check logs: docker logs -f website-prod"
+echo "3. Check logs: docker logs -f $CONTAINER_NAME"
+echo "4. Monitor health: docker exec $CONTAINER_NAME curl -f http://127.0.0.1:3000$HEALTH_ENDPOINT"

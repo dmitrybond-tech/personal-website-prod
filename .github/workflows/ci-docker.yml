@@ -107,14 +107,42 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Temporarily disabled smoke test
-      # - name: Smoke test assets in container
-      #   run: |
-      #     IMAGE_TAG=$(echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}')
-      #     docker run -d --rm -p 3000:3000 --name preprod-check "$IMAGE_TAG"
-      #     sleep 3
-      #     for p in /uploads/placeholders/avatar.png /logos/sibsutis.svg; do
-      #       echo "HEAD $p"
-      #       curl -sI "http://127.0.0.1:3000$p" | awk 'NR==1||/Content-Type/i {print}'
-      #     done
-      #     docker rm -f preprod-check
+      - name: Smoke test container
+        run: |
+          set -euo pipefail
+          IMAGE_TAG=$(echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}')
+          
+          # Start container in background
+          docker run -d --rm -p 3000:3000 --name smoke-test "$IMAGE_TAG"
+          
+          # Wait for container to be ready
+          echo "Waiting for container to be ready..."
+          for i in {1..30}; do
+            if curl -f http://127.0.0.1:3000/_healthz >/dev/null 2>&1; then
+              echo "✅ Container is healthy"
+              break
+            fi
+            if [[ $i -eq 30 ]]; then
+              echo "❌ Container failed to become healthy"
+              docker logs smoke-test
+              exit 1
+            fi
+            sleep 1
+          done
+          
+          # Test health endpoint
+          echo "Testing health endpoint..."
+          curl -f http://127.0.0.1:3000/_healthz || exit 1
+          
+          # Test i18n routes
+          echo "Testing i18n routes..."
+          curl -f http://127.0.0.1:3000/en/about >/dev/null || echo "⚠️ /en/about failed"
+          curl -f http://127.0.0.1:3000/ru/about >/dev/null || echo "⚠️ /ru/about failed"
+          
+          # Test static assets
+          echo "Testing static assets..."
+          curl -f http://127.0.0.1:3000/_astro >/dev/null || echo "⚠️ /_astro failed"
+          
+          # Clean up
+          docker rm -f smoke-test
+          echo "✅ Smoke test completed successfully"

@@ -26,7 +26,7 @@ dmitrybond.tech {
     }
 
     handle {
-        reverse_proxy website-ssr:4321 {
+        reverse_proxy website-prod:3000 {
             health_uri /_healthz
             fail_timeout 5s
             transport http {
