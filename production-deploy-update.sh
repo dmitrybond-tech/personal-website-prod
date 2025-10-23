@@ -1,4 +1,14 @@
 #!/bin/bash
+# Quick update script for production server
+
+echo "Updating deploy.sh on production server with enhanced auto-discovery..."
+
+# Backup the current script
+cp deploy.sh deploy.sh.backup.$(date +%s)
+
+# Create the updated deploy.sh with enhanced logic
+cat > deploy.sh << 'EOF'
+#!/bin/bash
 # Production deployment script for dmitrybond.tech
 # This script handles the complete deployment process including static asset extraction
 
@@ -194,3 +204,17 @@ log "Next steps:"
 echo "1. Verify Caddy configuration includes the new static routes"
 echo "2. Test the website: curl -I https://dmitrybond.tech/_astro/any.css"
 echo "3. Check logs: docker logs -f website-prod"
+EOF
+
+# Make it executable
+chmod +x deploy.sh
+
+echo "✅ Updated deploy.sh script with enhanced auto-discovery"
+echo "✅ Backup created: deploy.sh.backup.$(date +%s)"
+echo ""
+echo "Now you can run: bash deploy.sh"
+echo "The script will now:"
+echo "1. Check 5 standard paths for client assets"
+echo "2. Verify each path contains _astro directory"
+echo "3. Use auto-discovery if standard paths fail"
+echo "4. Show clear logging of which path was used"

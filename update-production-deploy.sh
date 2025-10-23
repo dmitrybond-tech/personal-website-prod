@@ -1,4 +1,11 @@
 #!/bin/bash
+# Script to update deploy.sh on production server
+
+echo "Updating deploy.sh on production server..."
+
+# Create the updated deploy.sh content
+cat > deploy.sh << 'EOF'
+#!/bin/bash
 # Production deployment script for dmitrybond.tech
 # This script handles the complete deployment process including static asset extraction
 
@@ -31,9 +38,9 @@ error() {
     exit 1
 }
 
-# Check if running as root - allow but warn
+# Check if running as root or with sudo
 if [[ $EUID -eq 0 ]]; then
-    warn "Running as root - this is allowed but not recommended for security"
+    error "This script should not be run as root. Please run as a regular user with sudo privileges."
 fi
 
 # Check if required files exist
@@ -49,17 +56,9 @@ log "Starting production deployment..."
 
 # Create directories with proper permissions
 log "Creating production directories..."
-if [[ $EUID -eq 0 ]]; then
-    # Running as root
-    mkdir -p "$STATIC_DIR" "$UPLOADS_DIR"
-    chmod 755 "$STATIC_DIR" "$UPLOADS_DIR"
-    # Keep root ownership for security
-else
-    # Running as regular user
-    sudo mkdir -p "$STATIC_DIR" "$UPLOADS_DIR"
-    sudo chmod 755 "$STATIC_DIR" "$UPLOADS_DIR"
-    sudo chown $(whoami):$(whoami) "$STATIC_DIR" "$UPLOADS_DIR"
-fi
+sudo mkdir -p "$STATIC_DIR" "$UPLOADS_DIR"
+sudo chmod 755 "$STATIC_DIR" "$UPLOADS_DIR"
+sudo chown $(whoami):$(whoami) "$STATIC_DIR" "$UPLOADS_DIR"
 
 # Pull the latest image
 log "Pulling latest image: $IMAGE_NAME"
@@ -149,15 +148,8 @@ done
 # Reload Caddy configuration
 log "Reloading Caddy configuration..."
 if command -v caddy >/dev/null 2>&1; then
-    if [[ $EUID -eq 0 ]]; then
-        # Running as root
-        caddy fmt /etc/caddy/Caddyfile 2>/dev/null || warn "Caddy fmt failed (non-critical)"
-        systemctl reload caddy || warn "Caddy reload failed - check Caddy configuration"
-    else
-        # Running as regular user
-        sudo caddy fmt /etc/caddy/Caddyfile 2>/dev/null || warn "Caddy fmt failed (non-critical)"
-        sudo systemctl reload caddy || warn "Caddy reload failed - check Caddy configuration"
-    fi
+    sudo caddy fmt /etc/caddy/Caddyfile 2>/dev/null || warn "Caddy fmt failed (non-critical)"
+    sudo systemctl reload caddy || warn "Caddy reload failed - check Caddy configuration"
 else
     warn "Caddy not found in PATH. Please reload Caddy manually."
 fi
@@ -194,3 +186,7 @@ log "Next steps:"
 echo "1. Verify Caddy configuration includes the new static routes"
 echo "2. Test the website: curl -I https://dmitrybond.tech/_astro/any.css"
 echo "3. Check logs: docker logs -f website-prod"
+EOF
+
+echo "✅ Updated deploy.sh script created"
+echo "Now run: bash deploy.sh"
