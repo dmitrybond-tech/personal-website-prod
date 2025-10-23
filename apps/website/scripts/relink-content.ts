@@ -137,7 +137,8 @@ async function main(): Promise<void> {
   
   // Handle both direct execution and workspace execution
   const isWorkspace = process.cwd().endsWith('website');
-  const baseDir = isWorkspace ? process.cwd() : join(process.cwd(), 'apps', 'website');
+  const isDocker = process.cwd().includes('/app');
+  const baseDir = isDocker ? '/app/apps/website' : (isWorkspace ? process.cwd() : join(process.cwd(), 'apps', 'website'));
   
   const mappings = await loadMapping(baseDir);
   

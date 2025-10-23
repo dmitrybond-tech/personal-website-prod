@@ -83,7 +83,8 @@ async function processDirectory(dirPath: string, basePath: string, mappings: Ren
 async function main(): Promise<void> {
   // Handle both direct execution and workspace execution
   const isWorkspace = process.cwd().endsWith('website');
-  const baseDir = isWorkspace ? process.cwd() : join(process.cwd(), 'apps', 'website');
+  const isDocker = process.cwd().includes('/app');
+  const baseDir = isDocker ? '/app/apps/website' : (isWorkspace ? process.cwd() : join(process.cwd(), 'apps', 'website'));
   const publicDir = join(baseDir, 'public');
   const tmpDir = join(baseDir, '.tmp');
   const mappingFile = join(tmpDir, 'asset-rename-map.json');

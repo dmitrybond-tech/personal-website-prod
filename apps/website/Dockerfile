@@ -43,7 +43,7 @@ RUN npm config set registry https://registry.npmjs.org
 RUN npm install -g pnpm@9.12.3
 
 # Install dependencies with pnpm
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Copy the rest of the repo (needed for public/src)
 COPY . .
@@ -52,7 +52,7 @@ COPY . .
 RUN echo "=== WORKSPACE STRUCTURE ===" && ls -la && echo "=== APPS STRUCTURE ===" && ls -la apps/
 
 # Make sure we build the correct workspace with fallback
-RUN pnpm --filter website build || (echo "Workspace build failed, trying direct build..." && cd apps/website && pnpm build)
+RUN cd apps/website && pnpm build
 
 # Ensure public assets are available at runtime under /app/dist/public
 # Astro SSR/hybrid build outputs client assets under /app/dist/client

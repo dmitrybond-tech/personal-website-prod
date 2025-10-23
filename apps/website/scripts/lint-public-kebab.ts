@@ -93,7 +93,8 @@ async function checkDirectory(dirPath: string, basePath: string): Promise<Violat
 async function main(): Promise<void> {
   // Handle both direct execution and workspace execution
   const isWorkspace = process.cwd().endsWith('website');
-  const baseDir = isWorkspace ? process.cwd() : join(process.cwd(), 'apps', 'website');
+  const isDocker = process.cwd().includes('/app');
+  const baseDir = isDocker ? '/app/apps/website' : (isWorkspace ? process.cwd() : join(process.cwd(), 'apps', 'website'));
   const publicDir = join(baseDir, 'public');
   
   console.log('🔍 Linting public assets for kebab-case compliance...');
