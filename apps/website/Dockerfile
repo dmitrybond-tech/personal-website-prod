@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.5
 # -------- build stage --------
-FROM node:22-alpine AS builder
+FROM node:20.18.3-alpine AS builder
 
 # Install toolchain for native modules and common libs for canvas/sharp
 RUN apk add --no-cache --virtual .build-deps python3 make g++ libc6-compat git \
@@ -39,8 +39,11 @@ RUN echo "=== ROOT PACKAGE.JSON ===" && cat package.json && echo "=== WEBSITE PA
 
 RUN npm config set registry https://registry.npmjs.org
 
-# Install dependencies with fallback
-RUN npm ci --no-audit --no-fund || (echo "npm ci failed, trying npm install..." && npm install --no-audit --no-fund)
+# Install pnpm 9.12.3
+RUN npm install -g pnpm@9.12.3
+
+# Install dependencies with pnpm
+RUN pnpm install --frozen-lockfile
 
 # Copy the rest of the repo (needed for public/src)
 COPY . .
@@ -49,7 +52,7 @@ COPY . .
 RUN echo "=== WORKSPACE STRUCTURE ===" && ls -la && echo "=== APPS STRUCTURE ===" && ls -la apps/
 
 # Make sure we build the correct workspace with fallback
-RUN npm run --workspace apps/website build || (echo "Workspace build failed, trying direct build..." && cd apps/website && npm run build)
+RUN pnpm --filter website build || (echo "Workspace build failed, trying direct build..." && cd apps/website && pnpm build)
 
 # Ensure public assets are available at runtime under /app/dist/public
 # Astro SSR/hybrid build outputs client assets under /app/dist/client
@@ -87,7 +90,7 @@ RUN echo "[sanity] dist/public listing:" && ls -lah /app/apps/website/dist/publi
 RUN node -e "const {readdirSync} = require('fs'); console.log('SERVER:', readdirSync('/app/apps/website/dist/server')); console.log('CLIENT:', readdirSync('/app/apps/website/dist/client')); console.log('UPLOADS:', readdirSync('/app/apps/website/dist/client/uploads'));"
     
 # -------- runtime stage --------
-FROM node:22-alpine AS runner
+FROM node:20.18.3-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3000

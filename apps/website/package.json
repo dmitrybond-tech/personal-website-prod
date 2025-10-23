@@ -7,7 +7,7 @@
     "dev:cms": "concurrently -k -n astro,proxy \"astro dev --host --port 4321 --strictPort\" \"decap-server --port 8081 --allowed-hosts=localhost:4321\"",
     "doctor:cms": "node scripts/decap-doctor.mjs",
     "dev:git": "cross-env NODE_OPTIONS=--trace-warnings concurrently -k -s first -n astro \"astro dev --host --port 4321 --strictPort\"",
-    "prebuild": "node scripts/assert-decap-asset.mjs && node scripts/build-iconify-bundle.mjs",
+    "prebuild": "node --import=tsx scripts/normalize-public.ts && node --import=tsx scripts/relink-content.ts && node scripts/assert-decap-asset.mjs && node scripts/build-iconify-bundle.mjs",
     "build": "astro build",
     "postbuild": "esbuild src/server.ts --outfile=dist/server/server.mjs --bundle --platform=node --format=esm --target=node20 --packages=external --external:./entry.mjs --log-level=info",
     "start": "node ./dist/server/server.mjs",
@@ -56,7 +56,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:install": "playwright install chromium",
     "test:smoke": "node -e \"process.exit(process.platform === 'win32' ? 1 : 0)\" && bash scripts/smoke-test.sh || pwsh -File scripts/smoke-test.ps1",
-    "test:smoke:prod": "node -e \"process.exit(process.platform === 'win32' ? 1 : 0)\" && bash scripts/smoke-test.sh https://dmitrybond.tech || pwsh -File scripts/smoke-test.ps1 https://dmitrybond.tech"
+    "test:smoke:prod": "node -e \"process.exit(process.platform === 'win32' ? 1 : 0)\" && bash scripts/smoke-test.sh https://dmitrybond.tech || pwsh -File scripts/smoke-test.ps1 https://dmitrybond.tech",
+    "lint:assets": "node --import=tsx scripts/lint-public-kebab.ts",
+    "migrate:assets": "node --import=tsx scripts/normalize-public.ts && node --import=tsx scripts/relink-content.ts"
   },
   "keywords": [],
   "author": "",
@@ -111,6 +113,7 @@
     "gray-matter": "4.0.3",
     "js-yaml": "4.1.0",
     "postcss": "8.4.47",
+    "rimraf": "6.0.1",
     "rollup-plugin-visualizer": "6.0.4",
     "sharp": "0.33.4",
     "string-similarity": "4.0.4",
