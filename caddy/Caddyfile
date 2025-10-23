@@ -1,0 +1,66 @@
+{
+    # Global options
+    # debug
+    # email admin@dmitrybond.tech
+}
+
+# Import existing Mailcow configuration (DO NOT MODIFY)
+# This ensures mail., sogo., autodiscover., autoconfig. continue working
+import /etc/caddy/mailcow.conf
+
+# Website configuration for dmitrybond.tech
+dmitrybond.tech {
+    encode zstd gzip
+
+    # Immutable static assets - served directly by Caddy with long-lived cache
+    @immutable {
+        path /_astro/* /assets/* /fonts/* /images/* /favicon.* /robots.txt /sitemap*
+    }
+    handle @immutable {
+        root * /opt/prod/static
+        file_server
+        
+        # Long-term immutable caching for hashed assets
+        header Cache-Control "public, max-age=31536000, immutable"
+    }
+
+    # Uploads/media files - served with softer caching
+    @uploads {
+        path /uploads/*
+    }
+    handle @uploads {
+        root * /opt/prod/uploads
+        file_server
+        
+        # Softer caching for uploads (1 hour)
+        header Cache-Control "public, max-age=3600"
+    }
+
+    # All other routes go to SSR container
+    handle {
+        reverse_proxy http://127.0.0.1:8088 {
+            health_uri /_healthz
+            fail_timeout 5s
+            transport http {
+                read_timeout 30s
+                write_timeout 30s
+            }
+        }
+    }
+
+    # Error handling
+    handle_errors {
+        respond "{http.error.status_code} {http.error.status_text}" {http.error.status_code}
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/dmitrybond.access.log
+        format json
+    }
+}
+
+# Redirect www to apex
+www.dmitrybond.tech {
+    redir https://dmitrybond.tech{uri} permanent
+}

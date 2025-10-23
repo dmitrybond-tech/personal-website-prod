@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  website:
+    image: ghcr.io/dmitrybond-tech/personal-website-prod:main
+    container_name: website-prod
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - BASE_URL=https://dmitrybond.tech
+    ports:
+      - "127.0.0.1:8088:3000"
+    volumes:
+      # Mount for reference only - Caddy serves from host
+      - /opt/prod/static:/app/.external-static:ro
+      # Uploads directory for media files
+      - /opt/prod/uploads:/app/public/uploads:rw
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/_healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - website-net
+
+networks:
+  website-net:
+    driver: bridge
