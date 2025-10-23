@@ -1,10 +1,34 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import CvEmbed from '../../components/CvEmbed.astro';
+import AboutShell from '../../features/about/devscard/ui/AboutShell.astro';
+import { getAboutData } from '../../lib/getAboutData';
+
 const lang = 'ru';
+const data = await getAboutData(lang);
 ---
 
-<BaseLayout lang={lang} title="Резюме" description="Резюме">
-  <CvEmbed src="/cv_ru/index.html#profile" title="Резюме (Русский)" />
+<BaseLayout 
+  lang={lang} 
+  title="Резюме - Дмитрий Бондаренко" 
+  description="Резюме технического менеджера проектов - Опыт, Навыки, Образование"
+  variant="about"
+  pageClass="page-cv"
+>
+  <AboutShell locale={lang} data={data} />
 </BaseLayout>
+
+<style>
+  .page-cv {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+  }
+  
+  .page-cv .cv-root {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    margin: 2rem auto;
+    max-width: 1200px;
+  }
+</style>
 

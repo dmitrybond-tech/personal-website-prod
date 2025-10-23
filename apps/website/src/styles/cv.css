@@ -1,0 +1,99 @@
+/* CV-specific styles for native Astro pages */
+.page-cv {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.page-cv .cv-root {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  margin: 0 auto;
+  max-width: 1200px;
+  overflow: hidden;
+}
+
+.page-cv .cv-layout {
+  background: white;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .page-cv {
+    padding: 0.5rem;
+  }
+  
+  .page-cv .cv-root {
+    margin: 0;
+    border-radius: 8px;
+  }
+}
+
+/* Улучшенная типографика для CV */
+.page-cv h1, .page-cv h2, .page-cv h3 {
+  color: #1a202c;
+  font-weight: 600;
+}
+
+.page-cv .cv-sections {
+  line-height: 1.6;
+}
+
+/* Стили для кнопки скачивания */
+.page-cv .download-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.page-cv .download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+/* Дополнительные стили для CV компонентов */
+.page-cv .cv-root .cv-layout {
+  background: white;
+  border-radius: 12px;
+}
+
+.page-cv .cv-root .cv-sections {
+  padding: 2rem;
+}
+
+/* Обеспечиваем правильное отображение в темной теме */
+.dark .page-cv .cv-root {
+  background: var(--cv-surface);
+  color: var(--cv-text);
+}
+
+.dark .page-cv .cv-root .cv-layout {
+  background: var(--cv-surface);
+}
+
+/* Стили для навигации CV */
+.page-cv .cv-root aside {
+  background: var(--cv-surface-elevated);
+  border-radius: 8px;
+}
+
+/* Анимации для плавного появления */
+.page-cv .cv-root {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

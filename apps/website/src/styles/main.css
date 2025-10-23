@@ -128,6 +128,9 @@ html, body {
   color: var(--cv-text);
 }
 
+/* Импорт CV-специфичных стилей */
+@import './cv.css';
+
 /* About pages: body-level background using cv-root tokens */
 body.page-about {
   background: var(--cv-surface);
