@@ -49,17 +49,44 @@ RUN echo "=== ROOT PACKAGE.JSON ===" && cat package.json && echo "=== WEBSITE PA
 
 RUN npm config set registry https://registry.npmjs.org
 
-# Install dependencies with fallback
-RUN npm ci --no-audit --no-fund || (echo "npm ci failed, trying npm install..." && npm install --no-audit --no-fund)
+# Install dependencies with better error handling
+RUN echo "Installing dependencies..." && \
+    npm ci --no-audit --no-fund --verbose || \
+    (echo "npm ci failed, trying npm install..." && \
+     npm install --no-audit --no-fund --verbose) || \
+    (echo "npm install failed, trying with legacy peer deps..." && \
+     npm install --no-audit --no-fund --legacy-peer-deps --verbose)
 
 # Copy the rest of the repo (needed for public/src)
 COPY . .
 
-# Debug: show workspace structure
-RUN echo "=== WORKSPACE STRUCTURE ===" && ls -la && echo "=== APPS STRUCTURE ===" && ls -la apps/
+# Debug: show workspace structure and node version
+RUN echo "=== NODE VERSION ===" && node --version && \
+    echo "=== NPM VERSION ===" && npm --version && \
+    echo "=== ENVIRONMENT VARIABLES ===" && \
+    echo "PUBLIC_SITE_URL: $PUBLIC_SITE_URL" && \
+    echo "PUBLIC_ENV: $PUBLIC_ENV" && \
+    echo "NODE_ENV: $NODE_ENV" && \
+    echo "=== WORKSPACE STRUCTURE ===" && ls -la && \
+    echo "=== APPS STRUCTURE ===" && ls -la apps/ && \
+    echo "=== WEBSITE STRUCTURE ===" && ls -la apps/website/
 
-# Make sure we build the correct workspace with fallback
-RUN npm run --workspace apps/website build || (echo "Workspace build failed, trying direct build..." && cd apps/website && npm run build)
+# Make sure we build the correct workspace with better error handling
+RUN echo "Building website..." && \
+    cd apps/website && \
+    echo "Current directory: $(pwd)" && \
+    echo "Available scripts:" && npm run --silent 2>/dev/null || echo "No scripts available" && \
+    echo "Running prebuild..." && \
+    (npm run prebuild || echo "Prebuild failed, continuing...") && \
+    echo "Running build..." && \
+    npm run build && \
+    echo "Build completed successfully" && \
+    echo "Checking dist directory..." && \
+    ls -la dist/ && \
+    echo "Checking server directory..." && \
+    ls -la dist/server/ && \
+    echo "Checking client directory..." && \
+    ls -la dist/client/
 
 # Ensure public assets are available at runtime under /app/dist/public
 # Astro SSR/hybrid build outputs client assets under /app/dist/client
