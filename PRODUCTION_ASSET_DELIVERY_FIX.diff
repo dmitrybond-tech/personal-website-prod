@@ -1,0 +1,50 @@
+--- a/Caddyfile.prod
++++ b/Caddyfile.prod
+@@ -6,6 +6,30 @@ dmitrybond.tech, www.dmitrybond.tech {
+   header {
+     X-Content-Type-Options "nosniff"
+     X-Frame-Options "DENY"
+     Referrer-Policy "strict-origin-when-cross-origin"
+     Permissions-Policy "geolocation=(), microphone=(), camera=()"
+     Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+     -X-Powered-By
+     -Server
+   }
++
++  # Serve static assets directly (CSS, JS, fonts, uploads)
++  handle_path /_astro/* {
++    file_server {
++      root /srv/www/static
++    }
++    header Cache-Control "public, max-age=31536000, immutable"
++  }
++  
++  handle_path /fonts/* {
++    file_server {
++      root /srv/www/static
++    }
++    header Cache-Control "public, max-age=31536000, immutable"
++  }
++  
++  handle_path /uploads/* {
++    file_server {
++      root /srv/www/static
++    }
++    header Cache-Control "public, max-age=31536000"
++  }
++
++  # All other requests go to Astro SSR
+   reverse_proxy unix//var/run/website/astro.sock {
+     flush_interval -1
+     health_uri /_healthz
+   }
+--- a/compose.prod.yml
++++ b/compose.prod.yml
+@@ -24,7 +24,7 @@ services:
+     # Volume для раздачи статики через Caddy на хосте
+     volumes:
+-      - website-static:/app/apps/website/dist/client:ro
++      - website-static:/app/dist/client:ro
+       - /var/run/website:/socket
+     healthcheck:
+       test: ["CMD", "node", "-e", "fetch('http://localhost:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]

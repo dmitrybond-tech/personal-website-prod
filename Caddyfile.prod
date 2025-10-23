@@ -16,6 +16,29 @@ dmitrybond.tech, www.dmitrybond.tech {
     -Server
   }
 
+  # Serve static assets directly (CSS, JS, fonts, uploads)
+  handle_path /_astro/* {
+    file_server {
+      root /srv/www/static
+    }
+    header Cache-Control "public, max-age=31536000, immutable"
+  }
+  
+  handle_path /fonts/* {
+    file_server {
+      root /srv/www/static
+    }
+    header Cache-Control "public, max-age=31536000, immutable"
+  }
+  
+  handle_path /uploads/* {
+    file_server {
+      root /srv/www/static
+    }
+    header Cache-Control "public, max-age=31536000"
+  }
+
+  # All other requests go to Astro SSR
   reverse_proxy unix//var/run/website/astro.sock {
     flush_interval -1
     health_uri /_healthz

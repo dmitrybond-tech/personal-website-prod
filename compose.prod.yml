@@ -24,7 +24,7 @@ services:
       - SOCKET_PATH=/socket/astro.sock
     # Volume для раздачи статики через Caddy на хосте
     volumes:
-      - website-static:/app/apps/website/dist/client:ro
+      - website-static:/app/dist/client:ro
       - /var/run/website:/socket
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
