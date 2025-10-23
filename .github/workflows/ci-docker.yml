@@ -112,8 +112,13 @@ jobs:
           set -euo pipefail
           IMAGE_TAG=$(echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}')
           
-          # Start container in background
-          docker run -d --rm -p 3000:3000 --name smoke-test "$IMAGE_TAG"
+          # Start container in background with proper environment
+          docker run -d --rm -p 3000:3000 --name smoke-test \
+            -e NODE_ENV=production \
+            -e PORT=3000 \
+            -e HOST=0.0.0.0 \
+            -e BASE_URL=https://dmitrybond.tech \
+            "$IMAGE_TAG"
           
           # Wait for container to be ready
           echo "Waiting for container to be ready..."
@@ -142,6 +147,19 @@ jobs:
           # Test static assets
           echo "Testing static assets..."
           curl -f http://127.0.0.1:3000/_astro >/dev/null || echo "⚠️ /_astro failed"
+          
+          # Test uploads directory
+          echo "Testing uploads directory..."
+          curl -f http://127.0.0.1:3000/uploads >/dev/null || echo "⚠️ /uploads failed"
+          
+          # Test that CSS files are served with correct headers
+          echo "Testing CSS asset headers..."
+          CSS_RESPONSE=$(curl -I http://127.0.0.1:3000/_astro/ 2>/dev/null | head -n 1)
+          if echo "$CSS_RESPONSE" | grep -q "200 OK"; then
+            echo "✅ CSS assets are accessible"
+          else
+            echo "⚠️ CSS assets may not be properly served"
+          fi
           
           # Clean up
           docker rm -f smoke-test

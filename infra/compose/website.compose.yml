@@ -12,13 +12,16 @@ services:
       - PORT=3000
       - BASE_URL=https://dmitrybond.tech
       - HOST=0.0.0.0
+      - SOCKET_PATH=/var/run/website/astro.sock
     ports:
       - "127.0.0.1:3000:3000"
     volumes:
-      # Mount for reference only - Caddy serves from host
-      - /opt/prod/static:/app/.external-static:ro
+      # Static assets served by Caddy from host
+      - /opt/prod/static:/srv/www/static:ro
       # Uploads directory for media files
       - /opt/prod/uploads:/app/public/uploads:rw
+      # Unix socket for Caddy communication
+      - /var/run/website:/var/run/website
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/_healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s

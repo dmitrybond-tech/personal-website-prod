@@ -2,311 +2,433 @@
 
 This guide covers common issues and their solutions for the personal website deployment.
 
-## Common Error Scenarios
+## Container Issues
 
-### 1. ERR_CONNECTION_RESET / HTTP 502/503
+### Container Name Conflicts
 
-#### Symptoms
-- Browser shows ERR_CONNECTION_RESET for assets (/_astro/*.css, /uploads/*)
-- Main pages sometimes return 502/503
-- curl to CSS returns 200 but browser fails
-
-#### Root Causes & Solutions
-
-**A. Container Not Running**
-```bash
-# Check container status
-docker ps --filter "name=website-prod"
-
-# If not running, check logs
-docker logs website-prod
-
-# Restart container
-docker compose restart
+**Symptoms:**
+```
+Container name "/website-prod" is already in use
 ```
 
-**B. Port Mismatch**
+**Solution:**
 ```bash
-# Check if container is listening on correct port
-docker exec website-prod netstat -tlnp | grep :3000
-
-# Verify compose file port mapping
-cat infra/compose/website.compose.yml | grep ports
-```
-
-**C. Health Check Failures**
-```bash
-# Test health endpoint directly
-docker exec website-prod curl -f http://127.0.0.1:3000/_healthz
-
-# Check container logs for errors
-docker logs website-prod --tail=50
-```
-
-**D. Caddy Upstream Misconfiguration**
-```bash
-# Check Caddy configuration
-caddy validate /etc/caddy/Caddyfile
-
-# Verify upstream points to correct container
-grep -A 5 "reverse_proxy" /etc/caddy/Caddyfile
-```
-
-### 2. Container Name Conflicts
-
-#### Symptoms
-- `docker compose up` fails with "Container name '/website-prod' is already in use"
-- Deployment script fails
-
-#### Solutions
-```bash
-# Remove conflicting containers
+# Remove the conflicting container
 docker rm -f website-prod
-docker compose down --remove-orphans
 
-# Clean up orphaned containers
-docker container prune -f
-
-# Restart deployment
+# Or use the deploy script which handles this automatically
 ./deploy.sh
 ```
 
-### 3. Static Assets Not Loading
+### Container Won't Start
 
-#### Symptoms
-- CSS/JS files return 404
-- Images not loading
-- _astro directory missing
+**Symptoms:**
+- Container exits immediately
+- No logs in `docker logs website-prod`
 
-#### Root Causes & Solutions
-
-**A. Static Asset Extraction Failed**
+**Diagnosis:**
 ```bash
-# Check if static directory exists
-ls -la /opt/prod/static/_astro
+# Check container status
+docker ps -a --filter "name=website-prod"
 
-# Re-extract assets
-docker run --rm ghcr.io/dmitrybond-tech/personal-website-prod:main \
-  find /app -name "_astro" -type d
+# Check container logs
+docker logs website-prod
 
-# Manual extraction
-docker create --name temp-extract ghcr.io/dmitrybond-tech/personal-website-prod:main
-docker cp temp-extract:/app/dist/client/. /opt/prod/static/
-docker rm temp-extract
+# Check if image exists
+docker images | grep personal-website-prod
 ```
 
-**B. Caddy Static Configuration**
-```bash
-# Check Caddy static routes
-grep -A 10 "@static" /etc/caddy/Caddyfile
+**Solutions:**
+1. **Missing Environment Variables:**
+   ```bash
+   # Check .env.prod file exists and has required variables
+   cat .env.prod
+   
+   # Ensure all required variables are set
+   grep -E "^(NODE_ENV|PORT|BASE_URL)" .env.prod
+   ```
 
-# Verify static directory permissions
-ls -la /opt/prod/static
-sudo chown -R caddy:caddy /opt/prod/static
+2. **Port Already in Use:**
+   ```bash
+   # Check what's using port 3000
+   sudo netstat -tlnp | grep :3000
+   
+   # Kill the process or use different port
+   sudo kill -9 <PID>
+   ```
+
+3. **Image Issues:**
+   ```bash
+   # Pull fresh image
+   docker pull ghcr.io/dmitrybond-tech/personal-website-prod:main
+   
+   # Remove old image
+   docker rmi ghcr.io/dmitrybond-tech/personal-website-prod:main
+   ```
+
+### Container Health Check Failures
+
+**Symptoms:**
+- Container shows as "unhealthy"
+- Health check endpoint returns errors
+
+**Diagnosis:**
+```bash
+# Check health endpoint directly
+curl -f http://127.0.0.1:3000/_healthz
+
+# Check container logs for errors
+docker logs website-prod | tail -50
+
+# Check if server is listening
+docker exec website-prod netstat -tlnp | grep :3000
 ```
 
-**C. Asset Path Mismatch**
-```bash
-# Check if assets are in correct location
-find /opt/prod/static -name "*.css" | head -5
+**Solutions:**
+1. **Server Not Starting:**
+   ```bash
+   # Check if all dependencies are installed
+   docker exec website-prod ls -la /app/dist/server/
+   
+   # Check if server.mjs exists
+   docker exec website-prod test -f /app/dist/server/server.mjs
+   ```
 
-# Verify Caddy root directory
-grep "root" /etc/caddy/Caddyfile
+2. **Port Binding Issues:**
+   ```bash
+   # Check if server is binding to correct interface
+   docker exec website-prod netstat -tlnp | grep :3000
+   
+   # Check environment variables
+   docker exec website-prod env | grep -E "(PORT|HOST)"
+   ```
+
+## Static Asset Issues
+
+### CSS/JS Assets Not Loading (ERR_CONNECTION_RESET)
+
+**Symptoms:**
+- Browser shows ERR_CONNECTION_RESET for `/_astro/*.css`
+- Assets return 502/503 errors
+
+**Diagnosis:**
+```bash
+# Check if static assets are extracted
+ls -la /opt/prod/static/_astro/
+
+# Check Caddy configuration
+cat /etc/caddy/Caddyfile | grep -A 5 "_astro"
+
+# Test static asset serving
+curl -I https://dmitrybond.tech/_astro/any.css
 ```
 
-### 4. i18n Routing Issues
+**Solutions:**
+1. **Assets Not Extracted:**
+   ```bash
+   # Re-run deploy script to extract assets
+   ./deploy.sh
+   
+   # Or manually extract
+   docker create --name temp-extract ghcr.io/dmitrybond-tech/personal-website-prod:main
+   docker cp temp-extract:/app/dist/client/. /opt/prod/static/
+   docker rm temp-extract
+   ```
 
-#### Symptoms
-- /en and /ru routes not working
-- 404 errors for internationalized pages
-- Redirect loops
+2. **Caddy Configuration Issues:**
+   ```bash
+   # Check Caddy config syntax
+   caddy validate /etc/caddy/Caddyfile
+   
+   # Reload Caddy
+   systemctl reload caddy
+   
+   # Check Caddy logs
+   journalctl -u caddy -n 50
+   ```
 
-#### Solutions
+3. **File Permissions:**
+   ```bash
+   # Fix permissions
+   sudo chmod -R 755 /opt/prod/static
+   sudo chown -R root:root /opt/prod/static
+   ```
+
+### Uploads Directory Issues
+
+**Symptoms:**
+- Images in `/uploads/` return 404
+- Upload functionality not working
+
+**Diagnosis:**
 ```bash
-# Test i18n routes directly
+# Check uploads directory
+ls -la /opt/prod/uploads/
+
+# Check if directory is mounted correctly
+docker exec website-prod ls -la /app/public/uploads/
+
+# Test uploads endpoint
+curl -I https://dmitrybond.tech/uploads/any-image.jpg
+```
+
+**Solutions:**
+1. **Directory Not Mounted:**
+   ```bash
+   # Check compose file volume mounts
+   cat infra/compose/website.compose.yml | grep -A 5 volumes
+   
+   # Restart container
+   docker compose -f infra/compose/website.compose.yml --env-file .env.prod restart
+   ```
+
+2. **Permission Issues:**
+   ```bash
+   # Fix uploads directory permissions
+   sudo chmod -R 755 /opt/prod/uploads
+   sudo chown -R $(whoami):$(whoami) /opt/prod/uploads
+   ```
+
+## Caddy Issues
+
+### Caddy Service Not Running
+
+**Symptoms:**
+- Website returns connection refused
+- No response from domain
+
+**Diagnosis:**
+```bash
+# Check Caddy service status
+systemctl status caddy
+
+# Check Caddy logs
+journalctl -u caddy -n 100
+```
+
+**Solutions:**
+1. **Service Not Started:**
+   ```bash
+   # Start Caddy service
+   sudo systemctl start caddy
+   
+   # Enable auto-start
+   sudo systemctl enable caddy
+   ```
+
+2. **Configuration Errors:**
+   ```bash
+   # Validate configuration
+   caddy validate /etc/caddy/Caddyfile
+   
+   # Check for syntax errors
+   caddy fmt /etc/caddy/Caddyfile
+   ```
+
+### Reverse Proxy Issues
+
+**Symptoms:**
+- 502 Bad Gateway errors
+- Upstream connection failures
+
+**Diagnosis:**
+```bash
+# Check if socket file exists
+ls -la /var/run/website/astro.sock
+
+# Test upstream connection
+curl -f http://127.0.0.1:3000/_healthz
+
+# Check Caddy logs for upstream errors
+journalctl -u caddy | grep -i upstream
+```
+
+**Solutions:**
+1. **Socket File Missing:**
+   ```bash
+   # Check if container is running
+   docker ps --filter "name=website-prod"
+   
+   # Check container logs for socket binding
+   docker logs website-prod | grep socket
+   
+   # Restart container
+   docker compose -f infra/compose/website.compose.yml --env-file .env.prod restart
+   ```
+
+2. **Upstream Health Check Failures:**
+   ```bash
+   # Check container health
+   docker ps --filter "name=website-prod" --format "table {{.Names}}\t{{.Status}}"
+   
+   # Test health endpoint
+   curl -f http://127.0.0.1:3000/_healthz
+   
+   # Check container logs
+   docker logs website-prod | tail -50
+   ```
+
+## i18n Routing Issues
+
+### Language Routes Not Working
+
+**Symptoms:**
+- `/en/about` returns 404
+- `/ru/about` returns 404
+- Redirects not working
+
+**Diagnosis:**
+```bash
+# Test routes directly
 curl -f http://127.0.0.1:3000/en/about
 curl -f http://127.0.0.1:3000/ru/about
 
-# Check Astro configuration
-cat apps/website/astro.config.ts | grep -A 10 i18n
-
-# Verify environment variables
-docker exec website-prod env | grep -E "(BASE_URL|SITE_URL)"
+# Check container logs for routing errors
+docker logs website-prod | grep -i route
 ```
 
-### 5. OAuth/Authentication Issues
+**Solutions:**
+1. **Astro Configuration Issues:**
+   ```bash
+   # Check if Astro is properly built
+   docker exec website-prod ls -la /app/dist/server/
+   
+   # Check Astro config
+   docker exec website-prod cat /app/astro.config.mjs
+   ```
 
-#### Symptoms
-- Login not working
-- OAuth callbacks failing
-- 500 errors on auth endpoints
-
-#### Solutions
-```bash
-# Check OAuth environment variables
-docker exec website-prod env | grep -E "(AUTHJS|DECAP|GITHUB)"
-
-# Verify OAuth app configuration
-echo "Check GitHub OAuth app settings:"
-echo "- Callback URL: https://dmitrybond.tech/api/auth/callback/github"
-echo "- OAuth callback: https://dmitrybond.tech/oauth/callback"
-
-# Test OAuth endpoints
-curl -f https://dmitrybond.tech/api/auth/providers
-```
-
-## Diagnostic Commands
-
-### System Health Checks
-```bash
-# Check all services
-systemctl status caddy --no-pager -l
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-
-# Check resource usage
-docker stats website-prod
-df -h /opt/prod
-```
-
-### Network Diagnostics
-```bash
-# Test local connectivity
-curl -v http://127.0.0.1:3000/_healthz
-curl -v http://127.0.0.1:3000/en/about
-
-# Test through Caddy
-curl -v --resolve dmitrybond.tech:443:127.0.0.1 https://dmitrybond.tech/_healthz
-curl -v --resolve dmitrybond.tech:443:127.0.0.1 https://dmitrybond.tech/en/about
-```
-
-### Log Analysis
-```bash
-# Container logs
-docker logs website-prod --tail=100
-
-# Caddy logs
-journalctl -u caddy -n 100 --no-pager
-
-# System logs
-journalctl -n 100 --no-pager
-```
+2. **Base URL Configuration:**
+   ```bash
+   # Check environment variables
+   docker exec website-prod env | grep BASE_URL
+   
+   # Verify in .env.prod
+   grep BASE_URL .env.prod
+   ```
 
 ## Performance Issues
 
-### High Memory Usage
-```bash
-# Check container memory usage
-docker stats website-prod
-
-# Check system memory
-free -h
-
-# Restart container if needed
-docker compose restart
-```
-
 ### Slow Response Times
+
+**Symptoms:**
+- Pages load slowly
+- High response times
+
+**Diagnosis:**
 ```bash
-# Check container CPU usage
+# Check container resource usage
 docker stats website-prod
 
-# Test response times
-time curl -f http://127.0.0.1:3000/_healthz
-
-# Check for bottlenecks
-docker exec website-prod top
+# Check system resources
+htop
+free -h
+df -h
 ```
 
-## Recovery Procedures
+**Solutions:**
+1. **Resource Constraints:**
+   ```bash
+   # Check available memory
+   free -h
+   
+   # Check disk space
+   df -h
+   
+   # Restart container to free resources
+   docker compose -f infra/compose/website.compose.yml --env-file .env.prod restart
+   ```
+
+2. **Static Asset Optimization:**
+   ```bash
+   # Check if assets are properly cached
+   curl -I https://dmitrybond.tech/_astro/any.css | grep -i cache
+   
+   # Verify Caddy cache headers
+   cat /etc/caddy/Caddyfile | grep -A 3 Cache-Control
+   ```
+
+## Log Analysis
+
+### Container Logs
+```bash
+# Follow logs in real-time
+docker logs -f website-prod
+
+# Get last 100 lines
+docker logs --tail=100 website-prod
+
+# Filter for errors
+docker logs website-prod 2>&1 | grep -i error
+```
+
+### Caddy Logs
+```bash
+# Follow Caddy logs
+journalctl -u caddy -f
+
+# Get recent logs
+journalctl -u caddy -n 100
+
+# Filter for errors
+journalctl -u caddy | grep -i error
+```
+
+### System Logs
+```bash
+# Check system logs
+journalctl -n 100
+
+# Check for Docker issues
+journalctl -u docker -n 50
+```
+
+## Emergency Recovery
 
 ### Complete Reset
 ```bash
 # Stop all services
-docker compose down --remove-orphans
+docker compose -f infra/compose/website.compose.yml --env-file .env.prod down
 systemctl stop caddy
 
 # Clean up containers and images
-docker system prune -f
-docker volume prune -f
+docker system prune -af
 
-# Restart services
-systemctl start caddy
+# Remove static assets
+sudo rm -rf /opt/prod/static/*
+
+# Restart from scratch
 ./deploy.sh
 ```
 
 ### Rollback to Previous Version
 ```bash
-# Stop current deployment
-docker compose down
+# Stop current container
+docker compose -f infra/compose/website.compose.yml --env-file .env.prod down
 
 # Pull previous image
-docker pull ghcr.io/dmitrybond-tech/personal-website-prod:previous-tag
+docker pull ghcr.io/dmitrybond-tech/personal-website-prod:main@<previous-digest>
 
-# Update compose file
-sed -i 's/:main/:previous-tag/' infra/compose/website.compose.yml
-
-# Restart with previous version
-docker compose up -d
+# Start with previous image
+docker run -d --name website-prod \
+  -p 127.0.0.1:3000:3000 \
+  -e NODE_ENV=production \
+  -v /opt/prod/static:/srv/www/static:ro \
+  -v /opt/prod/uploads:/app/public/uploads:rw \
+  -v /var/run/website:/var/run/website \
+  ghcr.io/dmitrybond-tech/personal-website-prod:main@<previous-digest>
 ```
 
-### Emergency Maintenance
-```bash
-# Put site in maintenance mode
-echo "Site under maintenance" > /opt/prod/static/maintenance.html
+## Getting Help
 
-# Update Caddy to serve maintenance page
-# Add to Caddyfile:
-# handle {
-#     rewrite * /maintenance.html
-#     file_server
-# }
+1. **Check Logs First:** Always start with container and Caddy logs
+2. **Verify Configuration:** Ensure all environment variables are set correctly
+3. **Test Components:** Test each component (container, Caddy, static assets) separately
+4. **Document Issues:** Keep track of error messages and when they occur
+5. **Use Deploy Script:** The deploy script handles most common issues automatically
 
-# Reload Caddy
-systemctl reload caddy
-```
-
-## Monitoring and Alerts
-
-### Health Check Script
-```bash
-#!/bin/bash
-# health-check.sh
-if ! curl -f http://127.0.0.1:3000/_healthz >/dev/null 2>&1; then
-    echo "Health check failed at $(date)"
-    # Send alert notification
-    # systemctl restart website-prod
-fi
-```
-
-### Log Monitoring
-```bash
-# Monitor container logs
-docker logs -f website-prod | grep -E "(ERROR|WARN|FATAL)"
-
-# Monitor Caddy logs
-journalctl -u caddy -f | grep -E "(ERROR|WARN)"
-```
-
-## Contact and Support
-
-For additional support:
-1. Check container logs: `docker logs website-prod`
-2. Check Caddy logs: `journalctl -u caddy`
-3. Verify configuration files
-4. Test individual components
-5. Review this troubleshooting guide
-
-## Prevention
-
-### Regular Maintenance
-- Monitor container health
-- Keep Docker images updated
-- Regular log rotation
-- Backup static assets
-- Test deployments in staging
-
-### Monitoring Setup
-- Set up health check monitoring
-- Configure log aggregation
-- Monitor resource usage
-- Set up alerting for failures
+For persistent issues, collect the following information:
+- Container logs: `docker logs website-prod`
+- Caddy logs: `journalctl -u caddy -n 100`
+- System status: `systemctl status caddy docker`
+- Configuration: `cat .env.prod`
+- File permissions: `ls -la /opt/prod/static/ /opt/prod/uploads/`

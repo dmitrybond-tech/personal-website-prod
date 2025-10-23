@@ -4,238 +4,254 @@ This guide covers the complete deployment process for the personal website at ht
 
 ## Architecture Overview
 
-- **Runtime**: Docker/Compose with image published to GHCR
-- **Reverse Proxy**: Caddy (systemd) serving static assets and proxying to app container
-- **App Container**: Single container serving SSR + static assets
-- **i18n Routing**: Handled by Astro app (/en, /ru), not by Caddy
+- **Application**: Astro SSR with Express server
+- **Container**: Docker with Node.js 22 Alpine
+- **Reverse Proxy**: Caddy (systemd service)
 - **Static Assets**: Served by Caddy from `/opt/prod/static`
+- **Uploads**: Served by Caddy from `/opt/prod/uploads`
+- **Communication**: Unix socket between Caddy and app container
 
 ## Prerequisites
 
-### Production Server Requirements
+### System Requirements
+- Ubuntu 20.04+ or similar Linux distribution
 - Docker and Docker Compose installed
 - Caddy installed and configured as systemd service
-- SSH access to production server
-- GitHub Container Registry (GHCR) access
+- Git LFS support for media assets
 
-### Environment Setup
-1. Copy `env.sample` to `.env.prod` and fill in actual values
-2. Ensure all required environment variables are set (see env.sample)
-3. Configure GitHub OAuth apps for authentication
-
-## Deployment Commands
-
-### Bash (Linux/macOS)
+### Required Environment Variables
+Copy `env.prod.sample` to `.env.prod` and fill in the values:
 
 ```bash
-# Make deploy script executable
+cp env.prod.sample .env.prod
+# Edit .env.prod with your actual values
+```
+
+## Local Development
+
+### Windows/PowerShell
+```powershell
+# Build the image locally
+docker build -t local/personal-website:dev -f apps/website/Dockerfile .
+
+# Run the container
+docker run --rm -p 8080:3000 --name website-prod local/personal-website:dev
+
+# Test the application
+Invoke-WebRequest http://localhost:8080/_healthz
+Invoke-WebRequest http://localhost:8080/en/about
+```
+
+### Linux/macOS
+```bash
+# Build the image locally
+docker build -t local/personal-website:dev -f apps/website/Dockerfile .
+
+# Run the container
+docker run --rm -p 8080:3000 --name website-prod local/personal-website:dev
+
+# Test the application
+curl -f http://localhost:8080/_healthz
+curl -f http://localhost:8080/en/about
+```
+
+## Production Deployment
+
+### 1. Initial Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/dmitrybond-tech/personal-website-prod.git
+cd personal-website-prod
+
+# Create production directories
+sudo mkdir -p /opt/prod/static /opt/prod/uploads /var/run/website
+sudo chmod 755 /opt/prod/static /opt/prod/uploads /var/run/website
+
+# Copy environment file
+cp env.prod.sample .env.prod
+# Edit .env.prod with your actual values
+```
+
+### 2. Deploy Script
+
+The `deploy.sh` script handles the complete deployment process:
+
+```bash
+# Make the script executable
 chmod +x deploy.sh
 
-# Run deployment
+# Run the deployment
 ./deploy.sh
+```
+
+The script will:
+1. Pull the latest Docker image from GHCR
+2. Stop and remove existing containers
+3. Extract static assets from the image
+4. Start the new container with proper configuration
+5. Wait for health checks to pass
+6. Reload Caddy configuration
+7. Run comprehensive smoke tests
+
+### 3. Manual Deployment Steps
+
+If you need to run deployment steps manually:
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/dmitrybond-tech/personal-website-prod:main
+
+# Stop existing containers
+docker compose -f infra/compose/website.compose.yml --env-file .env.prod down --remove-orphans
+
+# Start the new container
+docker compose -f infra/compose/website.compose.yml --env-file .env.prod up -d --force-recreate
 
 # Check container status
 docker ps --filter "name=website-prod"
 
-# View logs
+# Check container logs
 docker logs -f website-prod
-
-# Test health endpoint
-curl -f http://127.0.0.1:3000/_healthz
-
-# Test i18n routes
-curl -f http://127.0.0.1:3000/en/about
-curl -f http://127.0.0.1:3000/ru/about
-
-# Test static assets
-curl -f http://127.0.0.1:3000/_astro
 ```
 
-### PowerShell (Windows)
+## Monitoring and Troubleshooting
 
-```powershell
-# Set environment variables
-$env:NODE_OPTIONS=""
-$env:DOCKER_BUILDKIT=1
-
-# Build image locally
-docker build -t local/personal-website:dev -f apps/website/Dockerfile .
-
-# Run container locally
-docker run --rm -p 8080:3000 --name website-prod local/personal-website:dev
-
-# Test endpoints
-Invoke-WebRequest http://localhost:8080/_healthz
-Invoke-WebRequest http://localhost:8080/en/about
-Invoke-WebRequest http://localhost:8080/ru/about
-```
-
-## Production Runbook
-
-### 1. Pre-deployment Checks
-
-```bash
-# Check Caddy status
-systemctl status caddy --no-pager -l
-
-# Check Caddy logs
-journalctl -u caddy -n 200 --no-pager
-
-# Verify Caddy configuration
-caddy validate /etc/caddy/Caddyfile
-
-# Check disk space
-df -h /opt/prod
-```
-
-### 2. Deployment Process
-
-```bash
-# Navigate to deployment directory
-cd /opt/prod
-
-# Run deployment script
-./deploy.sh
-
-# Monitor deployment
-docker compose ps
-docker compose logs --tail=200
-```
-
-### 3. Post-deployment Verification
+### Health Checks
 
 ```bash
 # Check container health
 docker ps --filter "name=website-prod" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
 # Test health endpoint
-curl -fsS http://127.0.0.1:3000/_healthz
+curl -f http://127.0.0.1:3000/_healthz
 
-# Test i18n routes
-curl -fsS -H 'Host: dmitrybond.tech' http://127.0.0.1:3000/en/about
-curl -fsS -H 'Host: dmitrybond.tech' http://127.0.0.1:3000/ru/about
-
-# Test static assets
-curl -fsS -H 'Host: dmitrybond.tech' http://127.0.0.1:3000/_astro
-
-# Test through Caddy (external)
-curl -v --resolve dmitrybond.tech:443:127.0.0.1 https://dmitrybond.tech/_astro/any.css
-```
-
-### 4. Monitoring and Maintenance
-
-```bash
-# View container logs
-docker logs -f website-prod
-
-# Check container resource usage
-docker stats website-prod
-
-# Restart container if needed
-docker compose restart
-
-# Update image and redeploy
-docker compose pull
-docker compose up -d --force-recreate
-```
-
-## Troubleshooting
-
-### Common Issues
-
-#### 1. Container Name Conflicts
-```bash
-# Remove conflicting containers
-docker rm -f website-prod
-docker compose down --remove-orphans
-```
-
-#### 2. Port Conflicts
-```bash
-# Check what's using port 3000
-sudo netstat -tlnp | grep :3000
-sudo lsof -i :3000
-```
-
-#### 3. Static Assets Not Loading
-```bash
-# Check static directory
-ls -la /opt/prod/static/_astro
-
-# Verify Caddy static configuration
-caddy validate /etc/caddy/Caddyfile
-```
-
-#### 4. Health Check Failures
-```bash
 # Check container logs
-docker logs website-prod
-
-# Test health endpoint manually
-docker exec website-prod curl -f http://127.0.0.1:3000/_healthz
+docker logs --tail=50 website-prod
 ```
 
-### Debug Commands
+### Caddy Status
 
 ```bash
-# Check all containers
-docker ps -a
+# Check Caddy service status
+systemctl status caddy --no-pager -l
 
-# Check compose services
-docker compose ps
+# Check Caddy logs
+journalctl -u caddy -n 200 --no-pager
 
-# View detailed logs
-docker compose logs --tail=200
-
-# Check Caddy configuration
-caddy fmt /etc/caddy/Caddyfile
+# Test Caddy configuration
 caddy validate /etc/caddy/Caddyfile
 
-# Test Caddy config
-caddy run --config /etc/caddy/Caddyfile --dry-run
+# Reload Caddy configuration
+systemctl reload caddy
 ```
 
-## Environment Variables
+### Static Assets
 
-See `env.sample` for complete list of required environment variables. Key variables:
+```bash
+# Check static assets directory
+ls -la /opt/prod/static/_astro/
 
-- `PUBLIC_SITE_URL`: https://dmitrybond.tech
-- `NODE_ENV`: production
-- `PORT`: 3000
-- `HOST`: 0.0.0.0
-- OAuth credentials for GitHub integration
-- Cal.com webhook configuration
+# Test static asset serving
+curl -I https://dmitrybond.tech/_astro/any.css
+
+# Check uploads directory
+ls -la /opt/prod/uploads/
+```
+
+### Socket Communication
+
+```bash
+# Check Unix socket
+ls -la /var/run/website/astro.sock
+
+# Test socket communication
+curl -v --resolve dmitrybond.tech:443:127.0.0.1 https://dmitrybond.tech/en/about
+```
+
+## Common Issues and Solutions
+
+### Container Name Conflicts
+```bash
+# Remove orphaned containers
+docker rm -f website-prod
+
+# Clean up Docker resources
+docker system prune -f
+```
+
+### Static Assets Not Loading
+1. Check if assets are extracted to `/opt/prod/static`
+2. Verify Caddy configuration points to correct path
+3. Check file permissions: `ls -la /opt/prod/static/_astro/`
+
+### 502/503 Errors
+1. Check if container is running: `docker ps`
+2. Check container logs: `docker logs website-prod`
+3. Verify health endpoint: `curl -f http://127.0.0.1:3000/_healthz`
+4. Check Caddy logs: `journalctl -u caddy -n 50`
+
+### Socket Issues
+1. Check socket file exists: `ls -la /var/run/website/astro.sock`
+2. Verify permissions: `stat /var/run/website/astro.sock`
+3. Check container logs for socket binding errors
+
+## CI/CD Pipeline
+
+The GitHub Actions workflow automatically:
+1. Builds the Docker image
+2. Pushes to GHCR registry
+3. Runs smoke tests
+4. Deploys to production (if configured)
+
+### Manual CI Trigger
+```bash
+# Trigger build and deployment
+gh workflow run ci-docker.yml
+```
 
 ## Security Considerations
 
-- Never commit `.env.prod` to version control
-- Use strong, unique secrets for all authentication
-- Regularly rotate OAuth credentials
-- Monitor container logs for suspicious activity
-- Keep Docker and system packages updated
+- Environment variables are not exposed in logs
+- Static assets are served with proper cache headers
+- Unix socket communication is more secure than HTTP
+- Container runs with minimal privileges
+- Caddy handles TLS termination
 
-## Rollback Procedure
+## Backup and Recovery
 
+### Backup Static Assets
 ```bash
-# Stop current deployment
-docker compose down
+# Create backup of static assets
+tar -czf static-backup-$(date +%Y%m%d).tar.gz /opt/prod/static
 
-# Pull previous image
-docker pull ghcr.io/dmitrybond-tech/personal-website-prod:previous-tag
-
-# Update compose file with previous image
-# Edit infra/compose/website.compose.yml to use previous tag
-
-# Restart with previous image
-docker compose up -d
+# Create backup of uploads
+tar -czf uploads-backup-$(date +%Y%m%d).tar.gz /opt/prod/uploads
 ```
 
-## CI/CD Integration
+### Recovery
+```bash
+# Restore from backup
+tar -xzf static-backup-YYYYMMDD.tar.gz -C /
+tar -xzf uploads-backup-YYYYMMDD.tar.gz -C /
 
-The deployment is automated via GitHub Actions:
+# Restart services
+systemctl reload caddy
+docker compose -f infra/compose/website.compose.yml --env-file .env.prod restart
+```
 
-1. **Build & Push**: On push to main branch
-2. **Smoke Test**: Automated container testing
-3. **Deploy**: Automatic deployment to production
+## Performance Optimization
 
-See `.github/workflows/ci-docker.yml` for build configuration and `.github/workflows/deploy-preprod.yml` for deployment automation.
+- Static assets are served directly by Caddy (no app server overhead)
+- Unix socket communication is faster than HTTP
+- Proper cache headers for static assets
+- Compression enabled for text content
+- Health checks prevent serving from unhealthy containers
+
+## Support
+
+For issues or questions:
+1. Check the troubleshooting section above
+2. Review container logs: `docker logs website-prod`
+3. Check Caddy logs: `journalctl -u caddy`
+4. Verify environment variables in `.env.prod`

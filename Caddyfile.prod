@@ -39,6 +39,10 @@ dmitrybond.tech, www.dmitrybond.tech {
   reverse_proxy unix//var/run/website/astro.sock {
     flush_interval -1
     health_uri /_healthz
+    health_interval 30s
+    health_timeout 5s
+    fail_duration 30s
+    max_fails 3
   }
 
   log {

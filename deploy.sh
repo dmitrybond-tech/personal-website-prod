@@ -10,6 +10,7 @@ COMPOSE_FILE="infra/compose/website.compose.yml"
 ENV_FILE=".env.prod"
 STATIC_DIR="/opt/prod/static"
 UPLOADS_DIR="/opt/prod/uploads"
+SOCKET_DIR="/var/run/website"
 CONTAINER_NAME="website-prod"
 SERVICE_NAME="website"
 HEALTH_ENDPOINT="/_healthz"
@@ -70,14 +71,15 @@ log "Starting production deployment..."
 log "Creating production directories..."
 if [[ $EUID -eq 0 ]]; then
     # Running as root
-    mkdir -p "$STATIC_DIR" "$UPLOADS_DIR"
+    mkdir -p "$STATIC_DIR" "$UPLOADS_DIR" "$SOCKET_DIR"
     chmod 755 "$STATIC_DIR" "$UPLOADS_DIR"
+    chmod 755 "$SOCKET_DIR"
     # Keep root ownership for security
 else
     # Running as regular user
-    sudo mkdir -p "$STATIC_DIR" "$UPLOADS_DIR"
-    sudo chmod 755 "$STATIC_DIR" "$UPLOADS_DIR"
-    sudo chown $(whoami):$(whoami) "$STATIC_DIR" "$UPLOADS_DIR"
+    sudo mkdir -p "$STATIC_DIR" "$UPLOADS_DIR" "$SOCKET_DIR"
+    sudo chmod 755 "$STATIC_DIR" "$UPLOADS_DIR" "$SOCKET_DIR"
+    sudo chown $(whoami):$(whoami) "$STATIC_DIR" "$UPLOADS_DIR" "$SOCKET_DIR"
 fi
 
 # Pull the latest image
@@ -94,6 +96,12 @@ docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" down --remove-orphans |
 if docker ps -a --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "^$CONTAINER_NAME$"; then
     log "Removing orphaned container: $CONTAINER_NAME"
     docker rm -f "$CONTAINER_NAME" || true
+fi
+
+# Clean up any stale socket files
+if [[ -S "$SOCKET_DIR/astro.sock" ]]; then
+    log "Removing stale socket file"
+    rm -f "$SOCKET_DIR/astro.sock" || true
 fi
 
 # Extract static assets from the image (simplified approach)
@@ -155,12 +163,22 @@ fi
 log "Static assets extracted successfully from '$CLIENT_PATH':"
 ls -la "$STATIC_DIR" | head -10
 
+# Ensure proper permissions for Caddy
+log "Setting proper permissions for static assets..."
+if [[ $EUID -eq 0 ]]; then
+    chmod -R 755 "$STATIC_DIR"
+    chown -R root:root "$STATIC_DIR"
+else
+    sudo chmod -R 755 "$STATIC_DIR"
+    sudo chown -R root:root "$STATIC_DIR"
+fi
+
 # Clean up temporary container
 docker rm "$TEMP_CONTAINER" >/dev/null
 
 # Start the SSR container
 log "Starting SSR container..."
-if ! docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d; then
+if ! docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --force-recreate; then
     error "Failed to start container with docker compose"
 fi
 
@@ -201,6 +219,9 @@ else
     warn "Caddy not found in PATH. Please reload Caddy manually."
 fi
 
+# Wait a moment for Caddy to reload
+sleep 2
+
 # Verify deployment with comprehensive checks
 log "Verifying deployment..."
 
@@ -236,6 +257,14 @@ else
     warn "⚠️  Static assets endpoint is not responding"
 fi
 
+# Test uploads directory
+log "Testing uploads directory..."
+if curl -s -f "http://127.0.0.1:3000/uploads" >/dev/null 2>&1; then
+    log "✅ Uploads endpoint is responding"
+else
+    warn "⚠️  Uploads endpoint is not responding"
+fi
+
 # Show container status
 log "Container status:"
 docker ps --filter "name=$CONTAINER_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
@@ -247,6 +276,7 @@ docker logs --tail=20 "$CONTAINER_NAME" 2>/dev/null || warn "Could not retrieve 
 log "🎉 Deployment completed successfully!"
 log "Static assets: $STATIC_DIR"
 log "Uploads: $UPLOADS_DIR"
+log "Socket directory: $SOCKET_DIR"
 log "SSR container: 127.0.0.1:3000"
 
 # Show next steps
@@ -256,3 +286,4 @@ echo "1. Verify Caddy configuration includes the new static routes"
 echo "2. Test the website: curl -I https://dmitrybond.tech/_astro/any.css"
 echo "3. Check logs: docker logs -f $CONTAINER_NAME"
 echo "4. Monitor health: docker exec $CONTAINER_NAME curl -f http://127.0.0.1:3000$HEALTH_ENDPOINT"
+echo "5. Check socket: ls -la $SOCKET_DIR/astro.sock"
