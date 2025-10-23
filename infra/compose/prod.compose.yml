@@ -1,0 +1,62 @@
+version: "3.9"
+
+name: personal-website-prod
+
+networks:
+  webnet:
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+services:
+  website-build:
+    image: node:20.18.0-bullseye
+    working_dir: /workspace/apps/website
+    command: >
+      bash -lc "corepack enable &&
+                pnpm --version &&
+                pnpm install --frozen-lockfile &&
+                pnpm run build"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ../../:/workspace:rw
+      - /workspace/apps/website/node_modules
+    # Run manually before 'up'; exits on success.
+    networks:
+      - webnet
+
+  website-ssr:
+    image: ghcr.io/dmitrybond-tech/personal-website-prod:latest
+    environment:
+      - NODE_ENV=production
+      # add your existing env if needed
+    expose:
+      - "4321"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4321/_healthz || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - webnet
+
+  caddy:
+    image: caddy:2.8.4
+    depends_on:
+      website-ssr:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../../apps/website/dist:/srv/www/static:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+    networks:
+      - webnet

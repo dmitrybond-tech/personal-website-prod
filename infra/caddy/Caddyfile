@@ -1,0 +1,44 @@
+{
+    # optional: enable if you need debug
+    # debug
+    # email admin@dmitrybond.tech
+}
+
+dmitrybond.tech {
+    encode zstd gzip
+
+    @static {
+        path /_astro/* /assets/* /favicon.ico /robots.txt /sitemap.xml /manifest.webmanifest
+        path /images/* /icons/* /fonts/* /static/*
+    }
+    handle @static {
+        root * /srv/www/static
+        try_files {path} {path}/index.html
+        file_server
+
+        # Long-term immutable caching for hashed assets
+        header {
+            Cache-Control "public, max-age=31536000, immutable"
+        }
+
+        @html path *.html
+        header @html Cache-Control "public, max-age=60"
+    }
+
+    handle {
+        reverse_proxy website-ssr:4321 {
+            health_uri /_healthz
+            fail_timeout 5s
+            transport http {
+                read_timeout 30s
+                write_timeout 30s
+            }
+        }
+    }
+
+    handle_errors {
+        respond "{http.error.status_code} {http.error.status_text}" {http.error.status_code}
+    }
+
+    log
+}

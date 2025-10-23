@@ -51,6 +51,12 @@ RUN echo "=== WORKSPACE STRUCTURE ===" && ls -la && echo "=== APPS STRUCTURE ===
 # Make sure we build the correct workspace with fallback
 RUN npm run --workspace apps/website build || (echo "Workspace build failed, trying direct build..." && cd apps/website && npm run build)
 
+# Ensure public assets are available at runtime under /app/dist/public
+# Astro SSR/hybrid build outputs client assets under /app/dist/client
+# but Caddy expects them under /app/dist/public
+RUN mkdir -p /app/apps/website/dist/public && \
+    cp -r /app/apps/website/public/* /app/apps/website/dist/public/
+
 # 1) uploads действительно собраны (fail-fast если отсутствует)
 RUN set -e; \
     echo "[sanity] dist/client listing:" && ls -lah /app/apps/website/dist/client | head -n 200; \
@@ -66,6 +72,17 @@ RUN ! grep -R "git-lfs.github.com/spec/v1" -n /app/apps/website/dist/client/uplo
 RUN apk add --no-cache file >/dev/null 2>&1 || true; \
     find /app/apps/website/dist/client/uploads -type f | head -n 12 | xargs -I{} file -b {}
 
+# 4) Verify public assets are copied to dist/public for Caddy static serving
+RUN echo "[sanity] dist/public listing:" && ls -lah /app/apps/website/dist/public | head -n 200; \
+    if [ ! -d "/app/apps/website/dist/public/uploads" ]; then \
+      echo "ERROR: dist/public/uploads is missing. Check public asset copying."; \
+      exit 1; \
+    fi; \
+    if [ ! -f "/app/apps/website/dist/public/uploads/logos/brand-ricoh-custom.png" ]; then \
+      echo "ERROR: brand-ricoh-custom.png not found in dist/public/uploads/logos/"; \
+      exit 1; \
+    fi
+
 # Visibility in CI logs - show directory structure
 RUN node -e "const {readdirSync} = require('fs'); console.log('SERVER:', readdirSync('/app/apps/website/dist/server')); console.log('CLIENT:', readdirSync('/app/apps/website/dist/client')); console.log('UPLOADS:', readdirSync('/app/apps/website/dist/client/uploads'));"
     
@@ -80,8 +97,14 @@ ARG GIT_SHA=unknown
 LABEL org.opencontainers.image.revision=$GIT_SHA
 ENV APP_BUILD_SHA=$GIT_SHA
     
-# Copy the entire dist (server + client) from the builder
+# Copy the entire dist (server + client + public) from the builder
 COPY --from=builder /app/apps/website/dist ./dist
+
+# Verify public assets are available for Caddy static serving
+RUN echo "[runtime] Verifying public assets:" && \
+    ls -la /app/dist/public/uploads/logos/ | head -n 10 && \
+    test -f /app/dist/public/uploads/logos/brand-ricoh-custom.png && \
+    echo "✓ brand-ricoh-custom.png found in runtime"
 
 # Copy node_modules from builder (includes express, compression as runtime deps)
 COPY --from=builder /app/node_modules ./node_modules
