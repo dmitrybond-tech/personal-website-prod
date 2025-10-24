@@ -130,3 +130,80 @@ In Astro projects, content can be connected later through Content Collections an
 - **Datetime widgets** support `i18n: duplicate` for shared dates across locales
 
 See the [Decap i18n documentation](https://decapcms.org/docs/i18n/) for complete details on supported i18n configurations.
+
+## Static Asset Verification
+
+### Asset Contract
+
+The build system enforces a strict static asset contract:
+
+- **Public assets**: Anything in `public/` must be copied to `dist/client/` preserving relative paths
+- **Hashed assets**: CSS/JS bundles are generated with content hashes under `dist/client/_astro/`
+- **Static routes**: `/uploads/**`, `/fonts/**`, `/favicons/**` are served as static content
+- **No LFS pointers**: Git LFS pointer files must not leak into public assets
+
+### Verification Commands
+
+```bash
+# Verify static assets after build
+npm run verify:static
+
+# Verbose output with detailed asset information
+npm run verify:static:verbose
+
+# Test with local HTTP server (validates Content-Type headers)
+npm run verify:static:server
+
+# Verify production assets (requires internet connection)
+npm run verify:prod
+
+# Run all verification checks
+npm run verify:all
+```
+
+### Build Process
+
+The build process includes automatic asset verification:
+
+1. **Pre-build**: Normalize public assets and check for LFS pointers
+2. **Build**: Astro generates hashed bundles and copies public files
+3. **Post-build**: Verify all referenced assets exist in `dist/client/`
+4. **CI/CD**: Automated verification runs on every build
+
+### Asset Verification Features
+
+- **HTML parsing**: Extracts asset URLs from `<link>`, `<script>`, `<img>`, and CSS `@font-face` declarations
+- **File system checks**: Verifies each asset exists in `dist/client/`
+- **HTTP validation**: Optional local server testing with correct MIME types
+- **Public asset verification**: Ensures all `public/` files are copied to `dist/client/`
+- **LFS pointer detection**: Prevents Git LFS pointer files from reaching production
+
+### CI/CD Integration
+
+Asset verification is integrated into the GitHub Actions workflow:
+
+- **Build verification**: Runs after every build to catch missing assets
+- **Production monitoring**: Daily verification of production assets
+- **Artifact upload**: Build artifacts are preserved for inspection on failures
+
+### Troubleshooting Asset Issues
+
+**Missing assets**: Check that files in `public/` are properly copied to `dist/client/`
+
+**LFS pointer errors**: Ensure Git LFS is properly configured and files are checked out:
+```bash
+git lfs install
+git lfs fetch --all
+git lfs checkout
+```
+
+**404 errors in production**: Verify the Caddy configuration serves static files from the correct directory (`/srv/www/dmitrybond.tech/dist/client/**`)
+
+### Export Process
+
+For production deployment, copy the built assets to the server:
+
+```bash
+# Copy dist directory to production location
+cp -r dist/client/* /srv/www/dmitrybond.tech/dist/client/
+```

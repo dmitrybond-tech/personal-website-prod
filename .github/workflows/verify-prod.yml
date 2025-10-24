@@ -1,0 +1,58 @@
+name: Production Asset Verification
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Base URL to test'
+        required: false
+        default: 'https://dmitrybond.tech'
+        type: string
+      verbose:
+        description: 'Verbose output'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  verify-production:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'apps/website/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd apps/website
+          npm ci
+
+      - name: Verify production assets
+        run: |
+          cd apps/website
+          echo "Running production asset verification..."
+          node tools/verify-prod.mjs \
+            --base-url="${{ github.event.inputs.base_url || 'https://dmitrybond.tech' }}" \
+            --concurrency=5 \
+            --timeout=10000 \
+            ${{ github.event.inputs.verbose && '--verbose' || '' }}
+        continue-on-error: false
+
+      - name: Upload verification report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-report-${{ github.run_number }}
+          path: |
+            apps/website/tools/
+          retention-days: 30

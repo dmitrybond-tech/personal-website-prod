@@ -118,3 +118,30 @@ jobs:
           docker images | grep "${{ env.IMAGE_NAME }}" || echo "No images found"
           echo "Build artifacts:"
           ls -la apps/website/dist/ 2>/dev/null || echo "No dist directory found"
+
+      - name: Install Node.js for verification
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'apps/website/package-lock.json'
+
+      - name: Install dependencies for verification
+        run: |
+          cd apps/website
+          npm ci
+
+      - name: Verify static assets
+        run: |
+          cd apps/website
+          echo "Running static asset verification..."
+          node tools/verify-static.mjs --verbose
+        continue-on-error: false
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-artifacts
+          path: apps/website/dist/
+          retention-days: 7

@@ -58,7 +58,13 @@
     "test:smoke": "node -e \"process.exit(process.platform === 'win32' ? 1 : 0)\" && bash scripts/smoke-test.sh || pwsh -File scripts/smoke-test.ps1",
     "test:smoke:prod": "node -e \"process.exit(process.platform === 'win32' ? 1 : 0)\" && bash scripts/smoke-test.sh https://dmitrybond.tech || pwsh -File scripts/smoke-test.ps1 https://dmitrybond.tech",
     "lint:assets": "node --import=tsx scripts/lint-public-kebab.ts",
-    "migrate:assets": "node --import=tsx scripts/normalize-public.ts && node --import=tsx scripts/relink-content.ts"
+    "migrate:assets": "node --import=tsx scripts/normalize-public.ts && node --import=tsx scripts/relink-content.ts",
+    "verify:static": "node tools/verify-static.mjs",
+    "verify:static:verbose": "node tools/verify-static.mjs --verbose",
+    "verify:static:server": "node tools/verify-static.mjs --server --verbose",
+    "verify:prod": "node tools/verify-prod.mjs",
+    "verify:prod:verbose": "node tools/verify-prod.mjs --verbose",
+    "verify:all": "npm run verify:static && npm run verify:prod"
   },
   "keywords": [],
   "author": "",
