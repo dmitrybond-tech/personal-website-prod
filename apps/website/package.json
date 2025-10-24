@@ -72,7 +72,7 @@
   "description": "",
   "type": "module",
   "engines": {
-    "node": ">=18.20.4",
+    "node": ">=20.0.0",
     "npm": ">=9"
   },
   "dependencies": {

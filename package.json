@@ -34,7 +34,7 @@
     "deploy:status": "docker compose -f compose.prod.yml ps && docker compose -f compose.dev.yml ps"
   },
   "engines": {
-    "node": ">=18",
+    "node": ">=20",
     "npm": ">=9"
   },
   "devDependencies": {
