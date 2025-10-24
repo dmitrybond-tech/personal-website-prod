@@ -131,11 +131,41 @@ jobs:
           cd apps/website
           npm install
 
+      - name: Build website for verification
+        run: |
+          cd apps/website
+          echo "Building website for asset verification..."
+          npm run build
+
+      - name: Check build output
+        run: |
+          cd apps/website
+          echo "Checking build output..."
+          if [ -d "dist" ]; then
+            echo "Dist directory contents:"
+            ls -la dist/
+            if [ -d "dist/client" ]; then
+              echo "Client directory contents:"
+              ls -la dist/client/
+            else
+              echo "No client directory found in dist/"
+            fi
+          else
+            echo "No dist directory found at all"
+          fi
+
       - name: Verify static assets
         run: |
           cd apps/website
-          echo "Running static asset verification..."
-          node tools/verify-static.mjs --verbose
+          if [ -d "dist/client" ]; then
+            echo "Running static asset verification..."
+            node tools/verify-static.mjs --verbose
+          else
+            echo "❌ No dist/client directory found"
+            echo "This indicates the build step failed or did not complete"
+            echo "Please check the build logs above for errors"
+            exit 1
+          fi
         continue-on-error: false
 
       - name: Upload build artifacts

@@ -37,6 +37,12 @@ jobs:
           cd apps/website
           npm install
 
+      - name: Build website for verification
+        run: |
+          cd apps/website
+          echo "Building website for asset verification..."
+          npm run build
+
       - name: Verify production assets
         run: |
           cd apps/website

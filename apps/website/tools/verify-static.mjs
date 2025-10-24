@@ -286,6 +286,9 @@ class AssetVerifier {
       await stat(DIST_PATH);
     } catch {
       this.errors.push(`Dist directory not found: ${DIST_PATH}`);
+      this.log('This usually means the build step failed or did not complete.');
+      this.log('Please check the build logs for errors.');
+      this.log('Expected structure: dist/client/ with built assets');
       return this.report();
     }
 
