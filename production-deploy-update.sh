@@ -156,6 +156,31 @@ for i in {1..30}; do
     sleep 1
 done
 
+# Export static assets for Caddy to serve directly
+log "Exporting static assets for Caddy static serving..."
+if [[ -f "scripts/export-assets.sh" ]]; then
+    # Use the dedicated export script
+    bash scripts/export-assets.sh
+else
+    # Fallback to inline extraction (legacy method)
+    warn "scripts/export-assets.sh not found, using legacy extraction method"
+    log "Extracting static assets from running container..."
+    
+    # Create target directory
+    HOST_DIST_DIR="/srv/www/dmitrybond.tech/dist"
+    mkdir -p "$HOST_DIST_DIR"
+    
+    # Copy assets from running container
+    docker cp website-prod:/app/dist/client/. "$HOST_DIST_DIR/"
+    
+    # Verify extraction
+    if [[ ! -d "$HOST_DIST_DIR/_astro" ]]; then
+        error "Static assets extraction failed. _astro directory not found in $HOST_DIST_DIR"
+    fi
+    
+    log "Static assets extracted successfully to $HOST_DIST_DIR"
+fi
+
 # Reload Caddy configuration
 log "Reloading Caddy configuration..."
 if command -v caddy >/dev/null 2>&1; then

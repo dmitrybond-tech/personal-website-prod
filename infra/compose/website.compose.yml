@@ -16,8 +16,6 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     volumes:
-      # Static assets served by Caddy from host
-      - /opt/prod/static:/srv/www/static:ro
       # Uploads directory for media files
       - /opt/prod/uploads:/app/public/uploads:rw
       # Unix socket for Caddy communication
