@@ -220,8 +220,83 @@ npm update decap-cms
 npm update astro-decap-cms-oauth
 ```
 
+### 🔄 Rollback Playbook
+
+#### Emergency Rollback to Known Good State
+
+When production issues occur, use this rollback procedure to restore to a known working commit:
+
+#### 1. **Quick Rollback (PowerShell)**
+```powershell
+# Set variables
+$CommitHash = "34f31734ddfd6780ac0c70b9ae95c019935a3aa5"  # Known good commit
+$BackupName = "backup/main-$(Get-Date -Format 'yyyy-MM-dd')"
+$TagName = "stable-$(Get-Date -Format 'yyyy-MM-dd')"
+
+# Create backup and rollback
+git fetch origin --prune
+git switch main
+git pull --ff-only
+git branch $BackupName
+git push origin $BackupName
+git tag -a $TagName $CommitHash -m "Last known good ($(Get-Date -Format 'yyyy-MM-dd'))"
+git push origin $TagName
+git reset --hard $CommitHash
+git push --force-with-lease origin main
+```
+
+#### 2. **Automated Rollback Script**
+Use the provided PowerShell script:
+```powershell
+# Run the rollback script
+.\scripts\rollback-to-known-good.ps1 -CommitHash "34f31734ddfd6780ac0c70b9ae95c019935a3aa5"
+```
+
+#### 3. **Post-Rollback Steps**
+1. **Wait for CI rebuild** (GitHub Actions will rebuild the Docker image)
+2. **Deploy on VPS:**
+   ```bash
+   cd /opt/prod
+   sh deploy.sh
+   ```
+3. **Validate deployment:**
+   ```bash
+   # Test main pages
+   curl -sI https://dmitrybond.tech/en/about
+   curl -sI https://dmitrybond.tech/_astro/*.css
+   
+   # Check for 200 responses, no ERR_CONNECTION_RESET
+   ```
+
+#### 4. **Digest Pinning (Optional)**
+For maximum reproducibility, pin the exact Docker image digest:
+```bash
+# Get the new digest after CI rebuild
+docker pull ghcr.io/dmitrybond-tech/personal-website-prod:main
+docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/dmitrybond-tech/personal-website-prod:main
+
+# Update compose.yml with exact digest
+# image: ghcr.io/dmitrybond-tech/personal-website-prod@sha256:XXXXXXXX...
+```
+
+#### 5. **Recovery Verification**
+- [ ] Main branch points to known good commit
+- [ ] Backup branch exists with pre-rollback state
+- [ ] Stable tag created at known good commit
+- [ ] CI rebuilt and published new image
+- [ ] Production serves pages with HTTP 200
+- [ ] No ERR_CONNECTION_RESET errors
+- [ ] Static assets load correctly
+
+#### 6. **Rollback Safety**
+- ✅ Backup branch preserves previous state
+- ✅ Annotated tag marks stable point
+- ✅ Force-with-lease prevents accidental overwrites
+- ✅ CI automatically rebuilds from rolled-back commit
+- ✅ Production deployment uses deterministic image
+
 ---
 
 **Status:** ✅ Production-Ready  
-**Last Updated:** October 10, 2025  
+**Last Updated:** October 24, 2025  
 **Version:** 1.0.0
