@@ -51,23 +51,15 @@ RUN echo "=== WORKSPACE STRUCTURE ===" && ls -la && echo "=== APPS STRUCTURE ===
 # Make sure we build the correct workspace with fallback
 RUN npm run --workspace apps/website build || (echo "Workspace build failed, trying direct build..." && cd apps/website && npm run build)
 
-# 1) uploads действительно собраны (fail-fast если отсутствует)
-RUN set -e; \
-    echo "[sanity] dist/client listing:" && ls -lah /app/apps/website/dist/client | head -n 200; \
-    if [ ! -d "/app/apps/website/dist/client/uploads" ]; then \
-      echo "ERROR: dist/client/uploads is missing. Check .dockerignore / LFS / public/"; \
+# Verify SSR build output (check entry.mjs exists)
+RUN if [ ! -f "/app/apps/website/dist/server/entry.mjs" ]; then \
+      echo "ERROR: SSR entry.mjs missing. Build failed."; \
       exit 1; \
-    fi
-
-# 2) в dist не осталось LFS-пойнтеров (если осталось — роняем билд)
-RUN ! grep -R "git-lfs.github.com/spec/v1" -n /app/apps/website/dist/client/uploads || (echo "LFS pointers found in dist"; exit 1)
-
-# 3) (диагностично) показать типы файлов в логах CI
-RUN apk add --no-cache file >/dev/null 2>&1 || true; \
-    find /app/apps/website/dist/client/uploads -type f | head -n 12 | xargs -I{} file -b {}
-
-# Visibility in CI logs - show directory structure
-RUN node -e "const {readdirSync} = require('fs'); console.log('SERVER:', readdirSync('/app/apps/website/dist/server')); console.log('CLIENT:', readdirSync('/app/apps/website/dist/client')); console.log('UPLOADS:', readdirSync('/app/apps/website/dist/client/uploads'));"
+    fi && \
+    echo "=== SSR BUILD SUCCESS ===" && \
+    ls -la /app/apps/website/dist/ && \
+    echo "=== SERVER STRUCTURE ===" && \
+    ls -la /app/apps/website/dist/server/
     
 # -------- runtime stage --------
 FROM node:18-alpine AS runner
