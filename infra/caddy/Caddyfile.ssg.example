@@ -1,0 +1,60 @@
+{
+    email dima@dmitrybond.tech
+    order encode after route
+}
+
+dmitrybond.tech, www.dmitrybond.tech {
+    encode gzip
+
+    log {
+        output file /var/log/caddy/dmitrybond.access.log
+        format json
+    }
+
+    header Alt-Svc "clear"
+    header -Alt-Svc
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    }
+
+    @root path /
+    redir @root /en 308
+
+    root * /srv/www/dmitrybond.tech
+
+    handle_path /_astro/* {
+        root * /srv/www/dmitrybond.tech/_astro
+        header Cache-Control "public, max-age=31536000, immutable"
+        file_server {
+            precompressed br gzip
+        }
+    }
+
+    @hasfile file {
+        try_files {path} {path}/ {path}.html {path}/index.html
+    }
+    handle @hasfile {
+        file_server
+    }
+
+    handle {
+        rewrite * /en/404.html
+        file_server
+    }
+}
+
+mail.dmitrybond.tech, sogo.dmitrybond.tech, rspamd.dmitrybond.tech, autodiscover.dmitrybond.tech, autoconfig.dmitrybond.tech {
+    encode gzip
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+    }
+    reverse_proxy 127.0.0.1:8080
+}

@@ -1,0 +1,73 @@
+name: Deploy SSG to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: |
+          cd apps/website
+          npm ci
+          
+      - name: Build website
+        run: |
+          cd apps/website
+          npm run build
+          
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            # Create backup
+            sudo cp -a /srv/www/dmitrybond.tech /srv/www/dmitrybond.tech.bak.$(date +%F-%H%M)
+            
+            # Create temp directory for upload
+            mkdir -p /srv/www/tmp-upload
+            
+      - name: Upload build artifacts
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "apps/website/dist/*"
+          target: "/srv/www/tmp-upload/"
+          strip_components: 1
+          
+      - name: Finalize deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            # Atomically swap content
+            sudo rsync -a --delete /srv/www/tmp-upload/ /srv/www/dmitrybond.tech/
+            
+            # Set proper ownership and permissions
+            sudo chown -R www-data:www-data /srv/www/dmitrybond.tech
+            sudo chmod -R 755 /srv/www/dmitrybond.tech
+            
+            # Clean up temp directory
+            rm -rf /srv/www/tmp-upload
+            
+            # Restart Caddy to pick up any config changes
+            sudo systemctl reload caddy

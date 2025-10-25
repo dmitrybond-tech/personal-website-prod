@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
+
+const locale = 'en';
+---
+
+<BaseLayout title="Page Not Found" lang={locale}>
+  <Navbar locale={locale} />
+  
+  <main class="cv-container">
+    <div class="cv-root">
+      <div class="text-center py-16">
+        <h1 class="text-6xl font-bold text-gray-300 mb-4">404</h1>
+        <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-4">Page Not Found</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+          The page you're looking for doesn't exist or has been moved.
+        </p>
+        <div class="space-x-4">
+          <a href="/en" class="ui-button ui-button--primary">
+            Go Home
+          </a>
+          <a href="/en/blog" class="ui-button ui-button--secondary">
+            Browse Blog
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

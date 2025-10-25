@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
+
+const locale = 'ru';
+---
+
+<BaseLayout title="Страница не найдена" lang={locale}>
+  <Navbar locale={locale} />
+  
+  <main class="cv-container">
+    <div class="cv-root">
+      <div class="text-center py-16">
+        <h1 class="text-6xl font-bold text-gray-300 mb-4">404</h1>
+        <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-4">Страница не найдена</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+          Запрашиваемая страница не существует или была перемещена.
+        </p>
+        <div class="space-x-4">
+          <a href="/ru" class="ui-button ui-button--primary">
+            На главную
+          </a>
+          <a href="/ru/blog" class="ui-button ui-button--secondary">
+            Читать блог
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

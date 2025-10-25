@@ -1,0 +1,422 @@
+# SSG Migration Unified Diff
+
+## Modified Files
+
+### apps/website/astro.config.ts
+```diff
+-import { defineConfig } from 'astro/config';
+-import node from '@astrojs/node';
++import { defineConfig } from 'astro/config';
+ import react from '@astrojs/react';
+ import auth from 'auth-astro';
+ import tailwindcss from '@tailwindcss/vite';
+ import { fileURLToPath } from 'node:url';
+ import { config as loadEnv } from 'dotenv';
+ import path from 'node:path';
+
+ export default defineConfig({
+   site: process.env.PUBLIC_SITE_URL || 'http://localhost:4321',
+-  output: 'server',
+-  adapter: node({ mode: 'standalone' }),
++  output: 'static',
+   devToolbar: { enabled: false },
+   server: { 
+     port: 4321, 
+     host: true,
+   },
+```
+
+### apps/website/src/pages/en/legal/[slug].astro
+```diff
+ const locale = 'en';
+ const { doc } = Astro.props;
++
++// Null-guard to prevent crashes
++if (!doc) {
++  return new Response('Not found', { status: 404 });
++}
++
+ const { Content } = await doc.render();
+```
+
+### apps/website/src/pages/ru/legal/[slug].astro
+```diff
+ const locale = 'ru';
+ const { doc } = Astro.props;
++
++// Null-guard to prevent crashes
++if (!doc) {
++  return new Response('Not found', { status: 404 });
++}
++
+ const { Content } = await doc.render();
+```
+
+## New Files
+
+### apps/website/src/pages/en/404.astro
+```astro
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
+
+const locale = 'en';
+---
+
+<BaseLayout title="Page Not Found" lang={locale}>
+  <Navbar locale={locale} />
+  
+  <main class="cv-container">
+    <div class="cv-root">
+      <div class="text-center py-16">
+        <h1 class="text-6xl font-bold text-gray-300 mb-4">404</h1>
+        <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-4">Page Not Found</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+          The page you're looking for doesn't exist or has been moved.
+        </p>
+        <div class="space-x-4">
+          <a href="/en" class="ui-button ui-button--primary">
+            Go Home
+          </a>
+          <a href="/en/blog" class="ui-button ui-button--secondary">
+            Browse Blog
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+```
+
+### apps/website/src/pages/ru/404.astro
+```astro
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '@app/widgets/navbar/ui/Navbar.astro';
+
+const locale = 'ru';
+---
+
+<BaseLayout title="Страница не найдена" lang={locale}>
+  <Navbar locale={locale} />
+  
+  <main class="cv-container">
+    <div class="cv-root">
+      <div class="text-center py-16">
+        <h1 class="text-6xl font-bold text-gray-300 mb-4">404</h1>
+        <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-4">Страница не найдена</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+          Запрашиваемая страница не существует или была перемещена.
+        </p>
+        <div class="space-x-4">
+          <a href="/ru" class="ui-button ui-button--primary">
+            На главную
+          </a>
+          <a href="/ru/blog" class="ui-button ui-button--secondary">
+            Читать блог
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+```
+
+### infra/caddy/Caddyfile.ssg.example
+```caddyfile
+{
+    email dima@dmitrybond.tech
+    order encode after route
+}
+
+dmitrybond.tech, www.dmitrybond.tech {
+    encode gzip
+
+    log {
+        output file /var/log/caddy/dmitrybond.access.log
+        format json
+    }
+
+    header Alt-Svc "clear"
+    header -Alt-Svc
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    }
+
+    @root path /
+    redir @root /en 308
+
+    root * /srv/www/dmitrybond.tech
+
+    handle_path /_astro/* {
+        root * /srv/www/dmitrybond.tech/_astro
+        header Cache-Control "public, max-age=31536000, immutable"
+        file_server {
+            precompressed br gzip
+        }
+    }
+
+    @hasfile file {
+        try_files {path} {path}/ {path}.html {path}/index.html
+    }
+    handle @hasfile {
+        file_server
+    }
+
+    handle {
+        rewrite * /en/404.html
+        file_server
+    }
+}
+
+mail.dmitrybond.tech, sogo.dmitrybond.tech, rspamd.dmitrybond.tech, autodiscover.dmitrybond.tech, autoconfig.dmitrybond.tech {
+    encode gzip
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+    }
+    reverse_proxy 127.0.0.1:8080
+}
+```
+
+### .github/workflows/deploy-ssg.yml
+```yaml
+name: Deploy SSG to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+          cache: 'npm'
+          
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: '9.12.0'
+          
+      - name: Install dependencies
+        run: |
+          cd apps/website
+          pnpm install --frozen-lockfile
+          
+      - name: Build website
+        run: |
+          cd apps/website
+          pnpm run build
+          
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            # Create backup
+            sudo cp -a /srv/www/dmitrybond.tech /srv/www/dmitrybond.tech.bak.$(date +%F-%H%M)
+            
+            # Create temp directory for upload
+            mkdir -p /srv/www/tmp-upload
+            
+      - name: Upload build artifacts
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "apps/website/dist/*"
+          target: "/srv/www/tmp-upload/"
+          strip_components: 1
+          
+      - name: Finalize deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            # Atomically swap content
+            sudo rsync -a --delete /srv/www/tmp-upload/ /srv/www/dmitrybond.tech/
+            
+            # Set proper ownership and permissions
+            sudo chown -R www-data:www-data /srv/www/dmitrybond.tech
+            sudo chmod -R 755 /srv/www/dmitrybond.tech
+            
+            # Clean up temp directory
+            rm -rf /srv/www/tmp-upload
+            
+            # Restart Caddy to pick up any config changes
+            sudo systemctl reload caddy
+```
+
+### scripts/deploy-ssg.ps1
+```powershell
+# PowerShell script for local SSG deployment
+# Usage: .\scripts\deploy-ssg.ps1 -Host "your-server.com" -User "deploy" -KeyPath "C:\path\to\key"
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$Host,
+    
+    [Parameter(Mandatory=$true)]
+    [string]$User,
+    
+    [Parameter(Mandatory=$true)]
+    [string]$KeyPath,
+    
+    [string]$RemotePath = "/srv/www/dmitrybond.tech"
+)
+
+Write-Host "🚀 Starting SSG deployment..." -ForegroundColor Green
+
+# Build the website
+Write-Host "📦 Building website..." -ForegroundColor Yellow
+Set-Location "apps/website"
+npm run build
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Build failed!"
+    exit 1
+}
+Set-Location "../.."
+
+# Create backup on server
+Write-Host "💾 Creating backup..." -ForegroundColor Yellow
+$backupName = "dmitrybond.tech.bak.$(Get-Date -Format 'yyyy-MM-dd-HHmm')"
+ssh -i $KeyPath $User@$Host "sudo cp -a $RemotePath $RemotePath.$backupName"
+
+# Create temp directory
+Write-Host "📁 Preparing upload directory..." -ForegroundColor Yellow
+ssh -i $KeyPath $User@$Host "mkdir -p /srv/www/tmp-upload"
+
+# Upload build artifacts
+Write-Host "⬆️ Uploading files..." -ForegroundColor Yellow
+scp -i $KeyPath -r "apps/website/dist/*" "$User@$Host`:/srv/www/tmp-upload/"
+
+# Finalize deployment
+Write-Host "🔄 Finalizing deployment..." -ForegroundColor Yellow
+ssh -i $KeyPath $User@$Host @"
+sudo rsync -a --delete /srv/www/tmp-upload/ $RemotePath/
+sudo chown -R www-data:www-data $RemotePath
+sudo chmod -R 755 $RemotePath
+rm -rf /srv/www/tmp-upload
+sudo systemctl reload caddy
+"@
+
+Write-Host "✅ Deployment completed successfully!" -ForegroundColor Green
+Write-Host "🌐 Website should be available at https://dmitrybond.tech" -ForegroundColor Cyan
+```
+
+### scripts/verify-ssg.ps1
+```powershell
+# PowerShell script for SSG deployment verification
+# Usage: .\scripts\verify-ssg.ps1
+
+param(
+    [string]$BaseUrl = "https://dmitrybond.tech"
+)
+
+Write-Host "🔍 Verifying SSG deployment..." -ForegroundColor Green
+
+$tests = @(
+    @{
+        Name = "Root Redirect"
+        Url = $BaseUrl
+        ExpectedStatus = 308
+        Description = "Root should redirect to /en"
+    },
+    @{
+        Name = "English Homepage"
+        Url = "$BaseUrl/en"
+        ExpectedStatus = 200
+        Description = "English homepage should load"
+    },
+    @{
+        Name = "Russian Homepage"
+        Url = "$BaseUrl/ru"
+        ExpectedStatus = 200
+        Description = "Russian homepage should load"
+    },
+    @{
+        Name = "About Page"
+        Url = "$BaseUrl/en/about"
+        ExpectedStatus = 200
+        Description = "About page should load"
+    },
+    @{
+        Name = "Legal Page"
+        Url = "$BaseUrl/en/legal/privacy-policy"
+        ExpectedStatus = 200
+        Description = "Legal page should load"
+    },
+    @{
+        Name = "Blog Page"
+        Url = "$BaseUrl/en/blog"
+        ExpectedStatus = 200
+        Description = "Blog page should load"
+    },
+    @{
+        Name = "404 Page"
+        Url = "$BaseUrl/en/nonexistent-page"
+        ExpectedStatus = 404
+        Description = "404 page should be served"
+    }
+)
+
+$passed = 0
+$failed = 0
+
+foreach ($test in $tests) {
+    Write-Host "Testing: $($test.Name)" -ForegroundColor Yellow
+    
+    try {
+        $response = Invoke-WebRequest -Uri $test.Url -Method Head -UseBasicParsing -TimeoutSec 10
+        
+        if ($response.StatusCode -eq $test.ExpectedStatus) {
+            Write-Host "✅ PASS: $($test.Description)" -ForegroundColor Green
+            $passed++
+        } else {
+            Write-Host "❌ FAIL: $($test.Description) - Expected $($test.ExpectedStatus), got $($response.StatusCode)" -ForegroundColor Red
+            $failed++
+        }
+    } catch {
+        Write-Host "❌ ERROR: $($test.Description) - $($_.Exception.Message)" -ForegroundColor Red
+        $failed++
+    }
+}
+
+Write-Host "`n📊 Test Results:" -ForegroundColor Cyan
+Write-Host "✅ Passed: $passed" -ForegroundColor Green
+Write-Host "❌ Failed: $failed" -ForegroundColor Red
+
+if ($failed -eq 0) {
+    Write-Host "`n🎉 All tests passed! SSG deployment is working correctly." -ForegroundColor Green
+} else {
+    Write-Host "`n⚠️ Some tests failed. Please check the deployment." -ForegroundColor Yellow
+    exit 1
+}
+```
+
+### DEPLOYMENT_SSG.md
+[Comprehensive deployment guide with build process, deployment procedures, rollback instructions, and troubleshooting]
+
+### CHANGELOG.md
+[Detailed changelog documenting all changes made during the SSG migration]

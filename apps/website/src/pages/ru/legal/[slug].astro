@@ -13,6 +13,12 @@ export async function getStaticPaths() {
 
 const locale = 'ru';
 const { doc } = Astro.props;
+
+// Null-guard to prevent crashes
+if (!doc) {
+  return new Response('Not found', { status: 404 });
+}
+
 const { Content } = await doc.render();
 ---
 
