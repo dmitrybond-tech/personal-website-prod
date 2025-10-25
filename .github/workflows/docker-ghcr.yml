@@ -3,18 +3,6 @@ name: Build and Push SSR to GHCR
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - "apps/website/**"
-      - "package*.json"
-      - "pnpm-lock.yaml"
-      - "yarn.lock"
-      - "package-lock.json"
-      - ".github/workflows/**"
-      - "env/**"
-      - "infra/**"
-      - "Caddyfile*"
-      - "Dockerfile"
-      - "apps/website/Dockerfile"
   workflow_dispatch: {}
 
 concurrency:
