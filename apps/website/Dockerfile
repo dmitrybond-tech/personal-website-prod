@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.5
 # -------- build stage --------
-FROM node:22-alpine AS builder
+FROM node:18-alpine AS builder
 
 # Install toolchain for native modules and common libs for canvas/sharp
 RUN apk add --no-cache --virtual .build-deps python3 make g++ libc6-compat git \
@@ -70,7 +70,7 @@ RUN apk add --no-cache file >/dev/null 2>&1 || true; \
 RUN node -e "const {readdirSync} = require('fs'); console.log('SERVER:', readdirSync('/app/apps/website/dist/server')); console.log('CLIENT:', readdirSync('/app/apps/website/dist/client')); console.log('UPLOADS:', readdirSync('/app/apps/website/dist/client/uploads'));"
     
 # -------- runtime stage --------
-FROM node:22-alpine AS runner
+FROM node:18-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3000
