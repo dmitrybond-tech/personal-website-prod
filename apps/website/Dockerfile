@@ -101,8 +101,16 @@ RUN set -eux; \
 ## 3) Build with fallback
 RUN set -eux; \
   echo "=== STARTING BUILD ==="; \
-  npm run --workspace apps/website build \
-  || (echo "Workspace build failed → app-local build" && cd apps/website && npm run build); \
+  (npm run --workspace apps/website build 2>&1 | tee /tmp/build.log) || { \
+    echo "Workspace build failed, checking error..."; \
+    cat /tmp/build.log; \
+    echo "Falling back to app-local build"; \
+    cd apps/website && npm run build 2>&1 | tee /tmp/build-app.log || { \
+      echo "App-local build also failed"; \
+      cat /tmp/build-app.log; \
+      exit 1; \
+    }; \
+  }; \
   echo "=== BUILD COMPLETE ==="
 
 # Verify SSR build output (check entry.mjs exists)
