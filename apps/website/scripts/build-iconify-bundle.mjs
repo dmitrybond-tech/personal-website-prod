@@ -24,14 +24,21 @@ function resolveFromWorkspaces(spec) {
   const packageName = spec.split('/')[0] + '/' + spec.split('/')[1];
   const fileName = spec.split('/').slice(2).join('/');
   
+  console.log(`[iconify] Looking for ${spec} (package: ${packageName}, file: ${fileName})`);
+  console.log(`[iconify] Candidates: ${candidates.join(', ')}`);
+  
   for (const p of candidates) {
     try {
       const fullPath = join(p, packageName, fileName);
       if (statSync(fullPath).isFile()) {
-        console.log(`[iconify] resolved ${spec} from ${fullPath}`);
+        console.log(`[iconify] ✓ resolved ${spec} from ${fullPath}`);
         return fullPath;
+      } else {
+        console.log(`[iconify] ✗ not found at ${fullPath}`);
       }
-    } catch {}
+    } catch (err) {
+      console.log(`[iconify] ✗ error checking ${p}: ${err.message}`);
+    }
   }
   return null;
 }
