@@ -13,41 +13,67 @@ WORKDIR /app
 # Guarantee correct environment for iconify script in monorepo
 ENV NODE_PATH=/app/node_modules
 
-# Accept and export build args for PUBLIC_* variables
-ARG PUBLIC_SITE_URL=""
-ARG PUBLIC_ENV=""
-ARG PUBLIC_CAL_USERNAME=""
-ARG PUBLIC_CAL_EMBED_LINK=""
-ARG PUBLIC_CAL_EVENTS=""
-ARG PUBLIC_DECAP_CMS_VERSION=""
+# Accept and export build args
+ARG PUBLIC_CAL_USERNAME
+ARG PUBLIC_CAL_EMBED_LINK
+ARG PUBLIC_CAL_EVENTS
+ARG PUBLIC_SITE_URL
+ARG PUBLIC_ENV
+ARG PUBLIC_DECAP_CMS_VERSION
 ARG DEBUG_CAL=0
     
-ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL \
-    PUBLIC_ENV=$PUBLIC_ENV \
-    PUBLIC_CAL_USERNAME=$PUBLIC_CAL_USERNAME \
+ENV PUBLIC_CAL_USERNAME=$PUBLIC_CAL_USERNAME \
     PUBLIC_CAL_EMBED_LINK=$PUBLIC_CAL_EMBED_LINK \
     PUBLIC_CAL_EVENTS=$PUBLIC_CAL_EVENTS \
+    PUBLIC_SITE_URL=$PUBLIC_SITE_URL \
+    PUBLIC_ENV=$PUBLIC_ENV \
     PUBLIC_DECAP_CMS_VERSION=$PUBLIC_DECAP_CMS_VERSION \
     DEBUG_CAL=$DEBUG_CAL
-    
+
 # Copy only manifests first for better caching
 COPY package*.json ./
 COPY apps/website/package*.json ./apps/website/
 
-# Debug: show what we copied
-RUN echo "=== ROOT PACKAGE.JSON ===" && cat package.json && echo "=== WEBSITE PACKAGE.JSON ===" && cat apps/website/package.json
+# Detect and print build environment
+RUN set -eux; \
+  echo "=== BUILD ENVIRONMENT DETECTION ==="; \
+  echo "Node version: $(node -v)"; \
+  echo "NPM version: $(npm -v)"; \
+  echo "Node major: $(node -v | cut -d'.' -f1 | cut -d'v' -f2)"; \
+  if grep -q '"workspaces"' package.json; then \
+    echo "✓ Root workspaces: ENABLED"; \
+    grep '"workspaces"' package.json; \
+  else \
+    echo "✗ Root workspaces: DISABLED"; \
+  fi; \
+  if [ -f package-lock.json ]; then \
+    echo "✓ Root lockfile: EXISTS"; \
+  else \
+    echo "✗ Root lockfile: MISSING"; \
+  fi; \
+  if [ -f apps/website/package-lock.json ]; then \
+    echo "✓ App lockfile: EXISTS"; \
+  else \
+    echo "✗ App lockfile: MISSING"; \
+  fi; \
+  echo "=== APP BUILD SCRIPT ==="; \
+  if grep -q '"build":' apps/website/package.json; then \
+    grep '"build":' apps/website/package.json; \
+  else \
+    echo "⚠ No build script in app package.json"; \
+  fi
 
+# Configure npm registry
 RUN npm config set registry https://registry.npmjs.org
 
-# Workspace-aware install
-# If root has workspaces + lockfile -> install at root, else install in app
+## 1) Preinstall without scripts (cacheable)
 RUN set -eux; \
   if grep -q '"workspaces"' package.json && [ -f package-lock.json ]; then \
-    echo "Using root npm workspaces"; \
-    npm ci --no-audit --no-fund; \
+    echo "=== INSTALL MODE: Root workspaces (no-scripts) ==="; \
+    npm ci --no-audit --no-fund --ignore-scripts || (echo "Root ci failed → fallback to app install" && cd apps/website && npm ci --no-audit --no-fund --ignore-scripts); \
   else \
-    echo "No root workspaces or lockfile, installing in apps/website"; \
-    cd apps/website && npm ci --no-audit --no-fund; \
+    echo "=== INSTALL MODE: App-local (no-scripts) ==="; \
+    cd apps/website && npm ci --no-audit --no-fund --ignore-scripts; \
   fi
 
 # Copy the rest of the repo (needed for public/src)
@@ -56,10 +82,22 @@ COPY . .
 # Debug: show workspace structure
 RUN echo "=== WORKSPACE STRUCTURE ===" && ls -la && echo "=== APPS STRUCTURE ===" && ls -la apps/
 
-# Robust build: try workspace build, fallback to app-local build
-RUN node -v && npm -v; \
+## 2) Rebuild with scripts (after sources are present)
+RUN set -eux; \
+  echo "=== REBUILD WITH SCRIPTS ==="; \
+  npm -v && node -v; \
+  echo "Rebuilding root packages..."; \
+  npm rebuild --foreground-scripts || true; \
+  echo "Rebuilding workspace packages..."; \
+  npm rebuild --workspace apps/website --foreground-scripts || true; \
+  echo "✓ Rebuild complete"
+
+## 3) Build with fallback
+RUN set -eux; \
+  echo "=== STARTING BUILD ==="; \
   npm run --workspace apps/website build \
-  || (echo "Workspace build failed, trying app-local build..." && cd apps/website && npm run build)
+  || (echo "Workspace build failed → app-local build" && cd apps/website && npm run build); \
+  echo "=== BUILD COMPLETE ==="
 
 # Verify SSR build output (check entry.mjs exists)
 RUN if [ ! -f "/app/apps/website/dist/server/entry.mjs" ]; then \
@@ -82,7 +120,7 @@ ARG GIT_SHA=unknown
 LABEL org.opencontainers.image.revision=$GIT_SHA
 ENV APP_BUILD_SHA=$GIT_SHA
     
-# Copy the entire dist (server + client) and node_modules from the apps/website workspace
+# Copy the entire dist (server + client) and node_modules
 COPY --from=builder /app/apps/website/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
     
