@@ -90,7 +90,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: apps/website/Dockerfile
+          file: ./Dockerfile.ssg
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: |
