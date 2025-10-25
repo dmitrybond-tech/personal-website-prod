@@ -111,17 +111,21 @@ RUN set -eux; \
       exit 1; \
     }; \
   }; \
-  echo "=== BUILD COMPLETE ==="
-
-# Verify SSR build output (check entry.mjs exists)
-RUN if [ ! -f "/app/apps/website/dist/server/entry.mjs" ]; then \
+  echo "=== BUILD COMPLETE ==="; \
+  echo "=== CHECKING BUILD OUTPUT ==="; \
+  ls -la /app/apps/website/ || echo "apps/website dir missing"; \
+  ls -la /app/apps/website/dist/ || echo "dist dir missing"; \
+  if [ -d /app/apps/website/dist/server ]; then \
+    echo "=== SERVER STRUCTURE ==="; \
+    ls -la /app/apps/website/dist/server/; \
+  else \
+    echo "=== server/ subdirectory missing ==="; \
+  fi; \
+  if [ ! -f "/app/apps/website/dist/server/entry.mjs" ]; then \
       echo "ERROR: SSR entry.mjs missing. Build failed."; \
       exit 1; \
     fi && \
-    echo "=== SSR BUILD SUCCESS ===" && \
-    ls -la /app/apps/website/dist/ && \
-    echo "=== SERVER STRUCTURE ===" && \
-    ls -la /app/apps/website/dist/server/
+    echo "=== SSR BUILD SUCCESS ==="
     
 # -------- runtime stage --------
 FROM node:18-alpine AS runner
