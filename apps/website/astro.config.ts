@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
+import node from '@astrojs/node';
 import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 import { config as loadEnv } from 'dotenv';
@@ -43,6 +44,9 @@ export default defineConfig({
       redirectToDefaultLocale: false
     }
   },
+  adapter: node({
+    mode: 'standalone'
+  }),
   integrations: [
     react(),
     // OAuth handled by custom API routes
