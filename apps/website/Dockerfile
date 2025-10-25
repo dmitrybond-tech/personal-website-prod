@@ -32,6 +32,7 @@ ENV PUBLIC_CAL_USERNAME=$PUBLIC_CAL_USERNAME \
 
 # Copy only manifests first for better caching
 COPY package*.json ./
+RUN mkdir -p apps/website
 COPY apps/website/package*.json ./apps/website/
 
 # Detect and print build environment
@@ -70,7 +71,12 @@ RUN npm config set registry https://registry.npmjs.org
 RUN set -eux; \
   if grep -q '"workspaces"' package.json && [ -f package-lock.json ]; then \
     echo "=== INSTALL MODE: Root workspaces (no-scripts) ==="; \
-    npm ci --no-audit --no-fund --ignore-scripts || (echo "Root ci failed → fallback to app install" && cd apps/website && npm ci --no-audit --no-fund --ignore-scripts); \
+    npm ci --no-audit --no-fund --ignore-scripts 2>&1 | tee /tmp/install.log || { \
+      echo "Root ci failed, checking error..."; \
+      cat /tmp/install.log; \
+      echo "Falling back to app install"; \
+      cd apps/website && npm ci --no-audit --no-fund --ignore-scripts; \
+    }; \
   else \
     echo "=== INSTALL MODE: App-local (no-scripts) ==="; \
     cd apps/website && npm ci --no-audit --no-fund --ignore-scripts; \
