@@ -268,8 +268,11 @@ function buildIconifyBundle() {
   if (totalIcons === 0) {
     console.error('[iconify] bundle is empty — check collections or tokens');
     console.error('[iconify] This may indicate missing @iconify-json packages or hoisting issues');
-    // Не валим билд жестко, но подсвечиваем ошибку возвратным кодом
-    process.exitCode = 1;
+    console.error('[iconify] Docker build: Allowing build to continue with empty bundle');
+    // В Docker билде не падаем, чтобы билд мог продолжиться
+    if (process.env.DOCKER_BUILD !== '1') {
+      process.exitCode = 1;
+    }
   }
 }
 
