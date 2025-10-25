@@ -96,6 +96,11 @@ RUN set -eux; \
   npm rebuild --foreground-scripts || true; \
   echo "Rebuilding workspace packages..."; \
   npm rebuild --workspace apps/website --foreground-scripts || true; \
+  echo "Checking binaries..." && \
+  ls -la /app/node_modules/.bin/ | grep astro || echo "Astro binary not found in root" && \
+  ls -la /app/apps/website/node_modules/.bin/ | grep astro || echo "Astro binary not found in app" && \
+  echo "If astro binary missing, installing deps again..." && \
+  (cd apps/website && npm install --no-save --ignore-scripts=false || true) && \
   echo "✓ Rebuild complete"
 
 ## 3) Build with fallback
