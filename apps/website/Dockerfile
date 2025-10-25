@@ -100,6 +100,8 @@ RUN set -eux; \
 
 ## 3) Build with fallback
 RUN echo "=== STARTING BUILD ===" && \
+  echo "Checking public assets..." && \
+  ls -la /app/apps/website/public/website-admin/ 2>&1 || echo "public/website-admin not found" && \
   npm run --workspace apps/website build || \
   (echo "Workspace build failed, trying app-local build" && cd apps/website && npm run build) && \
   echo "=== BUILD COMPLETE ==="
