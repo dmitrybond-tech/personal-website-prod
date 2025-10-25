@@ -1,6 +1,5 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
-import auth from 'auth-astro';
 import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 import { config as loadEnv } from 'dotenv';
@@ -46,8 +45,7 @@ export default defineConfig({
   },
   integrations: [
     react(),
-    auth(),
-    // OAuth handled by custom API routes instead of integration
+    // OAuth handled by custom API routes
   ],
   vite: {
     plugins: [

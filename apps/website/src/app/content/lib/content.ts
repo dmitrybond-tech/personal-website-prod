@@ -20,8 +20,12 @@ export async function getBlogBySlug(lang: 'en' | 'ru', slug: string) {
 export async function listLegal(lang: 'en' | 'ru') {
   const legal = await getCollection('legal');
   return legal
-    .filter((doc: CollectionEntry<'legal'>) => doc.data.lang === lang)
-    .sort((a: CollectionEntry<'legal'>, b: CollectionEntry<'legal'>) => b.data.updatedAt.getTime() - a.data.updatedAt.getTime());
+    .filter((doc: CollectionEntry<'legal'>) => doc.data.lang === lang && !doc.data.draft)
+    .sort((a: CollectionEntry<'legal'>, b: CollectionEntry<'legal'>) => {
+      const aTime = a.data.updatedAt ? new Date(a.data.updatedAt).getTime() : 0;
+      const bTime = b.data.updatedAt ? new Date(b.data.updatedAt).getTime() : 0;
+      return bTime - aTime;
+    });
 }
 
 export async function getLegalBySlug(lang: 'en' | 'ru', slug: string) {

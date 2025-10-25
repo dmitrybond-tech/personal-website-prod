@@ -6,7 +6,7 @@ import { getLegalBySlug, listLegal } from '@app/content/lib/content';
 export async function getStaticPaths() {
   const docs = await listLegal('en');
   return docs.map((doc) => ({
-    params: { slug: doc.slug },
+    params: { slug: doc.slug.split('/').pop() },
     props: { doc },
   }));
 }
@@ -29,15 +29,17 @@ const { Content } = await doc.render();
     <article class="cv-root">
       <header class="mb-8">
         <h1 class="text-3xl font-bold mb-4">{doc.data.title}</h1>
-        <div class="flex items-center text-sm text-gray-500 mb-4">
-          <time datetime={doc.data.updatedAt.toISOString()}>
-            Last updated: {doc.data.updatedAt.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
-          </time>
-        </div>
+        {doc.data.updatedAt && (
+          <div class="flex items-center text-sm text-gray-500 mb-4">
+            <time datetime={new Date(doc.data.updatedAt).toISOString()}>
+              Last updated: {new Date(doc.data.updatedAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </time>
+          </div>
+        )}
         {doc.data.summary && (
           <p class="text-lg text-gray-600">{doc.data.summary}</p>
         )}

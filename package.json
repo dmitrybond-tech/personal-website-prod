@@ -20,7 +20,7 @@
     "cms:prodcfg": "node apps/website/scripts/cms-config-swap.mjs prod",
     "prebuild": "node scripts/fetch-decap.mjs",
     "dev": "npm run cms:devcfg && astro dev --host --port 4321 --strictPort",
-    "build": "astro build",
+    "build": "npm --workspace apps/website run build",
     "build:prod": "npm run cms:prodcfg && npm --workspace apps/website run build",
     "deploy:prod": "docker compose -f compose.prod.yml up -d --build",
     "deploy:dev": "docker compose -f compose.dev.yml up -d --build",

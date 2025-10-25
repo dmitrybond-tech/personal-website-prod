@@ -2,6 +2,14 @@
 import { getCollection } from 'astro:content';
 import AppShell from '../../../app/layouts/AppShell.astro';
 
+export async function getStaticPaths() {
+  const entries = await getCollection('posts', ({ id }) => id.startsWith('ru/'));
+  return entries.map((entry) => ({
+    params: { slug: entry.slug.split('/').pop() },
+    props: { entry },
+  }));
+}
+
 const lang = Astro.url.pathname.split('/')[1];
 const { slug } = Astro.params;
 // basename — последняя часть, даже если пришло "ru/hello-world"

@@ -26,15 +26,17 @@ const legalDocs = await listLegal(locale);
             {doc.data.summary && (
               <p class="text-gray-600 mb-3">{doc.data.summary}</p>
             )}
-            <div class="flex items-center text-sm text-gray-500">
-              <time datetime={doc.data.updatedAt.toISOString()}>
-                Last updated: {doc.data.updatedAt.toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </time>
-            </div>
+            {doc.data.updatedAt && (
+              <div class="flex items-center text-sm text-gray-500">
+                <time datetime={new Date(doc.data.updatedAt).toISOString()}>
+                  Last updated: {new Date(doc.data.updatedAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </time>
+              </div>
+            )}
           </article>
         ))}
       </div>
