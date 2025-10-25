@@ -16,23 +16,25 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Copy package files for the website app
-COPY apps/website/package.json apps/website/package-lock.json ./
+# Copy root package files for workspace setup
+COPY package.json package-lock.json ./
+COPY apps/website/package.json ./apps/website/
 
 # Install dependencies with fallback
 RUN npm ci --no-audit --no-fund || npm install --no-audit --no-fund
 
-# Copy source code
-COPY apps/website/ .
+# Copy source code and scripts
+COPY apps/website/ ./apps/website/
+COPY scripts/ ./scripts/
 
-# Build the website
-RUN npm run build
+# Build the website using workspace command
+RUN npm run --workspace apps/website build
 
 # Production stage with Caddy
 FROM caddy:2.8.4-alpine
 
 # Copy built files
-COPY --from=builder /app/dist /usr/share/caddy
+COPY --from=builder /app/apps/website/dist /usr/share/caddy
 
 # Copy Caddy configuration
 COPY infra/caddy/Caddyfile.ssg.example /etc/caddy/Caddyfile
