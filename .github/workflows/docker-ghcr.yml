@@ -6,11 +6,19 @@ on:
     paths:
       - "apps/website/**"
       - "package*.json"
+      - "pnpm-lock.yaml"
+      - "yarn.lock"
+      - "package-lock.json"
       - ".github/workflows/**"
+      - "env/**"
+      - "infra/**"
+      - "Caddyfile*"
+      - "Dockerfile"
+      - "apps/website/Dockerfile"
   workflow_dispatch: {}
 
 concurrency:
-  group: ssr-main-${{ github.ref }}
+  group: site-ssr-${{ github.ref }}
   cancel-in-progress: true
 
 env:
