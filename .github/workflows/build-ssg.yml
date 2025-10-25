@@ -1,8 +1,6 @@
 name: Build SSG Container
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
