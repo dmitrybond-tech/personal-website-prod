@@ -110,22 +110,24 @@ RUN set -eux; \
       cat /tmp/build-app.log; \
       exit 1; \
     }; \
-  }; \
-  echo "=== BUILD COMPLETE ==="; \
-  echo "=== CHECKING BUILD OUTPUT ==="; \
-  ls -la /app/apps/website/ || echo "apps/website dir missing"; \
-  ls -la /app/apps/website/dist/ || echo "dist dir missing"; \
-  if [ -d /app/apps/website/dist/server ]; then \
-    echo "=== SERVER STRUCTURE ==="; \
+  } || exit 1; \
+  echo "=== BUILD COMPLETE ==="
+
+# Check build output (separate RUN to show even if build fails)
+RUN echo "=== CHECKING BUILD OUTPUT ===" && \
+  ls -la /app/apps/website/ || echo "apps/website dir missing" && \
+  ls -la /app/apps/website/dist/ || echo "dist dir missing" && \
+  (if [ -d /app/apps/website/dist/server ]; then \
+    echo "=== SERVER STRUCTURE ===" && \
     ls -la /app/apps/website/dist/server/; \
   else \
     echo "=== server/ subdirectory missing ==="; \
-  fi; \
+  fi) && \
   if [ ! -f "/app/apps/website/dist/server/entry.mjs" ]; then \
-      echo "ERROR: SSR entry.mjs missing. Build failed."; \
-      exit 1; \
-    fi && \
-    echo "=== SSR BUILD SUCCESS ==="
+    echo "ERROR: SSR entry.mjs missing. Build failed."; \
+    exit 1; \
+  fi && \
+  echo "=== SSR BUILD SUCCESS ==="
     
 # -------- runtime stage --------
 FROM node:18-alpine AS runner
