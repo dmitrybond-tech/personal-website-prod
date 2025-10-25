@@ -99,14 +99,17 @@ RUN set -eux; \
   echo "✓ Rebuild complete"
 
 ## 3) Build with fallback
-RUN echo "=== STARTING BUILD ===" && \
+# Note: We skip the iconify bundle failure in Docker by checking DOCKER_BUILD env var in the script
+# The script will create an empty bundle but allow the build to continue
+RUN export DOCKER_BUILD=1 && \
+  echo "=== STARTING BUILD ===" && \
   echo "Checking public assets..." && \
   ls -la /app/apps/website/public/website-admin/ 2>&1 || echo "public/website-admin not found" && \
   echo "Checking @iconify-json packages..." && \
   ls -la /app/node_modules/@iconify-json/ 2>&1 || echo "@iconify-json packages not found in root" && \
   ls -la /app/apps/website/node_modules/@iconify-json/ 2>&1 || echo "@iconify-json packages not found in app" && \
-  DOCKER_BUILD=1 npm run --workspace apps/website build || \
-  (echo "Workspace build failed, trying app-local build" && cd apps/website && DOCKER_BUILD=1 npm run build) && \
+  npm run --workspace apps/website build || \
+  (echo "Workspace build failed, trying app-local build" && cd apps/website && npm run build) && \
   echo "=== BUILD COMPLETE ==="
 
 # Check build output (separate RUN to show even if build fails)
