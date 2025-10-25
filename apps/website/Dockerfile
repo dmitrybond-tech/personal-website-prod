@@ -102,8 +102,8 @@ RUN set -eux; \
 RUN echo "=== STARTING BUILD ===" && \
   echo "Checking public assets..." && \
   ls -la /app/apps/website/public/website-admin/ 2>&1 || echo "public/website-admin not found" && \
-  (cd apps/website && npm run --ignore-scripts build) || \
-  (echo "Workspace build failed, trying app-local build" && cd apps/website && npm run --ignore-scripts build) && \
+  (cd apps/website && npx astro build) || \
+  (echo "Workspace build failed, trying app-local build" && cd apps/website && npx astro build) && \
   echo "=== BUILD COMPLETE ==="
 
 # Check build output (separate RUN to show even if build fails)
