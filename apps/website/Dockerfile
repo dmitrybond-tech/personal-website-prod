@@ -39,8 +39,16 @@ RUN echo "=== ROOT PACKAGE.JSON ===" && cat package.json && echo "=== WEBSITE PA
 
 RUN npm config set registry https://registry.npmjs.org
 
-# Install dependencies with fallback
-RUN npm ci --no-audit --no-fund || (echo "npm ci failed, trying npm install..." && npm install --no-audit --no-fund)
+# Workspace-aware install
+# If root has workspaces + lockfile -> install at root, else install in app
+RUN set -eux; \
+  if grep -q '"workspaces"' package.json && [ -f package-lock.json ]; then \
+    echo "Using root npm workspaces"; \
+    npm ci --no-audit --no-fund; \
+  else \
+    echo "No root workspaces or lockfile, installing in apps/website"; \
+    cd apps/website && npm ci --no-audit --no-fund; \
+  fi
 
 # Copy the rest of the repo (needed for public/src)
 COPY . .
@@ -48,8 +56,10 @@ COPY . .
 # Debug: show workspace structure
 RUN echo "=== WORKSPACE STRUCTURE ===" && ls -la && echo "=== APPS STRUCTURE ===" && ls -la apps/
 
-# Make sure we build the correct workspace with fallback
-RUN npm run --workspace apps/website build || (echo "Workspace build failed, trying direct build..." && cd apps/website && npm run build)
+# Robust build: try workspace build, fallback to app-local build
+RUN node -v && npm -v; \
+  npm run --workspace apps/website build \
+  || (echo "Workspace build failed, trying app-local build..." && cd apps/website && npm run build)
 
 # Verify SSR build output (check entry.mjs exists)
 RUN if [ ! -f "/app/apps/website/dist/server/entry.mjs" ]; then \

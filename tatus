@@ -1,0 +1,55 @@
+[1mdiff --git a/.github/workflows/deploy-preprod.yml b/.github/workflows/deploy-preprod.yml[m
+[1mindex dbbfc68b..dde3c4e2 100644[m
+[1m--- a/.github/workflows/deploy-preprod.yml[m
+[1m+++ b/.github/workflows/deploy-preprod.yml[m
+[36m@@ -1,9 +1,7 @@[m
+ name: Deploy Preprod[m
+ [m
+ on:[m
+[31m-  push:[m
+[31m-    branches: [ main ][m
+[31m-  workflow_dispatch:[m
+[32m+[m[32m  workflow_dispatch: {}[m
+ [m
+ jobs:[m
+   deploy:[m
+[1mdiff --git a/.github/workflows/deploy-ssg.yml b/.github/workflows/deploy-ssg.yml[m
+[1mindex 297ec667..1816556b 100644[m
+[1m--- a/.github/workflows/deploy-ssg.yml[m
+[1m+++ b/.github/workflows/deploy-ssg.yml[m
+[36m@@ -1,9 +1,7 @@[m
+ name: Deploy SSG to Production[m
+ [m
+ on:[m
+[31m-  push:[m
+[31m-    branches: [main][m
+[31m-  workflow_dispatch:[m
+[32m+[m[32m  workflow_dispatch: {}[m
+ [m
+ jobs:[m
+   deploy:[m
+[1mdiff --git a/.github/workflows/docker-ghcr.yml b/.github/workflows/docker-ghcr.yml[m
+[1mindex a8d563c2..ec4f31fa 100644[m
+[1m--- a/.github/workflows/docker-ghcr.yml[m
+[1m+++ b/.github/workflows/docker-ghcr.yml[m
+[36m@@ -6,11 +6,19 @@[m [mon:[m
+     paths:[m
+       - "apps/website/**"[m
+       - "package*.json"[m
+[32m+[m[32m      - "pnpm-lock.yaml"[m
+[32m+[m[32m      - "yarn.lock"[m
+[32m+[m[32m      - "package-lock.json"[m
+       - ".github/workflows/**"[m
+[32m+[m[32m      - "env/**"[m
+[32m+[m[32m      - "infra/**"[m
+[32m+[m[32m      - "Caddyfile*"[m
+[32m+[m[32m      - "Dockerfile"[m
+[32m+[m[32m      - "apps/website/Dockerfile"[m
+   workflow_dispatch: {}[m
+ [m
+ concurrency:[m
+[31m-  group: ssr-main-${{ github.ref }}[m
+[32m+[m[32m  group: site-ssr-${{ github.ref }}[m
+   cancel-in-progress: true[m
+ [m
+ env:[m
