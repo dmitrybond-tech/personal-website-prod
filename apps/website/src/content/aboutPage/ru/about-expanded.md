@@ -32,8 +32,8 @@ sections:
         - name: Humble Guy
       action:
         label: Скачать резюме
-        url: /cv_ru/BondarenkoDmitry_TPM_CV_ru-2.pdf
-        downloadedFileName: BondarenkoDmitry_TPM_CV_ru-2.pdf
+        url: /cv_ru/DmitryBondarenko_TPM_CV_ru.pdf
+        downloadedFileName: DmitryBondarenko_TPM_CV_ru.pdf
       links:
         - label: Telegram
           url: https://t.me/d1mab0nd
@@ -44,7 +44,7 @@ sections:
           icon: simple-icons:linkedin
           color: '#0077b5'
         - label: Портфолио
-          url: https://dmitrybond.tech/
+          url: https://cv.dmitrybond.tech/
           icon: simple-icons:portfolio
           color: '#333333'
   - type: skills
@@ -117,6 +117,28 @@ sections:
       icon: fa6-solid:briefcase
       visible: true
       items:
+        - company: РУСКОМТЕХНОЛОГИИ
+          location: Москва, Россия
+          logo: /uploads/logos/ruscomtech_logo.png
+          website: https://ruscomtech.ru/
+          roles:
+            - title: Delivery Manager
+              period: явн 2026 – настоящее время
+              bullets:
+                - Синхронизация работы кросс-функциональных команд для развития платформы «Ключ-Астром» (аналог Dynatrace) и консолидация данных для принятия управленческих решений.
+                - Ведение пилотных проектов, участие в процессах pre-sale и up-sale, а также обеспечение технической экспертизы для расширения присутствия продукта у заказчиков.
+                - Проектирование регламентов взаимодействия между подразделениями и устранение операционных барьеров для ускорения темпов реализации проектов.
+                - Мониторинг деятельности подразделений, выявление системных дефицитов и внедрение мер по их устранению на уровне всей компании.
+              description: |
+                Управлял онбордингом крупных партнеров и поставкой интеграционных проектов на платформу, консультировал по конфигурации продукта и стратегиям мониторинга.
+              technologies:
+                - Parnter management
+                - Project Management
+                - Onboarding optimization
+                - Delivery management
+              links:
+                - label: Сайт компании
+                  url: https://ruscomtech.ru/
         - company: CloudBlue
           location: Энсхеде, Нидерланды
           logo: /uploads/logos/brand-cloudblue-small-logo-1.png

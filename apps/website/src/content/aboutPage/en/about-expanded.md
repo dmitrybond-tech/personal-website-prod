@@ -31,8 +31,8 @@ sections:
         - name: Humble Guy
       action:
         label: Download CV
-        url: /cv_en/BondarenkoDmitry_TPM_CV_en-2.pdf
-        downloadedFileName: BondarenkoDmitry_TPM_CV_en-2.pdf
+        url: /cv_en/DmitryBondarenko_TPM_CV_en.pdf
+        downloadedFileName: DmitryBondarenko_TPM_CV_en.pdf
       links:
         - label: Telegram
           url: https://t.me/d1mab0nd
@@ -43,7 +43,7 @@ sections:
           icon: simple-icons:linkedin
           color: '#0077b5'
         - label: Portfolio
-          url: https://dmitrybond.tech/
+          url: https://cv.dmitrybond.tech/
           icon: simple-icons:portfolio
           color: '#333333'
   - type: skills
@@ -116,6 +116,29 @@ sections:
       icon: fa6-solid:briefcase
       visible: true
       items:
+        - company: RUSCOMTECHNOLOGY
+          location: Moscow, Russia
+          logo: /uploads/logos/ruscomtech_logo.png
+          website: https://ruscomtech.ru/
+          roles:
+            - title: Delivery Manager
+              period: Jan 2026 – present
+              bullets:
+                - Synchronizing cross-functional teams to drive the development of Kluch-Astrom (Dynatrace alternative) and consolidating project data for executive decision-making.
+                - Leading pilot projects, supporting pre-sale/up-sale initiatives, and providing technical expertise to drive product adoption and expansion.
+                - Designing cross-departmental interaction frameworks and removing operational bottlenecks to accelerate project delivery timelines.
+                - Monitoring business unit performance to identify systemic gaps and implementing corrective actions at the organizational level.
+              description: |
+                Led partner enablement and post-launch support across a cloud-based observability platform. 
+                Managed delivery of integration projects, advised on product configuration and monitoring strategies.
+              technologies:
+                - Delivey Management
+                - Project Management
+                - Observability
+                - APM
+              links:
+                - label: Company Website
+                  url: https://ruscomtech.ru/
         - company: CloudBlue
           location: Enschede, the Netherlands
           logo: /uploads/logos/brand-cloudblue-small-logo-1.png
